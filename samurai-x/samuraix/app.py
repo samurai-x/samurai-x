@@ -14,6 +14,9 @@ from samuraix.screen import Screen
 from samuraix.testfunc import testfunc
 from samuraix.xconstants import CLEANMASK
 
+import logging
+log = logging.getLogger(__name__)
+
 class App(pyglet.event.EventDispatcher):
 
     x_event_map = {
@@ -38,7 +41,7 @@ class App(pyglet.event.EventDispatcher):
         for event in cls.x_event_map.itervalues():
             cls.register_event_type(event)
 
-    def __init__(self):
+    def __init__(self, config={}):
         self.default_root_buttons = [
             (3, 0, testfunc),
             (1, 0, testfunc),
@@ -66,9 +69,7 @@ class App(pyglet.event.EventDispatcher):
 
         while self.running:
             while xlib.XPending(samuraix.display):
-                print "loop middle"
                 while xlib.XPending(samuraix.display):
-                    print "loop inner"
                     xlib.XNextEvent(samuraix.display, byref(ev))
                     self.handle_event(ev)
                 xlib.XSync(samuraix.display, False)
@@ -77,7 +78,7 @@ class App(pyglet.event.EventDispatcher):
         try:
             evname = self.x_event_map[ev.type]
         except KeyError:
-            print "not doing", ev.type
+            log.debug('cant map event %s' % ev.type)
             return 
         self.dispatch_event(evname, ev)
         xlib.XSync(samuraix.display, False)
@@ -88,7 +89,8 @@ class App(pyglet.event.EventDispatcher):
         self.screens = []
 
         for i in range(num_screens):
-            self.screens.append(Screen(i, buttons=self.default_root_buttons))
+            scr = Screen(i, buttons=self.default_root_buttons)
+            self.screens.append(scr)
         
         wa = xlib.XSetWindowAttributes()
         wa.event_mask = ( xlib.SubstructureRedirectMask |      
@@ -98,8 +100,6 @@ class App(pyglet.event.EventDispatcher):
                           xlib.StructureNotifyMask )
         wa.cursor = samuraix.cursors['normal']
 
-        #just do the following for real screens
-        # ( whateva the fsck that means ... )
         for screen in self.screens:
             root = screen.root_window
 
@@ -113,6 +113,7 @@ class App(pyglet.event.EventDispatcher):
                 wa.event_mask)
 
             screen.grab_buttons()
+            screen.grab_keys()
 
     def scan(self):
         wa = xlib.XWindowAttributes()
@@ -125,14 +126,11 @@ class App(pyglet.event.EventDispatcher):
 
         for screen in self.screens:
             root = xlib.XRootWindow(samuraix.display, screen.num)
-            print "root is", root
+            log.debug('root is %s' % root)
             if xlib.XQueryTree(samuraix.display, root, byref(d1), byref(d2), byref(wins), byref(num)):
-                print "wins contents", wins.contents
-                print "found %s windows" % num
+                log.debug('found %s window' % num)
                 for i in range(num.value):
-                    print "found win", wins[i]
-                    if wins[i] == root:
-                        print "we found root!"
+                    log.debug('found window %s' % wins[i])
                     if (xlib.XGetWindowAttributes(samuraix.display, wins[i], byref(wa)) and 
                             not wa.override_redirect and 
                             (wa.map_state == xlib.IsViewable or 
@@ -143,13 +141,12 @@ class App(pyglet.event.EventDispatcher):
 
 
     def manage(self, window, wa, screen):
-        print "managing", window, wa, screen
+        log.debug('managing %s %s %s' % (window, wa, screen))
         client = self.client_class(screen, window, wa)
         self.clients.append(client)
 
     def get_client_by_window(self, win):
         for client in self.clients:
-            print client.window, win, type(client.window), type(win)
             if client.window == win:
                 return client
         return None
@@ -163,9 +160,7 @@ class App(pyglet.event.EventDispatcher):
         x = c_int()
         y = c_int()
 
-        print "press", ev.window, type(ev.window), e.xany.window, type(e.xany.window)
         client = self.get_client_by_window(ev.window)
-        print "found client", client
         if client is not None:
             if CLEANMASK(ev.state) == xlib.NoSymbol and ev.button == xlib.Button1:
                 xlib.XAllowEvents(samuraix.display, xlib.ReplayPointer, xlib.CurrentTime)
@@ -236,8 +231,19 @@ class App(pyglet.event.EventDispatcher):
     def on_expose(self, ev):
         pass
 
-    def on_key_press(self, ev):
-        pass
+    def on_key_press(self, e):
+        x = c_int()
+        y = c_int()
+        d = c_int()
+        dummy = xlib.Window()
+        m = c_uint()
+
+        for scr in self.screens:
+            if (xlib.XQueryPointer(e.xany.display, scr.root_window, byref(dummy), byref(dummy),
+                byref(x), byref(y), byref(d), byref(d), byref(m))):
+                scr.dispatch_event('on_key_press', e.xkey)
+                return 
+        log.warn('got a key press for a screen we dnt know!')
 
     def on_mapping_notify(self, ev):
         pass

@@ -6,7 +6,6 @@ class Cursors(dict):
         try:
             return dict.__getitem__(self, item)
         except KeyError:
-            print item, samuraix.display
             r = self[item] = xlib.XCreateFontCursor(samuraix.display, item)
             return r
 

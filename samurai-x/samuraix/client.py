@@ -1,12 +1,15 @@
 import pyglet
 from pyglet.window.xlib import xlib 
-from ctypes import *
 
+from samuraix.sxctypes import *
 from samuraix.rect import Rect
+from samuraix import xhelpers
 import samuraix
 
 from samuraix.xconstants import BUTTONMASK, MOUSEMASK
 
+import logging
+log = logging.getLogger(__name__)
 
 class Client(pyglet.event.EventDispatcher):
     def __init__(self, screen, window, wa):
@@ -26,7 +29,7 @@ class Client(pyglet.event.EventDispatcher):
                 xlib.PropertyChangeMask | 
                 xlib.EnterWindowMask)
 
-        print "new client with ", self.window, self.geom
+        log.debug("new client with %s %s" % (self.window, self.geom))
 
         self.buttons = [
             (1, xlib.Mod4Mask, self.mousemove),
@@ -53,21 +56,24 @@ class Client(pyglet.event.EventDispatcher):
                 xlib.StructureNotifyMask, cast(byref(ce), POINTER(xlib.XEvent)))
 
     def update_title(self):
-        print "TODO upadte_title"
+        self.title = xhelpers.get_text_property(self.window, samuraix.atoms['_NET_WM_NAME'])
+        if not self.title:
+            self.title = xhelpers.get_text_property(self.window, samuraix.atoms['WM_NAME'])
+        log.debug("title is now %s" % self.title)
     
     def update_size_hints(self):
         print "TODO update_size_hints"
 
     def resize(self, geometry, hints=False):
         if geometry.width <= 0 or geometry.height <= 0:
-            print "too small!"
+            log.debug('not resizing - too small')
             return False
 
         if (geometry.x != self.geom.x or
             geometry.y != self.geom.y or
             geometry.width != self.geom.width or
             geometry.height != self.geom.height):
-            print "doing resize"
+
             wc = xlib.XWindowChanges()
             self.geom.x = wc.x = geometry.x
             self.geom.y = wc.y = geometry.y
@@ -99,16 +105,16 @@ class Client(pyglet.event.EventDispatcher):
         xlib.XUngrabServer(samuraix.display)
         
     def on_button_press(self, ev):
-        print "client button_press", ev
+        log.debug("client button_press %s" % ev)
         for button, modifiers, func in self.buttons:
             if ev.button == button and ev.state == modifiers:
-                print "doing", func
+                log.debug("doing %s" % func)
                 func()
                 return
-        print "no callback found"
+        log.debug("no callback found for event")
 
     def grab_buttons(self):
-        print "grab_buttons", self
+        log.debug("grab_buttons %s", self)
 
         xlib.XGrabButton(samuraix.display, xlib.Button1, 
             xlib.NoSymbol,
@@ -183,13 +189,11 @@ class Client(pyglet.event.EventDispatcher):
                 xlib.SubstructureRedirectMask, byref(ev))
 
             if ev.type == xlib.ButtonRelease:
-                print "release"
                 xlib.XUngrabPointer(samuraix.display, xlib.CurrentTime)
                 return
             elif ev.type == xlib.MotionNotify:
                 geom.x = ox + (ev.xmotion.x - x)
                 geom.y = oy + (ev.xmotion.y - y)
-                print "motion", geom
                 self.resize(geom)
             else:
                 samuraix.app.handle_event(ev)
@@ -236,10 +240,19 @@ class Client(pyglet.event.EventDispatcher):
             else:
                 samuraix.app.handle_event(ev)
                 
-
     def on_enter(self):
-        print "enter", self
+        log.debug("enter %s" % self)
         self.grab_buttons()
+
+    def ban(self):
+        xlib.XUnmapWindow(samuraix.display, self.window)
+        xhelpers.set_window_state(self.window, xlib.IconicState)
+        # title bar unmap here
+
+    def unban(self):
+        xlib.XMapWindow(samuraix.display, self.window)
+        xhelpers.set_window_state(self.window, xlib.NormalState)
+        # titlebar remap here
                 
 
 Client.register_event_type('on_button_press')

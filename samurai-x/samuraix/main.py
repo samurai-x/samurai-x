@@ -11,16 +11,20 @@ import samuraix
 from samuraix.sxctypes import *
 from samuraix import keydefs
 
+import logging
+log = logging.getLogger(__name__)
+
 
 def open_display(displayname=None):
     if displayname is None:
         displayname = os.environ.get('DISPLAY', ':0')
     samuraix.displayname = displayname
 
-    print "connecting to", displayname
+    log.debug("connecting to %s" % displayname)
     samuraix.display = xlib.XOpenDisplay(None)
     if not samuraix.display:
-        raise "Cant connect to xserver"
+        # not sure what this exception should be really...
+        raise RuntimeError("Cant connect to xserver")
 
     xlib.XSynchronize(samuraix.display, True)
 
@@ -52,7 +56,30 @@ def init_cursors():
     samuraix.cursors['resize'] = samuraix.cursors[cursorfont.XC_sizing]
     samuraix.cursors['move'] = samuraix.cursors[cursorfont.XC_fleur]
 
+def configure_logging():
+    logging.basicConfig(level=logging.DEBUG,
+                format='%(asctime)s %(name)s %(levelname)s %(message)s')
+
+
+def load_config():
+    samuraix.config = {
+        'screens': {
+            '0': {
+                'virtual_desktops': [
+                    {'name': 'one'},
+                    {'name': 'two'},
+                    {'name': 'three'},        
+                ],
+            },
+        },
+    }
+
+
 def run(app):
+    configure_logging()
+
+    load_config()
+
     open_display()
     init_atoms()
     get_numlock_mask()
