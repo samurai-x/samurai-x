@@ -1,0 +1,9 @@
+setup.cfg
+setup.py
+samurai_x.egg-info/PKG-INFO
+samurai_x.egg-info/SOURCES.txt
+samurai_x.egg-info/dependency_links.txt
+samurai_x.egg-info/entry_points.txt
+samurai_x.egg-info/not-zip-safe
+samurai_x.egg-info/top_level.txt
+samuraix/__init__.py
