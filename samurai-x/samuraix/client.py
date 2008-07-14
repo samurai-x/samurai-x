@@ -1,6 +1,8 @@
 import pyglet
 from pyglet.window.xlib import xlib 
 
+import weakref
+
 from samuraix.sxctypes import *
 from samuraix.rect import Rect
 from samuraix import xhelpers
@@ -12,6 +14,14 @@ import logging
 log = logging.getLogger(__name__)
 
 class Client(pyglet.event.EventDispatcher):
+
+    all_clients = []
+    window_2_client_map = weakref.WeakValueDictionary()
+
+    @classmethod 
+    def get_by_window(cls, window):
+        return cls.window_2_client_map.get(window)
+
     def __init__(self, screen, window, wa):
         self.screen = screen
         self.window = window
@@ -19,22 +29,29 @@ class Client(pyglet.event.EventDispatcher):
         self.float_geom = self.geom.copy()       
         self.maxed_geom = self.geom.copy()
         self.old_border = wa.border_width
+        self.desktop = screen.active_desktop
 
         self.configure_window()
         self.update_title()
         self.update_size_hints()
+        self.update_wm_hints()
+        self.check_ewmh()
 
         xlib.XSelectInput(samuraix.display, window, 
                 xlib.StructureNotifyMask | 
                 xlib.PropertyChangeMask | 
                 xlib.EnterWindowMask)
 
-        log.debug("new client with %s %s" % (self.window, self.geom))
+        log.info("new client with %s %s" % (self.window, self.geom))
 
         self.buttons = [
             (1, xlib.Mod4Mask, self.mousemove),
             (3, xlib.Mod4Mask, self.mouseresize),
         ]
+
+        self.all_clients.append(self)
+        self.window_2_client_map[self.window] = self
+
 
     def __str__(self):
         return "<Client window=%s geom=%s>" % (self.window, self.geom)
@@ -55,14 +72,94 @@ class Client(pyglet.event.EventDispatcher):
         return xlib.XSendEvent(samuraix.display, self.window, False, 
                 xlib.StructureNotifyMask, cast(byref(ce), POINTER(xlib.XEvent)))
 
+    def check_ewmh(self):
+        format = c_int()
+        real = xlib.Atom()
+        data = c_uchar_p()
+        n = c_ulong()
+        extra = c_ulong()
+
+        #if (xlib.XGetWindowProperty(samuraix.display, self.window, samuraix.atoms['_NET_WM_STATE'],
+        #    0, LONG_NAN, False, xatom.XA_ATOM, byref(real), byref(format), byref(n),
+        #    byref(extra), byref(data)) == xlib.Success):
+        #    state = cast(data, xlib.Atom_p)       
+
     def update_title(self):
         self.title = xhelpers.get_text_property(self.window, samuraix.atoms['_NET_WM_NAME'])
         if not self.title:
             self.title = xhelpers.get_text_property(self.window, samuraix.atoms['WM_NAME'])
-        log.debug("title is now %s" % self.title)
+        log.debug("title of %s is now %s" % (self, self.title))
     
     def update_size_hints(self):
-        print "TODO update_size_hints"
+        msize = c_long()
+        size = xlib.XSizeHints()
+
+        if not xlib.XGetWMNormalHints(samuraix.display, self.window, byref(size), byref(msize)):
+            return 0
+
+        if size.flags & xlib.PBaseSize:
+            self.base_width = size.base_width
+            self.base_height = size.base_height
+        elif size.flags & xlib.PMinSize:
+            self.base_width = size.min_width
+            self.base_height = size.min_height
+        else:
+            self.base_width = 0 
+            self.base_height = 0 
+
+        if size.flags & xlib.PResizeInc:
+            self.inc_width = size.width_inc
+            self.inc_height = size.height_inc
+        else:
+            self.inc_width = 0
+            self.inc_height = 0 
+
+        if size.flags & xlib.PMaxSize:
+            self.max_width = size.max_width
+            self.max_height = size.max_height
+        else:
+            self.max_width = 0 
+            self.max_height = 0
+
+        if size.flags & xlib.PMinSize:
+            self.min_width = size.min_width
+            self.min_height = size.min_height
+        elif size.flags & xlib.PBaseSize:
+            self.min_width = size.base_width
+            self.min_height = size.base_height
+        else:
+            self.min_width = 0 
+            self.min_height = 0
+
+        if size.flags & xlib.PAspect:
+            self.min_aspect_x = size.min_aspect.x
+            self.min_aspect_y = size.min_aspect.y
+            self.max_aspect_x = size.max_aspect.x
+            self.max_aspect_y = size.max_aspect.y
+        else:
+            self.min_aspect_x = 0
+            self.min_aspect_y = 0
+            self.max_aspect_x = 0
+            self.max_aspect_y = 0
+
+        return size.flags
+
+    def update_wm_hints(self):
+        wmhp = xlib.XGetWMHints(samuraix.display, self.window)
+        wmh = wmhp[0]
+        if wmh:
+            self.urgent = wmh.flags & xlib.XUrgencyHint
+            if self.urgent: # and its not the focused window...
+                pass
+                # meant to invalidate that cache and draw titlebar
+            if wmh.flags & xlib.StateHint and wmh.initial_state == xlib.WithdrawnState:
+                self.border_width = 0
+                self.skip = True
+            xlib.XFree(wmhp)
+        
+    def process_ewmh_state_atom(self, client, state, set):
+        if state == samuraix.atoms['_NET_WM_STATE_STICKY']:
+            pass
 
     def resize(self, geometry, hints=False):
         if geometry.width <= 0 or geometry.height <= 0:
@@ -87,11 +184,18 @@ class Client(pyglet.event.EventDispatcher):
             self.configure_window()
 
     def focus(self):
-        pass
+        log.debug('focusing %s' % self)
+        xlib.XSetInputFocus(samuraix.display, self.window, xlib.RevertToPointerRoot, 
+            xlib.CurrentTime)
+        self.stack()
+        self.grab_buttons()
+
+    def stack(self):
+        log.debug('stacking %s' % self)
+        xlib.XRaiseWindow(samuraix.display, self.window)
 
     def remove(self):
-        samuraix.app.clients.remove(self)
-        
+        log.debug('removing %s' % self)
         wc = xlib.XWindowChanges()
 
         wc.border_width = self.old_border
@@ -100,9 +204,11 @@ class Client(pyglet.event.EventDispatcher):
         xlib.XConfigureWindow(samuraix.display, self.window, xlib.CWBorderWidth, byref(wc))
 
         xlib.XUngrabButton(samuraix.display, xlib.AnyButton, xlib.AnyModifier, self.window)
-        # TODO: window_setstate(c->win, WithdrawnState);
+        xhelpers.set_window_state(self.window, xlib.WithdrawnState)
         xlib.XSync(samuraix.display, False)
         xlib.XUngrabServer(samuraix.display)
+
+        self.all_clients.remove(self)
         
     def on_button_press(self, ev):
         log.debug("client button_press %s" % ev)
@@ -245,15 +351,19 @@ class Client(pyglet.event.EventDispatcher):
         self.grab_buttons()
 
     def ban(self):
+        log.debug('banning %s' % self)
         xlib.XUnmapWindow(samuraix.display, self.window)
         xhelpers.set_window_state(self.window, xlib.IconicState)
         # title bar unmap here
 
     def unban(self):
+        log.debug('unbanning %s' % self)
         xlib.XMapWindow(samuraix.display, self.window)
         xhelpers.set_window_state(self.window, xlib.NormalState)
         # titlebar remap here
                 
+    def move_to_desktop(self, desktop):
+        desktop.remove_client
 
 Client.register_event_type('on_button_press')
 Client.register_event_type('on_enter')
