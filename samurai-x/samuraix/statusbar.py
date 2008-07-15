@@ -5,6 +5,9 @@ from samuraix.rect import Rect
 from samuraix.drawcontext import DrawContext
 from samuraix.simple_window import SimpleWindow
 from samuraix.widget import Widget
+from samuraix.sxctypes import *
+
+from samuraix import cairo
 
 
 class Statusbar(Widget):
@@ -34,8 +37,9 @@ class Statusbar(Widget):
         self.context.fillrect(0, 0, self.window.geom.width, self.window.geom.height, 
                 (0.7, 0.0, 0.0))
 
-        self.context.text(10, 10, self.screen.active_desktop.name)
-        self.context.text(self.window.geom.width - 100, 10, "samurai-x 0.1")
+        self.context.text(10, 10, self.screen.active_desktop.name, color=(1.0, 1.0, 1.0))
+        #self.context.text(self.window.geom.width - 100, 10, "samurai-x 0.1")
+        self.context.svg('/usr/share/icons/gnome/scalable/status/audio-volume-muted.svg', width=15, height=15, x=self.window.geom.width - 20)
 
         self.window.refresh_drawable()
 

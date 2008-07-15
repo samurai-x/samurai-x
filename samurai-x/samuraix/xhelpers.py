@@ -103,16 +103,22 @@ def get_numlock_mask():
 
 def setup_xerror():
     log.info('installing x error handler...')
-    def xerror(display, ev):
-        log.debug('xerror %s' % ev)
-        if (ev.error_code == xlib.BadWindow or
-            (ev.error_code == xlib.BadMatch and ev.request_code == xlib.X_SetInputFocus) or
-            (ev.error_code == xlib.BadValue and ev.request_code == xlib.X_KillClient) or
-            (ev.error_code == xlib.BadMatch and ev.request_code == xlib.X_ConfigureWindow)):
-            return 0
-        log.warn('fatal error: request_code=%s error_code=%s' % (ev.request_code, ev.error_code))
-        return xerrorxlib(display, ev)
+    def xerror(display, e):
+        if ev:
+            ev = e[0]
+            log.warn('xerror error_code: %s request_code: %s' % (ev.error_code, ev.request_code))
+        
+        return 0
+
+        #if (ev.error_code == xlib.BadWindow or
+        #    (ev.error_code == xlib.BadMatch and ev.request_code == xlib.X_SetInputFocus) or
+        #    (ev.error_code == xlib.BadValue and ev.request_code == xlib.X_KillClient) or
+        #    (ev.error_code == xlib.BadMatch and ev.request_code == xlib.X_ConfigureWindow)):
+        #    return 0
+        #log.warn('fatal error: request_code=%s error_code=%s' % (ev.request_code, ev.error_code))
+        #return xerrorxlib(display, ev)
 
     c_xerror = xlib.XErrorHandler(xerror)
     xerrorxlib = xlib.XSetErrorHandler(c_xerror)
     xlib.XSync(samuraix.display, False)
+

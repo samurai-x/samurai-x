@@ -15,51 +15,90 @@ from samuraix.sxctypes import *
 from samuraix import xatom
 from samuraix.xhelpers import get_window_state
 from samuraix.client import Client
+from samuraix.rules import Rules
 
 import logging
 log = logging.getLogger(__name__)
 
-def xterm():
-    from subprocess import *
-    pid = Popen(["/usr/bin/xterm"]).pid
+def xterm(screen):
+    from subprocess import Popen
+    pid = Popen(["/usr/bin/gnome-terminal", "--hide-menubar"]).pid
 
 
 class Screen(pyglet.event.EventDispatcher):
 
-    _default_conf = {
+    class ScreenFunc(object):
+        def __init__(self, funcname, *args):
+            self.funcname = funcname
+            self.args = args
+
+        def __call__(self, screen):
+            func = getattr(screen, self.funcname)
+            func(*self.args)
+
+    default_conf = {
         'virtual_desktops': [
             {'name':'one'},
         ],
-        'status_bar': {
-            'position': 'top',
-        }
+        'widgets': [
+            {
+                'name': 'statusbar',
+                'cls': Statusbar,
+            },
+        ],
+        'keys': {
+            (keysymdef.XK_Return, xlib.Mod4Mask): 
+                xterm,
+            (keysymdef.XK_F1, xlib.Mod4Mask): 
+                ScreenFunc('set_active_desktop_by_index', 0),
+            (keysymdef.XK_F2, xlib.Mod4Mask):
+                ScreenFunc('set_active_desktop_by_index', 1),
+            (keysymdef.XK_F3, xlib.Mod4Mask):
+                ScreenFunc('set_active_desktop_by_index', 2),
+            (keysymdef.XK_F4, xlib.Mod4Mask):
+                ScreenFunc('set_active_desktop_by_index', 3),
+            (keysymdef.XK_F5, xlib.Mod4Mask):
+                ScreenFunc('set_active_desktop_by_index', 4),
+            (keysymdef.XK_F6, xlib.Mod4Mask):
+                ScreenFunc('set_active_desktop_by_index', 5),
+            (keysymdef.XK_F7, xlib.Mod4Mask):
+                ScreenFunc('set_active_desktop_by_index', 6),
+            (keysymdef.XK_F8, xlib.Mod4Mask):
+                ScreenFunc('set_active_desktop_by_index', 7),
+            (keysymdef.XK_F9, xlib.Mod4Mask):
+                ScreenFunc('set_active_desktop_by_index', 8),
+            (keysymdef.XK_F10, xlib.Mod4Mask):
+                ScreenFunc('set_active_desktop_by_index', 9),
+            (keysymdef.XK_F11, xlib.Mod4Mask):
+                ScreenFunc('set_active_desktop_by_index', 10),
+            (keysymdef.XK_F12, xlib.Mod4Mask):
+                ScreenFunc('set_active_desktop_by_index', 11),
+        },
+        'buttons': {
+            (3, 0): testfunc,
+            (1, 0): testfunc, 
+        },
     }
 
     client_class = Client
 
-    def __init__(self, num, buttons=None):
+    def __init__(self, num):
         self.num = num
         self.geom = Rect(0, 0, 
                     xlib.XDisplayWidth(samuraix.display, num),
                     xlib.XDisplayHeight(samuraix.display, num))
 
-        self.buttons = () if buttons is None else buttons
-        self.keys = [
-            (keysymdef.XK_Return, xlib.Mod4Mask, xterm),
-            (keysymdef.XK_F1, xlib.Mod4Mask, 
-                functools.partial(self.set_active_desktop_by_name, 'one')),
-            (keysymdef.XK_F2, xlib.Mod4Mask, 
-                functools.partial(self.set_active_desktop_by_name, 'two')),
-            (keysymdef.XK_F3, xlib.Mod4Mask, 
-                functools.partial(self.set_active_desktop_by_name, 'three')),
-        ]
-        
         self.desktops = []
         self.active_desktop = None
 
         self.clients = []
 
-        self.config = self._default_conf.copy()
+        self.config = self.default_conf.copy()
+
+        try:
+            self.config.update(samuraix.config['screens']['default'])
+        except KeyError:
+            log.debug('cant find default screen config')
 
         try:
             self.config.update(samuraix.config['screens'][self.num])
@@ -69,11 +108,12 @@ class Screen(pyglet.event.EventDispatcher):
         for conf_desktop in self.config['virtual_desktops']:
             desktop = Desktop(self, conf_desktop['name'])
             self.desktops.append(desktop)
+            self.dispatch_event('on_desktop_add', desktop)
 
-        self.widgets = []
+        self.load_widgets()
 
-        if self.config['status_bar']['position'] is not None:
-            self.widgets.append(Statusbar(self))
+        #if self.config['status_bar']['position'] is not None:
+        #    self.widgets.append(Statusbar(self))
 
         self.set_active_desktop(self.desktops[0])
 
@@ -98,6 +138,8 @@ class Screen(pyglet.event.EventDispatcher):
 
         self.set_supported_hints()
 
+        self.rules = Rules(self)
+
         self.grab_buttons()
         self.grab_keys()
 
@@ -107,6 +149,11 @@ class Screen(pyglet.event.EventDispatcher):
     def _get_root_window(self):
         return xlib.XRootWindow(samuraix.display, self.num)
     root_window = property(_get_root_window)
+
+    def load_widgets(self):
+        self.widgets = []
+        for widget in self.config['widgets']:
+            self.widgets.append(widget['cls'](self, *widget.get('args', ())))
 
     def set_supported_hints(self):
         atoms = [
@@ -175,9 +222,20 @@ class Screen(pyglet.event.EventDispatcher):
         self.dispatch_event('on_client_add', client)
     
     def on_client_add(self, client):
-        self.active_desktop.add_client(client)
+        log.debug('on_client_add %s %s' % (self, client))
+        if client.desktop is None:
+            self.active_desktop.add_client(client)
+
+    def set_active_desktop_by_index(self, index):
+        try:
+            desktop = self.desktops[index]
+        except ValueError:
+            log.debug('cant switch to desktop %s' % index)
+            return 
+        self.set_active_desktop(desktop)
 
     def set_active_desktop_by_name(self, name):
+        log.debug('set_active_desktop_by_name %s %s' % (self, name))
         for desktop in self.desktops:
             if desktop.name == name:
                 self.set_active_desktop(desktop)
@@ -185,6 +243,7 @@ class Screen(pyglet.event.EventDispatcher):
         raise ValueError(name)
 
     def next_desktop(self):
+        log.debug('next_desktp %s' % self)
         idx = self.desktops.index(self.active_desktop) + 1
         if idx >= len(self.desktops):
             idx = 0 
@@ -202,24 +261,31 @@ class Screen(pyglet.event.EventDispatcher):
         self.dispatch_event('on_desktop_change')
 
     def on_button_press(self, ev):
-        for button, modifiers, func in self.buttons:
-            if ev.button == button and  ev.state == modifiers:
-                func()
+        modifiers = CLEANMASK(ev.state)
+        log.debug('on_button_press %s %s %s' % (self, ev.button, modifiers))
+        try:
+            func = self.config['buttons'][(ev.button, modifiers)]
+        except KeyError:
+            log.debug('no button func found for %s %s' % (ev.button, modifiers))
+        else:
+            func(self)
 
     def on_key_press(self, ev):
         keysym = xlib.XKeycodeToKeysym(samuraix.display, ev.keycode, 0)
-        log.debug('on_key_press %s %s %s' % (self, keysym, ev.keycode))
-        for ks, modifiers, func in self.keys:
-            if ks == keysym and CLEANMASK(modifiers) == CLEANMASK(ev.state):
-                log.debug('doing %s' % func)
-                func()
-                return
-        log.debug('not handler founnd')
+        modifiers = CLEANMASK(ev.state)
+        log.debug('on_key_press %s %s %s' % (self, keysym, modifiers))
+        try:
+            func = self.config['keys'][(keysym, modifiers)]
+        except KeyError:
+            log.debug('no key func found for %s %s' % (keysym, modifiers))
+        else:
+            func(self)
 
     def grab_buttons(self):
         log.debug("grab_buttons %s" % self)
         root = self.root_window
-        for button, mod, cb in self.buttons:
+        self.ungrab_buttons()
+        for button, mod in self.config['buttons'].iterkeys():
             xlib.XGrabButton(samuraix.display, button, 0, 
                 root, False, BUTTONMASK,
                 xlib.GrabModeAsync, xlib.GrabModeSync, xlib.None_, xlib.None_)
@@ -244,7 +310,7 @@ class Screen(pyglet.event.EventDispatcher):
         root = self.root_window
 
         self.ungrab_keys()
-        for keysym, modifiers, func in self.keys:
+        for keysym, modifiers in self.config['keys'].iterkeys():
             kc = xlib.XKeysymToKeycode(samuraix.display, keysym)
             
             xlib.XGrabKey(samuraix.display, kc, 
@@ -266,6 +332,7 @@ class Screen(pyglet.event.EventDispatcher):
 
 Screen.register_event_type('on_button_press')
 Screen.register_event_type('on_key_press')
+Screen.register_event_type('on_desktop_add')
 Screen.register_event_type('on_desktop_change')
 Screen.register_event_type('on_client_add')
 

@@ -8,15 +8,31 @@ from samuraix.rect import Rect
 from samuraix import xhelpers
 import samuraix
 
-from samuraix.xconstants import BUTTONMASK, MOUSEMASK
+from samuraix.xconstants import BUTTONMASK, MOUSEMASK, CLEANMASK
 
 import logging
 log = logging.getLogger(__name__)
 
 class Client(pyglet.event.EventDispatcher):
 
+    class ClientFunc(object):
+        def __init__(self, funcname, *args):
+            self.funcname = funcname
+            self.args = args
+
+        def __call__(self, client):
+            func = getattr(client, self.funcname)
+            func(*self.args)
+
     all_clients = []
     window_2_client_map = weakref.WeakValueDictionary()
+
+    default_config = {
+        'buttons': {
+            (1, xlib.Mod4Mask): ClientFunc('mousemove'),
+            (3, xlib.Mod4Mask): ClientFunc('mouseresize'), 
+        },
+    }
 
     @classmethod 
     def get_by_window(cls, window):
@@ -29,8 +45,10 @@ class Client(pyglet.event.EventDispatcher):
         self.float_geom = self.geom.copy()       
         self.maxed_geom = self.geom.copy()
         self.old_border = wa.border_width
-        self.desktop = screen.active_desktop
+        self.desktop = None
 
+        self.config = self.default_config.copy()
+        
         self.configure_window()
         self.update_title()
         self.update_size_hints()
@@ -44,14 +62,8 @@ class Client(pyglet.event.EventDispatcher):
 
         log.info("new client with %s %s" % (self.window, self.geom))
 
-        self.buttons = [
-            (1, xlib.Mod4Mask, self.mousemove),
-            (3, xlib.Mod4Mask, self.mouseresize),
-        ]
-
         self.all_clients.append(self)
         self.window_2_client_map[self.window] = self
-
 
     def __str__(self):
         return "<Client window=%s geom=%s>" % (self.window, self.geom)
@@ -200,46 +212,55 @@ class Client(pyglet.event.EventDispatcher):
 
         wc.border_width = self.old_border
         
-        xlib.XGrabServer(samuraix.display)
-        xlib.XConfigureWindow(samuraix.display, self.window, xlib.CWBorderWidth, byref(wc))
+        #xlib.XGrabServer(samuraix.display)
+        #xlib.XConfigureWindow(samuraix.display, self.window, xlib.CWBorderWidth, byref(wc))
 
-        xlib.XUngrabButton(samuraix.display, xlib.AnyButton, xlib.AnyModifier, self.window)
-        xhelpers.set_window_state(self.window, xlib.WithdrawnState)
-        xlib.XSync(samuraix.display, False)
-        xlib.XUngrabServer(samuraix.display)
+        #xlib.XUngrabButton(samuraix.display, xlib.AnyButton, xlib.AnyModifier, self.window)
+        #xhelpers.set_window_state(self.window, xlib.WithdrawnState)
+        #xlib.XSync(samuraix.display, False)
+        #xlib.XUngrabServer(samuraix.display)
 
-        self.all_clients.remove(self)
+        try:
+            self.all_clients.remove(self)
+        except ValueError:
+            log.warn('remove bug')
         
     def on_button_press(self, ev):
-        log.debug("client button_press %s" % ev)
-        for button, modifiers, func in self.buttons:
-            if ev.button == button and ev.state == modifiers:
-                log.debug("doing %s" % func)
-                func()
-                return
-        log.debug("no callback found for event")
+        modifiers = CLEANMASK(ev.state)
+        log.debug("client %s button_press %s %s" % (self, ev.button, modifiers))
+        try:
+            func = self.config['buttons'][(ev.button, modifiers)]
+        except KeyError:
+            log.debug("no callback found for event")
+        else:
+            func(self)
 
     def grab_buttons(self):
-        log.debug("grab_buttons %s", self)
+        log.debug("grab_buttons %s %s" % (self, self.window))
 
+        print samuraix.display, bool(samuraix.display), self.window, bool(self.window)
         xlib.XGrabButton(samuraix.display, xlib.Button1, 
             xlib.NoSymbol,
             self.window, False, BUTTONMASK, xlib.GrabModeSync, xlib.GrabModeAsync, 
             xlib.None_, xlib.None_)
+        print 1
         xlib.XGrabButton(samuraix.display, xlib.Button1, 
             xlib.NoSymbol | xlib.LockMask,
             self.window, False, BUTTONMASK, xlib.GrabModeSync, xlib.GrabModeAsync, 
             xlib.None_, xlib.None_)
+        print 1
         xlib.XGrabButton(samuraix.display, xlib.Button1, 
             xlib.NoSymbol | xlib.NumLockMask,
             self.window, False, BUTTONMASK, xlib.GrabModeSync, xlib.GrabModeAsync, 
             xlib.None_, xlib.None_)
+        print 1
         xlib.XGrabButton(samuraix.display, xlib.Button1, 
             xlib.NoSymbol | xlib.NumLockMask | xlib.LockMask,
             self.window, False, BUTTONMASK, xlib.GrabModeSync, xlib.GrabModeAsync, 
             xlib.None_, xlib.None_)
         
-        for button, modifiers, func in self.buttons:
+        print 1
+        for button, modifiers in self.config['buttons'].iterkeys():
             xlib.XGrabButton(samuraix.display, button, 
                 modifiers, 
                 self.window, False, BUTTONMASK, xlib.GrabModeAsync, xlib.GrabModeSync,
@@ -304,13 +325,6 @@ class Client(pyglet.event.EventDispatcher):
             else:
                 samuraix.app.handle_event(ev)
 
-            #elif ev.type == xlib.ConfigureRequest:
-            #    print "configure"
-            #    samuraix.app.handle_event(ev)
-            #elif ev.type == xlib.Expose:
-            #    print "expose"
-            #    samuraix.app.handle_event(ev)
-
     def mouseresize(self):
         ocx = self.geom.x
         ocy = self.geom.y
@@ -332,6 +346,7 @@ class Client(pyglet.event.EventDispatcher):
         geom = self.geom.copy()
 
         while True:
+
             xlib.XMaskEvent(samuraix.display, 
                 MOUSEMASK | xlib.ExposureMask | xlib.SubstructureRedirectMask,
                 byref(ev))
@@ -363,7 +378,10 @@ class Client(pyglet.event.EventDispatcher):
         # titlebar remap here
                 
     def move_to_desktop(self, desktop):
-        desktop.remove_client
+        log.debug('move to desktop %s %s' % (self, desktop))
+        self.desktop.remove_client(self)
+        desktop.add_client(self)
+        
 
 Client.register_event_type('on_button_press')
 Client.register_event_type('on_enter')

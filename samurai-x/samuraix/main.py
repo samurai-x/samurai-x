@@ -27,8 +27,24 @@ def init_cursors():
     samuraix.cursors['move'] = samuraix.cursors[cursorfont.XC_fleur]
 
 def configure_logging():
-    logging.basicConfig(level=logging.DEBUG,
-                format='%(asctime)s %(name)s %(levelname)s %(message)s')
+    #logging.basicConfig(level=logging.DEBUG,
+    #            format='%(asctime)s %(name)s %(levelname)s %(message)s')
+
+    from samuraix.logformatter import FDFormatter
+
+    console = logging.StreamHandler()
+    console.setLevel(logging.DEBUG)
+    formatter = FDFormatter('%(asctime)s %(name)s %(levelname)s %(lineno)d %(message)s')
+    console.setFormatter(formatter)
+    logging.getLogger('').addHandler(console)
+
+    lastlog = logging.FileHandler('lastrun.log', 'w')
+    lastlog.setLevel(logging.DEBUG)
+    formatter = logging.Formatter('%(asctime)s %(name)s %(levelname)s %(message)s')
+    lastlog.setFormatter(formatter)
+    logging.getLogger('').addHandler(lastlog)
+
+    logging.root.setLevel(logging.DEBUG)
 
 
 def load_config():
@@ -51,7 +67,7 @@ def run(app):
 
     xhelpers.open_display()
     xhelpers.check_for_other_wm()
-    #xhelpers.setup_xerror()
+    xhelpers.setup_xerror()
 
     load_config()
 

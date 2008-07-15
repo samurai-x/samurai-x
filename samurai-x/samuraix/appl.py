@@ -2,6 +2,9 @@ import pyglet
 from pyglet.window.xlib import xlib 
 
 import signal
+import functools
+
+import Pyro.core
 
 import samuraix
 from samuraix.xhelpers import get_window_state
@@ -17,15 +20,16 @@ import logging
 log = logging.getLogger(__name__)
 
 
+class PyroHandler(Pyro.core.ObjBase):
+    def __init__(self):
+        Pyro.core.ObjBase.__init__(self)
+    def app(self):
+        return samuraix.app
+    
+
 class App(pyglet.event.EventDispatcher):
 
-
-    def __init__(self, config={}):
-        self.default_root_buttons = [
-            (3, 0, testfunc),
-            (1, 0, testfunc),
-        ]
-
+    def __init__(self):
         self.x_event_map = {
             xlib.ButtonPress:       self.on_button_press,
             xlib.ConfigureRequest:  self.on_configure_request,
@@ -55,6 +59,16 @@ class App(pyglet.event.EventDispatcher):
 
         self.running = False
 
+        #self.init_pyro()
+
+    def init_pyro(self):
+        Pyro.core.initServer()
+        self.pyro_daemon = Pyro.core.Daemon()
+        self.pyro_uri = self.pyro_daemon.connect(PyroHandler(), "samuraix")
+
+        log.info("The daemon runs on port: %s", self.pyro_daemon.port)
+        log.info("The object's uri is: %s", self.pyro_uri)
+
     def run(self):
         log.info('app %s now running...' % self)
 
@@ -66,6 +80,13 @@ class App(pyglet.event.EventDispatcher):
         while self.running:
             # for non blocking use this ..
             #while xlib.XPending(samuraix.display):
+
+            # pyro stuff...
+            #def check():
+            #    return not xlib.XPending(samuraix.display)
+
+            #self.pyro_daemon.requestLoop(condition=check, timeout=0.1)
+
             xlib.XNextEvent(samuraix.display, byref(ev))
             self.handle_event(ev)
             xlib.XSync(samuraix.display, False)
@@ -77,6 +98,9 @@ class App(pyglet.event.EventDispatcher):
 
         for screen in self.screens:
             screen.remove()
+
+        for client in Client.all_clients:
+            client.unban()
 
     def stop(self, *args, **kwargs):
         log.info(' app %s stop' % self)
@@ -98,8 +122,15 @@ class App(pyglet.event.EventDispatcher):
         self.screens = []
 
         for i in range(num_screens):
-            scr = Screen(i, buttons=self.default_root_buttons)
+            scr = Screen(i)
             self.screens.append(scr)
+            self.dispatch_event('on_screen_add', scr)
+            scr.push_handlers(
+                on_client_add=functools.partial(self.dispatch_event, 'on_client_add', scr),
+            )
+
+    def on_client_add(self, screen, client):
+        log.debug('app client add %s %s' % (screen, client))
         
     def scan(self):
         log.info('scanning screens for existing windows...')
@@ -165,17 +196,19 @@ class App(pyglet.event.EventDispatcher):
             xlib.XConfigureWindow(e.xany.display, ev.window, ev.value_mask, byref(wc))
 
     def on_configure_notify(self, ev):
-        pass
+        log.debug('on_configure_notify %s' % ev)
 
     def on_destroy_notify(self, e):
         ev = e.xdestroywindow
         client = Client.get_by_window(ev.window)
+        log.debug('on_destory_notify %s %s' % (ev.window, client))
         if client is not None:
             client.remove()
 
     def on_enter_notify(self, e):
         ev = e.xcrossing
         client = Client.get_by_window(ev.window)
+        log.debug('on_enter_notify %s %s' % (ev.window, client))
         if client:
             client.dispatch_event('on_enter')
         else:
@@ -185,8 +218,8 @@ class App(pyglet.event.EventDispatcher):
                     return 
 
     def on_expose(self, e):
-        log.debug('expose')
         ev = e.xexpose
+        log.debug('expose %s' % ev.window)
         if not ev.count:
             for screen in self.screens:
                 for widget in screen.widgets:
@@ -219,6 +252,8 @@ class App(pyglet.event.EventDispatcher):
         ev = e.xmaprequest
         wa = xlib.XWindowAttributes()
 
+        log.debug('on_map_request %s' % ev.window)
+
         if not xlib.XGetWindowAttributes(e.xany.display, ev.window, byref(wa)):
             log.debug('couldnt get XGetWindowAttributes')
             return 
@@ -237,6 +272,8 @@ class App(pyglet.event.EventDispatcher):
 
     def on_property_notify(self, e):
         ev = e.xproperty
+        log.debug('on_property_notify %s' % ev.atom)
+
         if ev.state == xlib.PropertyDelete:
             return
         client = Client.get_by_window(ev.window)
@@ -256,10 +293,11 @@ class App(pyglet.event.EventDispatcher):
     def on_unmap_notify(self, e):
         ev = e.xunmap
         client = Client.get_by_window(ev.window)
+        log.debug('on_unmap_notify %s %s' % (ev.window, client))
         if (client is not None and 
             ev.event == xlib.XRootWindow(e.xany.display, client.screen.num) and 
             ev.send_event and 
-            window_getstate(client.window) == xlib.NormalState):
+            get_window_state(client.window) == xlib.NormalState):
             client.remove()
 
     def on_client_message(self, e):
@@ -281,7 +319,6 @@ class App(pyglet.event.EventDispatcher):
                 if ev.data.l[2]:
                     client.process_ewmh_state_atom(ev.data.l[2], ev.data.l[0])
                     
-            
-                
 
-
+App.register_event_type('on_screen_add')
+App.register_event_type('on_client_add')

@@ -23,10 +23,17 @@ class Desktop(pyglet.event.EventDispatcher):
     def add_client(self, client):
         log.debug('adding client %s to desktop %s' % (client, self))
         self.clients.append(weakref.ref(client))
+        client.desktop = self
         if client.desktop is self:
             client.unban()
         else:
             client.ban()
+
+    def remove_client(self, client):
+        assert client.desktop is self
+        log.debug('removing client %s from desktop %s' % (client, self))
+        client.desktop = None
+        self.clients.remove(client)
 
     def on_show(self):
         log.info('showing desktop %s' % self)
