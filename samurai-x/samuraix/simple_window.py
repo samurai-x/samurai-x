@@ -19,6 +19,7 @@ class SimpleWindow(object):
                          xlib.LeaveWindowMask | 
                          xlib.StructureNotifyMask |
                          xlib.ButtonPressMask | 
+                         xlib.KeyPressMask | 
                          xlib.ExposureMask)
         wa.override_redirect = 1
         wa.background_pixmap = xlib.ParentRelative

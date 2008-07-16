@@ -104,9 +104,10 @@ def get_numlock_mask():
 def setup_xerror():
     log.info('installing x error handler...')
     def xerror(display, e):
-        if ev:
-            ev = e[0]
-            log.warn('xerror error_code: %s request_code: %s' % (ev.error_code, ev.request_code))
+        return 0
+
+        if e and e[0]:
+            log.warn('xerror error_code: %s request_code: %s' % (e[0].error_code, e[0].request_code))
         
         return 0
 

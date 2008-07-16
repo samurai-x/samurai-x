@@ -25,17 +25,19 @@ class DrawContext(object):
         cairo_destroy(self.cr)
 
     def fillrect(self, x, y, width, height, color):
-        pat = cairo_pattern_create_linear (0.0, 0.0, width, 0.0)
-        cairo_pattern_add_color_stop_rgba (pat, 0.0, 1.0, 0.0, 0.0, 1.0)
-        cairo_pattern_add_color_stop_rgba (pat, width/3, 0.1, 0.0, 0.0, 1.0)
-        cairo_pattern_add_color_stop_rgba (pat, width, 0.0, 0.0, 0.0, 1.0)
-
-
-        #cairo_set_source_rgb(self.cr, color[0], color[1], color[2])
-        cairo_rectangle(self.cr, x, y, width, height)
-        cairo_set_source(self.cr, pat)
-        cairo_fill(self.cr)
-        cairo_pattern_destroy(pat)
+        if False:
+            pat = cairo_pattern_create_linear (0.0, 0.0, width, 0.0)
+            cairo_pattern_add_color_stop_rgba (pat, 0.0, 1.0, 0.0, 0.0, 1.0)
+            cairo_pattern_add_color_stop_rgba (pat, width/3, 0.1, 0.0, 0.0, 1.0)
+            cairo_pattern_add_color_stop_rgba (pat, width, 0.0, 0.0, 0.0, 1.0)
+            cairo_rectangle(self.cr, x, y, width, height)
+            cairo_set_source(self.cr, pat)
+            cairo_fill(self.cr)
+            cairo_pattern_destroy(pat)
+        else:
+            cairo_set_source_rgb(self.cr, color[0], color[1], color[2])
+            cairo_rectangle(self.cr, x, y, width, height)
+            cairo_fill(self.cr)
 
     def text(self, x, y, string, color=(0.0, 0.0, 0.0)):
         cairo_set_source_rgb(self.cr, color[0], color[1], color[2])

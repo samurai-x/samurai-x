@@ -22,10 +22,24 @@ log = logging.getLogger(__name__)
 
 def xterm(screen):
     from subprocess import Popen
-    pid = Popen(["/usr/bin/gnome-terminal", "--hide-menubar"]).pid
+    #pid = Popen(["/usr/bin/gnome-terminal", "--hide-menubar", "~"]).pid
+    pid = Popen(["xterm"]).pid
 
 
-class Screen(pyglet.event.EventDispatcher):
+class SimpleScreen(object):
+    def __init__(self, num):
+        self.num = num
+
+    def __str__(self):
+        return "<Screen num=%s>" % self.num
+
+    def _get_root_window(self):
+        return xlib.XRootWindow(samuraix.display, self.num)
+    root_window = property(_get_root_window)
+
+
+
+class Screen(SimpleScreen, pyglet.event.EventDispatcher):
 
     class ScreenFunc(object):
         def __init__(self, funcname, *args):
@@ -83,7 +97,8 @@ class Screen(pyglet.event.EventDispatcher):
     client_class = Client
 
     def __init__(self, num):
-        self.num = num
+        SimpleScreen.__init__(self, num)
+
         self.geom = Rect(0, 0, 
                     xlib.XDisplayWidth(samuraix.display, num),
                     xlib.XDisplayHeight(samuraix.display, num))
@@ -142,13 +157,6 @@ class Screen(pyglet.event.EventDispatcher):
 
         self.grab_buttons()
         self.grab_keys()
-
-    def __str__(self):
-        return "<Screen num=%s>" % self.num
-
-    def _get_root_window(self):
-        return xlib.XRootWindow(samuraix.display, self.num)
-    root_window = property(_get_root_window)
 
     def load_widgets(self):
         self.widgets = []

@@ -62,7 +62,14 @@ def load_config():
     }
 
 
+def set_process_name(name):
+    libc = CDLL('libc.so.6')
+    libc.prctl(15, name, 0, 0, 0)
+
+
 def run(app):
+    set_process_name('Samurai-X')
+
     configure_logging()
 
     xhelpers.open_display()

@@ -66,7 +66,7 @@ class Client(pyglet.event.EventDispatcher):
         self.window_2_client_map[self.window] = self
 
     def __str__(self):
-        return "<Client window=%s geom=%s>" % (self.window, self.geom)
+        return "<Client window=%s geom=%s title='%s'>" % (self.window, self.geom, self.title)
 
     def configure_window(self):
         ce = xlib.XConfigureEvent()
@@ -212,17 +212,17 @@ class Client(pyglet.event.EventDispatcher):
 
         wc.border_width = self.old_border
         
-        #xlib.XGrabServer(samuraix.display)
-        #xlib.XConfigureWindow(samuraix.display, self.window, xlib.CWBorderWidth, byref(wc))
-
-        #xlib.XUngrabButton(samuraix.display, xlib.AnyButton, xlib.AnyModifier, self.window)
-        #xhelpers.set_window_state(self.window, xlib.WithdrawnState)
-        #xlib.XSync(samuraix.display, False)
-        #xlib.XUngrabServer(samuraix.display)
+        xlib.XGrabServer(samuraix.display)
+        xlib.XConfigureWindow(samuraix.display, self.window, xlib.CWBorderWidth, byref(wc))
+        xlib.XUngrabButton(samuraix.display, xlib.AnyButton, xlib.AnyModifier, self.window)
+        xhelpers.set_window_state(self.window, xlib.WithdrawnState)
+        xlib.XSync(samuraix.display, False)
+        xlib.XUngrabServer(samuraix.display)
 
         try:
             self.all_clients.remove(self)
-        except ValueError:
+            del self.window_2_client_map[self.window]
+        except (ValueError, KeyError):
             log.warn('remove bug')
         
     def on_button_press(self, ev):
@@ -238,28 +238,24 @@ class Client(pyglet.event.EventDispatcher):
     def grab_buttons(self):
         log.debug("grab_buttons %s %s" % (self, self.window))
 
-        print samuraix.display, bool(samuraix.display), self.window, bool(self.window)
+        print samuraix.display.contents, bool(samuraix.display), self.window, bool(self.window)
         xlib.XGrabButton(samuraix.display, xlib.Button1, 
             xlib.NoSymbol,
             self.window, False, BUTTONMASK, xlib.GrabModeSync, xlib.GrabModeAsync, 
             xlib.None_, xlib.None_)
-        print 1
         xlib.XGrabButton(samuraix.display, xlib.Button1, 
             xlib.NoSymbol | xlib.LockMask,
             self.window, False, BUTTONMASK, xlib.GrabModeSync, xlib.GrabModeAsync, 
             xlib.None_, xlib.None_)
-        print 1
         xlib.XGrabButton(samuraix.display, xlib.Button1, 
             xlib.NoSymbol | xlib.NumLockMask,
             self.window, False, BUTTONMASK, xlib.GrabModeSync, xlib.GrabModeAsync, 
             xlib.None_, xlib.None_)
-        print 1
         xlib.XGrabButton(samuraix.display, xlib.Button1, 
             xlib.NoSymbol | xlib.NumLockMask | xlib.LockMask,
             self.window, False, BUTTONMASK, xlib.GrabModeSync, xlib.GrabModeAsync, 
             xlib.None_, xlib.None_)
         
-        print 1
         for button, modifiers in self.config['buttons'].iterkeys():
             xlib.XGrabButton(samuraix.display, button, 
                 modifiers, 

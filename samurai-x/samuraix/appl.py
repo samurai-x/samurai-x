@@ -45,6 +45,9 @@ class App(pyglet.event.EventDispatcher):
             xlib.ClientMessage:     self.on_client_message,
         }
 
+        self.pointer_x = 0
+        self.pointer_y = 0
+
     def init(self):
         log.info('app %s initialising...' % self)
 
@@ -207,9 +210,19 @@ class App(pyglet.event.EventDispatcher):
 
     def on_enter_notify(self, e):
         ev = e.xcrossing
+
+        log.debug(str((ev.mode, ev.x_root, ev.y_root, self.pointer_x, self.pointer_y, ev.x, ev.y)))
+        if (ev.mode != xlib.NotifyNormal or 
+            (ev.x_root == self.pointer_x and ev.y_root == self.pointer_y)):
+            log.debug('skipping on_enter_notify event')
+            return
+
         client = Client.get_by_window(ev.window)
         log.debug('on_enter_notify %s %s' % (ev.window, client))
         if client:
+            self.pointer_x = ev.x_root
+            self.pointer_y = ev.y_root
+
             client.dispatch_event('on_enter')
         else:
             for screen in self.screens:
@@ -295,7 +308,7 @@ class App(pyglet.event.EventDispatcher):
         client = Client.get_by_window(ev.window)
         log.debug('on_unmap_notify %s %s' % (ev.window, client))
         if (client is not None and 
-            ev.event == xlib.XRootWindow(e.xany.display, client.screen.num) and 
+            ev.event == client.screen.root_window and 
             ev.send_event and 
             get_window_state(client.window) == xlib.NormalState):
             client.remove()
@@ -305,15 +318,19 @@ class App(pyglet.event.EventDispatcher):
         self.process_ewmh_message(ev)
 
     def process_ewmh_message(self, ev):
+        log.debug('ewmh message %s' % ev.message_type)
         if ev.message_type == samuraix.atoms['_NET_CURRENT_DESKTOP']:
+            log.debug('_NET_CURRENT_DESKTOP')
             pass
             # change the desktop
         elif ev.message_type == samuraix.atoms['_NET_CLOSE_WINDOW']:
             client = Client.get_by_window(ev.window)
+            log.debug('_NET_CLOSE_WINDOW %s' % client)
             if client:
                 client.kill()
         elif ev.message_type == samuraix.atoms['_NET_WM_STATE']:
             client = Client.get_by_window(ev.window)
+            log.debug('_NET_WM_STATE %s' % client)
             if client:
                 client.process_ewmh_state_atom(ev.data.l[1], ev.data.l[0])
                 if ev.data.l[2]:
