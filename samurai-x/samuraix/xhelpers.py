@@ -101,25 +101,40 @@ def get_numlock_mask():
     xlib.NumLockMask = mask
 
 
+def xerror(display, e):
+    #if e:
+    e = e.contents
+    if e.error_code == xlib.BadWindow:
+        log.debug('BadWindow err')
+        return 0
+
+    if True:
+        buf = c_buffer(1024)
+        xlib.XGetErrorText(display, e.error_code, buf, len(buf))
+        log.warn('X11 error: %s', buf.value)
+        log.warn('   serial: %s', e.serial)
+        log.warn('  request: %s', e.request_code)
+        log.warn('    minor: %s', e.minor_code)
+        log.warn(' resource: %s', e.resourceid)
+
+        import traceback
+        print 'Python stack trace (innermost last):'
+        traceback.print_stack()
+
+    return 0
+
+    #if (ev.error_code == xlib.BadWindow or
+    #    (ev.error_code == xlib.BadMatch and ev.request_code == xlib.X_SetInputFocus) or
+    #    (ev.error_code == xlib.BadValue and ev.request_code == xlib.X_KillClient) or
+    #    (ev.error_code == xlib.BadMatch and ev.request_code == xlib.X_ConfigureWindow)):
+    #    return 0
+    #log.warn('fatal error: request_code=%s error_code=%s' % (ev.request_code, ev.error_code))
+    #return xerrorxlib(display, ev)
+
+xerror_ptr = xlib.XErrorHandler(xerror)
+
 def setup_xerror():
     log.info('installing x error handler...')
-    def xerror(display, e):
-        return 0
-
-        if e and e[0]:
-            log.warn('xerror error_code: %s request_code: %s' % (e[0].error_code, e[0].request_code))
-        
-        return 0
-
-        #if (ev.error_code == xlib.BadWindow or
-        #    (ev.error_code == xlib.BadMatch and ev.request_code == xlib.X_SetInputFocus) or
-        #    (ev.error_code == xlib.BadValue and ev.request_code == xlib.X_KillClient) or
-        #    (ev.error_code == xlib.BadMatch and ev.request_code == xlib.X_ConfigureWindow)):
-        #    return 0
-        #log.warn('fatal error: request_code=%s error_code=%s' % (ev.request_code, ev.error_code))
-        #return xerrorxlib(display, ev)
-
-    c_xerror = xlib.XErrorHandler(xerror)
-    xerrorxlib = xlib.XSetErrorHandler(c_xerror)
+    xlib.XSetErrorHandler(xerror_ptr)
     xlib.XSync(samuraix.display, False)
 

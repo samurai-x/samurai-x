@@ -33,14 +33,19 @@ def configure_logging():
     from samuraix.logformatter import FDFormatter
 
     console = logging.StreamHandler()
-    console.setLevel(logging.DEBUG)
-    formatter = FDFormatter('%(asctime)s %(name)s %(levelname)s %(lineno)d %(message)s')
+    console.setLevel(logging.INFO)
+    # set this to True for color console output
+    if True:
+        formatter_class = FDFormatter
+    else:
+        formatter_class = logging.Formatter
+    formatter = formatter_class('%(asctime)s %(name)s %(levelname)s %(message)s')
     console.setFormatter(formatter)
     logging.getLogger('').addHandler(console)
 
     lastlog = logging.FileHandler('lastrun.log', 'w')
     lastlog.setLevel(logging.DEBUG)
-    formatter = logging.Formatter('%(asctime)s %(name)s %(levelname)s %(message)s')
+    formatter = logging.Formatter('%(asctime)s %(name)s %(levelname)s %(lineno)d %(message)s')
     lastlog.setFormatter(formatter)
     logging.getLogger('').addHandler(lastlog)
 
@@ -73,7 +78,7 @@ def run(app):
     configure_logging()
 
     xhelpers.open_display()
-    xhelpers.check_for_other_wm()
+    #xhelpers.check_for_other_wm()
     xhelpers.setup_xerror()
 
     load_config()
@@ -88,6 +93,8 @@ def run(app):
     log.info('let battle commence...')
     try:
         samuraix.app.run()
+    except Exception, e:
+        log.exception("exception in main loop!")
     finally:
         xhelpers.close_display()
     log.info('done')

@@ -20,11 +20,11 @@ from samuraix.rules import Rules
 import logging
 log = logging.getLogger(__name__)
 
-def xterm(screen):
-    from subprocess import Popen
-    #pid = Popen(["/usr/bin/gnome-terminal", "--hide-menubar", "~"]).pid
-    pid = Popen(["xterm"]).pid
 
+def spawn(cmd, *args):
+    from subprocess import Popen
+    pid = Popen(cmd).pid
+    
 
 class SimpleScreen(object):
     def __init__(self, num):
@@ -41,7 +41,7 @@ class SimpleScreen(object):
 
 class Screen(SimpleScreen, pyglet.event.EventDispatcher):
 
-    class ScreenFunc(object):
+    class screenfunc(object):
         def __init__(self, funcname, *args):
             self.funcname = funcname
             self.args = args
@@ -49,6 +49,15 @@ class Screen(SimpleScreen, pyglet.event.EventDispatcher):
         def __call__(self, screen):
             func = getattr(screen, self.funcname)
             func(*self.args)
+
+    class focusedwinfunc(object):
+        def __init__(self, funcname, *args):
+            self.funcname = funcname
+            self.args = args
+        def __call__(self, screen):
+            if screen.focused_client is not None:
+                func = getattr(screen.focused_client, self.funcname)
+                func(*self.args)
 
     default_conf = {
         'virtual_desktops': [
@@ -62,31 +71,34 @@ class Screen(SimpleScreen, pyglet.event.EventDispatcher):
         ],
         'keys': {
             (keysymdef.XK_Return, xlib.Mod4Mask): 
-                xterm,
-            (keysymdef.XK_F1, xlib.Mod4Mask): 
-                ScreenFunc('set_active_desktop_by_index', 0),
+                functools.partial(spawn, ["xterm"]),
+            (keysymdef.XK_g, xlib.Mod4Mask):
+                functools.partial(spawn, ["gimp"]),
+
             (keysymdef.XK_F2, xlib.Mod4Mask):
-                ScreenFunc('set_active_desktop_by_index', 1),
-            (keysymdef.XK_F3, xlib.Mod4Mask):
-                ScreenFunc('set_active_desktop_by_index', 2),
-            (keysymdef.XK_F4, xlib.Mod4Mask):
-                ScreenFunc('set_active_desktop_by_index', 3),
-            (keysymdef.XK_F5, xlib.Mod4Mask):
-                ScreenFunc('set_active_desktop_by_index', 4),
-            (keysymdef.XK_F6, xlib.Mod4Mask):
-                ScreenFunc('set_active_desktop_by_index', 5),
-            (keysymdef.XK_F7, xlib.Mod4Mask):
-                ScreenFunc('set_active_desktop_by_index', 6),
-            (keysymdef.XK_F8, xlib.Mod4Mask):
-                ScreenFunc('set_active_desktop_by_index', 7),
-            (keysymdef.XK_F9, xlib.Mod4Mask):
-                ScreenFunc('set_active_desktop_by_index', 8),
-            (keysymdef.XK_F10, xlib.Mod4Mask):
-                ScreenFunc('set_active_desktop_by_index', 9),
-            (keysymdef.XK_F11, xlib.Mod4Mask):
-                ScreenFunc('set_active_desktop_by_index', 10),
-            (keysymdef.XK_F12, xlib.Mod4Mask):
-                ScreenFunc('set_active_desktop_by_index', 11),
+                functools.partial(spawn, ["python", "samuraix/desklet.py"]),
+            
+            (keysymdef.XK_1, xlib.Mod4Mask): 
+                screenfunc('set_active_desktop_by_index', 0),
+            (keysymdef.XK_2, xlib.Mod4Mask):
+                screenfunc('set_active_desktop_by_index', 1),
+            (keysymdef.XK_3, xlib.Mod4Mask):
+                screenfunc('set_active_desktop_by_index', 2),
+            (keysymdef.XK_4, xlib.Mod4Mask):
+                screenfunc('set_active_desktop_by_index', 3),
+            (keysymdef.XK_5, xlib.Mod4Mask):
+                screenfunc('set_active_desktop_by_index', 4),
+            (keysymdef.XK_6, xlib.Mod4Mask):
+                screenfunc('set_active_desktop_by_index', 5),
+            (keysymdef.XK_7, xlib.Mod4Mask):
+                screenfunc('set_active_desktop_by_index', 6),
+            (keysymdef.XK_8, xlib.Mod4Mask):
+                screenfunc('set_active_desktop_by_index', 7),
+            (keysymdef.XK_9, xlib.Mod4Mask):
+                screenfunc('set_active_desktop_by_index', 8),
+
+            (keysymdef.XK_m, xlib.Mod4Mask):
+                focusedwinfunc('toggle_maximise'),               
         },
         'buttons': {
             (3, 0): testfunc,
@@ -107,6 +119,7 @@ class Screen(SimpleScreen, pyglet.event.EventDispatcher):
         self.active_desktop = None
 
         self.clients = []
+        self.focused_client = None
 
         self.config = self.default_conf.copy()
 
@@ -126,6 +139,7 @@ class Screen(SimpleScreen, pyglet.event.EventDispatcher):
             self.dispatch_event('on_desktop_add', desktop)
 
         self.load_widgets()
+        self.calculate_workspace()
 
         #if self.config['status_bar']['position'] is not None:
         #    self.widgets.append(Statusbar(self))
@@ -162,6 +176,11 @@ class Screen(SimpleScreen, pyglet.event.EventDispatcher):
         self.widgets = []
         for widget in self.config['widgets']:
             self.widgets.append(widget['cls'](self, *widget.get('args', ())))
+
+    def calculate_workspace(self):
+        g = self.workspace_geom = self.geom.copy()
+        g.y = 15
+        g.height -= 15
 
     def set_supported_hints(self):
         atoms = [
@@ -215,6 +234,7 @@ class Screen(SimpleScreen, pyglet.event.EventDispatcher):
                         (wa.map_state == xlib.IsViewable or 
                          get_window_state(wins[i]) == xlib.IconicState)):
                     self.manage(wins[i], wa)
+                    
         if wins:
             xlib.XFree(wins)
 
@@ -259,6 +279,9 @@ class Screen(SimpleScreen, pyglet.event.EventDispatcher):
 
     def set_active_desktop(self, desktop):
         assert desktop in self.desktops
+        if desktop == self.active_desktop:
+            return 
+
         if self.active_desktop is not None:
             log.debug('hiding desktop %s' % self.active_desktop)
             self.active_desktop.dispatch_event('on_hide')

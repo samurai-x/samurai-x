@@ -1,7 +1,10 @@
 import sys
-sys.path.append('..')
+sys.path.append('.')
 
+import os
 import time
+import functools
+import string
 
 import samuraix
 from samuraix import xhelpers
@@ -9,6 +12,8 @@ from samuraix.rect import Rect
 from samuraix.simple_window import SimpleWindow
 from samuraix.sxctypes import *
 from samuraix.drawcontext import DrawContext
+from samuraix.screen import SimpleScreen
+from samuraix import keysymdef
 
 from pyglet.window.xlib import xlib
 
@@ -18,11 +23,9 @@ log = logging.getLogger(__name__)
 
 class SimpleXApp(object):
 
-    def __init__(self, screen, geom, border_width=1):
+    def __init__(self, screen, geom, border_width=None):
+        self.screen = screen
         self.window = SimpleWindow(screen, geom, border_width)
-        xlib.XMapRaised(samuraix.display, self.window.window)
-
-        self.mapped = False
 
         self.x_event_map = {
             xlib.ButtonPress:       self.on_button_press,
@@ -43,7 +46,7 @@ class SimpleXApp(object):
                         geom.width, geom.height,
                         self.window.drawable)
 
-        self._text = ''
+        xlib.XMapRaised(samuraix.display, self.window.window)
 
     def run(self):
         self.running = True
@@ -52,20 +55,15 @@ class SimpleXApp(object):
 
         then = time.time()
 
+        self.draw()
+
         while self.running:
             #if xlib.XCheckWindowEvent(samuraix.display, self.window.window, 
-            self.draw()
+            xlib.XNextEvent(samuraix.display, byref(e))
+            self.handle_event(e)
 
-            while xlib.XPending(samuraix.display):
-                xlib.XNextEvent(samuraix.display, byref(e))
-                self.handle_event(e)
-
-            now = time.time()
-            d = now-then 
-            if d < 1.0:
-                time.sleep(1.0 - d)
-
-            then = now
+    def stop(self, *args):
+        self.running = False
 
     def handle_event(self, e):
         try:
@@ -81,21 +79,10 @@ class SimpleXApp(object):
         self.window.refresh_drawable()
 
     def draw(self):
-        text = time.strftime("%c")
-        if text == self._text:
-            return 
-
-        self._text = text
-
-        w = self.window.geom.width
-        h = self.window.geom.height
-        self.context.fillrect(0, 0, w, h, (0.7, 0.5, 0.3))
-        self.context.text(10, 10, text)
-        self.window.refresh_drawable()
+        raise NotImplemented()
 
     def on_button_press(self, e):
-        self.running = False
-
+        print "button press"
     def on_configure_request(self, e):
         print "configure request"
     def on_configure_notify(self, e):
@@ -120,16 +107,116 @@ class SimpleXApp(object):
         print "client message"
 
 
-def run():
-    from samuraix.screen import SimpleScreen
+class TimedXApp(SimpleXApp):
 
+    sleep_time = 1.0
+
+    def run(self):
+        self.running = True
+
+        e = xlib.XEvent()
+
+        then = time.time()
+
+        while self.running:
+            self.draw()
+
+            while xlib.XPending(samuraix.display):
+                xlib.XNextEvent(samuraix.display, byref(e))
+                self.handle_event(e)
+
+            now = time.time()
+            d = self.sleep_time - (now-then)
+            if d > 0:
+                time.sleep(d)
+
+            then = now
+
+
+class ClockApp(TimedXApp):
+
+    def __init__(self, screen, geom, border_width=None):
+        TimedXApp.__init__(self, screen, geom, border_width=border_width)
+        self._text = ''
+
+    def draw(self):
+        text = time.strftime("%c")
+        if text == self._text:
+            return 
+
+        self._text = text
+
+        w = self.window.geom.width
+        h = self.window.geom.height
+        self.context.fillrect(0, 0, w, h, (0.7, 0.5, 0.3))
+        self.context.text(10, 10, text)
+        self.window.refresh_drawable()
+
+
+class RunnerApp(SimpleXApp):
+
+    def __init__(self, screen, geom, border_width=None):
+        self.text = ''
+
+        SimpleXApp.__init__(self, screen, geom, border_width=border_width)       
+
+        self.grab_keyboard()
+
+    def grab_keyboard(self):
+        for x in range(1000):
+            if (xlib.XGrabKeyboard(samuraix.display, self.screen.root_window, True, 
+                    xlib.GrabModeAsync, xlib.GrabModeAsync, xlib.CurrentTime) == xlib.GrabSuccess):
+                return
+            time.sleep(0.001)
+        raise "cant grab keyboard!"
+
+    def on_key_press(self, e):
+        ev = e.xkey
+        keysym = xlib.KeySym()
+        buf = c_buffer(32)
+        num = xlib.XLookupString(ev, buf, 32, byref(keysym), None)
+
+        keysym = keysym.value
+        
+        if keysym == keysymdef.XK_Escape:
+            self.stop()
+        elif keysym == keysymdef.XK_Return:
+            self.execute()
+        elif keysym == keysymdef.XK_BackSpace:
+            self.text = self.text[:-1]
+            self.draw()
+        elif buf[0] in string.printable:
+            self.text += buf[0]
+            self.draw()
+
+    def draw(self):
+        w = self.window.geom.width
+        h = self.window.geom.height
+        self.context.fillrect(0, 0, w, h, (0.7, 0.5, 0.3))
+        self.context.text(10, 10, self.text)
+        self.window.refresh_drawable()
+        
+    def execute(self):
+        shell = "/bin/sh"
+        os.execl(shell, shell, "-c", self.text)
+
+
+def run(app_func, nice_inc=15, name=None):
+    from samuraix.main import set_process_name
 
     xhelpers.open_display()
     xhelpers.setup_xerror()
 
     xhelpers.get_numlock_mask()
 
-    simpleapp = SimpleXApp(SimpleScreen(0), Rect(0, 0, 200, 15))
+    os.nice(nice_inc)
+        
+    simpleapp = app_func() #ClockApp(SimpleScreen(0), Rect(0, 0, 200, 15))
+
+    if name is None:
+        name = 'sx.%s' % simpleapp.__class__.__name__
+    set_process_name(name)
+
     try:
         simpleapp.run()   
     finally:
@@ -137,5 +224,5 @@ def run():
 
 
 if __name__ == '__main__':
-    run()
+    run(functools.partial(RunnerApp, SimpleScreen(0), Rect(0, 0, 200, 15)))
 

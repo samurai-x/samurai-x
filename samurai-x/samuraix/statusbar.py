@@ -51,5 +51,3 @@ class Statusbar(Widget):
     def on_desktop_change(self):
         self.dirty = True
 
-
-

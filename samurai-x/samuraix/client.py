@@ -42,10 +42,16 @@ class Client(pyglet.event.EventDispatcher):
         self.screen = screen
         self.window = window
         self.geom = Rect(wa.x, wa.y, wa.width, wa.height)
-        self.float_geom = self.geom.copy()       
+        self.floating_geom = self.geom.copy()       
         self.maxed_geom = self.geom.copy()
         self.old_border = wa.border_width
         self.desktop = None
+        self.border_width = wa.border_width
+
+        self.maximised = False
+        self.minimised = False
+        self.shaded = False
+        self.sticky = False
 
         self.config = self.default_config.copy()
         
@@ -78,7 +84,7 @@ class Client(pyglet.event.EventDispatcher):
         ce.y = self.geom.y
         ce.width = self.geom.width
         ce.height = self.geom.height
-        ce.border_width = 1
+        ce.border_width = self.border_width
         ce.above = xlib.None_
         ce.override_redirect = False
         return xlib.XSendEvent(samuraix.display, self.window, False, 
@@ -188,7 +194,7 @@ class Client(pyglet.event.EventDispatcher):
             self.geom.y = wc.y = geometry.y
             self.geom.width = wc.width = geometry.width
             self.geom.height = wc.height = geometry.height
-            wc.border_width = 1 #self.border_width
+            wc.border_width = self.border_width
 
             xlib.XConfigureWindow(samuraix.display, self.window,
                 xlib.CWX | xlib.CWY | xlib.CWWidth | xlib.CWHeight | xlib.CWBorderWidth,
@@ -201,13 +207,38 @@ class Client(pyglet.event.EventDispatcher):
             xlib.CurrentTime)
         self.stack()
         self.grab_buttons()
+        if self.screen.focused_client is not None:
+            self.screen.focused_client.dispatch_event('on_blur')
+        self.screen.focused_client = self
+        self.dispatch_event('on_focus')
 
     def stack(self):
         log.debug('stacking %s' % self)
         xlib.XRaiseWindow(samuraix.display, self.window)
 
+    def maximise(self):
+        self.maximised = True
+        self.resize(self.screen.workspace_geom)
+
+    def unmaximise(self):
+        self.maximised = False
+        self.resize(self.floating_geom)
+
+    def toggle_maximise(self):
+        if self.maximised:
+            self.unmaximise()
+        else:
+            self.maximise()
+
     def remove(self):
         log.debug('removing %s' % self)
+
+        try:
+            self.all_clients.remove(self)
+            del self.window_2_client_map[self.window]
+        except (ValueError, KeyError):
+            log.warn('remove bug')
+
         wc = xlib.XWindowChanges()
 
         wc.border_width = self.old_border
@@ -219,11 +250,7 @@ class Client(pyglet.event.EventDispatcher):
         xlib.XSync(samuraix.display, False)
         xlib.XUngrabServer(samuraix.display)
 
-        try:
-            self.all_clients.remove(self)
-            del self.window_2_client_map[self.window]
-        except (ValueError, KeyError):
-            log.warn('remove bug')
+        self.dispatch_event('on_removed')
         
     def on_button_press(self, ev):
         modifiers = CLEANMASK(ev.state)
@@ -238,7 +265,6 @@ class Client(pyglet.event.EventDispatcher):
     def grab_buttons(self):
         log.debug("grab_buttons %s %s" % (self, self.window))
 
-        print samuraix.display.contents, bool(samuraix.display), self.window, bool(self.window)
         xlib.XGrabButton(samuraix.display, xlib.Button1, 
             xlib.NoSymbol,
             self.window, False, BUTTONMASK, xlib.GrabModeSync, xlib.GrabModeAsync, 
@@ -335,7 +361,7 @@ class Client(pyglet.event.EventDispatcher):
             return 
 
         xlib.XWarpPointer(samuraix.display, xlib.None_, self.window, 0, 0, 0, 0,
-            self.geom.width + 1 - 1, self.geom.height + 1 - 1)   
+            self.geom.width + self.border_width - 1, self.geom.height + self.border_width - 1)   
 
         ev = xlib.XEvent()
 
@@ -351,8 +377,8 @@ class Client(pyglet.event.EventDispatcher):
                 xlib.XUngrabPointer(samuraix.display, xlib.CurrentTime)
                 return 
             elif ev.type == xlib.MotionNotify:
-                geom.width = max(0, ev.xmotion.x - ocx - 2 * 1 + 1)
-                geom.height = max(0, ev.xmotion.y - ocy - 2 * 1 + 1)
+                geom.width = max(0, ev.xmotion.x - ocx - 2 * self.border_width + 1)
+                geom.height = max(0, ev.xmotion.y - ocy - 2 * self.border_width + 1)
                 self.resize(geom)
             else:
                 samuraix.app.handle_event(ev)
@@ -381,5 +407,8 @@ class Client(pyglet.event.EventDispatcher):
 
 Client.register_event_type('on_button_press')
 Client.register_event_type('on_enter')
+Client.register_event_type('on_focus')
+Client.register_event_type('on_blur')
+Client.register_event_type('on_removed')
 
 

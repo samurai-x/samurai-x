@@ -7,10 +7,10 @@ log = logging.getLogger(__name__)
 
 class SimpleWindow(object):
     
-    def __init__(self, screen, geom, border_width=1):
+    def __init__(self, screen, geom, border_width=None):
         self.screen = screen
         self.geom = geom 
-        self.border_width = border_width
+        self.border_width = border_width or 1
 
         wa = xlib.XSetWindowAttributes()
         wa.event_mask = (xlib.SubstructureRedirectMask |
@@ -27,7 +27,7 @@ class SimpleWindow(object):
         root = screen.root_window
         self.window = xlib.XCreateWindow(samuraix.display, root, 
                             geom.x, geom.y, geom.width, geom.height,
-                            border_width,
+                            self.border_width,
                             xlib.XDefaultDepth(samuraix.display, screen.num),
                             xlib.CopyFromParent,
                             xlib.XDefaultVisual(samuraix.display, screen.num),

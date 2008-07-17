@@ -4,7 +4,7 @@ from pyglet.window.xlib import xlib
 import signal
 import functools
 
-import Pyro.core
+#import Pyro.core
 
 import samuraix
 from samuraix.xhelpers import get_window_state
@@ -20,11 +20,11 @@ import logging
 log = logging.getLogger(__name__)
 
 
-class PyroHandler(Pyro.core.ObjBase):
-    def __init__(self):
-        Pyro.core.ObjBase.__init__(self)
-    def app(self):
-        return samuraix.app
+#class PyroHandler(Pyro.core.ObjBase):
+#    def __init__(self):
+#        Pyro.core.ObjBase.__init__(self)
+#    def app(self):
+#        return samuraix.app
     
 
 class App(pyglet.event.EventDispatcher):
@@ -151,7 +151,7 @@ class App(pyglet.event.EventDispatcher):
 
         client = Client.get_by_window(ev.window)
         if client is not None:
-            client.focus()
+            client.desktop.focus_client(client)
             if CLEANMASK(ev.state) == xlib.NoSymbol and ev.button == xlib.Button1:
                 xlib.XAllowEvents(samuraix.display, xlib.ReplayPointer, xlib.CurrentTime)
                 client.grab_buttons()

@@ -2,8 +2,8 @@ import logging
 
 class FDFormatter(logging.Formatter):
     error_colors = {
-        logging.DEBUG: '[1;36m',
-        logging.INFO: '[1;32m',
+        logging.DEBUG: '[0;36m',
+        logging.INFO: '[0;32m',
         logging.WARN: '[1;33m',
         logging.ERROR: '[1;31m',
     }
