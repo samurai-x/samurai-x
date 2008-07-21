@@ -1,10 +1,10 @@
 Metadata-Version: 1.0
 Name: samurai-x
-Version: 0.1dev
+Version: 0.1dev-r8
 Summary: a simple window manager written in python
 Home-page: http://code.google.com/p/samurai-x
 Author: dunk fordyce
 Author-email: dunkfordyce@gmail.com
 License: MIT
-Description: UNKNOWN
+Description: 
 Platform: UNKNOWN

@@ -7,10 +7,12 @@ log = logging.getLogger(__name__)
 
 class SimpleWindow(object):
     
-    def __init__(self, screen, geom, border_width=None):
+    def __init__(self, screen, geom, border_width=0):
         self.screen = screen
         self.geom = geom 
-        self.border_width = border_width or 1
+        if border_width is None:
+            border_width = 1
+        self.border_width = border_width
 
         wa = xlib.XSetWindowAttributes()
         wa.event_mask = (xlib.SubstructureRedirectMask |
@@ -21,6 +23,7 @@ class SimpleWindow(object):
                          xlib.ButtonPressMask | 
                          xlib.KeyPressMask | 
                          xlib.ExposureMask)
+
         wa.override_redirect = 1
         wa.background_pixmap = xlib.ParentRelative
 

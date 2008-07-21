@@ -29,6 +29,8 @@ log = logging.getLogger(__name__)
 
 class App(pyglet.event.EventDispatcher):
 
+    screen_class = Screen
+
     def __init__(self):
         self.x_event_map = {
             xlib.ButtonPress:       self.on_button_press,
@@ -125,11 +127,12 @@ class App(pyglet.event.EventDispatcher):
         self.screens = []
 
         for i in range(num_screens):
-            scr = Screen(i)
+            scr = self.screen_class(i)
             self.screens.append(scr)
             self.dispatch_event('on_screen_add', scr)
             scr.push_handlers(
                 on_client_add=functools.partial(self.dispatch_event, 'on_client_add', scr),
+                #on_client_remove=functools.partial(self.dispatch_event, 'on_client_remove', scr),
             )
 
     def on_client_add(self, screen, client):
@@ -239,6 +242,11 @@ class App(pyglet.event.EventDispatcher):
                     if widget.test_window(ev.window):
                         widget.refresh()
                         return
+            for client in Client.all_clients:
+                for decoration in client.decorations:
+                    if decoration.window.window == ev.window:
+                        decoration.refresh()
+                        return 
 
     def on_key_press(self, e):
         x = c_int()
@@ -281,7 +289,8 @@ class App(pyglet.event.EventDispatcher):
                         addressof(xlib.XScreenOfDisplay(e.xany.display, screen.num).contents)):
                     screen.manage(ev.window, wa)
                     return 
-            assert screen is not None, "looking for screen %s(%s) failed" %(wa.screen, type(wa.screen))
+            assert(screen is not None, 
+                    "looking for screen %s(%s) failed" %(wa.screen, type(wa.screen)))
 
     def on_property_notify(self, e):
         ev = e.xproperty
@@ -339,3 +348,7 @@ class App(pyglet.event.EventDispatcher):
 
 App.register_event_type('on_screen_add')
 App.register_event_type('on_client_add')
+App.register_event_type('on_client_remove')
+
+
+

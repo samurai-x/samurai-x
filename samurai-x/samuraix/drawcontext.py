@@ -5,6 +5,9 @@ from samuraix.cairo import *
 from samuraix.rsvg import *
 from samuraix.sxctypes import byref
 
+import logging
+log = logging.getLogger(__name__)
+
 
 class DrawContext(object):
     svg_handles = {}
@@ -20,7 +23,15 @@ class DrawContext(object):
                             width, height)
         self.cr = cairo_create(self.surface)
 
+        self.font = "snap"
+
+        log.debug('created drawcontext %s' % self)
+
+    def __del__(self):
+        self.delete()
+
     def delete(self):
+        log.debug('destroying drawcontext %s' %self)
         cairo_surface_destroy(self.surface)
         cairo_destroy(self.cr)
 
@@ -39,11 +50,19 @@ class DrawContext(object):
             cairo_rectangle(self.cr, x, y, width, height)
             cairo_fill(self.cr)
 
-    def text(self, x, y, string, color=(0.0, 0.0, 0.0)):
+    def text(self, x, y, string, color=(0.0, 0.0, 0.0), font=None, bold=False):
         cairo_set_source_rgb(self.cr, color[0], color[1], color[2])
 
-        cairo_select_font_face(self.cr, "snap", CAIRO_FONT_SLANT_NORMAL,
-                               CAIRO_FONT_WEIGHT_NORMAL)
+        if font is None:
+            font = self.font
+
+        if bold:
+            weight = CAIRO_FONT_WEIGHT_BOLD
+        else:
+            weight = CAIRO_FONT_WEIGHT_NORMAL
+
+        cairo_select_font_face(self.cr, font, CAIRO_FONT_SLANT_NORMAL,
+                               weight)
         cairo_set_font_size(self.cr, 10)
 
         cairo_move_to(self.cr, x, y)

@@ -1,8 +1,10 @@
 class Widget(object):
-    def __init__(self, screen):
+    def __init__(self, screen, name, **options):
         self.window = None
         self.screen = screen
         self.dirty = True
+        self.name = name
+        self.options = options
 
     def draw(self):
         pass

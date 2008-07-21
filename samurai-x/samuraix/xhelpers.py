@@ -102,7 +102,6 @@ def get_numlock_mask():
 
 
 def xerror(display, e):
-    #if e:
     e = e.contents
     if e.error_code == xlib.BadWindow:
         log.debug('BadWindow err')
@@ -118,7 +117,7 @@ def xerror(display, e):
         log.warn(' resource: %s', e.resourceid)
 
         import traceback
-        print 'Python stack trace (innermost last):'
+        log.warn('Python stack trace (innermost last):')
         traceback.print_stack()
 
     return 0

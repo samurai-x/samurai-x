@@ -27,15 +27,17 @@ class Desktop(pyglet.event.EventDispatcher):
 
     def add_client(self, client):
         log.debug('adding client %s to desktop %s' % (client, self))
-        self.clients.append(weakref.ref(client))
+        weakclient = weakref.ref(client)
+        self.clients.append(weakclient)
+        self.focus_stack.add(weakclient)
+        self.focus_client(client)
         client.desktop = self
         client.push_handlers(
             on_removed=functools.partial(self._client_removed, client),
             on_focus=functools.partial(self._client_focused, client),
         )
-        if client.desktop is self:
+        if self.screen.active_desktop is self:
             client.unban()
-            self.focus_client(client)
         else:
             client.ban()
 
@@ -44,15 +46,32 @@ class Desktop(pyglet.event.EventDispatcher):
         for client in self.clients:
             if client() == client:
                 self.clients.remove(client)
+                self.focus_stack.remove(client)
                 break
 
     def _client_focused(self, client):
         log.debug('_client_focused %s' % client)
-        self.focus_stack.focus(client)       
+        self.focus_stack.move_to_top(client)       
 
     def focus_client(self, client):
         # if config['focus_new'] .. etc
         client.focus()
+
+    def focus_next(self):
+        log.debug('%s focus_next' % self)
+        cli = self.focus_stack.next()()
+        if cli:
+            cli.focus()
+        else:
+            log.debug('client dissappeared!')
+
+    def focus_prev(self):
+        log.debug('%s focus_prev' % self)
+        cli = self.focus_stack.prev()()
+        if cli:
+            cli.focus()
+        else:
+            log.debug('client dissappeared!')
 
     def remove_client(self, client):
         assert client.desktop is self

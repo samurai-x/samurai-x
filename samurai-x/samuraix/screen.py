@@ -8,23 +8,17 @@ import samuraix
 from samuraix.rect import Rect
 from samuraix.xconstants import BUTTONMASK, CLEANMASK
 from samuraix.desktop import Desktop
-from samuraix.statusbar import Statusbar
-from samuraix import keysymdef
-from samuraix.testfunc import testfunc
 from samuraix.sxctypes import *
 from samuraix import xatom
 from samuraix.xhelpers import get_window_state
 from samuraix.client import Client
 from samuraix.rules import Rules
 
+from samuraix.userfuncs import *
+
 import logging
 log = logging.getLogger(__name__)
 
-
-def spawn(cmd, *args):
-    from subprocess import Popen
-    pid = Popen(cmd).pid
-    
 
 class SimpleScreen(object):
     def __init__(self, num):
@@ -37,83 +31,23 @@ class SimpleScreen(object):
         return xlib.XRootWindow(samuraix.display, self.num)
     root_window = property(_get_root_window)
 
+    def get_geom(self):
+        try:
+            return self.geom
+        except AttributeError:
+            self.geom = Rect(0, 0, 
+                            xlib.XDisplayWidth(samuraix.display, self.num),
+                            xlib.XDisplayHeight(samuraix.display, self.num))
+            return self.geom
 
 
 class Screen(SimpleScreen, pyglet.event.EventDispatcher):
 
-    class screenfunc(object):
-        def __init__(self, funcname, *args):
-            self.funcname = funcname
-            self.args = args
-
-        def __call__(self, screen):
-            func = getattr(screen, self.funcname)
-            func(*self.args)
-
-    class focusedwinfunc(object):
-        def __init__(self, funcname, *args):
-            self.funcname = funcname
-            self.args = args
-        def __call__(self, screen):
-            if screen.focused_client is not None:
-                func = getattr(screen.focused_client, self.funcname)
-                func(*self.args)
-
-    default_conf = {
-        'virtual_desktops': [
-            {'name':'one'},
-        ],
-        'widgets': [
-            {
-                'name': 'statusbar',
-                'cls': Statusbar,
-            },
-        ],
-        'keys': {
-            (keysymdef.XK_Return, xlib.Mod4Mask): 
-                functools.partial(spawn, ["xterm"]),
-            (keysymdef.XK_g, xlib.Mod4Mask):
-                functools.partial(spawn, ["gimp"]),
-
-            (keysymdef.XK_F2, xlib.Mod4Mask):
-                functools.partial(spawn, ["python", "samuraix/desklet.py"]),
-            
-            (keysymdef.XK_1, xlib.Mod4Mask): 
-                screenfunc('set_active_desktop_by_index', 0),
-            (keysymdef.XK_2, xlib.Mod4Mask):
-                screenfunc('set_active_desktop_by_index', 1),
-            (keysymdef.XK_3, xlib.Mod4Mask):
-                screenfunc('set_active_desktop_by_index', 2),
-            (keysymdef.XK_4, xlib.Mod4Mask):
-                screenfunc('set_active_desktop_by_index', 3),
-            (keysymdef.XK_5, xlib.Mod4Mask):
-                screenfunc('set_active_desktop_by_index', 4),
-            (keysymdef.XK_6, xlib.Mod4Mask):
-                screenfunc('set_active_desktop_by_index', 5),
-            (keysymdef.XK_7, xlib.Mod4Mask):
-                screenfunc('set_active_desktop_by_index', 6),
-            (keysymdef.XK_8, xlib.Mod4Mask):
-                screenfunc('set_active_desktop_by_index', 7),
-            (keysymdef.XK_9, xlib.Mod4Mask):
-                screenfunc('set_active_desktop_by_index', 8),
-
-            (keysymdef.XK_m, xlib.Mod4Mask):
-                focusedwinfunc('toggle_maximise'),               
-        },
-        'buttons': {
-            (3, 0): testfunc,
-            (1, 0): testfunc, 
-        },
-    }
-
     client_class = Client
+    desktop_class = Desktop
 
     def __init__(self, num):
         SimpleScreen.__init__(self, num)
-
-        self.geom = Rect(0, 0, 
-                    xlib.XDisplayWidth(samuraix.display, num),
-                    xlib.XDisplayHeight(samuraix.display, num))
 
         self.desktops = []
         self.active_desktop = None
@@ -121,9 +55,10 @@ class Screen(SimpleScreen, pyglet.event.EventDispatcher):
         self.clients = []
         self.focused_client = None
 
-        self.config = self.default_conf.copy()
+        self.config = {}
 
         try:
+        
             self.config.update(samuraix.config['screens']['default'])
         except KeyError:
             log.debug('cant find default screen config')
@@ -134,7 +69,7 @@ class Screen(SimpleScreen, pyglet.event.EventDispatcher):
             log.debug('cant find config for screen %s' % self.num)
 
         for conf_desktop in self.config['virtual_desktops']:
-            desktop = Desktop(self, conf_desktop['name'])
+            desktop = self.desktop_class(self, conf_desktop['name'])
             self.desktops.append(desktop)
             self.dispatch_event('on_desktop_add', desktop)
 
@@ -175,7 +110,9 @@ class Screen(SimpleScreen, pyglet.event.EventDispatcher):
     def load_widgets(self):
         self.widgets = []
         for widget in self.config['widgets']:
-            self.widgets.append(widget['cls'](self, *widget.get('args', ())))
+            cls = widget.pop('class')
+            name = widget.pop('name')
+            self.widgets.append(cls(self, name, **widget))
 
     def calculate_workspace(self):
         g = self.workspace_geom = self.geom.copy()
@@ -257,7 +194,7 @@ class Screen(SimpleScreen, pyglet.event.EventDispatcher):
     def set_active_desktop_by_index(self, index):
         try:
             desktop = self.desktops[index]
-        except ValueError:
+        except IndexError:
             log.debug('cant switch to desktop %s' % index)
             return 
         self.set_active_desktop(desktop)
@@ -275,6 +212,13 @@ class Screen(SimpleScreen, pyglet.event.EventDispatcher):
         idx = self.desktops.index(self.active_desktop) + 1
         if idx >= len(self.desktops):
             idx = 0 
+        self.set_active_desktop(self.desktops[idx])
+
+    def prev_desktop(self):
+        log.debug('prev_desktop %s' % self)
+        idx = self.desktops.index(self.active_desktop) - 1
+        if idx < 0:
+            idx = len(self.desktops) - 1
         self.set_active_desktop(self.desktops[idx])
 
     def set_active_desktop(self, desktop):

@@ -9,7 +9,7 @@ import string
 import samuraix
 from samuraix import xhelpers
 from samuraix.rect import Rect
-from samuraix.simple_window import SimpleWindow
+from samuraix.simplewindow import SimpleWindow
 from samuraix.sxctypes import *
 from samuraix.drawcontext import DrawContext
 from samuraix.screen import SimpleScreen
@@ -202,7 +202,7 @@ class RunnerApp(SimpleXApp):
 
 
 def run(app_func, nice_inc=15, name=None):
-    from samuraix.main import set_process_name
+    from samuraix.procutil import set_process_name
 
     xhelpers.open_display()
     xhelpers.setup_xerror()
@@ -221,6 +221,14 @@ def run(app_func, nice_inc=15, name=None):
         simpleapp.run()   
     finally:
         xhelpers.close_display()
+
+
+def run_runner():
+    run(functools.partial(RunnerApp, SimpleScreen(0), Rect(0, 0, 200, 15)))
+
+
+def run_clock():
+    run(functools.partial(ClockApp, SimpleScreen(0), Rect(800, 0, 200, 15)))
 
 
 if __name__ == '__main__':

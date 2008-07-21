@@ -3,10 +3,11 @@ from pyglet.window.xlib import xlib
 
 import weakref
 
+import samuraix
 from samuraix.sxctypes import *
 from samuraix.rect import Rect
 from samuraix import xhelpers
-import samuraix
+from samuraix.titlebar import TitleBar
 
 from samuraix.xconstants import BUTTONMASK, MOUSEMASK, CLEANMASK
 
@@ -15,24 +16,8 @@ log = logging.getLogger(__name__)
 
 class Client(pyglet.event.EventDispatcher):
 
-    class ClientFunc(object):
-        def __init__(self, funcname, *args):
-            self.funcname = funcname
-            self.args = args
-
-        def __call__(self, client):
-            func = getattr(client, self.funcname)
-            func(*self.args)
-
     all_clients = []
     window_2_client_map = weakref.WeakValueDictionary()
-
-    default_config = {
-        'buttons': {
-            (1, xlib.Mod4Mask): ClientFunc('mousemove'),
-            (3, xlib.Mod4Mask): ClientFunc('mouseresize'), 
-        },
-    }
 
     @classmethod 
     def get_by_window(cls, window):
@@ -46,14 +31,14 @@ class Client(pyglet.event.EventDispatcher):
         self.maxed_geom = self.geom.copy()
         self.old_border = wa.border_width
         self.desktop = None
-        self.border_width = wa.border_width
+        self.border_width = 1
 
         self.maximised = False
         self.minimised = False
         self.shaded = False
         self.sticky = False
 
-        self.config = self.default_config.copy()
+        self.config = samuraix.config['client']
         
         self.configure_window()
         self.update_title()
@@ -70,6 +55,9 @@ class Client(pyglet.event.EventDispatcher):
 
         self.all_clients.append(self)
         self.window_2_client_map[self.window] = self
+
+        self.decorations = [TitleBar(self)]
+        self.update_decorations()
 
     def __str__(self):
         return "<Client window=%s geom=%s title='%s'>" % (self.window, self.geom, self.title)
@@ -164,8 +152,8 @@ class Client(pyglet.event.EventDispatcher):
 
     def update_wm_hints(self):
         wmhp = xlib.XGetWMHints(samuraix.display, self.window)
-        wmh = wmhp[0]
-        if wmh:
+        if wmhp:
+            wmh = wmhp[0]
             self.urgent = wmh.flags & xlib.XUrgencyHint
             if self.urgent: # and its not the focused window...
                 pass
@@ -178,6 +166,10 @@ class Client(pyglet.event.EventDispatcher):
     def process_ewmh_state_atom(self, client, state, set):
         if state == samuraix.atoms['_NET_WM_STATE_STICKY']:
             pass
+
+    def update_decorations(self):
+        for decoration in self.decorations:
+            decoration.update_geometry()
 
     def resize(self, geometry, hints=False):
         if geometry.width <= 0 or geometry.height <= 0:
@@ -200,11 +192,13 @@ class Client(pyglet.event.EventDispatcher):
                 xlib.CWX | xlib.CWY | xlib.CWWidth | xlib.CWHeight | xlib.CWBorderWidth,
                 byref(wc))
             self.configure_window()
+    
+            self.update_decorations()
 
     def focus(self):
         log.debug('focusing %s' % self)
         xlib.XSetInputFocus(samuraix.display, self.window, xlib.RevertToPointerRoot, 
-            xlib.CurrentTime)
+                            xlib.CurrentTime)
         self.stack()
         self.grab_buttons()
         if self.screen.focused_client is not None:
@@ -251,6 +245,9 @@ class Client(pyglet.event.EventDispatcher):
         xlib.XUngrabServer(samuraix.display)
 
         self.dispatch_event('on_removed')
+
+        for decoration in self.decorations:
+            decoration.remove()
         
     def on_button_press(self, ev):
         modifiers = CLEANMASK(ev.state)
@@ -303,6 +300,10 @@ class Client(pyglet.event.EventDispatcher):
         self.screen.ungrab_buttons()
 
     def mousemove(self):
+        if self.maximised:
+            self.unmaximise()
+            self.resize(self.floating_geom)
+
         root = self.screen.root_window
         if (xlib.XGrabPointer(samuraix.display, 
                 root, 
@@ -339,7 +340,7 @@ class Client(pyglet.event.EventDispatcher):
 
             if ev.type == xlib.ButtonRelease:
                 xlib.XUngrabPointer(samuraix.display, xlib.CurrentTime)
-                return
+                break
             elif ev.type == xlib.MotionNotify:
                 geom.x = ox + (ev.xmotion.x - x)
                 geom.y = oy + (ev.xmotion.y - y)
@@ -347,7 +348,12 @@ class Client(pyglet.event.EventDispatcher):
             else:
                 samuraix.app.handle_event(ev)
 
+        self.floating_geom = self.geom.copy()
+
     def mouseresize(self):
+        if self.maximised:
+            self.maximised = False
+
         ocx = self.geom.x
         ocy = self.geom.y
 
@@ -375,29 +381,36 @@ class Client(pyglet.event.EventDispatcher):
 
             if ev.type == xlib.ButtonRelease:
                 xlib.XUngrabPointer(samuraix.display, xlib.CurrentTime)
-                return 
+                break
             elif ev.type == xlib.MotionNotify:
                 geom.width = max(0, ev.xmotion.x - ocx - 2 * self.border_width + 1)
                 geom.height = max(0, ev.xmotion.y - ocy - 2 * self.border_width + 1)
                 self.resize(geom)
             else:
                 samuraix.app.handle_event(ev)
+
+        self.floating_geom = self.geom.copy()
                 
     def on_enter(self):
         log.debug("enter %s" % self)
         self.grab_buttons()
 
+        #if samuraix.config['focus'] == 'sloppy':
+        #    self.desktop.focus_client(self)
+
     def ban(self):
         log.debug('banning %s' % self)
         xlib.XUnmapWindow(samuraix.display, self.window)
         xhelpers.set_window_state(self.window, xlib.IconicState)
-        # title bar unmap here
+        for decoration in self.decorations:
+            decoration.ban()
 
     def unban(self):
         log.debug('unbanning %s' % self)
         xlib.XMapWindow(samuraix.display, self.window)
         xhelpers.set_window_state(self.window, xlib.NormalState)
-        # titlebar remap here
+        for decoration in self.decorations:
+            decoration.unban()
                 
     def move_to_desktop(self, desktop):
         log.debug('move to desktop %s %s' % (self, desktop))
