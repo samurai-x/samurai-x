@@ -341,6 +341,7 @@ class App(pyglet.event.EventDispatcher):
             client = Client.get_by_window(ev.window)
             log.debug('_NET_WM_STATE %s' % client)
             if client:
+                setted = ev.data.l[0] == samuraix.atoms
                 client.process_ewmh_state_atom(ev.data.l[1], ev.data.l[0])
                 if ev.data.l[2]:
                     client.process_ewmh_state_atom(ev.data.l[2], ev.data.l[0])

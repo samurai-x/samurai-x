@@ -31,14 +31,23 @@ class SimpleScreen(object):
         return xlib.XRootWindow(samuraix.display, self.num)
     root_window = property(_get_root_window)
 
-    def get_geom(self):
+    def _get_default_depth(self):
+        return xlib.XDefaultDepth(samuraix.display, self.num)
+    default_depth = property(_get_default_depth)
+
+    def _get_default_visual(self):
+        return xlib.XDefaultVisual(samuraix.display, self.num)
+    default_visual = property(_get_default_visual)
+
+    def _get_geom(self):
         try:
-            return self.geom
+            return self._geom
         except AttributeError:
-            self.geom = Rect(0, 0, 
+            self._geom = Rect(0, 0, 
                             xlib.XDisplayWidth(samuraix.display, self.num),
                             xlib.XDisplayHeight(samuraix.display, self.num))
-            return self.geom
+            return self._geom
+    geom = property(_get_geom)
 
 
 class Screen(SimpleScreen, pyglet.event.EventDispatcher):

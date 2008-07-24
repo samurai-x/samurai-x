@@ -7,7 +7,10 @@ from samuraix.userfuncs import *
 
 
 config = {
-    #'focus': 'sloppy',
+    'focus': {
+        'model': 'sloppy',
+        'new': True,
+    },
 
     'screens': {
         'default': {
@@ -35,7 +38,17 @@ config = {
 
                 (keysymdef.XK_F2, xlib.Mod4Mask):
                     spawn("./samurai-runner"),
+
+                (keysymdef.XK_Page_Up, xlib.Mod4Mask):
+                    spawn("amixer -c 0 set Master 2dB+"),
+                (keysymdef.XK_Page_Down, xlib.Mod4Mask):
+                    spawn("amixer -c 0 set Master 2dB-"),
+                (keysymdef.XK_End, xlib.Mod4Mask):
+                    spawn("amixer -c 0 set Master 0dB+ toggle"),
                 
+                (keysymdef.XK_l, xlib.Mod4Mask):
+                    spawn("xlock -mode biof"),
+
                 (keysymdef.XK_1, xlib.Mod4Mask): 
                     screenfunc('set_active_desktop_by_index', 0),
                 (keysymdef.XK_2, xlib.Mod4Mask):

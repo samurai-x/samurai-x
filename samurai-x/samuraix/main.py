@@ -43,7 +43,7 @@ def configure_logging(file_level=logging.DEBUG, console_level=logging.INFO):
         formatter_class = FDFormatter
     else:
         formatter_class = logging.Formatter
-    formatter = formatter_class('%(asctime)s %(levelname)s %(name)s %(message)s')
+    formatter = formatter_class('[%(asctime)s %(levelname)s %(name)s] %(message)s')
     console.setFormatter(formatter)
     logging.getLogger('').addHandler(console)
 
@@ -53,7 +53,7 @@ def configure_logging(file_level=logging.DEBUG, console_level=logging.INFO):
 
     lastlog = logging.FileHandler(logfile, 'w')
     lastlog.setLevel(file_level)
-    formatter = logging.Formatter('%(asctime)s %(levelname)s $(name)s %(lineno)d %(message)s')
+    formatter = logging.Formatter('[%(asctime)s %(levelname)s $(name)s %(lineno)d] %(message)s')
     lastlog.setFormatter(formatter)
     logging.getLogger('').addHandler(lastlog)
 

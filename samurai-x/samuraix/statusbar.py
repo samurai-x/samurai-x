@@ -14,7 +14,7 @@ class StatusBar(Widget):
     def __init__(self, screen, name, **options):
         Widget.__init__(self, screen, name, **options)
 
-        sg = screen.get_geom()
+        sg = screen.geom
 
         self.window = SimpleWindow(self.screen, Rect(sg.x, sg.y, sg.width, 15))
         self.update_position()

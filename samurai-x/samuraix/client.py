@@ -14,6 +14,12 @@ from samuraix.xconstants import BUTTONMASK, MOUSEMASK, CLEANMASK
 import logging
 log = logging.getLogger(__name__)
 
+
+NET_WM_STATE_REMOVE = 0
+NET_WM_STATE_ADD = 1
+NET_WM_STATE_TOGGLE = 2
+
+
 class Client(pyglet.event.EventDispatcher):
 
     all_clients = []
@@ -37,6 +43,7 @@ class Client(pyglet.event.EventDispatcher):
         self.minimised = False
         self.shaded = False
         self.sticky = False
+        self.skip_taskbar = False
 
         self.config = samuraix.config['client']
         
@@ -47,9 +54,9 @@ class Client(pyglet.event.EventDispatcher):
         self.check_ewmh()
 
         xlib.XSelectInput(samuraix.display, window, 
-                xlib.StructureNotifyMask | 
-                xlib.PropertyChangeMask | 
-                xlib.EnterWindowMask)
+                            xlib.StructureNotifyMask | 
+                            xlib.PropertyChangeMask | 
+                            xlib.EnterWindowMask)
 
         log.info("new client with %s %s" % (self.window, self.geom))
 
@@ -162,10 +169,28 @@ class Client(pyglet.event.EventDispatcher):
                 self.border_width = 0
                 self.skip = True
             xlib.XFree(wmhp)
-        
+
     def process_ewmh_state_atom(self, client, state, set):
+        def handle_prop(prop, cb=None):
+            if set == NET_WM_STATE_ADD:
+                r = True
+            elif set == NET_WM_STATE_REMOVE:
+                r = False
+            elif set == NET_WM_STATE_TOGGLE:
+                r = not getattr(self, prop)
+
+            if cb is not None:
+                if r != getattr(self, prop):
+                    cb()
+            else:
+                setattr(self, prop, r)
+        
         if state == samuraix.atoms['_NET_WM_STATE_STICKY']:
-            pass
+            sticky = handle_prop('sticky', self.toggle_sticky)
+        elif state == samuraix.atoms['_NET_WM_STATE_SKIP_TASKBAR']:
+            skip_taskbar = handle_prop('skip_taskbar')
+        elif state == samuraix.atoms['_NET_WM_STATE_FULLSCREEN']:
+            fullscreen = handle_prop('fullscreen', self.toggle_fullscreen)
 
     def update_decorations(self):
         for decoration in self.decorations:
@@ -223,6 +248,12 @@ class Client(pyglet.event.EventDispatcher):
             self.unmaximise()
         else:
             self.maximise()
+
+    def toggle_sticky(self):
+        pass
+    
+    def toggle_fullscreen(self):
+        pass
 
     def remove(self):
         log.debug('removing %s' % self)

@@ -15,7 +15,8 @@ class FocusStack(list):
                 self.stack.remove(c)
                 self.stack.append(c)
                 break
-        raise ValueError(client)
+        log.warn('cant move client %s to top! not in list!' % client)
+        #raise ValueError(client)
 
     def remove(self, client):
         self.stack.remove(client)

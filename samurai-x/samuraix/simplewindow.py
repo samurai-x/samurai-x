@@ -28,19 +28,21 @@ class SimpleWindow(object):
         wa.background_pixmap = xlib.ParentRelative
 
         root = screen.root_window
+        default_depth = screen.default_depth
         self.window = xlib.XCreateWindow(samuraix.display, root, 
                             geom.x, geom.y, geom.width, geom.height,
                             self.border_width,
-                            xlib.XDefaultDepth(samuraix.display, screen.num),
+                            default_depth,
                             xlib.CopyFromParent,
-                            xlib.XDefaultVisual(samuraix.display, screen.num),
+                            screen.default_visual,
                             xlib.CWOverrideRedirect | xlib.CWBackPixmap | xlib.CWEventMask,
                             byref(wa))
 
         xlib.XSelectInput(samuraix.display, self.window, wa.event_mask)
 
-        self.drawable = xlib.XCreatePixmap(samuraix.display, root, geom.width, geom.height,
-                            xlib.XDefaultDepth(samuraix.display, screen.num))
+        self.drawable = xlib.XCreatePixmap(samuraix.display, root, 
+                            geom.width, geom.height,
+                            default_depth)
 
     def delete(self):
         xlib.XDestroyWindow(samuraix.display, self.window)
@@ -56,7 +58,7 @@ class SimpleWindow(object):
         self.geom.height = height 
         xlib.XFreePixmap(samuraix.display, self.drawable)
         self.drawable = xlib.XCreatePixmap(samuraix.display, self.screen.root_window, 
-                width, height, xlib.XDefaultDepth(samuraix.display, self.screen.num))
+                width, height, self.screen.default_depth)
         return xlib.XResizeWindow(samuraix.display, self.window, width, height)
 
     def refresh_drawable(self):

@@ -62,6 +62,8 @@ def open_display(displayname=None):
 
     xlib.XSynchronize(samuraix.display, True)
 
+    return samuraix.display
+
 
 def close_display():
     log.info('closing display..')

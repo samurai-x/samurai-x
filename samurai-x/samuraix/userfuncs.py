@@ -2,11 +2,10 @@ from subprocess import Popen
 
 
 class spawn(object):
-    def __init__(self, *args):
-        self.cmd = args[0]
-        self.args = args[1:]
+    def __init__(self, cmd):
+        self.cmd = cmd
     def __call__(self, screen):
-        pid = Popen(self.cmd).pid
+        pid = Popen(self.cmd, shell=True).pid
 
 
 class screenfunc(object):

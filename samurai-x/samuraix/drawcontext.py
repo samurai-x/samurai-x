@@ -17,8 +17,8 @@ class DrawContext(object):
         self.width = width
         self.height = height 
         self.drawable = drawable
-        self.depth = xlib.XDefaultDepth(samuraix.display, screen.num)
-        self.visual = xlib.XDefaultVisual(samuraix.display, screen.num)
+        self.depth = screen.default_depth
+        self.visual = screen.default_visual
         self.surface = cairo_xlib_surface_create(samuraix.display, drawable, self.visual,   
                             width, height)
         self.cr = cairo_create(self.surface)
@@ -94,4 +94,8 @@ class DrawContext(object):
         rsvg_handle_render_cairo(handle, self.cr)
 
         cairo_restore(self.cr)
+
+    def fill(self, color=(0.0, 0.0, 0.0)):
+        cairo_set_source_rgb(self.cr, *color)
+        cairo_paint(self.cr)
 
