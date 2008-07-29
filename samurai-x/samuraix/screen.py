@@ -24,30 +24,43 @@ class SimpleScreen(object):
     def __init__(self, num):
         self.num = num
 
+        d = samuraix.display
+
+        self.root_window = xlib.XRootWindow(d, num)
+        self.default_depth = xlib.XDefaultDepth(d, num)
+        self.default_visual = xlib.XDefaultVisual(d, num)
+        self.default_colormap = xlib.XDefaultColormap(d, num)
+        self.geom = Rect(0, 0, 
+                         xlib.XDisplayWidth(d, num),
+                         xlib.XDisplayHeight(d, num))
+
+        self.black_pixel = xlib.XBlackPixel(d, num)
+        self.white_pixel = xlib.XWhitePixel(d, num)
+
     def __str__(self):
         return "<Screen num=%s>" % self.num
 
-    def _get_root_window(self):
-        return xlib.XRootWindow(samuraix.display, self.num)
-    root_window = property(_get_root_window)
+    #def _get_root_window(self):
+    #    return xlib.XRootWindow(samuraix.display, self.num)
+    #root_window = property(_get_root_window)
 
-    def _get_default_depth(self):
-        return xlib.XDefaultDepth(samuraix.display, self.num)
-    default_depth = property(_get_default_depth)
+    #def _get_default_depth(self):
+    #    return xlib.XDefaultDepth(samuraix.display, self.num)
+    #default_depth = property(_get_default_depth)
 
-    def _get_default_visual(self):
-        return xlib.XDefaultVisual(samuraix.display, self.num)
-    default_visual = property(_get_default_visual)
+    #def _get_default_visual(self):
+    #    return xlib.XDefaultVisual(samuraix.display, self.num)
+    #default_visual = property(_get_default_visual)
 
-    def _get_geom(self):
-        try:
-            return self._geom
-        except AttributeError:
-            self._geom = Rect(0, 0, 
-                            xlib.XDisplayWidth(samuraix.display, self.num),
-                            xlib.XDisplayHeight(samuraix.display, self.num))
-            return self._geom
-    geom = property(_get_geom)
+    #def _get_geom(self):
+    #    try:
+    #        return self._geom
+    #    except AttributeError:
+    #        self._geom = Rect(0, 0, 
+    #                        xlib.XDisplayWidth(samuraix.display, self.num),
+    #                        xlib.XDisplayHeight(samuraix.display, self.num))
+    #        return self._geom
+    #geom = property(_get_geom)
 
 
 class Screen(SimpleScreen, pyglet.event.EventDispatcher):

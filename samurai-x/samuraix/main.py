@@ -111,7 +111,7 @@ def handle_options(options, args):
     #if options.dumpconfig:
 
 def run_app():
-    log.info('... and with god like speed ...')
+    log.info('... and with (almost) god like speed ...')
     try:
         samuraix.app.run()
     except Exception, e:

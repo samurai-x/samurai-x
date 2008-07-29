@@ -24,8 +24,9 @@ setup(name='samurai-x',
     # -*- Entry points: -*-
     [console_scripts]
     samurai-x = samuraix.main:run
-    samurai-runner = samuraix.simplexapp:run_runner
-    samurai-clock = samuraix.simplexapp:run_clock
+    sx-runner = samuraix.simplexapp:run_runner
+    sx-clock = samuraix.simplexapp:run_clock
+    sx-setroot = samuraix.setroot:run
     """,
 )
 

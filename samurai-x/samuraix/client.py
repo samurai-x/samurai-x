@@ -45,6 +45,8 @@ class Client(pyglet.event.EventDispatcher):
         self.sticky = False
         self.skip_taskbar = False
 
+        self.resizing = False
+
         self.config = samuraix.config['client']
         
         self.configure_window()
@@ -218,7 +220,8 @@ class Client(pyglet.event.EventDispatcher):
                 byref(wc))
             self.configure_window()
     
-            self.update_decorations()
+            if not self.resizing:
+                self.update_decorations()
 
     def focus(self):
         log.debug('focusing %s' % self)
@@ -385,6 +388,8 @@ class Client(pyglet.event.EventDispatcher):
         if self.maximised:
             self.maximised = False
 
+        self.resizing = True
+
         ocx = self.geom.x
         ocy = self.geom.y
 
@@ -421,6 +426,8 @@ class Client(pyglet.event.EventDispatcher):
                 samuraix.app.handle_event(ev)
 
         self.floating_geom = self.geom.copy()
+        self.resizing = False
+        self.update_decorations()
                 
     def on_enter(self):
         log.debug("enter %s" % self)
