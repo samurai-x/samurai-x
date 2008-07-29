@@ -1,3 +1,5 @@
+import sys
+
 from pyglet.window.xlib import xlib
 
 import samuraix
