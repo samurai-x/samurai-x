@@ -80,15 +80,15 @@ def run(args=None):
 
     parser = OptionParser()
 
-    parser.add_option("-d", "--display", dest="displayname", default=None,
+    parser.add_option("-d", "--display", dest="display_name", default=None,
                       help="display to use")
-    parser.add_option("-s", "--screen", dest="screennum", default=None, type="int",
+    parser.add_option("-s", "--screen", dest="screen_num", default=None, type="int",
                       help="screen number to use")
 
     parser.add_option("-c", "--color", dest="color", default=None,
-                      help="color to use")
+                      help="color to use (hex style with no leading #, eg. ff0000)")
     parser.add_option("-i", "--image", dest="image", default=None,
-                      help="image to use")
+                      help="image to use (currently only svg files are supported)")
     parser.add_option("-z", "--size", dest="image_size", nargs=2, default=None, type="int",
                       help="image size")
     parser.add_option("-p", "--pos", dest="image_position", nargs=2, default=None, type="int",
@@ -109,10 +109,14 @@ def run(args=None):
 
     options, args = parser.parse_args(args=args)
 
-    xhelpers.open_display(displayname=options.displayname)
-    if options.screennum is None:
-        options.screennum = xlib.XDefaultScreen(samuraix.display)
-    screen = SimpleScreen(options.screennum)
+    if args:
+        print "this command takes no arguments - see --help"
+        sys.exit(1)
+
+    xhelpers.open_display(display_name=options.display_name)
+    if options.screen_num is None:
+        options.screen_num = xlib.XDefaultScreen(samuraix.display)
+    screen = SimpleScreen(options.screen_num)
 
     try:
         set_root(screen, 

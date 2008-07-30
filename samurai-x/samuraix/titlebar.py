@@ -56,5 +56,6 @@ class TitleBar(object):
         xhelpers.set_window_state(self.window.window, xlib.NormalState)
         self.draw()
 
-
+    def bring_to_front(self):
+        xlib.XRaiseWindow(samuraix.display, self.window.window)
 

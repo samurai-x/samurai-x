@@ -227,16 +227,18 @@ class Client(pyglet.event.EventDispatcher):
         log.debug('focusing %s' % self)
         xlib.XSetInputFocus(samuraix.display, self.window, xlib.RevertToPointerRoot, 
                             xlib.CurrentTime)
-        self.stack()
+        self.bring_to_front()
         self.grab_buttons()
         if self.screen.focused_client is not None:
             self.screen.focused_client.dispatch_event('on_blur')
         self.screen.focused_client = self
         self.dispatch_event('on_focus')
 
-    def stack(self):
+    def bring_to_front(self):
         log.debug('stacking %s' % self)
         xlib.XRaiseWindow(samuraix.display, self.window)
+        for decoration in self.decorations:
+            decoration.bring_to_front()      
 
     def maximise(self):
         self.maximised = True
