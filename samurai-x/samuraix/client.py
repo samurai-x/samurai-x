@@ -397,12 +397,22 @@ class Client(pyglet.event.EventDispatcher):
 
         root = xlib.XRootWindow(samuraix.display, self.screen.num)
 
+
         if (xlib.XGrabPointer(samuraix.display, 
                 root,
                 False, MOUSEMASK, xlib.GrabModeAsync, xlib.GrabModeAsync,
                 root,
                 samuraix.cursors['resize'], xlib.CurrentTime) != xlib.GrabSuccess):
             return 
+
+        if not xlib.XGrabServer(samuraix.display):
+            log.warn('possibly failed grabbing server')
+        
+        gc = xlib.XCreateGC(samuraix.display, self.window, 0, None)
+        xlib.XSetForeground(samuraix.display, gc, self.screen.white_pixel)
+        xlib.XSetFunction(samuraix.display, gc, xlib.GXxor)
+        xlib.XSetSubwindowMode(samuraix.display, gc, xlib.IncludeInferiors)
+        #xlib.XSetBackground(samuraix.display, gc, self.screen.white_pixel)
 
         xlib.XWarpPointer(samuraix.display, xlib.None_, self.window, 0, 0, 0, 0,
             self.geom.width + self.border_width - 1, self.geom.height + self.border_width - 1)   
@@ -411,22 +421,49 @@ class Client(pyglet.event.EventDispatcher):
 
         geom = self.geom.copy()
 
+        xlib.XDrawRectangle(samuraix.display, root, gc, 
+                geom.x, geom.y, geom.width, geom.height)
+        xlib.XFlush(samuraix.display)
+        xlib.XSync(samuraix.display, 0)
+
+        ev = xlib.XEvent()
+
         while True:
 
-            xlib.XMaskEvent(samuraix.display, 
-                MOUSEMASK | xlib.ExposureMask | xlib.SubstructureRedirectMask,
-                byref(ev))
+            xlib.XNextEvent(samuraix.display, byref(ev))
+
+            #xlib.XMaskEvent(samuraix.display, 
+            #    MOUSEMASK | xlib.ExposureMask | xlib.SubstructureRedirectMask,
+            #    byref(ev))
 
             if ev.type == xlib.ButtonRelease:
                 xlib.XUngrabPointer(samuraix.display, xlib.CurrentTime)
                 break
             elif ev.type == xlib.MotionNotify:
+                # erase the old box 
+                xlib.XDrawRectangle(samuraix.display, root, gc, 
+                        geom.x, geom.y, geom.width, geom.height)
+
                 geom.width = max(0, ev.xmotion.x - ocx - 2 * self.border_width + 1)
                 geom.height = max(0, ev.xmotion.y - ocy - 2 * self.border_width + 1)
-                self.resize(geom)
+
+                xlib.XDrawRectangle(samuraix.display, root, gc, 
+                        geom.x, geom.y, geom.width, geom.height)
+                xlib.XFlush(samuraix.display)
+                xlib.XSync(samuraix.display, 0)
             else:
                 samuraix.app.handle_event(ev)
 
+        # erase the box
+        xlib.XDrawRectangle(samuraix.display, root, gc, 
+                geom.x, geom.y, geom.width, geom.height)
+        xlib.XFlush(samuraix.display)
+        xlib.XSync(samuraix.display, 0)
+
+        xlib.XUngrabServer(samuraix.display)
+        xlib.XFreeGC(samuraix.display, gc)
+
+        self.resize(geom)
         self.floating_geom = self.geom.copy()
         self.resizing = False
         self.update_decorations()

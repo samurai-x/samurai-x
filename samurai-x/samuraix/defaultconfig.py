@@ -5,6 +5,7 @@ from samuraix.testfunc import testfunc
 from samuraix.statusbar import StatusBar
 from samuraix.userfuncs import *
 
+default_mod = xlib.Mod4Mask
 
 config = {
     'focus': {
@@ -31,49 +32,49 @@ config = {
             ],
 
             'keys': {
-                (keysymdef.XK_Return, xlib.Mod4Mask): 
+                (keysymdef.XK_Return, default_mod): 
                     spawn("xterm"),
-                (keysymdef.XK_g, xlib.Mod4Mask):
+                (keysymdef.XK_g, default_mod):
                     spawn("gimp"),
 
-                (keysymdef.XK_F2, xlib.Mod4Mask):
-                    spawn("./samurai-runner"),
+                (keysymdef.XK_F2, default_mod):
+                    spawn("./sx-runner"),
 
-                (keysymdef.XK_Page_Up, xlib.Mod4Mask):
+                (keysymdef.XK_Page_Up, default_mod):
                     spawn("amixer -c 0 set Master 2dB+"),
-                (keysymdef.XK_Page_Down, xlib.Mod4Mask):
+                (keysymdef.XK_Page_Down, default_mod):
                     spawn("amixer -c 0 set Master 2dB-"),
-                (keysymdef.XK_End, xlib.Mod4Mask):
+                (keysymdef.XK_End, default_mod):
                     spawn("amixer -c 0 set Master 0dB+ toggle"),
                 
-                (keysymdef.XK_l, xlib.Mod4Mask):
+                (keysymdef.XK_l, default_mod):
                     spawn("xlock -mode biof"),
 
-                (keysymdef.XK_1, xlib.Mod4Mask): 
+                (keysymdef.XK_1, default_mod): 
                     screenfunc('set_active_desktop_by_index', 0),
-                (keysymdef.XK_2, xlib.Mod4Mask):
+                (keysymdef.XK_2, default_mod):
                     screenfunc('set_active_desktop_by_index', 1),
-                (keysymdef.XK_3, xlib.Mod4Mask):
+                (keysymdef.XK_3, default_mod):
                     screenfunc('set_active_desktop_by_index', 2),
-                (keysymdef.XK_4, xlib.Mod4Mask):
+                (keysymdef.XK_4, default_mod):
                     screenfunc('set_active_desktop_by_index', 3),
-                (keysymdef.XK_5, xlib.Mod4Mask):
+                (keysymdef.XK_5, default_mod):
                     screenfunc('set_active_desktop_by_index', 4),
-                (keysymdef.XK_6, xlib.Mod4Mask):
+                (keysymdef.XK_6, default_mod):
                     screenfunc('set_active_desktop_by_index', 5),
-                (keysymdef.XK_7, xlib.Mod4Mask):
+                (keysymdef.XK_7, default_mod):
                     screenfunc('set_active_desktop_by_index', 6),
-                (keysymdef.XK_8, xlib.Mod4Mask):
+                (keysymdef.XK_8, default_mod):
                     screenfunc('set_active_desktop_by_index', 7),
-                (keysymdef.XK_9, xlib.Mod4Mask):
+                (keysymdef.XK_9, default_mod):
                     screenfunc('set_active_desktop_by_index', 8),
 
-                (keysymdef.XK_Right, xlib.Mod4Mask):
+                (keysymdef.XK_Right, default_mod):
                     screenfunc('next_desktop'),
-                (keysymdef.XK_Left, xlib.Mod4Mask):
+                (keysymdef.XK_Left, default_mod):
                     screenfunc('prev_desktop'),
 
-                (keysymdef.XK_m, xlib.Mod4Mask):
+                (keysymdef.XK_m, default_mod):
                     focusedwindowfunc('toggle_maximise'),               
             },
             'buttons': {
@@ -85,8 +86,8 @@ config = {
 
     'client': {
         'buttons': {
-            (1, xlib.Mod4Mask): clientfunc('mousemove'),
-            (3, xlib.Mod4Mask): clientfunc('mouseresize'), 
+            (1, default_mod): clientfunc('mousemove'),
+            (3, default_mod): clientfunc('mouseresize'), 
         }
     },
         
