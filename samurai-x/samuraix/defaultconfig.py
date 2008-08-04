@@ -27,9 +27,20 @@ config = {
                     'name': 'statusbar',
                     'class': StatusBar,
                     'color': (0.7, 0.0, 0.0),
-                    'text-color': (1.0, 1.0, 1.0)
+                    'text-color': (1.0, 1.0, 1.0),
+                    'clock-format': "%a %d/%m/%y %H:%M",
+                    'padding-left': 10,
+                    'padding-right': 10,
+                    'text-y': 10, 
+                    'font': 'snap',
+                    'font-size': 10,
                 },
             ],
+
+            'background': {
+                'color': "000000",
+                'image': "/home/dunk/projects/samurai-x/gfx/samuraix.svg",
+            },
 
             'keys': {
                 (keysymdef.XK_Return, default_mod): 

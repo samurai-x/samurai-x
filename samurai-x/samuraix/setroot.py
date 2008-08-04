@@ -3,8 +3,6 @@ import sys
 from pyglet.window.xlib import xlib
 
 import samuraix
-from samuraix import xhelpers
-from samuraix.screen import SimpleScreen
 from samuraix.drawcontext import DrawContext
 from samuraix.sxctypes import byref
 
@@ -77,6 +75,9 @@ def set_root(screen, color=None, image=None, image_size=None, image_position=Non
 
 def run(args=None):
     from optparse import OptionParser
+
+    from samuraix.screen import SimpleScreen
+    from samuraix import xhelpers
 
     parser = OptionParser()
 

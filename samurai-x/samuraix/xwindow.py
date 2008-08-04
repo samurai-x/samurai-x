@@ -9,11 +9,11 @@ class XWindow(object):
         self.window = window
         self.all_windows[window] = self
 
-    def __del__(self):
-        try:
-            self.delete()
-        except KeyError:
-            pass
+    #def __del__(self):
+    #    try:
+    #        self.delete()
+    #    except KeyError:
+    #        pass
 
     def delete(self):
         del self.all_windows[self.window]

@@ -10,6 +10,7 @@ import samuraix
 from samuraix import xhelpers
 from samuraix import userfuncs
 from samuraix.procutil import set_process_name
+from samuraix.timer import Timer
 
 import logging
 log = logging.getLogger(__name__)
@@ -28,6 +29,12 @@ def init_cursors():
     samuraix.cursors['normal'] = samuraix.cursors[cursorfont.XC_left_ptr]
     samuraix.cursors['resize'] = samuraix.cursors[cursorfont.XC_sizing]
     samuraix.cursors['move'] = samuraix.cursors[cursorfont.XC_fleur]
+
+
+def init_timer():
+    log.debug('creating timer...')
+    from samuraix.timer import Timer
+    samuraix.timer = Timer()
 
 
 def configure_logging(file_level=logging.DEBUG, console_level=logging.INFO):
@@ -53,7 +60,7 @@ def configure_logging(file_level=logging.DEBUG, console_level=logging.INFO):
 
     lastlog = logging.FileHandler(logfile, 'w')
     lastlog.setLevel(file_level)
-    formatter = logging.Formatter('[%(asctime)s %(levelname)s $(name)s %(lineno)d] %(message)s')
+    formatter = logging.Formatter('[%(asctime)s %(levelname)s %(name)s %(lineno)d] %(message)s')
     lastlog.setFormatter(formatter)
     logging.getLogger('').addHandler(lastlog)
 
@@ -142,6 +149,7 @@ def run(app_func=None, config=None, args=None):
     init_atoms()
     xhelpers.get_numlock_mask()
     init_cursors()
+    init_timer()
 
     if app_func is None:
         from samuraix.appl import App

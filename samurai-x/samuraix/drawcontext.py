@@ -23,7 +23,8 @@ class DrawContext(object):
                             width, height)
         self.cr = cairo_create(self.surface)
 
-        self.font = "snap"
+        self.default_font = "snap"
+        self.default_font_size = 10
 
         log.debug('created drawcontext %s' % self)
 
@@ -50,11 +51,14 @@ class DrawContext(object):
             cairo_rectangle(self.cr, x, y, width, height)
             cairo_fill(self.cr)
 
-    def text(self, x, y, string, color=(0.0, 0.0, 0.0), font=None, bold=False):
+    def text(self, x, y, string, color=(0.0, 0.0, 0.0), 
+            font=None, bold=False, align=None, font_size=None):
         cairo_set_source_rgb(self.cr, color[0], color[1], color[2])
 
         if font is None:
-            font = self.font
+            font = self.default_font
+        if font_size is None:
+            font_size = self.default_font_size
 
         if bold:
             weight = CAIRO_FONT_WEIGHT_BOLD
@@ -63,7 +67,24 @@ class DrawContext(object):
 
         cairo_select_font_face(self.cr, font, CAIRO_FONT_SLANT_NORMAL,
                                weight)
-        cairo_set_font_size(self.cr, 10)
+        cairo_set_font_size(self.cr, font_size)
+
+        if align and align != 'left':
+            #typedef struct {
+            #    double x_bearing;
+            #    double y_bearing;
+            #    double width;
+            #    double height;
+            #    double x_advance;
+            #    double y_advance;
+            #} cairo_text_extents_t;
+
+            extents = cairo_text_extents_t()
+
+            cairo_text_extents(self.cr, string, byref(extents))
+
+            if align == "right":
+                x -= extents.x_advance  
 
         cairo_move_to(self.cr, x, y)
         cairo_show_text(self.cr, string)

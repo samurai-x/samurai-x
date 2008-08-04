@@ -13,6 +13,7 @@ from samuraix import xatom
 from samuraix.xhelpers import get_window_state
 from samuraix.client import Client
 from samuraix.rules import Rules
+from samuraix.setroot import set_root
 
 from samuraix.userfuncs import *
 
@@ -100,6 +101,9 @@ class Screen(SimpleScreen, pyglet.event.EventDispatcher):
 
         #if self.config['status_bar']['position'] is not None:
         #    self.widgets.append(Statusbar(self))
+
+        if 'background' in self.config:
+            set_root(self, **self.config['background'])           
 
         self.set_active_desktop(self.desktops[0])
 

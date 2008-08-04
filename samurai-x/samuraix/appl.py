@@ -82,19 +82,22 @@ class App(pyglet.event.EventDispatcher):
 
         ev = xlib.XEvent()
 
-        while self.running:
-            # for non blocking use this ..
-            #while xlib.XPending(samuraix.display):
+        connection_fd = xlib.XConnectionNumber(samuraix.display)
 
+        while self.running:
             # pyro stuff...
             #def check():
             #    return not xlib.XPending(samuraix.display)
 
             #self.pyro_daemon.requestLoop(condition=check, timeout=0.1)
 
-            xlib.XNextEvent(samuraix.display, byref(ev))
-            self.handle_event(ev)
-            xlib.XSync(samuraix.display, False)
+            if xlib.XPending(samuraix.display):
+                xlib.XNextEvent(samuraix.display, byref(ev))
+                self.handle_event(ev)
+                xlib.XSync(samuraix.display, False)
+
+            else:
+                samuraix.timer.update(connection_fd)
 
             for screen in self.screens:
                 for widget in screen.widgets:
@@ -282,15 +285,19 @@ class App(pyglet.event.EventDispatcher):
         if wa.override_redirect:
             return 
 
+        # check we dont already have a client instance for this window
         client = Client.get_by_window(ev.window)
         if client is None:
-            for screen in self.screens:
-                if (addressof(wa.screen.contents) == 
-                        addressof(xlib.XScreenOfDisplay(e.xany.display, screen.num).contents)):
-                    screen.manage(ev.window, wa)
-                    return 
-            assert(screen is not None, 
-                    "looking for screen %s(%s) failed" %(wa.screen, type(wa.screen)))
+            # it could be a frame window we've created...
+            client = Client.get_by_frame(ev.window)
+            if client is None:
+                for screen in self.screens:
+                    if (addressof(wa.screen.contents) == 
+                            addressof(xlib.XScreenOfDisplay(e.xany.display, screen.num).contents)):
+                        screen.manage(ev.window, wa)
+                        return 
+                assert(screen is not None, 
+                        "looking for screen %s(%s) failed" %(wa.screen, type(wa.screen)))
 
     def on_property_notify(self, e):
         ev = e.xproperty

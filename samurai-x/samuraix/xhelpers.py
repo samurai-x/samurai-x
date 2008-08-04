@@ -120,7 +120,7 @@ def xerror(display, e):
 
         import traceback
         log.warn('Python stack trace (innermost last):')
-        traceback.print_stack()
+        log.warn(traceback.format_exc())
 
     return 0
 

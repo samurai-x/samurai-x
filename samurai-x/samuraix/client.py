@@ -8,6 +8,7 @@ from samuraix.sxctypes import *
 from samuraix.rect import Rect
 from samuraix import xhelpers
 from samuraix.titlebar import TitleBar
+from samuraix.simplewindow import SimpleWindow
 
 from samuraix.xconstants import BUTTONMASK, MOUSEMASK, CLEANMASK
 
@@ -25,9 +26,16 @@ class Client(pyglet.event.EventDispatcher):
     all_clients = []
     window_2_client_map = weakref.WeakValueDictionary()
 
+    all_frames = []
+    window_2_frame_map = weakref.WeakValueDictionary()
+
     @classmethod 
     def get_by_window(cls, window):
         return cls.window_2_client_map.get(window)
+
+    @classmethod
+    def get_by_frame(cls, window):
+        return cls.window_2_frame_map.get(window)
 
     def __init__(self, screen, window, wa):
         self.screen = screen
@@ -38,12 +46,14 @@ class Client(pyglet.event.EventDispatcher):
         self.old_border = wa.border_width
         self.desktop = None
         self.border_width = 1
+        self.title = None
 
         self.maximised = False
         self.minimised = False
         self.shaded = False
         self.sticky = False
         self.skip_taskbar = False
+        #self.decorated = True
 
         self.resizing = False
 
@@ -55,17 +65,27 @@ class Client(pyglet.event.EventDispatcher):
         self.update_wm_hints()
         self.check_ewmh()
 
-        xlib.XSelectInput(samuraix.display, window, 
-                            xlib.StructureNotifyMask | 
-                            xlib.PropertyChangeMask | 
-                            xlib.EnterWindowMask)
-
         log.info("new client with %s %s" % (self.window, self.geom))
 
         self.all_clients.append(self)
         self.window_2_client_map[self.window] = self
 
-        self.decorations = [TitleBar(self)]
+        frame_geom = self.geom.copy()
+        frame_geom.height += 15
+        frame_geom.width += 2
+        self.frame = SimpleWindow(self.screen, self.geom, 1)
+        xlib.XReparentWindow(samuraix.display, self.window, self.frame.window, 1, 15)
+        xlib.XMapWindow(samuraix.display, self.frame.window)
+
+        self.all_frames.append(self.frame)
+        self.window_2_frame_map[self.frame.window] = self
+
+        xlib.XSelectInput(samuraix.display, self.frame.window, 
+                            xlib.StructureNotifyMask | 
+                            xlib.PropertyChangeMask | 
+                            xlib.EnterWindowMask)
+
+        self.decorations = [] #[TitleBar(self)]
         self.update_decorations()
 
     def __str__(self):
@@ -99,10 +119,26 @@ class Client(pyglet.event.EventDispatcher):
         #    byref(extra), byref(data)) == xlib.Success):
         #    state = cast(data, xlib.Atom_p)       
 
+    def process_property_notify(self, ev):
+        log.debug('prop change for client %s' % client)
+        if ev.atom == xatom.XA_WM_TRANSIENT_FOR:
+            trans = xlib.Window()
+            xlib.XGetTransientForHint(samuraix.display, self.window, byref(trans))
+            # needs rearrange
+        elif ev.atom == xatom.XA_WM_NORMAL_HINTS:
+            self.update_size_hints()
+        elif ev.atom == xatom.XA_WM_HINTS:
+            self.update_wm_hints()
+        elif ev.atom == xatom.XA_WM_NAME or ev.atom == samuraix.atoms['_NET_WM_NAME']:
+            self.update_title()
+
     def update_title(self):
-        self.title = xhelpers.get_text_property(self.window, samuraix.atoms['_NET_WM_NAME'])
-        if not self.title:
-            self.title = xhelpers.get_text_property(self.window, samuraix.atoms['WM_NAME'])
+        title = xhelpers.get_text_property(self.window, samuraix.atoms['_NET_WM_NAME'])
+        if not title:
+            title = xhelpers.get_text_property(self.window, samuraix.atoms['WM_NAME'])
+        if title != self.title:
+            self.title = title
+            self.dispatch_event('on_title_changed')
         log.debug("title of %s is now %s" % (self, self.title))
     
     def update_size_hints(self):
@@ -214,6 +250,16 @@ class Client(pyglet.event.EventDispatcher):
             self.geom.width = wc.width = geometry.width
             self.geom.height = wc.height = geometry.height
             wc.border_width = self.border_width
+
+            xlib.XConfigureWindow(samuraix.display, self.frame.window,
+                xlib.CWX | xlib.CWY | xlib.CWWidth | xlib.CWHeight | xlib.CWBorderWidth,
+                byref(wc))
+
+            wc.x = 1
+            wc.y = 15
+            wc.width = self.geom.width - 2
+            wc.height = self.geom.height - 15
+            wc.border_width = 0 
 
             xlib.XConfigureWindow(samuraix.display, self.window,
                 xlib.CWX | xlib.CWY | xlib.CWWidth | xlib.CWHeight | xlib.CWBorderWidth,
@@ -397,6 +443,17 @@ class Client(pyglet.event.EventDispatcher):
 
         root = xlib.XRootWindow(samuraix.display, self.screen.num)
 
+        dummy = xlib.Window()
+        x = c_int()
+        y = c_int()
+        di = c_int()
+        dui = c_uint()
+
+        xlib.XQueryPointer(samuraix.display, root, byref(dummy), byref(dummy),
+            byref(x), byref(y), byref(di), byref(di), byref(dui))
+
+        omx = x.value
+        omy = y.value
 
         if (xlib.XGrabPointer(samuraix.display, 
                 root,
@@ -405,14 +462,13 @@ class Client(pyglet.event.EventDispatcher):
                 samuraix.cursors['resize'], xlib.CurrentTime) != xlib.GrabSuccess):
             return 
 
-        if not xlib.XGrabServer(samuraix.display):
-            log.warn('possibly failed grabbing server')
+        #xlib.XGrabServer(samuraix.display)
         
         gc = xlib.XCreateGC(samuraix.display, self.window, 0, None)
         xlib.XSetForeground(samuraix.display, gc, self.screen.white_pixel)
         xlib.XSetFunction(samuraix.display, gc, xlib.GXxor)
         xlib.XSetSubwindowMode(samuraix.display, gc, xlib.IncludeInferiors)
-        #xlib.XSetBackground(samuraix.display, gc, self.screen.white_pixel)
+        xlib.XSetBackground(samuraix.display, gc, self.screen.white_pixel)
 
         xlib.XWarpPointer(samuraix.display, xlib.None_, self.window, 0, 0, 0, 0,
             self.geom.width + self.border_width - 1, self.geom.height + self.border_width - 1)   
@@ -430,11 +486,11 @@ class Client(pyglet.event.EventDispatcher):
 
         while True:
 
-            xlib.XNextEvent(samuraix.display, byref(ev))
+            #xlib.XNextEvent(samuraix.display, byref(ev))
 
-            #xlib.XMaskEvent(samuraix.display, 
-            #    MOUSEMASK | xlib.ExposureMask | xlib.SubstructureRedirectMask,
-            #    byref(ev))
+            xlib.XMaskEvent(samuraix.display, 
+                MOUSEMASK | xlib.ExposureMask | xlib.SubstructureRedirectMask,
+                byref(ev))
 
             if ev.type == xlib.ButtonRelease:
                 xlib.XUngrabPointer(samuraix.display, xlib.CurrentTime)
@@ -457,10 +513,13 @@ class Client(pyglet.event.EventDispatcher):
         # erase the box
         xlib.XDrawRectangle(samuraix.display, root, gc, 
                 geom.x, geom.y, geom.width, geom.height)
+
+        xlib.XWarpPointer(samuraix.display, xlib.None_, root, 0, 0, 0, 0, omx, omy)   
+
         xlib.XFlush(samuraix.display)
         xlib.XSync(samuraix.display, 0)
 
-        xlib.XUngrabServer(samuraix.display)
+        #xlib.XUngrabServer(samuraix.display)
         xlib.XFreeGC(samuraix.display, gc)
 
         self.resize(geom)
@@ -500,5 +559,6 @@ Client.register_event_type('on_enter')
 Client.register_event_type('on_focus')
 Client.register_event_type('on_blur')
 Client.register_event_type('on_removed')
+Client.register_event_type('on_title_changed')
 
 

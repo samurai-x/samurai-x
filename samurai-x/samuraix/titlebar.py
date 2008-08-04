@@ -20,6 +20,11 @@ class TitleBar(object):
 
         self.update_geometry()
 
+        client.push_handlers(on_title_changed=self.on_client_title_changed)
+
+    def on_client_title_changed(self):
+        self.draw()
+
     def draw(self):
         self.context.fillrect(0, 0, 
                 self.window.geom.width, self.window.geom.height, 
