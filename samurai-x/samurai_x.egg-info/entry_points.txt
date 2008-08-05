@@ -1,8 +1,7 @@
 
-    # -*- Entry points: -*-
     [console_scripts]
     samurai-x = samuraix.main:run
-    sx-runner = samuraix.simplexapp:run_runner
-    sx-clock = samuraix.simplexapp:run_clock
+    #sx-runner = samuraix.simplexapp:run_runner
+    #sx-clock = samuraix.simplexapp:run_clock
     sx-setroot = samuraix.setroot:run
     

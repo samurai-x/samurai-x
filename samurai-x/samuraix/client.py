@@ -9,6 +9,7 @@ from samuraix.rect import Rect
 from samuraix import xhelpers
 from samuraix.titlebar import TitleBar
 from samuraix.simplewindow import SimpleWindow
+from samuraix.drawcontext import DrawContext
 
 from samuraix.xconstants import BUTTONMASK, MOUSEMASK, CLEANMASK
 
@@ -58,7 +59,7 @@ class Client(pyglet.event.EventDispatcher):
         self.resizing = False
 
         self.config = samuraix.config['client']
-        
+
         self.configure_window()
         self.update_title()
         self.update_size_hints()
@@ -70,12 +71,15 @@ class Client(pyglet.event.EventDispatcher):
         self.all_clients.append(self)
         self.window_2_client_map[self.window] = self
 
+        self.frame_context = None
         frame_geom = self.geom.copy()
         frame_geom.height += 15
         frame_geom.width += 2
         self.frame = SimpleWindow(self.screen, self.geom, 1)
         xlib.XReparentWindow(samuraix.display, self.window, self.frame.window, 1, 15)
         xlib.XMapWindow(samuraix.display, self.frame.window)
+
+        self.draw_frame()
 
         self.all_frames.append(self.frame)
         self.window_2_frame_map[self.frame.window] = self
@@ -140,7 +144,7 @@ class Client(pyglet.event.EventDispatcher):
             self.title = title
             self.dispatch_event('on_title_changed')
         log.debug("title of %s is now %s" % (self, self.title))
-    
+
     def update_size_hints(self):
         msize = c_long()
         size = xlib.XSizeHints()
@@ -255,6 +259,9 @@ class Client(pyglet.event.EventDispatcher):
                 xlib.CWX | xlib.CWY | xlib.CWWidth | xlib.CWHeight | xlib.CWBorderWidth,
                 byref(wc))
 
+            self.frame_context = None
+            self.draw_frame()
+
             wc.x = 1
             wc.y = 15
             wc.width = self.geom.width - 2
@@ -268,6 +275,14 @@ class Client(pyglet.event.EventDispatcher):
     
             if not self.resizing:
                 self.update_decorations()
+
+    def draw_frame(self):
+        if self.frame_context is None:
+            self.frame_context = DrawContext(self.screen, 
+                    self.geom.width, self.geom.height, self.frame.drawable)
+
+        self.frame_context.fill((0.0, 0.0, 1.0))
+        self.frame.refresh_drawable()
 
     def focus(self):
         log.debug('focusing %s' % self)

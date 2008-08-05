@@ -124,7 +124,7 @@ def run_app():
     except Exception, e:
         log.exception("exception in main loop!")
         import traceback
-        traceback.print_exc()
+        log.warn(traceback.format_exc())
     finally:
         xhelpers.close_display()
 

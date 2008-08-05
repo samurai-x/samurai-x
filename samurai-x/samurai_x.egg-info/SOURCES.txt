@@ -8,6 +8,7 @@ samurai_x.egg-info/dependency_links.txt
 samurai_x.egg-info/entry_points.txt
 samurai_x.egg-info/not-zip-safe
 samurai_x.egg-info/paster_plugins.txt
+samurai_x.egg-info/requires.txt
 samurai_x.egg-info/top_level.txt
 samuraix/__init__.py
 samuraix/appl.py
@@ -19,6 +20,7 @@ samuraix/defaultconfig.py
 samuraix/desktop.py
 samuraix/drawcontext.py
 samuraix/focus.py
+samuraix/frame.py
 samuraix/keysymdef.py
 samuraix/layout.py
 samuraix/logformatter.py
@@ -35,6 +37,7 @@ samuraix/simplexapp.py
 samuraix/statusbar.py
 samuraix/sxctypes.py
 samuraix/testfunc.py
+samuraix/timer.py
 samuraix/titlebar.py
 samuraix/userfuncs.py
 samuraix/widget.py

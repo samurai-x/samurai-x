@@ -250,6 +250,9 @@ class App(pyglet.event.EventDispatcher):
                     if decoration.window.window == ev.window:
                         decoration.refresh()
                         return 
+            for client in Client.all_clients:
+                if client.frame.window == ev.window:
+                    client.draw_frame()
 
     def on_key_press(self, e):
         x = c_int()
