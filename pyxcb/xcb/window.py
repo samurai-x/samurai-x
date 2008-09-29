@@ -1,23 +1,55 @@
+import warnings
+
 import cookie
 import _xcb
 import ctypes
 
+def _xize_event_mask(events):
+    mask = 0
+    for cls in events:
+        mask |= cls.event_mask
+    if not _xcb.XCB_EVENT_MASK_EXPOSURE & mask:
+        warnings.warn('You did not add the exposure event to your event mask.\n'
+                      'Do you really want that?')
+    return mask
+
 CLASS_INPUT_OUTPUT = _xcb.XCB_WINDOW_CLASS_INPUT_OUTPUT
 
-ATTR_MAP = {
-            'back_pixel': _xcb.XCB_CW_BACK_PIXEL
-           }
+ATTRIBUTE_ORDER = [
+            ('back_pixmap', _xcb.XCB_CW_BACK_PIXMAP), # TODO: xizer
+            ('back_pixel', _xcb.XCB_CW_BACK_PIXEL),# TODO: xizer
+            ('border_pixmap', _xcb.XCB_CW_BORDER_PIXMAP),# TODO: xizer
+            ('border_pixel', _xcb.XCB_CW_BORDER_PIXEL),# TODO: xizer
+            ('bit_gravity', _xcb.XCB_CW_BIT_GRAVITY),
+            ('win_gravity', _xcb.XCB_CW_WIN_GRAVITY),
+            ('backing_store', _xcb.XCB_CW_BACKING_STORE),
+            ('backing_planes', _xcb.XCB_CW_BACKING_PLANES),
+            ('backing_pixel', _xcb.XCB_CW_BACKING_PIXEL),
+            ('override_redirect', _xcb.XCB_CW_OVERRIDE_REDIRECT),
+            ('save_under', _xcb.XCB_CW_SAVE_UNDER),
+            ('event_mask', _xcb.XCB_CW_EVENT_MASK, _xize_event_mask),
+            ('dont_propagate', _xcb.XCB_CW_DONT_PROPAGATE),
+            ('colormap', _xcb.XCB_CW_COLORMAP), # TODO: xizer
+            ('cursor', _xcb.XCB_CW_CURSOR) # TODO: xizer
+           ]
 
 def xize_attributes(attributes):
+    attributes = attributes.copy()
     mask = 0
     values = []
-    for key, value in attributes.iteritems():
-        mask |= ATTR_MAP[key]
-        values.append(value)
-    # TODO
-#    mask |= _xcb.XCB_CW_EVENT_MASK
-#    values.append(_xcb.XCB_EVENT_MASK_EXPOSURE)
-    return (ctypes.c_uint * len(values))(*values)
+    for tup in ATTRIBUTE_ORDER:
+        if len(tup) > 2: # has a xizer
+            key, attr_mask, xizer = tup
+        else: # has no xizer
+            key, attr_mask = tup
+            xizer = None
+        if key in attributes:
+            mask |= attr_mask
+            val = attributes[key]
+            if xizer:
+                val = xizer(val)
+            values.append(val)
+    return (ctypes.c_uint * len(values))(*values), mask
 
 class Window(object):
     def __init__(self, connection, xid):
@@ -59,7 +91,7 @@ class Window(object):
         parent = parent._xid
 
         xid = _xcb.xcb_generate_id(connection._connection) # TODO
-        attr = xize_attributes(attributes)
+        attr, mask = xize_attributes(attributes)
 
         _xcb.xcb_create_window(connection._connection, # connection
                                _xcb.XCB_COPY_FROM_PARENT, # depth
@@ -70,8 +102,12 @@ class Window(object):
                                border_width,
                                class_,
                                visual,
-                               len(attr),
+                               mask,
                                attr)
+
+        if not 'event_mask' in attributes:
+            warnings.warn('You did not an event mask to your window.\n'
+                          'Do you really want that?')
         connection.flush()
 
         return cls(connection, xid)

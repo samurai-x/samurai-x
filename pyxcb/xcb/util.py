@@ -12,3 +12,6 @@ def cached(func):
 
 def cached_property(func):
     return property(cached(func))
+
+def reverse_dict(d):
+    return dict((value, key) for key, value in d.iteritems())
