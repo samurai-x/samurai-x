@@ -136,6 +136,53 @@ class KeyReleaseEvent(KeyEvent):
     event_struct = _xcb.xcb_key_release_event_t
     event_mask = _xcb.XCB_EVENT_MASK_KEY_RELEASE
 
+class ButtonEvent(Event):
+    button = detail = event_property('unchanged', 'detail') # TODO - only `detail`?
+    time = event_property('unchanged', 'time')
+    root = event_property('window', 'root')
+    event = event_property('window', 'event')
+    child = event_property('window', 'child')
+    root_x = event_property('unchanged', 'root_x')
+    root_y = event_property('unchanged', 'root_y')
+    event_x = event_property('unchanged', 'event_x')
+    event_y = event_property('unchanged', 'event_y')
+    state = event_property('unchanged', 'state')
+    # TODO: same_screen?
+
+class ButtonPressEvent(ButtonEvent):
+    event_type = _xcb.XCB_BUTTON_PRESS
+    event_struct = _xcb.xcb_button_press_event_t
+    event_mask = _xcb.XCB_EVENT_MASK_BUTTON_PRESS
+
+class ButtonReleaseEvent(ButtonEvent):
+    event_type = _xcb.XCB_BUTTON_RELEASE
+    event_struct = _xcb.xcb_button_release_event_t
+    event_mask = _xcb.XCB_EVENT_MASK_BUTTON_RELEASE
+
+class EnterLeaveNotifyEvent(Event):
+    detail = event_property('unchanged', 'detail')
+    time = event_property('unchanged', 'time')
+    root = event_property('window', 'root')
+    event = event_property('window', 'event')
+    child = event_property('window', 'child')
+    root_x = event_property('unchanged', 'root_x')
+    root_y = event_property('unchanged', 'root_y')
+    event_x = event_property('unchanged', 'event_x')
+    event_y = event_property('unchanged', 'event_y')
+    state = event_property('unchanged', 'state')
+    mode = event_property('unchanged', 'mode')
+    # TODO: same_screen_focus?
+
+class EnterNotifyEvent(EnterLeaveNotifyEvent):
+    event_type = _xcb.XCB_ENTER_NOTIFY
+    event_struct = _xcb.xcb_enter_notify_event_t
+    event_mask = _xcb.XCB_EVENT_MASK_ENTER_WINDOW
+
+class LeaveNotifyEvent(EnterLeaveNotifyEvent):
+    event_type = _xcb.XCB_LEAVE_NOTIFY
+    event_struct = _xcb.xcb_leave_notify_event_t
+    event_mask = _xcb.XCB_EVENT_MASK_LEAVE_WINDOW
+
 class ExposureEvent(Event):
     event_type = _xcb.XCB_EXPOSE
     event_struct = _xcb.xcb_graphics_exposure_event_t
@@ -147,7 +194,70 @@ class ExposureEvent(Event):
     width = event_property('unchanged', 'width')
     height = event_property('unchanged', 'height')
 
-EVENTS = (KeyPressEvent, KeyReleaseEvent, ExposureEvent,)
+class BaseMotionNotifyEvent(Event):
+    event_type = _xcb.XCB_MOTION_NOTIFY
+    event_struct = _xcb.xcb_motion_notify_event_t
+    
+    detail = event_property('unchanged', 'detail')
+    time = event_property('unchanged', 'time')
+    root = event_property('window', 'root')
+    event = event_property('window', 'event')
+    child = event_property('window', 'child')
+    root_x = event_property('unchanged', 'root_x')
+    root_y = event_property('unchanged', 'root_y')
+    event_x = event_property('unchanged', 'event_x')
+    event_y = event_property('unchanged', 'event_y')
+    state = event_property('unchanged', 'state')
+    # TODO: same_screen?
+
+class MotionNotifyEvent(BaseMotionNotifyEvent): # TODO: what about XCB_EVENT_MASK_BUTTON_?_MOTION
+    event_mask = _xcb.XCB_EVENT_MASK_POINTER_MOTION
+
+class KeymapNotifyEvent(Event):
+    event_type = _xcb.XCB_KEYMAP_NOTIFY
+    event_struct = _xcb.xcb_keymap_notify_event_t
+    event_mask = _xcb.XCB_EVENT_MASK_KEYMAP_STATE
+
+    keys = event_property('unchanged', 'keys') # TODO!: make Keymap objects!
+
+class VisibilityNotifyEvent(Event):
+    event_type = _xcb.XCB_VISIBILITY_NOTIFY
+    event_struct = _xcb.xcb_visibility_notify_event_t
+    event_mask = _xcb.XCB_EVENT_MASK_VISIBILITY_CHANGE
+
+    window = event_property('window', 'window')
+    state = event_property('unchanged', 'state')
+
+#class StructureNotifyEvent(Event):
+#    """
+#        You can only send, not receive, this event.
+#    """
+#    event_mask = _xcb.XCB_EVENT_MASK_STRUCTURE_NOTIFY
+#
+#class ResizeRedirectEvent(Event):
+#    """
+#        You can only send, not receive, this event.
+#    """
+#    event_mask = _xcb.XCB_EVENT_MASK_RESIZE_REDIRECT
+#
+#class SubStructureNotifyEvent(Event):
+#    """
+#        You can only send, not receive, this event.
+#    """
+#    event_mask = _xcb.XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY
+#
+#class SubStructureRedirectEvent(Event):
+#    """
+#        You can only send, not receive, this event.
+#    """
+#    event_mask = _xcb.XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT
+# TODO: what to do with these events?
+
+EVENTS = (KeyPressEvent, KeyReleaseEvent, ButtonPressEvent, ButtonReleaseEvent,
+          EnterNotifyEvent, LeaveNotifyEvent, ExposureEvent,
+          MotionNotifyEvent, KeymapNotifyEvent, VisibilityNotifyEvent,
+          )
+
 X_EVENT_MAP = dict((cls.event_type, cls) for cls in EVENTS)
 EVENT_X_MAP = reverse_dict(X_EVENT_MAP)
 
