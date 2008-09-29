@@ -3,6 +3,7 @@ import warnings
 import cookie
 import _xcb
 import ctypes
+import util
 
 def _xize_event_mask(events):
     mask = 0
@@ -32,24 +33,6 @@ ATTRIBUTE_ORDER = [
             ('colormap', _xcb.XCB_CW_COLORMAP), # TODO: xizer
             ('cursor', _xcb.XCB_CW_CURSOR) # TODO: xizer
            ]
-
-def xize_attributes(attributes):
-    attributes = attributes.copy()
-    mask = 0
-    values = []
-    for tup in ATTRIBUTE_ORDER:
-        if len(tup) > 2: # has a xizer
-            key, attr_mask, xizer = tup
-        else: # has no xizer
-            key, attr_mask = tup
-            xizer = None
-        if key in attributes:
-            mask |= attr_mask
-            val = attributes[key]
-            if xizer:
-                val = xizer(val)
-            values.append(val)
-    return (ctypes.c_uint * len(values))(*values), mask
 
 class Window(object):
     def __init__(self, connection, xid):
@@ -91,7 +74,7 @@ class Window(object):
         parent = parent._xid
 
         xid = _xcb.xcb_generate_id(connection._connection) # TODO
-        attr, mask = xize_attributes(attributes)
+        attr, mask = util.xize_attributes(attributes, ATTRIBUTE_ORDER)
 
         _xcb.xcb_create_window(connection._connection, # connection
                                _xcb.XCB_COPY_FROM_PARENT, # depth

@@ -19,3 +19,7 @@ class Screen(object):
     @property
     def white_pixel(self):
         return self._screen.white_pixel
+
+    @property
+    def black_pixel(self):
+        return self._screen.black_pixel

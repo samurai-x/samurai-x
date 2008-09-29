@@ -1,3 +1,5 @@
+import ctypes
+
 CACHE_KEYWORD = '_cached'
 
 def cached(func):
@@ -15,3 +17,21 @@ def cached_property(func):
 
 def reverse_dict(d):
     return dict((value, key) for key, value in d.iteritems())
+
+def xize_attributes(attributes, attributes_list):
+    attributes = attributes.copy()
+    mask = 0
+    values = []
+    for tup in attributes_list:
+        if len(tup) > 2: # has a xizer
+            key, attr_mask, xizer = tup
+        else: # has no xizer
+            key, attr_mask = tup
+            xizer = None
+        if key in attributes:
+            mask |= attr_mask
+            val = attributes[key]
+            if xizer:
+                val = xizer(val)
+            values.append(val)
+    return (ctypes.c_uint * len(values))(*values), mask

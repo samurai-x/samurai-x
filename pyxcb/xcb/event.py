@@ -183,7 +183,7 @@ class LeaveNotifyEvent(EnterLeaveNotifyEvent):
     event_struct = _xcb.xcb_leave_notify_event_t
     event_mask = _xcb.XCB_EVENT_MASK_LEAVE_WINDOW
 
-class ExposureEvent(Event):
+class ExposeEvent(Event):
     event_type = _xcb.XCB_EXPOSE
     event_struct = _xcb.xcb_graphics_exposure_event_t
     event_mask = _xcb.XCB_EVENT_MASK_EXPOSURE
@@ -254,7 +254,7 @@ class VisibilityNotifyEvent(Event):
 # TODO: what to do with these events?
 
 EVENTS = (KeyPressEvent, KeyReleaseEvent, ButtonPressEvent, ButtonReleaseEvent,
-          EnterNotifyEvent, LeaveNotifyEvent, ExposureEvent,
+          EnterNotifyEvent, LeaveNotifyEvent, ExposeEvent,
           MotionNotifyEvent, KeymapNotifyEvent, VisibilityNotifyEvent,
           )
 
