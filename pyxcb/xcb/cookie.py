@@ -33,7 +33,7 @@ class AtomRequest(Cookie):
         e = _xcb.xcb_generic_error_t()
         cookie = _xcb.xcb_intern_atom_reply(self.connection._connection, \
                 self._cookie, ctypes.pointer(ctypes.pointer(e)))
-        # TODO: error handling?
+        # TODO: error handling? - it makes it much slower!
         return cookie.contents
 
     @cached_property

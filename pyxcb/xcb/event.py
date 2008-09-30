@@ -6,6 +6,9 @@ import drawable
 import window
 import atom
 
+class DummyStruct(object):
+    pass
+
 class BaseEventPropertyDescriptor(object):
     def __init__(self, property_name):
         self.property_name = property_name
@@ -73,9 +76,23 @@ class Event(object):
         self.connection = connection
         self._event = _event or self.event_struct()
 
+    @classmethod
+    def cast_to(cls, voidp):
+        return ctypes.cast(voidp, ctypes.POINTER(cls.event_struct)).contents
+
     @property
     def char_p(self):
         return ctypes.cast(ctypes.pointer(self._event), ctypes.c_char_p)
+
+class DummyEvent(Event):
+    """
+         an event class containing a dummy struct which just stores values.
+    """
+    event_struct = DummyStruct
+
+    @classmethod
+    def cast_to(cls, voidp):
+        return None
 
 class ClientMessageEvent(Event):
     event_type = _xcb.XCB_CLIENT_MESSAGE
@@ -228,34 +245,41 @@ class VisibilityNotifyEvent(Event):
     window = event_property('window', 'window')
     state = event_property('unchanged', 'state')
 
-#class StructureNotifyEvent(Event):
-#    """
-#        You can only send, not receive, this event.
-#    """
-#    event_mask = _xcb.XCB_EVENT_MASK_STRUCTURE_NOTIFY
-#
-#class ResizeRedirectEvent(Event):
-#    """
-#        You can only send, not receive, this event.
-#    """
-#    event_mask = _xcb.XCB_EVENT_MASK_RESIZE_REDIRECT
-#
-#class SubStructureNotifyEvent(Event):
-#    """
-#        You can only send, not receive, this event.
-#    """
-#    event_mask = _xcb.XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY
-#
-#class SubStructureRedirectEvent(Event):
-#    """
-#        You can only send, not receive, this event.
-#    """
-#    event_mask = _xcb.XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT
-# TODO: what to do with these events?
+class StructureNotifyEvent(DummyEvent):
+    event_mask = _xcb.XCB_EVENT_MASK_STRUCTURE_NOTIFY
+
+class ResizeRedirectEvent(DummyEvent):
+    event_mask = _xcb.XCB_EVENT_MASK_RESIZE_REDIRECT
+
+class SubstructureNotifyEvent(DummyEvent):
+    event_mask = _xcb.XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY
+
+class SubstructureRedirectEvent(DummyEvent):
+    event_mask = _xcb.XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT
+
+class MapRequestEvent(Event):
+    event_type = _xcb.XCB_MAP_REQUEST
+    event_struct = _xcb.xcb_map_notify_event_t
+
+    event = parent = event_property('window', 'event')
+    window = event_property('window', 'window')
+    override_redirect = event_property('unchanged', 'override_redirect')
+
+class CreateNotifyEvent(DummyEvent):
+    event_type = _xcb.XCB_CREATE_NOTIFY
+
+class DestroyNotifyEvent(DummyEvent):
+    event_type = _xcb.XCB_DESTROY_NOTIFY
+
+class ConfigureRequestEvent(DummyEvent):
+    event_type = _xcb.XCB_CONFIGURE_REQUEST
 
 EVENTS = (KeyPressEvent, KeyReleaseEvent, ButtonPressEvent, ButtonReleaseEvent,
           EnterNotifyEvent, LeaveNotifyEvent, ExposeEvent,
           MotionNotifyEvent, KeymapNotifyEvent, VisibilityNotifyEvent,
+          StructureNotifyEvent, ResizeRedirectEvent, SubstructureNotifyEvent,
+          SubstructureRedirectEvent, MapRequestEvent,
+          CreateNotifyEvent, ConfigureRequestEvent, DestroyNotifyEvent,
           )
 
 X_EVENT_MAP = dict((cls.event_type, cls) for cls in EVENTS)
@@ -267,6 +291,6 @@ def pythonize_event(connection, _event):
         return None
     if event_type in X_EVENT_MAP:
         cls = X_EVENT_MAP[event_type]
-        return cls(connection, ctypes.cast(ctypes.pointer(_event), ctypes.POINTER(cls.event_struct)).contents)
+        return cls(connection, cls.cast_to(ctypes.pointer(_event)))
     else:
         print 'ignoring event %d' % event_type

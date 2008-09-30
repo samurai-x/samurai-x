@@ -35,3 +35,7 @@ def xize_attributes(attributes, attributes_list):
                 val = xizer(val)
             values.append(val)
     return (ctypes.c_uint * len(values))(*values), mask
+
+def check_for_error(cookie):
+    print cookie.error_code
+    assert cookie.error_code == 0

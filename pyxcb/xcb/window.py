@@ -39,6 +39,9 @@ class Window(object):
         self.connection = connection
         self._xid = xid
 
+    def __eq__(self, other):
+        return self._xid == other._xid
+
     def request_get_property(self, name):
         return cookie.PropertyRequest(self.connection, self, \
                                       self.connection.get_atom_by_name(name))
@@ -94,6 +97,19 @@ class Window(object):
         connection.flush()
 
         return cls(connection, xid)
+
+    def _get_attributes(self):
+        return None # TODO
+
+    def _set_attributes(self, attributes):
+        attr, mask = util.xize_attributes(attributes, ATTRIBUTE_ORDER)
+        _xcb.xcb_change_window_attributes_checked(self.connection._connection,
+                                                  self._xid,
+                                                  mask,
+                                                  attr)
+        self.connection.flush()
+
+    attributes = property(_get_attributes, _set_attributes)
 
     def map(self):
         _xcb.xcb_map_window(self.connection._connection, self._xid)

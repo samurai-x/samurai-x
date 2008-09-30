@@ -156,3 +156,9 @@ class Connection(object):
     def wait_for_event(self):
         _event = _xcb.xcb_wait_for_event(self._connection)
         return event.pythonize_event(self, _event.contents)
+
+    def poll_for_event(self):
+        _event = _xcb.xcb_poll_for_event(self._connection)
+        if _event:
+            return event.pythonize_event(self, _event.contents)
+
