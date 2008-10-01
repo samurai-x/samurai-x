@@ -5,6 +5,8 @@ import _xcb
 import ctypes
 import util
 
+from .drawable import Drawable
+
 def _xize_event_mask(events):
     mask = 0
     for cls in events:
@@ -34,13 +36,9 @@ ATTRIBUTE_ORDER = [
             ('cursor', _xcb.XCB_CW_CURSOR) # TODO: xizer
            ]
 
-class Window(object):
+class Window(Drawable):
     def __init__(self, connection, xid):
-        self.connection = connection
-        self._xid = xid
-
-    def __eq__(self, other):
-        return self._xid == other._xid
+        super(Window, self).__init__(connection, xid)
 
     def request_get_property(self, name):
         return cookie.PropertyRequest(self.connection, self, \
@@ -62,6 +60,10 @@ class Window(object):
 
     def send_event(self, event):
         self.request_send_event(event).execute()
+
+    def delete(self):
+        # delete myself!
+        super(Window, self).delete()
 
     @classmethod
     def create(cls, connection, screen, x, y, width, height, border_width=0, parent=None, class_=None, visual=None, attributes=None):

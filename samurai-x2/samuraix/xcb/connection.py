@@ -28,6 +28,19 @@ class Connection(object):
             address = ''
         self._connection = _xcb.xcb_connect(address, ctypes.pointer(ctypes.c_long(0))).contents # TODO: set screen
         self._atoms = {}
+        self._resource_cache = {} # Resource xid: Resource object
+
+    def get_from_cache(self, xid):
+        """ return the object with the associated xid `xid` or None. """
+        return self._resource_cache.get(xid, None)
+
+    def add_to_cache(self, obj):
+        assert obj._xid not in self._resource_cache # already in cache!
+        self._resource_cache[obj._xid] = obj # TODO: make a weak reference?
+        print 'My cache', self._resource_cache
+
+    def remove_from_cache(self, obj):
+        del self._resource_cache[obj._xid]
 
     def disconnect(self):
         """
@@ -161,4 +174,3 @@ class Connection(object):
         _event = _xcb.xcb_poll_for_event(self._connection)
         if _event:
             return event.pythonize_event(self, _event.contents)
-

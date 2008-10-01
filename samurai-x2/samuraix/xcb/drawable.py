@@ -1,4 +1,5 @@
-class Drawable(object):
+from .resource import Resource
+
+class Drawable(Resource):
     def __init__(self, connection, xid):
-        self.connection = connection
-        self._xid = xid
+        super(Drawable, self).__init__(connection, xid)
