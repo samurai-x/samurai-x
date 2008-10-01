@@ -1,3 +1,5 @@
+import samuraix.event
+
 class ResourceMeta(type):
     def __new__(mcs, name, bases, dct):
         return type.__new__(mcs, name, bases, dct)
@@ -5,14 +7,14 @@ class ResourceMeta(type):
     def __call__(cls, connection, xid, *args, **kwargs):
         cached = connection.get_from_cache(xid)
         if cached:
-            assert cached.__class__ == cls and isinstance(cached, cls) # if that one fails, it's a bug. xids are not unique then.
+            assert isinstance(cached, cls) # if that one fails, it's a bug. xids are not unique then.
             return cached
         else:
             obj = type.__call__(cls, connection, xid, *args, **kwargs)
             connection.add_to_cache(obj)
             return obj
 
-class Resource(object):
+class Resource(samuraix.event.EventDispatcher):
     __metaclass__ = ResourceMeta
 
     def __init__(self, connection, xid):

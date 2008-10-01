@@ -1,10 +1,11 @@
 import warnings
 
+import samuraix.event
+
 import cookie
 import _xcb
 import ctypes
 import util
-
 from .drawable import Drawable
 
 def _xize_event_mask(events):
@@ -116,3 +117,6 @@ class Window(Drawable):
     def map(self):
         _xcb.xcb_map_window(self.connection._connection, self._xid)
         self.connection.flush()
+
+    def on_expose(self, event):
+        print 'FUU ITS AN EXPOSE', event

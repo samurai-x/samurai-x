@@ -1,18 +1,20 @@
 import _xcb
 import ctypes
 
+import samuraix.event
+
 import atom
 import cookie
 import screen
 import window
-import event
+
 
 from util import cached_property
 
 class XcbException(Exception):
     pass
 
-class Connection(object):
+class Connection(samuraix.event.EventDispatcher):
     def __init__(self, address=None):
         """
             open a new connection.
@@ -24,6 +26,8 @@ class Connection(object):
                     variable.
 
         """
+        super(Connection, self).__init__()
+        
         if address is None:
             address = ''
         self._connection = _xcb.xcb_connect(address, ctypes.pointer(ctypes.c_long(0))).contents # TODO: set screen
@@ -170,7 +174,13 @@ class Connection(object):
         _event = _xcb.xcb_wait_for_event(self._connection)
         return event.pythonize_event(self, _event.contents)
 
+    def wait_for_event_dispatch(self):
+        _event = _xcb.xcb_wait_for_event(self._connection)
+        event.pythonize_event(self, _event.contents).dispatch()
+
     def poll_for_event(self):
         _event = _xcb.xcb_poll_for_event(self._connection)
         if _event:
             return event.pythonize_event(self, _event.contents)
+
+import event
