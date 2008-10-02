@@ -8,6 +8,7 @@ class Screen(object):
         self.connection = connection
         self._screen = _screen
 
+
     @property
     def root(self):
         """
@@ -43,3 +44,19 @@ class Screen(object):
                 _xcb.xcb_visualtype_next(visual_iter.contents)
             _xcb.xcb_depth_next(depth_iter)
         return None
+
+    @property
+    def root_depth(self):
+        return self._screen.root_depth
+
+    @property
+    def width_in_pixels(self):
+        return self._screen.width_in_pixels
+
+    @property
+    def height_in_pixels(self):
+        return self._screen.height_in_pixels
+
+    @property
+    def size_in_pixels(self):
+        return (self.width_in_pixels, self.height_in_pixels)

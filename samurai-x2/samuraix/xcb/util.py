@@ -1,4 +1,5 @@
 import ctypes
+import _xcb
 
 CACHE_KEYWORD = '_cached'
 
@@ -37,5 +38,7 @@ def xize_attributes(attributes, attributes_list):
     return (ctypes.c_uint * len(values))(*values), mask
 
 def check_for_error(cookie):
-    print cookie.error_code
     assert cookie.error_code == 0
+
+def check_void_cookie(cookie):
+    check_for_error(ctypes.cast(ctypes.pointer(cookie), ctypes.POINTER(_xcb.xcb_generic_error_t)).contents)

@@ -134,3 +134,14 @@ class SendEventRequest(Cookie):
     
     def execute(self):
         self.connection.flush()
+
+class GetGeometryRequest(Cookie):
+    def __init__(self, connection, drawable):
+        self.drawable = drawable
+        super(GetGeometryRequest, self).__init__(connection)
+
+    def request(self):
+        self._cookie = _xcb.xcb_get_geometry(self.connection._connection,
+                                             self.drawable._xid)
+
+    # TODO: continue!
