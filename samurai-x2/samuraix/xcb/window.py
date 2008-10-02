@@ -10,6 +10,13 @@ from .drawable import Drawable
 from .pixmap import Pixmap
 
 def _xize_event_mask(events):
+    """
+        convert an iterable containing `event.Event` subclasses
+        to an xcb event mask and return it.
+
+        :note: A warning will be displayed if you do not add the
+        exposure mask.
+    """
     mask = 0
     for cls in events:
         mask |= cls.event_mask
@@ -19,9 +26,18 @@ def _xize_event_mask(events):
     return mask
 
 def _xize_resource(res):
+    """
+        return a `resource.Resource`'s internal representation: 
+        its xid.
+    """
     return res._xid
 
 def _xize_pixmap(pixmap):
+    """
+        return the internal representation of a pixmap: its xid.
+        This function does call `_xize_resource`, but additionally
+        asserts that `pixmap` is really a `pixmap.Pixmap` instance.
+    """
     assert isinstance(pixmap, Pixmap)
     return _xize_resource(pixmap)
 
@@ -46,36 +62,131 @@ ATTRIBUTE_ORDER = [
            ]
 
 class Window(Drawable):
+    """
+        a window.
+    """
     def __init__(self, connection, xid):
+        """
+            instantiate a window from a known X id.
+            
+            :Parameters:
+                `connection` : connection.Connection
+                    The corresponding connection
+                `xid` : int
+                    The X id which has to exist.
+        """
         super(Window, self).__init__(connection, xid)
 
-    def request_get_property(self, name):
+    def request_get_property(self, prop):
+        """
+            request the property `name`
+
+            :Parameters:
+                `name` : str or `atom.Atom`
+                    The property's name *or* the corresponding
+                    `atom.Atom` object
+            :rtype: `cookie.PropertyRequest`
+        """
         return cookie.PropertyRequest(self.connection, self, \
-                                      self.connection.get_atom_by_name(name))
+                                      (self.connection.get_atom_by_name(prop) if isinstance(prop, basestring) \
+                                          else prop),
+                                      )
 
     def get_property(self, name):
+        """
+            request a property and return its value.
+            :see: `Window.request_get_property`
+        """
         return self.request_get_property(name).value
 
-    def request_set_property(self, name, content, format):
+    def request_set_property(self, prop, content, format):
+        """
+            request the setting of the property `prop` to `content`
+            using the format `format`.
+
+            :Parameters:
+                `prop` : str or `atom.Atom`
+                    The property's name *or* the corresponding
+                    `atom.Atom` object
+                `content` : list
+                    The object list the property should be set to.
+                    (can be very much, e.g. a Window list, an Atom list, ...)
+                `format` : int
+                    The format to use. Has to be one of 8, 16, 32
+            :rtype: `cookie.ChangePropertyRequest`
+        """
         return cookie.ChangePropertyRequest(self.connection, self, \
-                                      self.connection.get_atom_by_name(name),
+                                            (self.connection.get_atom_by_name(prop) if isinstance(prop, basestring) \
+                                          else prop),
                                       content, format)
 
     def set_property(self, name, content, format):
-        return self.request_set_property(name, content, format).value
+        """
+            request a property change and execute it immediately.
+            :see: `Window.request_set_property`
+        """
+        return self.request_set_property(name, content, format).execute()
 
     def request_send_event(self, event):
+        """
+            request the sending of the event `event`.
+            
+            :Parameters:
+                `event` : event.Event subclass instance
+                    The event to send.
+            :rtype: `cookie.SendEventRequest`
+        """
         return cookie.SendEventRequest(self.connection, self, event)
 
     def send_event(self, event):
+        """
+            request an event sending and execute.
+        """
         self.request_send_event(event).execute()
 
     def delete(self):
+        """
+            delete me. TODO.
+        """
         # delete myself!
         super(Window, self).delete()
 
     @classmethod
     def create(cls, connection, screen, x, y, width, height, border_width=0, parent=None, class_=None, visual=None, attributes=None):
+        """
+            create a new window and return an instance.
+
+            :Parameters:
+                `connection` : connection.Connection
+                    The corresponding connection.
+                `screen` : screen.Screen
+                    The corresponding screen instance.
+                    If you specify `parent` *and* `visual`, you can
+                    set `screen` to None.
+                `x` : int
+                    The initial x coordinate.
+                `y` : int
+                    The initial y coordinate.
+                `width` : int
+                    The inital width (in pixels).
+                `height` : int
+                    The initial height (in pixels).
+                `border_width` : int
+                    The border size (in pixels).
+                `parent` : window.Window
+                    The parent window instance. If this is None,
+                    use `screen`'s root window
+                `class_` : int
+                    One of CLASS_INPUT_OUTPUT (TODO: complete)
+                    defaults to CLASS_INPUT_OUTPUT
+                `visual` : int
+                    The visual ID to use. If this is None,
+                    use `screen`'s root visual.
+                `attributes` : dict
+                    a dictionary {key: attribute} containing
+                    attributes which should be set. see `Window.attributes`.
+            :rtype: `window.Window`
+        """
         if not class_:
             class_ = CLASS_INPUT_OUTPUT
         if not visual:
@@ -120,11 +231,38 @@ class Window(Drawable):
                                                   attr)
         self.connection.flush()
 
-    attributes = property(_get_attributes, _set_attributes)
+    attributes = property(_get_attributes, _set_attributes, doc="""
+    Change attributes. Item assignment is currently not supported.
+    TODO: check whether already set events survive.
+    
+    Valid attributes are:
+        back_pixmap : pixmap.Pixmap
+            The background pixmap.
+        back_pixel
+        border_pixmap : pixmap.Pixmap
+            The pixmap used for the borders
+        bit_gravity
+        win_gravity
+        backing_store
+        backing_planes
+        backing_pixel
+        override_redirect : bool
+            Should be window be visible to the window manager?
+        save_under
+        event_mask : iterable of `event.Event` subclasses
+            The event classes which should be propagated to the window.
+        dont_propagate
+        colormap
+        cursor
+
+    TODO:
+    Not all attributes are 'pythonized' yet.
+    Only attribute changing is supported for now, not retrieving.
+    """)
 
     def map(self):
+        """
+            show the window.
+        """
         _xcb.xcb_map_window(self.connection._connection, self._xid)
         self.connection.flush()
-
-    def on_expose(self, event):
-        print 'FUU ITS AN EXPOSE', event

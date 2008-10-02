@@ -13,5 +13,6 @@ context = samuraix.drawcontext.DrawContext(screen, w, h, pixmap)
 context.svg('../gfx/samuraix.svg', width=w, height=h)
 
 root.attributes = {'back_pixmap': pixmap}
+print 'Property retrieving works? :', root.get_property('_XKB_RULES_NAMES') == root.get_property(c.get_atom_by_name('_XKB_RULES_NAMES'))
 
 c.disconnect()

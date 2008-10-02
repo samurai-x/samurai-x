@@ -1,9 +1,9 @@
-'''Wrapper for cairo
+'''
+    Wrapper for cairo and cairo-xcb
 
-Generated with:
-/home/fred/tmp/pyglet-read-only/tools/wraptypes/wrap.py -o /tmp/_cairo.py -lcairo -I/usr/local/include/cairo cairo.h cairo-xcb.h cairo-xcb-xrender.h
+    modified to use xcb._xcb's wrappers instead
+    of newly generated ones.
 
-Do not modify this file.
 '''
 
 __docformat__ =  'restructuredtext'
