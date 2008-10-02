@@ -12,6 +12,6 @@ context = samuraix.drawcontext.DrawContext(screen, w, h, pixmap)
 
 context.svg('../gfx/samuraix.svg', width=w, height=h)
 
-root.attributes = {'back_pixmap': pixmap._xid}
+root.attributes = {'back_pixmap': pixmap}
 
 c.disconnect()

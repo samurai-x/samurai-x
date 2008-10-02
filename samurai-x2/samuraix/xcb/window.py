@@ -7,6 +7,7 @@ import _xcb
 import ctypes
 import util
 from .drawable import Drawable
+from .pixmap import Pixmap
 
 def _xize_event_mask(events):
     mask = 0
@@ -17,12 +18,19 @@ def _xize_event_mask(events):
                       'Do you really want that?')
     return mask
 
+def _xize_resource(res):
+    return res._xid
+
+def _xize_pixmap(pixmap):
+    assert isinstance(pixmap, Pixmap)
+    return _xize_resource(pixmap)
+
 CLASS_INPUT_OUTPUT = _xcb.XCB_WINDOW_CLASS_INPUT_OUTPUT
 
 ATTRIBUTE_ORDER = [
-            ('back_pixmap', _xcb.XCB_CW_BACK_PIXMAP), # TODO: xizer
+            ('back_pixmap', _xcb.XCB_CW_BACK_PIXMAP, _xize_pixmap),
             ('back_pixel', _xcb.XCB_CW_BACK_PIXEL),# TODO: xizer
-            ('border_pixmap', _xcb.XCB_CW_BORDER_PIXMAP),# TODO: xizer
+            ('border_pixmap', _xcb.XCB_CW_BORDER_PIXMAP, _xize_pixmap),
             ('border_pixel', _xcb.XCB_CW_BORDER_PIXEL),# TODO: xizer
             ('bit_gravity', _xcb.XCB_CW_BIT_GRAVITY),
             ('win_gravity', _xcb.XCB_CW_WIN_GRAVITY),
