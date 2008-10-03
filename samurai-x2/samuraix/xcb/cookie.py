@@ -145,3 +145,30 @@ class GetGeometryRequest(Cookie):
                                              self.drawable._xid)
 
     # TODO: continue!
+
+class QueryPointer(object):
+    def __init__(self, connection, reply):
+        self.same_screen = reply.same_screen
+        import window
+        self.root = window.Window(connection, reply.root)
+        self.child = window.Window(connection, reply.child)
+        self.root_x = reply.root_x
+        self.root_y = reply.root_y
+        self.win_x = reply.win_x
+        self.win_y = reply.win_y
+        self.mask = reply.mask
+
+class QueryPointerRequest(Cookie):
+    def __init__(self, connection, window):
+        self.window = window
+        super(QueryPointerRequest, self).__init__(connection)
+
+    def request(self):
+        self._cookie = _xcb.xcb_query_pointer(self.connection._connection,
+                                              self.window._xid)
+
+    @cached_property
+    def value(self):
+        return QueryPointer(self.connection, _xcb.xcb_query_pointer_reply(self.connection._connection,
+                                                         self._cookie,
+                                                         None).contents) # TODO: error handling

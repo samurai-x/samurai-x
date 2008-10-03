@@ -61,6 +61,16 @@ ATTRIBUTE_ORDER = [
             ('cursor', _xcb.XCB_CW_CURSOR) # TODO: xizer
            ]
 
+WINDOW_CONFIG= [
+            ('x', _xcb.XCB_CONFIG_WINDOW_X),
+            ('y', _xcb.XCB_CONFIG_WINDOW_Y),
+            ('width', _xcb.XCB_CONFIG_WINDOW_WIDTH),
+            ('height', _xcb.XCB_CONFIG_WINDOW_HEIGHT),
+            ('border_width', _xcb.XCB_CONFIG_WINDOW_BORDER_WIDTH),
+            ('sibling', _xcb.XCB_CONFIG_WINDOW_SIBLING),
+            ('stack_mode', _xcb.XCB_CONFIG_WINDOW_STACK_MODE)
+        ]
+
 class Window(Drawable):
     """
         a window.
@@ -266,3 +276,17 @@ class Window(Drawable):
         """
         _xcb.xcb_map_window(self.connection._connection, self._xid)
         self.connection.flush()
+
+    def configure(self, **config):
+        attr, mask = util.xize_attributes(config, WINDOW_CONFIG)
+        _xcb.xcb_configure_window(self.connection._connection,
+                                  self._xid,
+                                  mask,
+                                  attr)
+        self.connection.flush()
+
+    def request_query_pointer(self):
+        return cookie.QueryPointerRequest(self.connection, self)
+
+    def query_pointer(self):
+        return self.request_query_pointer().value

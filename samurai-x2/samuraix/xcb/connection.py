@@ -248,7 +248,9 @@ class Connection(samuraix.event.EventDispatcher):
             as `samuraix.event`.
         """
         _event = _xcb.xcb_wait_for_event(self._connection)
-        event.pythonize_event(self, _event.contents).dispatch()
+        pyevent = event.pythonize_event(self, _event.contents)
+        if pyevent:
+            pyevent.dispatch()
 
     def poll_for_event(self):
         """
