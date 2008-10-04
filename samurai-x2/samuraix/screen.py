@@ -1,8 +1,12 @@
 import weakref
+import os.path
 
 import samuraix.xcb
 
+from .setroot import set_root_image
 from .client import Client
+
+SVGFILE = '/home/fred/dev/wmanager/samurai-x/gfx/samuraix.svg' # TODO: just for testing
 
 class Screen(samuraix.xcb.screen.Screen):
     client_class = Client
@@ -20,17 +24,25 @@ class Screen(samuraix.xcb.screen.Screen):
                                   samuraix.xcb.event.SubstructureNotifyEvent,
                                   samuraix.xcb.event.StructureNotifyEvent,
                                   samuraix.xcb.event.KeyPressEvent,
+                                  samuraix.xcb.event.ExposeEvent,
                                   )
                     }
         self.root.push_handlers(self)
 
+        self.rootset = False
+    
     def on_map_request(self, evt):
         #if evt.override_redirect:
-        #    return # TODO
+        #    return # TODO: strange override_redirect values (88? oO)
         client = Client.get_by_window(evt.window)
         if client is None:
             # not created yet
             self.manage(evt.window, evt.window.attributes, evt.window.get_geometry())
+
+    def on_expose(self, evt):
+        if not self.rootset and os.path.isfile(os.path.abspath(SVGFILE)): # TODO: not hardcoded ;-)
+            set_root_image(self, SVGFILE)
+            self.rootset = True
 
     def manage(self, window, wa, geom):
         client = self.client_class(self, window, wa, geom)

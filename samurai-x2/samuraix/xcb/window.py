@@ -285,11 +285,12 @@ class Window(Drawable):
 
     def configure(self, **config):
         attr, mask = util.xize_attributes(config, WINDOW_CONFIG)
-        util.check_void_cookie(_xcb.xcb_configure_window(self.connection._connection,
+        cookie = _xcb.xcb_configure_window(self.connection._connection,
                                   self._xid,
                                   mask,
-                                  attr))
+                                  attr)
         self.connection.flush()
+        util.check_void_cookie(cookie)
 
     def request_query_pointer(self):
         return cookie.QueryPointerRequest(self.connection, self)
@@ -312,7 +313,8 @@ class Window(Drawable):
         return self.request_get_geometry().value
 
     def circulate(self, direction):
-        util.check_void_cookie(_xcb.xcb_circulate_window(self.connection._connection,
+        cookie = _xcb.xcb_circulate_window(self.connection._connection,
                                 self._xid,
-                                direction))
+                                direction)
         self.connection.flush()
+        util.check_void_cookie(cookie)

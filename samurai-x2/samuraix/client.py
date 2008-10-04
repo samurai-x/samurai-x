@@ -1,6 +1,7 @@
 import weakref
 
 import samuraix.event
+import samuraix.drawcontext
 import samuraix.xcb
 
 from .rect import Rect
@@ -32,6 +33,7 @@ class Client(samuraix.event.EventDispatcher):
         self.window.push_handlers(self)
 
         self._moving = False
+        self._resizing = False
 
     def on_configure_notify(self, evt):
         self.update_geom()
@@ -40,8 +42,8 @@ class Client(samuraix.event.EventDispatcher):
         self.frame_geom = frame_geom = self.geom.copy()
         frame_geom.height += 15
         frame_geom.width += 2
-        frame_geom.x -= 7
-        frame_geom.width -= 1
+        frame_geom.x -= 1
+        frame_geom.y -= 7
         frame = samuraix.xcb.window.Window.create(self.screen.connection,
                                                   self.screen,
                                                   frame_geom.x,
@@ -57,6 +59,11 @@ class Client(samuraix.event.EventDispatcher):
         frame.map()
         frame.set_handler('on_button_press', self.frame_on_button_press)
         frame.set_handler('on_button_release', self.frame_on_button_release)
+        frame.set_handler('on_expose', self.frame_on_expose)
+
+        context = samuraix.drawcontext.DrawContext(self.screen, frame_geom.width, frame_geom.height, frame)
+        context.text(0, 0, self.window.get_property('WM_NAME')[0], (0, 255, 255))
+
         self.frame = frame
 
     def update_geom(self, new_geom):
@@ -65,8 +72,34 @@ class Client(samuraix.event.EventDispatcher):
     def frame_on_button_press(self, evt):
         if evt.detail == 1:
             self._moving = True
+        if evt.detail == 3:
+            self._resizing = True
 
     def frame_on_button_release(self, evt):
         if self._moving and evt.detail == 1:
-            self.frame.configure(x=evt.root_x, y=evt.root_y)
+            try:
+                self.frame.configure(x=evt.root_x, y=evt.root_y)
+            except Exception, e:
+                print 'EXCEPTION occured when moving window:', e
             self._moving = False
+        if self._resizing and evt.detail == 3:
+            geom = self.window.get_geometry()
+            try:
+#                N = geom['x'] + x
+            # x = N - geom['x']
+                w = evt.root_x - geom['x']
+                h = evt.root_y - geom['y']
+                if w > 0 and h > 0:
+                    self.frame.configure(width=w, height=h)
+                    self.window.configure(width=w-3, height=h-22)
+            except Exception, e:
+                print 'EXCEPTION occured when resizing window:', e
+            self._resizing = False
+
+
+    def frame_on_expose(self, evt):
+        context = samuraix.drawcontext.DrawContext(self.screen, self.frame_geom.width, self.frame_geom.height, self.frame)
+        context.fill((255, 0, 255))
+        context.text(0, 10, self.window.get_property('WM_NAME')[0], (255, 255, 255))
+        # why do I have to set y=10?
+
