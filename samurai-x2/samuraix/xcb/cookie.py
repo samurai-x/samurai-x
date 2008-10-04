@@ -144,7 +144,21 @@ class GetGeometryRequest(Cookie):
         self._cookie = _xcb.xcb_get_geometry(self.connection._connection,
                                              self.drawable._xid)
 
-    # TODO: continue!
+    @cached_property
+    def _value(self):
+        return _xcb.xcb_get_geometry_reply(self.connection._connection,
+                                          self._cookie,
+                                          None).contents
+
+    @cached_property
+    def value(self):
+        struct = self._value
+        attr = {}
+        for at in ('x', 'y', 'width', 'height', 'border_width', 'depth',):
+            attr[at] = getattr(struct, at)
+        import window
+        attr['root'] = window.Window(self.connection, struct.root)
+        return attr
 
 class QueryPointer(object):
     def __init__(self, connection, reply):
@@ -172,3 +186,32 @@ class QueryPointerRequest(Cookie):
         return QueryPointer(self.connection, _xcb.xcb_query_pointer_reply(self.connection._connection,
                                                          self._cookie,
                                                          None).contents) # TODO: error handling
+
+class GetWindowAttributesRequest(Cookie):
+    def __init__(self, connection, window):
+        self.window = window
+        super(GetWindowAttributesRequest, self).__init__(connection)
+
+    def request(self):
+        self._cookie = _xcb.xcb_get_window_attributes(self.connection._connection,
+                                                      self.window._xid)
+
+    @cached_property
+    def _value(self):
+        return _xcb.xcb_get_window_attributes_reply(self.connection._connection, self._cookie, None).contents
+
+    @cached_property
+    def value(self):
+        struct = self._value
+        attr = {}
+        # first: copy unchanged attributes
+        for at in ('visual', # TODO: make `Visual` objects?
+                   'bit_gravity', 'win_gravity', 'backing_planes', 'backing_pixel',
+                   'save_under', 'map_is_installed', 'map_state', 'override_redirect',
+                   'colormap', # TODO: make `Colormap` objects!
+                   # TODO: add 'all_even_masks', 'your_event_masks', 'do_not_propagate_mask'
+                   ):
+            attr[at] = getattr(struct, at)
+        # then copy the other attributes
+        attr['class'] = struct._class
+        return attr

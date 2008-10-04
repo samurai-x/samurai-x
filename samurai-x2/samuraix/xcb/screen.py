@@ -8,7 +8,6 @@ class Screen(object):
         self.connection = connection
         self._screen = _screen
 
-
     @property
     def root(self):
         """

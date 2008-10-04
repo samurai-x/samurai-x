@@ -43,6 +43,9 @@ def _xize_pixmap(pixmap):
 
 CLASS_INPUT_OUTPUT = _xcb.XCB_WINDOW_CLASS_INPUT_OUTPUT
 
+STACK_MODE_ABOVE = _xcb.XCB_STACK_MODE_ABOVE
+STACK_MODE_BELOW = _xcb.XCB_STACK_MODE_BELOW
+
 ATTRIBUTE_ORDER = [
             ('back_pixmap', _xcb.XCB_CW_BACK_PIXMAP, _xize_pixmap),
             ('back_pixel', _xcb.XCB_CW_BACK_PIXEL),# TODO: xizer
@@ -230,10 +233,13 @@ class Window(Drawable):
 
         return cls(connection, xid)
 
-    def _get_attributes(self):
-        return None # TODO
+    def request_get_attributes(self):
+        return cookie.GetWindowAttributesRequest(self.connection, self)
 
-    def _set_attributes(self, attributes):
+    def get_attributes(self):
+        return self.request_get_attributes().value
+
+    def set_attributes(self, attributes):
         attr, mask = util.xize_attributes(attributes, ATTRIBUTE_ORDER)
         _xcb.xcb_change_window_attributes_checked(self.connection._connection,
                                                   self._xid,
@@ -241,7 +247,7 @@ class Window(Drawable):
                                                   attr)
         self.connection.flush()
 
-    attributes = property(_get_attributes, _set_attributes, doc="""
+    attributes = property(get_attributes, set_attributes, doc="""
     Change attributes. Item assignment is currently not supported.
     TODO: check whether already set events survive.
     
@@ -279,10 +285,10 @@ class Window(Drawable):
 
     def configure(self, **config):
         attr, mask = util.xize_attributes(config, WINDOW_CONFIG)
-        _xcb.xcb_configure_window(self.connection._connection,
+        util.check_void_cookie(_xcb.xcb_configure_window(self.connection._connection,
                                   self._xid,
                                   mask,
-                                  attr)
+                                  attr))
         self.connection.flush()
 
     def request_query_pointer(self):
@@ -290,3 +296,23 @@ class Window(Drawable):
 
     def query_pointer(self):
         return self.request_query_pointer().value
+
+    def reparent(self, parent, x, y):
+        _xcb.xcb_reparent_window(self.connection._connection,
+                                 self._xid,
+                                 parent._xid,
+                                 x,
+                                 y)
+        self.connection.flush()
+
+    def request_get_geometry(self):
+        return cookie.GetGeometryRequest(self.connection, self)
+
+    def get_geometry(self):
+        return self.request_get_geometry().value
+
+    def circulate(self, direction):
+        util.check_void_cookie(_xcb.xcb_circulate_window(self.connection._connection,
+                                self._xid,
+                                direction))
+        self.connection.flush()

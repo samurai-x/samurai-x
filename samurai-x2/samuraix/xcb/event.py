@@ -108,7 +108,7 @@ class Event(object):
         return ctypes.cast(ctypes.pointer(self._event), ctypes.c_char_p)
 
     def dispatch(self):
-        print 'I do dispatch', self
+        print 'dispatching', self, self._dispatch_target
         self._dispatch_target.dispatch_event(self.event_name, self)
 
     @classmethod
@@ -206,7 +206,7 @@ class ButtonEvent(Event):
     # TODO: same_screen?
 
 class ButtonPressEvent(ButtonEvent):
-    event_name = 'on_button_release'
+    event_name = 'on_button_press'
 
     event_type = _xcb.XCB_BUTTON_PRESS
     event_struct = _xcb.xcb_button_press_event_t
@@ -316,11 +316,12 @@ class MapRequestEvent(Event):
     event_type = _xcb.XCB_MAP_REQUEST
     event_struct = _xcb.xcb_map_notify_event_t
     event_name = 'on_map_request'
-    event = parent = event_property('window', 'event')
+    _dispatch_target = event = parent = event_property('window', 'event')
+    _dispatch_class = window.Window
     window = event_property('window', 'window')
     override_redirect = event_property('unchanged', 'override_redirect')
 
-class CreateNotifyEvent(DummyEvent):
+class CreateNotifyEvent(Event):
     event_type = _xcb.XCB_CREATE_NOTIFY
     event_name = 'on_create_notify'
     event_struct = _xcb.xcb_create_notify_event_t
@@ -334,7 +335,7 @@ class CreateNotifyEvent(DummyEvent):
     border_width = event_property('unchanged', 'border_width')
     override_redirect = event_property('unchanged', 'override_redirect')
 
-class DestroyNotifyEvent(DummyEvent):
+class DestroyNotifyEvent(Event):
     event_type = _xcb.XCB_DESTROY_NOTIFY
     event_name = 'on_destroy_notify'
     event_struct = _xcb.xcb_destroy_notify_event_t
@@ -342,7 +343,7 @@ class DestroyNotifyEvent(DummyEvent):
     window = event_property('window', 'window')
     event = event_property('window', 'event')
 
-class MapNotifyEvent(DummyEvent):
+class MapNotifyEvent(Event):
     event_type = _xcb.XCB_MAP_NOTIFY
     event_name = 'on_map_notify'
     event_struct = _xcb.xcb_map_notify_event_t
@@ -351,13 +352,14 @@ class MapNotifyEvent(DummyEvent):
     event = event_property('window', 'event')
     override_redirect = event_property('unchanged', 'override_redirect')
 
-class ConfigureRequestEvent(DummyEvent):
+class ConfigureRequestEvent(Event):
     event_type = _xcb.XCB_CONFIGURE_REQUEST
     event_name = 'on_configure_request'
     event_struct = _xcb.xcb_configure_request_event_t
 
     stack_mode = event_property('unchanged', 'stack_mode')
-    window = event_property('window', 'window')
+    _dispatch_class = window.Window
+    _dispatch_target = window = event_property('window', 'window')
     parent = event_property('window', 'parent')
     sibling = event_property('window', 'sibling')
 
@@ -373,8 +375,9 @@ class ConfigureNotifyEvent(Event):
     event_name = 'on_configure_notify'
     event_struct = _xcb.xcb_configure_notify_event_t
 
+    _dispatch_class = window.Window
     window = event_property('window', 'window')
-    event = event_property('window', 'event')
+    _dispatch_target = event = event_property('window', 'event')
     above_sibling = event_property('window', 'above_sibling')
     x = event_property('unchanged', 'x')
     y = event_property('unchanged', 'y')
