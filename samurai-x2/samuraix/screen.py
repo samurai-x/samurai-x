@@ -6,7 +6,7 @@ import samuraix.xcb
 from .setroot import set_root_image
 from .client import Client
 
-SVGFILE = '/home/fred/dev/wmanager/samurai-x/gfx/samuraix.svg' # TODO: just for testing
+SVGFILE = '/home/dunk/projects/samurai-x/gfx/samuraix.svg' # TODO: just for testing
 
 class Screen(samuraix.xcb.screen.Screen):
     client_class = Client
@@ -48,4 +48,9 @@ class Screen(samuraix.xcb.screen.Screen):
         client = self.client_class(self, window, wa, geom)
         print 'screen %s managing %s' % (self, client)
         self.clients.append(weakref.ref(client))
+
+    def scan(self):
+        screen_max = 2
+
+
 

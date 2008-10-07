@@ -68,6 +68,7 @@ class Client(samuraix.event.EventDispatcher):
 
     def update_geom(self, new_geom):
         self.geom = new_geom
+        print "%s geom %s" % (self, new_geom)
 
     def frame_on_button_press(self, evt):
         if evt.detail == 1:

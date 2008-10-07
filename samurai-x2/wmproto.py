@@ -1,3 +1,4 @@
+#!/usr/bin/python
 import samuraix
 import samuraix.appl
 

@@ -1,4 +1,5 @@
 import samuraix.xcb
+import samuraix.xcb.screen
 import samuraix.event
 import samuraix.screen
 
@@ -10,7 +11,14 @@ class App(object):
         self.connection = samuraix.xcb.connection.Connection()
         self.connection.push_handlers(self)
         self.running = False
-        self.screens.append(samuraix.screen.Screen(self, 0))
+
+        if False:
+            print "found %d screens" % samuraix.xcb.screen.Screen.get_screen_count(self.connection)
+            for i in range(samuraix.xcb.Screen.get_screen_count(self.connection)):
+                self.screens.append(samuraix.screen.Screen(self, i))
+        else:
+            self.screens.append(samuraix.screen.Screen(self, 0))
+            
 
     def run(self):
         self.running = True

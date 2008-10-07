@@ -59,3 +59,7 @@ class Screen(object):
     @property
     def size_in_pixels(self):
         return (self.width_in_pixels, self.height_in_pixels)
+
+    @classmethod
+    def get_screen_count(cls, connection):
+        return _xcb.xcb_setup_roots_length(connection._connection)
