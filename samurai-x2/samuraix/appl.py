@@ -11,7 +11,6 @@ class App(object):
         self.connection = samuraix.xcb.connection.Connection()
         self.connection.push_handlers(self)
         self.running = False
-
         if False:
             print "found %d screens" % samuraix.xcb.screen.Screen.get_screen_count(self.connection)
             for i in range(samuraix.xcb.Screen.get_screen_count(self.connection)):

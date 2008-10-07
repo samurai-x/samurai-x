@@ -1,5 +1,9 @@
-import _xcb
+import logging
+log = logging.getLogger(__name__)
+
 import ctypes
+
+import _xcb
 
 from util import reverse_dict
 import drawable
@@ -108,7 +112,7 @@ class Event(object):
         return ctypes.cast(ctypes.pointer(self._event), ctypes.c_char_p)
 
     def dispatch(self):
-        print 'dispatching', self, self._dispatch_target
+        log.debug('Dispatching %s to %s' % (repr(self), repr(self._dispatch_target)))
         self._dispatch_target.dispatch_event(self.event_name, self)
 
     @classmethod
@@ -406,4 +410,4 @@ def pythonize_event(connection, _event):
         cls = X_EVENT_MAP[event_type]
         return cls(connection, cls.cast_to(ctypes.pointer(_event)))
     else:
-        print 'ignoring event %d' % event_type
+        log.debug('Ignoring event %d' % event_type)

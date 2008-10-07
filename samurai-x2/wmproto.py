@@ -1,7 +1,5 @@
 #!/usr/bin/python
-import samuraix
+import samuraix.main
 import samuraix.appl
 
-app = samuraix.appl.App()
-app.init()
-app.run()
+samuraix.main.run(samuraix.appl.App())

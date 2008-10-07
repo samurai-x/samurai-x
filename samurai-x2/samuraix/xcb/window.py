@@ -90,6 +90,9 @@ class Window(Drawable):
         """
         super(Window, self).__init__(connection, xid)
 
+    def __repr__(self):
+        return '<Window object XID: %d>' % self._xid
+
     def request_get_property(self, prop):
         """
             request the property `name`
