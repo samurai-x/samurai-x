@@ -1,7 +1,3 @@
-import ctypes
-import _xcb
-import copy
-
 class BaseIterator(object):
     next_func = None
 
@@ -9,16 +5,16 @@ class BaseIterator(object):
         self._iter = _iter
         self._stop = False
 
-    def __iter__(self):
-        return self
+    def _transform(self, data):
+        """ a placeholder to transform the iterator data `data`
+            to a python object, if needed
+            
+            :param data: an iterator's data
+        """
+        return data
 
-    def next(self):
-        if not self._iter.rem:
-            raise StopIteration()
-        data = self._iter.data
-        print self._iter.data
-        self.next_func(self._iter)
-        print self._iter.data
-        return data.contents
-class DepthIterator(BaseIterator):
-    next_func = _xcb.xcb_depth_next
+    def __iter__(self):
+        while self._iter.rem:
+            yield self._transform(self._iter.data.contents)
+            self.next_func(self._iter)
+

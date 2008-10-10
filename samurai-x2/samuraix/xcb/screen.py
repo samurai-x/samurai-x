@@ -1,7 +1,14 @@
 import _xcb
 import window
-
+from .iterator import BaseIterator
 from util import cached_property
+from . import depth
+
+class DepthIterator(BaseIterator):
+    next_func = _xcb.xcb_depth_next
+
+    def _transform(self, data):
+        return depth.Depth(data)
 
 class Screen(object):
     def __init__(self, connection, _screen):
@@ -27,6 +34,10 @@ class Screen(object):
     def black_pixel(self):
         return self._screen.black_pixel
 
+    @property
+    def allowed_depths(self):
+        return DepthIterator(_xcb.xcb_screen_allowed_depths_iterator(self._screen))
+
     @cached_property # TODO: really cache it?
     def root_visual_type(self):
         """
@@ -34,14 +45,10 @@ class Screen(object):
             TODO: implement pythinonic iterators
             TODO: add a `Visual` object?
         """
-        depth_iter = _xcb.xcb_screen_allowed_depths_iterator(self._screen)
-        while depth_iter.rem:
-            visual_iter = _xcb.xcb_depth_visuals_iterator(depth_iter.data)
-            while visual_iter.rem:
-                if self._screen.root_visual == visual_iter.data.contents.visual_id:
-                    return visual_iter.data.contents
-                _xcb.xcb_visualtype_next(visual_iter.contents)
-            _xcb.xcb_depth_next(depth_iter)
+        for d in self.allowed_depths:
+            for vt in d.visualtypes:
+                if self._screen.root_visual == vt.visual_id:
+                    return vt
         return None
 
     @property

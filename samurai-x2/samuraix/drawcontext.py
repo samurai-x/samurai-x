@@ -17,7 +17,7 @@ class DrawContext(object):
         self.drawable = drawable
         self.visual = screen.root_visual_type
         self.surface = cairo.cairo_xcb_surface_create(byref(self.connection._connection), drawable._xid,
-                            byref(self.visual),
+                            byref(self.visual._visualtype),
                             width, height)
         self.cr = cairo.cairo_create(self.surface)
         cairo.cairo_set_operator(self.cr, cairo.CAIRO_OPERATOR_SOURCE)
