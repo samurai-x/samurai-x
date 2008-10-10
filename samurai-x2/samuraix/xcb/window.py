@@ -49,6 +49,9 @@ CLASS_INPUT_OUTPUT = _xcb.XCB_WINDOW_CLASS_INPUT_OUTPUT
 STACK_MODE_ABOVE = _xcb.XCB_STACK_MODE_ABOVE
 STACK_MODE_BELOW = _xcb.XCB_STACK_MODE_BELOW
 
+GRAB_MODE_ASYNC = _xcb.XCB_GRAB_MODE_ASYNC
+GRAB_MODE_SYNC = _xcb.XCB_GRAB_MODE_SYNC
+
 ATTRIBUTE_ORDER = [
             ('back_pixmap', _xcb.XCB_CW_BACK_PIXMAP, _xize_pixmap),
             ('back_pixel', _xcb.XCB_CW_BACK_PIXEL),# TODO: xizer
@@ -344,4 +347,13 @@ class Window(Drawable):
 
         return (Window(self.connection, wins[i]) for i in range(tree_len))
             
-
+    def grab_key(self, keycode, modifiers=0, owner_events=True, pointer_mode=GRAB_MODE_ASYNC, keyboard_mode=GRAB_MODE_ASYNC):
+        cookie = _xcb.xcb_grab_key(self.connection._connection,
+                                   owner_events,
+                                   self._xid,
+                                   modifiers,
+                                   keycode,
+                                   pointer_mode,
+                                   keyboard_mode)
+        self.connection.flush()
+        util.check_void_cookie(cookie)

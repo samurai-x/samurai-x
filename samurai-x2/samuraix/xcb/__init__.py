@@ -1,3 +1,5 @@
+from . import keysymdef
+from . import modifiers
 from . import connection
 from . import event
 from . import keysymbols

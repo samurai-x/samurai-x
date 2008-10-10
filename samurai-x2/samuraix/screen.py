@@ -30,6 +30,8 @@ class Screen(samuraix.xcb.screen.Screen):
                                   samuraix.xcb.event.ExposeEvent,
                                   )
                     }
+        self.root.grab_key(self.connection.keysymbols.get_keycode(0x71),
+                    samuraix.xcb.modifiers.MOD_MASK_CONTROL) # 'CTRL-q' for me
         self.root.push_handlers(self)
 
         self.rootset = False
@@ -46,6 +48,14 @@ class Screen(samuraix.xcb.screen.Screen):
         if not self.rootset and os.path.isfile(os.path.abspath(SVGFILE)): # TODO: not hardcoded ;-)
             set_root_image(self, SVGFILE)
             self.rootset = True
+
+    def on_key_press(self, evt):
+        print 'The user pressed keysym', self.connection.keysymbols.get_keysym(evt.keycode)
+        if self.connection.keysymbols.get_keysym(evt.keycode) == 0x71:
+            print "It's q, so I'll shutdown."
+            import sys
+            self.connection.disconnect()
+            sys.exit(0)
 
     def manage(self, window, wa=None, geom=None):
         client = self.client_class(self, window, wa or window.attributes, geom or window.get_geometry())
