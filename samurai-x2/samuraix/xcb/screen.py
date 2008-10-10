@@ -69,4 +69,4 @@ class Screen(object):
 
     @classmethod
     def get_screen_count(cls, connection):
-        return _xcb.xcb_setup_roots_length(connection._connection)
+        return _xcb.xcb_setup_roots_length(connection._setup)
