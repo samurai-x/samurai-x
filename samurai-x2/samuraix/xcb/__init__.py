@@ -1,4 +1,5 @@
 from . import keysymdef
+from . import keylookup
 from . import modifiers
 from . import connection
 from . import event

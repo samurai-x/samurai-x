@@ -31,7 +31,7 @@ class Screen(samuraix.xcb.screen.Screen):
                                   )
                     }
         self.root.grab_key(self.connection.keysymbols.get_keycode(0x71),
-                    samuraix.xcb.modifiers.MOD_MASK_CONTROL) # 'CTRL-q' for me
+                    samuraix.xcb.modifiers.MOD_MASK_4) # 'CTRL-q' for me
         self.root.push_handlers(self)
 
         self.rootset = False
@@ -51,7 +51,7 @@ class Screen(samuraix.xcb.screen.Screen):
 
     def on_key_press(self, evt):
         print 'The user pressed keysym', self.connection.keysymbols.get_keysym(evt.keycode)
-        if self.connection.keysymbols.get_keysym(evt.keycode) == 0x71:
+        if samuraix.xcb.keylookup.keysym_to_str(self.connection.keysymbols.get_keysym(evt.keycode)) == 'q':
             print "It's q, so I'll shutdown."
             import sys
             self.connection.disconnect()
