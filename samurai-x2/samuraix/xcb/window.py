@@ -345,6 +345,3 @@ class Window(Drawable):
         return (Window(self.connection, wins[i]) for i in range(tree_len))
             
 
-
-
-

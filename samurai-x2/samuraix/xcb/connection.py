@@ -3,6 +3,7 @@ import ctypes
 
 import samuraix.event
 
+import keysymbols
 import atom
 import cookie
 import screen
@@ -45,6 +46,17 @@ class Connection(samuraix.event.EventDispatcher):
         self._connection = _xcb.xcb_connect(address, ctypes.pointer(ctypes.c_long(0))).contents # TODO: set screen
         self._atoms = {}
         self._resource_cache = {} # Resource xid: Resource object
+        self._keysymbols = None # a KeySymbols object, if needed
+
+    @property
+    def keysymbols(self):
+        """
+            get (one!) `keysymbols.KeySymbols` instance if needed
+            This instance will be killed when you call `self.disconnect`.
+        """
+        if self._keysymbols is None:
+            self._keysymbols = keysymbols.KeySymbols(self)
+        return self._keysymbols
 
     def get_from_cache(self, xid):
         """ 
@@ -76,7 +88,9 @@ class Connection(samuraix.event.EventDispatcher):
         """
         if self._connection is None:
             raise XcbException('You can disconnect a display only one time.')
-
+        if self._keysymbols is not None:
+            self._keysymbols.die()
+            self._keysymbols = None
         _xcb.xcb_disconnect(ctypes.pointer(self._connection))
         self._connection = None
 
