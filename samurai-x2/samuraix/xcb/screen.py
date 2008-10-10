@@ -11,6 +11,10 @@ class DepthIterator(BaseIterator):
         return depth.Depth(data)
 
 class Screen(object):
+    @classmethod
+    def get_screen_count(cls, connection):
+        return _xcb.xcb_setup_roots_length(connection._setup)
+
     def __init__(self, connection, _screen):
         self.connection = connection
         self._screen = _screen
@@ -67,6 +71,3 @@ class Screen(object):
     def size_in_pixels(self):
         return (self.width_in_pixels, self.height_in_pixels)
 
-    @classmethod
-    def get_screen_count(cls, connection):
-        return _xcb.xcb_setup_roots_length(connection._setup)

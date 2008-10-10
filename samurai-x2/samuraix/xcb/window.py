@@ -9,6 +9,9 @@ import util
 from .drawable import Drawable
 from .pixmap import Pixmap
 
+import logging 
+log = logging.getLogger(__name__)
+
 def _xize_event_mask(events):
     """
         convert an iterable containing `event.Event` subclasses
@@ -321,3 +324,27 @@ class Window(Drawable):
                                 direction)
         self.connection.flush()
         util.check_void_cookie(cookie)
+
+    @property #should cache? i dont think it should change...
+    def _tree_cookie(self):
+        return _xcb.xcb_query_tree_unchecked(self.connection._connection, self._xid)
+
+    @property
+    def children(self):
+        """ return a generator for all direct children of the window """
+        tree_r = _xcb.xcb_query_tree_reply(self.connection._connection, self._tree_cookie, None)
+        if not tree_r:
+            return False
+
+        wins = _xcb.xcb_query_tree_children(tree_r)
+        if not wins:
+            raise Exception('cant get tree children')
+        
+        tree_len = _xcb.xcb_query_tree_children_length(tree_r)
+
+        return (Window(self.connection, wins[i]) for i in range(tree_len))
+            
+
+
+
+

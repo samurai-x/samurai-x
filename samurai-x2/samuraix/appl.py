@@ -16,7 +16,9 @@ class App(object):
         self.running = False
         log.debug("found %d screens" % samuraix.xcb.screen.Screen.get_screen_count(self.connection))
         for i in range(samuraix.xcb.screen.Screen.get_screen_count(self.connection)):
-            self.screens.append(samuraix.screen.Screen(self, i))
+            scr = samuraix.screen.Screen(self, i)
+            scr.scan()
+            self.screens.append(scr)
 
     def run(self):
         self.running = True

@@ -47,13 +47,20 @@ class Screen(samuraix.xcb.screen.Screen):
             set_root_image(self, SVGFILE)
             self.rootset = True
 
-    def manage(self, window, wa, geom):
-        client = self.client_class(self, window, wa, geom)
+    def manage(self, window, wa=None, geom=None):
+        client = self.client_class(self, window, wa or window.attributes, geom or window.get_geometry())
         logging.debug('screen %s is now managing %s' % (self, client))
         self.clients.append(weakref.ref(client))
 
     def scan(self):
-        screen_max = 2
+        for child in self.root.children:
+            log.debug('%s found child %s', self, child)
+        
+            if child.attributes['override_redirect']:
+                log.debug('%s not managing %s override_redirect is set', self, child)
+                continue
+
+            self.manage(child)
 
 
 
