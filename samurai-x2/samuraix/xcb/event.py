@@ -356,6 +356,16 @@ class MapNotifyEvent(Event):
     event = event_property('window', 'event')
     override_redirect = event_property('unchanged', 'override_redirect')
 
+class UnmapNotifyEvent(Event):
+    event_type = _xcb.XCB_UNMAP_NOTIFY
+    event_name = 'on_unmap_notify'
+    event_struct = _xcb.xcb_unmap_notify_event_t
+
+    _dispatch_class = window.Window
+    _dispatch_target = window = event_property('window', 'window')
+    event = event_property('window', 'event')
+    from_configure = event_property('unchanged', 'from_configure')
+
 class ConfigureRequestEvent(Event):
     event_type = _xcb.XCB_CONFIGURE_REQUEST
     event_name = 'on_configure_request'
@@ -395,7 +405,7 @@ EVENTS = (KeyPressEvent, KeyReleaseEvent, ButtonPressEvent, ButtonReleaseEvent,
           MotionNotifyEvent, KeymapNotifyEvent, VisibilityNotifyEvent,
           StructureNotifyEvent, ResizeRedirectEvent, SubstructureNotifyEvent,
           SubstructureRedirectEvent, MapRequestEvent,
-          CreateNotifyEvent, ConfigureRequestEvent, MapNotifyEvent,
+          CreateNotifyEvent, ConfigureRequestEvent, MapNotifyEvent, UnmapNotifyEvent,
           DestroyNotifyEvent, ConfigureNotifyEvent,
           )
 

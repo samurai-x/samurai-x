@@ -173,6 +173,11 @@ class Window(Drawable):
         # delete myself!
         super(Window, self).delete()
 
+    def destroy(self):
+        c = _xcb.xcb_destroy_window(self.connection._connection, self._xid)
+        self.connection.flush()
+        util.check_void_cookie(c)
+
     @classmethod
     def create(cls, connection, screen, x, y, width, height, border_width=0, parent=None, class_=None, visual=None, attributes=None):
         """
