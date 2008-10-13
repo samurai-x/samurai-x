@@ -46,8 +46,8 @@ def on_key_event(evt):
     keysymbols = KeySymbols(c)
     keysym = keysymbols.get_keysym(evt.keycode)
     keystring = keysym_to_str(keysym)
-    print '%(event)s, serial %(keycode)s, window 0x%(window)X,'% \
-        ({'event':evt, 'keycode':evt.keycode, 'window':evt.event._xid})
+    print '%(event)s, serial %(type)s, window 0x%(window)X,'% \
+        ({'event':evt, 'type':evt.event_type, 'window':evt.event._xid})
     print 'root 0x%(root)X, time %(time)d, (%(win_x)d,%(win_y)d), root:(%(root_x)d,%(root_y)d),'% \
         ({'root':evt.root._xid,'time':evt._event.time,'win_x':evt.event_x, 'win_y':evt.event_y, 'root_x':evt.root_x, 'root_y':evt.root_y})
     print 'state 0x%(state)X, keycode %(keycode)d (keysym 0x%(keysymbol)X, "%(keystring)s")), '% \
