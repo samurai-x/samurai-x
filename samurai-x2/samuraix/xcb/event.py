@@ -119,6 +119,9 @@ class Event(object):
     def register_event_type(cls):
         cls._dispatch_class.register_event_type(cls.event_name)
 
+    def __str__(self):
+        return self.__class__.__name__
+
 class DummyEvent(Event):
     """
          an event class containing a dummy struct which just stores values.

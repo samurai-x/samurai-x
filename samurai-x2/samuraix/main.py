@@ -3,6 +3,12 @@ log = logging.getLogger(__name__)
 from .logformatter import FDFormatter
 
 def configure_logging(file_level=logging.DEBUG, console_level=logging.DEBUG):
+    '''Set up the logging for the client.
+
+    @param file_level: level of logging for files, defaults to logging.DEBUG
+    @param console_level: level of logging for the console, defaults to DEBUG
+    '''
+
     console = logging.StreamHandler()
     console.setLevel(console_level)
     formatter_class = FDFormatter
