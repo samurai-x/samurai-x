@@ -40,6 +40,18 @@ def check_timer():
 def on_expose(evt):
     print 'on_expose %s'%(evt)
 
+def on_button_event(evt):
+    print '%(event)s, serial %(type)s, window 0x%(window)X,'% \
+        ({'event':evt, 'type':evt.event_type, 'window':evt.event._xid})
+    print 'root 0x%(root)X, time %(time)d, (%(win_x)d,%(win_y)d), root:(%(root_x)d,%(root_y)d),'% \
+        ({'root':evt.root._xid,'time':evt._event.time,'win_x':evt.event_x, 'win_y':evt.event_y, 'root_x':evt.root_x, 'root_y':evt.root_y})
+    print 'state 0x%(state)X, button %(button)d, '% \
+        ({'state':evt.state, 'button':evt.button})
+
+def on_expose_event(evt):
+    print '%(event)s, serial %(type)s, window 0x%(window)X,'% \
+        ({'event':evt, 'type':evt.event_type, 'window':evt.event._xid})
+
 def on_key_event(evt):
     from samuraix.xcb.keysymbols import KeySymbols
     from samuraix.xcb.keylookup import  keysym_to_str
@@ -52,8 +64,13 @@ def on_key_event(evt):
         ({'root':evt.root._xid,'time':evt._event.time,'win_x':evt.event_x, 'win_y':evt.event_y, 'root_x':evt.root_x, 'root_y':evt.root_y})
     print 'state 0x%(state)X, keycode %(keycode)d (keysym 0x%(keysymbol)X, "%(keystring)s")), '% \
         ({'state':evt.state, 'keycode':evt.keycode, 'keysymbol':keysym, 'keystring':keystring})
-event_map = {xcb.event.KeyPressEvent.event_type: on_key_event, \
-            xcb.event.KeyReleaseEvent.event_type: on_key_event, \
+
+
+event_map = {xcb.event.KeyPressEvent.event_type: on_key_event,             \
+            xcb.event.KeyReleaseEvent.event_type: on_key_event,            \
+            #xcb.event.ExposeEvent.event_type: on_expose_event,             \
+            xcb.event.ButtonPressEvent.event_type: on_button_event,        \
+            xcb.event.ButtonReleaseEvent.event_type: on_button_event,      \
             }
 while check_timer():
     evt = c.poll_for_event()
