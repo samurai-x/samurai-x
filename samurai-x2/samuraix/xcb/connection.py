@@ -3,11 +3,12 @@ import ctypes
 
 import samuraix.event
 
-import keysymbols
+#import keysymbols
 import atom
 import cookie
 import screen
 import window
+from samuraix.xcb import cursor
 
 from util import cached_property
 
@@ -47,7 +48,8 @@ class Connection(samuraix.event.EventDispatcher):
         self._atoms = {}
         self._resource_cache = {} # Resource xid: Resource object
         self._keysymbols = None # a KeySymbols object, if needed
-
+        self.cursors = cursor.Cursors(self)    
+       
     @property
     def keysymbols(self):
         """

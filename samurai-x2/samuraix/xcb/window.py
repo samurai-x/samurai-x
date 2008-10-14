@@ -362,3 +362,33 @@ class Window(Drawable):
                                    keyboard_mode)
         self.connection.flush()
         util.check_void_cookie(cookie)
+
+    def grab_pointer(self, cursor=None):
+        if cursor is None:
+            cursor = self.connection.cursors['Normal']
+
+        # need to put this somewhere generic...
+        MOUSEMASK = (_xcb.XCB_EVENT_MASK_BUTTON_PRESS 
+                   | _xcb.XCB_EVENT_MASK_BUTTON_RELEASE 
+                   | _xcb.XCB_EVENT_MASK_POINTER_MOTION)
+
+        grab_ptr_c = _xcb.xcb_grab_pointer_unchecked(self.connection._connection, 
+                        False, 
+                        self._xid, 
+                        MOUSEMASK, 
+                        _xcb.XCB_GRAB_MODE_ASYNC, 
+                        _xcb.XCB_GRAB_MODE_ASYNC,
+                        self._xid,  
+                        cursor, 
+                        _xcb.XCB_CURRENT_TIME)
+
+        grab_ptr_r = _xcb.xcb_grab_pointer_reply(self.connection._connection, grab_ptr_c, None)
+
+        if not grab_ptr_r:
+            return False
+    
+        return True
+
+
+
+

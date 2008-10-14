@@ -73,6 +73,7 @@ class Client(samuraix.event.EventDispatcher):
     def frame_on_button_press(self, evt):
         if evt.detail == 1:
             self._moving = True
+            #assert self.screen.root.grab_pointer()
         if evt.detail == 3:
             self._resizing = True
 
@@ -97,10 +98,10 @@ class Client(samuraix.event.EventDispatcher):
                 print 'EXCEPTION occured when resizing window:', e
             self._resizing = False
 
-
     def frame_on_expose(self, evt):
         context = samuraix.drawcontext.DrawContext(self.screen, self.frame_geom.width, self.frame_geom.height, self.frame)
         context.fill((255, 0, 255))
         context.text(0, 10, self.window.get_property('WM_NAME')[0], (255, 255, 255))
-        # why do I have to set y=10?
+        # fred: why do I have to set y=10?
+        # dunk: because its specifying the baseline of the text not the top 
 

@@ -1,5 +1,6 @@
 import logging
 log = logging.getLogger(__name__)
+
 from .logformatter import FDFormatter
 
 def configure_logging(file_level=logging.DEBUG, console_level=logging.DEBUG):
@@ -27,5 +28,11 @@ def configure_logging(file_level=logging.DEBUG, console_level=logging.DEBUG):
 
 def run(app):
     configure_logging()
-    app.init()
-    app.run()
+    try:
+        app.init()
+        app.run()
+    except Exception:
+        import traceback
+        log.error(traceback.format_exc())
+
+

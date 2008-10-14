@@ -30,8 +30,8 @@ class Screen(samuraix.xcb.screen.Screen):
                                   samuraix.xcb.event.ExposeEvent,
                                   )
                     }
-        self.root.grab_key(self.connection.keysymbols.get_keycode(0x71),
-                    samuraix.xcb.modifiers.MOD_MASK_4) # 'CTRL-q' for me
+        #self.root.grab_key(self.connection.keysymbols.get_keycode(0x71),
+        #            samuraix.xcb.modifiers.MOD_MASK_4) # 'CTRL-q' for me
         self.root.push_handlers(self)
 
         self.rootset = False

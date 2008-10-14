@@ -17,6 +17,11 @@ class ResourceMeta(type):
 class Resource(samuraix.event.EventDispatcher):
     __metaclass__ = ResourceMeta
 
+    ## should we have something like this?:
+    #@classmethod
+    #def new(cls, connection):
+    #    return cls(connection, _xcb.xcb_generate_id(connection._connection))
+
     def __init__(self, connection, xid):
         self.connection = connection
         self._xid = xid
