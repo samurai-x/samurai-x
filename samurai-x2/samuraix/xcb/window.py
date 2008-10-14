@@ -121,7 +121,7 @@ class Window(Drawable):
         """
         return self.request_get_property(name).value
 
-    def request_set_property(self, prop, content, format):
+    def request_set_property(self, prop, content, format, prop_type=None):
         """
             request the setting of the property `prop` to `content`
             using the format `format`.
@@ -140,14 +140,14 @@ class Window(Drawable):
         return cookie.ChangePropertyRequest(self.connection, self, \
                                             (self.connection.get_atom_by_name(prop) if isinstance(prop, basestring) \
                                           else prop),
-                                      content, format)
+                                      content, format, prop_type)
 
-    def set_property(self, name, content, format):
+    def set_property(self, name, content, format, prop_type=None):
         """
             request a property change and execute it immediately.
             :see: `Window.request_set_property`
         """
-        return self.request_set_property(name, content, format).execute()
+        return self.request_set_property(name, content, format, prop_type).execute()
 
     def request_send_event(self, event):
         """

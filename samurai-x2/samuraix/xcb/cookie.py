@@ -99,16 +99,17 @@ class PropertyRequest(Cookie):
 #        return pointer.value[:length]
 
 class ChangePropertyRequest(Cookie):
-    def __init__(self, connection, window, atom, obj, format):
+    def __init__(self, connection, window, atom, obj, format, prop_type):
         self.window = window
         self.atom = atom
         self.obj = obj
         self.format = format
+        self.prop_type = prop_type
 
         super(ChangePropertyRequest, self).__init__(connection)
 
     def request(self):
-        data, type_atom, length = self.connection.xize_property(self.window, self.atom, self.obj)
+        data, type_atom, length = self.connection.xize_property(self.window, self.atom, self.obj, self.prop_type)
         print type_atom._atom, length, self.window._xid
         self._cookie = _xcb.xcb_change_property_checked(self.connection._connection,
              _xcb.XCB_PROP_MODE_REPLACE,   self.window._xid,
