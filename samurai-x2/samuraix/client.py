@@ -74,8 +74,15 @@ class Client(samuraix.event.EventDispatcher):
         if evt.detail == 1:
             self._moving = True
             assert self.screen.root.grab_pointer()
+            self.screen.root.push_handlers(on_motion_notify=self.moving_motion_notify, on_button_release=self.moving_release)
         if evt.detail == 3:
             self._resizing = True
+
+    def moving_motion_notify(self, evt):
+        self.frame.configure(x=evt.root_x, y=evt.root_y)
+
+    def moving_release(self, evt):
+        self.screen.root.ungrab_pointer()
 
     def frame_on_button_release(self, evt):
         if self._moving and evt.detail == 1:

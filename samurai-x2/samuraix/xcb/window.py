@@ -176,7 +176,7 @@ class Window(Drawable):
     def destroy(self):
         c = _xcb.xcb_destroy_window(self.connection._connection, self._xid)
         self.connection.flush()
-        util.check_void_cookie(c)
+        util.check_void_cookie(self.connection._connection, c)
 
     @classmethod
     def create(cls, connection, screen, x, y, width, height, border_width=0, parent=None, class_=None, visual=None, attributes=None):
@@ -299,12 +299,12 @@ class Window(Drawable):
 
     def configure(self, **config):
         attr, mask = util.xize_attributes(config, WINDOW_CONFIG)
-        cookie = _xcb.xcb_configure_window(self.connection._connection,
+        cookie = _xcb.xcb_configure_window_checked(self.connection._connection,
                                   self._xid,
                                   mask,
                                   attr)
         self.connection.flush()
-        util.check_void_cookie(cookie)
+        util.check_void_cookie(self.connection._connection, cookie)
 
     def request_query_pointer(self):
         return cookie.QueryPointerRequest(self.connection, self)
@@ -331,7 +331,7 @@ class Window(Drawable):
                                 self._xid,
                                 direction)
         self.connection.flush()
-        util.check_void_cookie(cookie)
+        util.check_void_cookie(self.connection._connection, cookie)
 
     @property #should cache? i dont think it should change...
     def _tree_cookie(self):
@@ -361,7 +361,7 @@ class Window(Drawable):
                                    pointer_mode,
                                    keyboard_mode)
         self.connection.flush()
-        util.check_void_cookie(cookie)
+        util.check_void_cookie(self.connection._connection, cookie)
 
     def grab_pointer(self, cursor=None):
         if cursor is None:
@@ -389,6 +389,7 @@ class Window(Drawable):
     
         return True
 
-
-
-
+    def ungrab_pointer(self):
+        ungrab_ptr_c = _xcb.xcb_ungrab_pointer(self.connection._connection, _xcb.XCB_CURRENT_TIME)
+        self.connection.flush()
+#        util.check_void_cookie(self.connection._connection, ungrab_ptr_c) # TODO?

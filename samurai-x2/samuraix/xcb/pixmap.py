@@ -9,7 +9,7 @@ class Pixmap(Drawable):
     @classmethod
     def create(cls, connection, drawable, width, height, depth=0):
         xid = _xcb.xcb_generate_id(connection._connection)
-        check_void_cookie(_xcb.xcb_create_pixmap_checked(connection._connection,
+        check_void_cookie(connection._connection, _xcb.xcb_create_pixmap_checked(connection._connection,
                                         depth,
                                         xid,
                                         drawable._xid,

@@ -37,9 +37,10 @@ def xize_attributes(attributes, attributes_list):
             values.append(val)
     return (ctypes.c_uint * len(values))(*values), mask
 
-def check_for_error(cookie):
-    if not cookie.error_code == 0:
-        raise Exception('The cookie error code is not 0: %d\nBy the way, we need nicer exceptions.' % cookie.error_code)
+def check_for_error(err):
+    if err and not err.contents.error_code == 0:
+        raise Exception('The cookie error code is not 0: %d\nBy the way, we need nicer exceptions.' % err.error_code)
 
-def check_void_cookie(cookie):
-    check_for_error(ctypes.cast(ctypes.pointer(cookie), ctypes.POINTER(_xcb.xcb_generic_error_t)).contents)
+def check_void_cookie(connection, cookie):
+    check_for_error(_xcb.xcb_request_check(connection, cookie))
+
