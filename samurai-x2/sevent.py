@@ -78,3 +78,4 @@ while check_timer():
         if evt.event_type in event_map:
             old_time = int(time.time())
             event_map[evt.event_type](evt)
+            print ''
