@@ -3,7 +3,7 @@ import ctypes
 
 import samuraix.event
 
-#import keysymbols
+import keysymbols
 import atom
 import cookie
 import screen
