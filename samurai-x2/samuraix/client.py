@@ -73,7 +73,7 @@ class Client(samuraix.event.EventDispatcher):
     def frame_on_button_press(self, evt):
         if evt.detail == 1:
             self._moving = True
-            #assert self.screen.root.grab_pointer()
+            assert self.screen.root.grab_pointer()
         if evt.detail == 3:
             self._resizing = True
 

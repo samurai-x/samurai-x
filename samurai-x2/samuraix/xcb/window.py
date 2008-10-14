@@ -372,14 +372,14 @@ class Window(Drawable):
                    | _xcb.XCB_EVENT_MASK_BUTTON_RELEASE 
                    | _xcb.XCB_EVENT_MASK_POINTER_MOTION)
 
-        grab_ptr_c = _xcb.xcb_grab_pointer_unchecked(self.connection._connection, 
+        grab_ptr_c = _xcb.xcb_grab_pointer(self.connection._connection, 
                         False, 
                         self._xid, 
                         MOUSEMASK, 
                         _xcb.XCB_GRAB_MODE_ASYNC, 
                         _xcb.XCB_GRAB_MODE_ASYNC,
                         self._xid,  
-                        cursor, 
+                        _xcb.XCB_NONE, # TODO: specify cursor
                         _xcb.XCB_CURRENT_TIME)
 
         grab_ptr_r = _xcb.xcb_grab_pointer_reply(self.connection._connection, grab_ptr_c, None)
