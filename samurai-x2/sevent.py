@@ -26,7 +26,7 @@ w = xcb.window.Window.create(c, screen, 10, 10, 200, 200, 10,        \
                                     xcb.event.MotionNotifyEvent,     \
                                     ])
                                 })
-w.set_property('WM_NAME', ['ourtitle',], 8, 'STRING')
+w.set_property('WM_NAME', ['samurai-x events',], 8, 'STRING')
 w.map()
 gc = xcb.graphics.GraphicsContext.create(c, w, {'foreground':screen.black_pixel})
 old_time = int(time.time())
@@ -40,6 +40,18 @@ def check_timer():
 @w.event
 def on_expose(evt):
     print 'on_expose %s'%(evt)
+
+def on_enter_event(evt):
+    '''
+    EnterNotify event, serial 28, synthetic NO, window 0x2800001,
+    root 0x1a6, subw 0x0, time 40773788, (14,811), root:(735,831),
+    mode NotifyNormal, detail NotifyNonlinear, same_screen YES,
+    focus YES, state 0
+    '''
+    print '%(event)s, serial %(type)s, window 0x%(window)X,'% \
+        ({'event':evt, 'type':evt.event_type, 'window':evt.event._xid})
+    print 'root 0x%(root)X, time %(time)d, (%(win_x)d,%(win_y)d), root:(%(root_x)d,%(root_y)d),'% \
+        ({'root':evt.root._xid,'time':evt._event.time,'win_x':evt.event_x, 'win_y':evt.event_y, 'root_x':evt.root_x, 'root_y':evt.root_y})
 
 def on_button_event(evt):
     print '%(event)s, serial %(type)s, window 0x%(window)X,'% \
@@ -72,6 +84,7 @@ event_map = {xcb.event.KeyPressEvent.event_type: on_key_event,             \
             #xcb.event.ExposeEvent.event_type: on_expose_event,             \
             xcb.event.ButtonPressEvent.event_type: on_button_event,        \
             xcb.event.ButtonReleaseEvent.event_type: on_button_event,      \
+            xcb.event.EnterNotifyEvent.event_type: on_enter_event,         \
             }
 while check_timer():
     evt = c.poll_for_event()
@@ -80,3 +93,5 @@ while check_timer():
             old_time = int(time.time())
             event_map[evt.event_type](evt)
             print ''
+w.destroy()
+sys.exit(0)
