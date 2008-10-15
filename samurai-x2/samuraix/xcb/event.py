@@ -246,11 +246,13 @@ class EnterNotifyEvent(EnterLeaveNotifyEvent):
     event_type = _xcb.XCB_ENTER_NOTIFY
     event_struct = _xcb.xcb_enter_notify_event_t
     event_mask = _xcb.XCB_EVENT_MASK_ENTER_WINDOW
+    event_name = 'on_enter_notify'
 
 class LeaveNotifyEvent(EnterLeaveNotifyEvent):
     event_type = _xcb.XCB_LEAVE_NOTIFY
     event_struct = _xcb.xcb_leave_notify_event_t
     event_mask = _xcb.XCB_EVENT_MASK_LEAVE_WINDOW
+    event_name = 'on_leave_notify'
 
 class ExposeEvent(Event):
     event_name = 'on_expose'

@@ -30,6 +30,10 @@ def on_expose(evt):
     gc.poly_rectangle(w, [xcb.graphics.Rectangle(0, 0, 20, 20)], fill=True)
     gc.fill_poly(w, [(300, 300), (340, 340), (0, 480), (300, 300)], xcb.graphics.POLY_SHAPE_NONCONVEX)
 
+@w.event
+def on_enter_notify(evt):
+    print evt
+
 while 1:
     c.wait_for_event_dispatch()
 
