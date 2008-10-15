@@ -26,6 +26,7 @@ w = xcb.window.Window.create(c, screen, 10, 10, 200, 200, 10,        \
                                     xcb.event.MotionNotifyEvent,     \
                                     ])
                                 })
+w.set_property('WM_NAME', ['ourtitle',], 8, 'STRING')
 w.map()
 gc = xcb.graphics.GraphicsContext.create(c, w, {'foreground':screen.black_pixel})
 old_time = int(time.time())
