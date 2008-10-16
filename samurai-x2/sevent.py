@@ -1,6 +1,5 @@
 '''
 Input monitoring for key events and mouse (press/release) events. 
-
 '''
 import sys
 import time
