@@ -29,6 +29,7 @@ class Client(samuraix.event.EventDispatcher):
             return True
 
         def on_button_release(self, evt):
+            self.client.screen.root.remove_handlers(self)
             self.client.screen.root.ungrab_pointer()
             return True
 
@@ -115,15 +116,9 @@ class Client(samuraix.event.EventDispatcher):
             #assert self.screen.root.grab_pointer()
             # TODO this should push a class not just some functions
             #self.screen.root.push_handlers(on_motion_notify=self.moving_motion_notify, on_button_release=self.moving_release)
-            self.screen.root.push_handlers(self.MoveHandler(self, evt.root_x, evt.root_y))
+            self.screen.root.push_handlers(self.MoveHandler(self, evt.event_x, evt.event_y))
         if evt.detail == 3:
             self._resizing = True
-
-    def moving_motion_notify(self, evt):
-        self.frame.configure(x=evt.root_x, y=evt.root_y)
-
-    def moving_release(self, evt):
-        self.screen.root.ungrab_pointer()
 
     """
     def frame_on_button_release(self, evt):
