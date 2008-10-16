@@ -306,6 +306,31 @@ class Window(Drawable):
         self.connection.flush()
         util.check_void_cookie(self.connection._connection, cookie)
 
+    def resize(self, x, y, width, height):
+        geom = self.get_geometry().copy()
+
+        self.configure(x=x, y=y, width=w, height=h)
+
+        geom.x = x
+        geom.y = y
+        geom.width = width
+        geom.height = height 
+        
+        ce = _xcb.xcb_configure_notify_event_t()
+
+        ce.response_type = _xcb.XCB_CONFIGURE_NOTIFY
+        ce.event = self._xid
+        ce.window = self._xid
+        ce.x = geom.x
+        ce.y = geom.y
+        ce.width = geom.width
+        ce.height = geom.height
+        ce.border_width = 1
+        ce.above_sibling = _xcb.XCB_NONE;
+        ce.override_redirect = 0
+        _xcb.xcb_send_event(self.connection.connection, 
+                false, self._xid, _xcb.XCB_EVENT_MASK_STRUCTURE_NOTIFY, ctypes.byref(ce))
+
     def request_query_pointer(self):
         return cookie.QueryPointerRequest(self.connection, self)
 
