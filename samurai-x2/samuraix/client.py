@@ -2,14 +2,13 @@ import weakref
 
 import samuraix.event
 import samuraix.drawcontext
-import samuraix.xcb
+import samuraix.xcb, samuraix.xcb._xcb
 from samuraix import cairo
 
 from .rect import Rect
 
 import logging 
 log = logging.getLogger(__name__)
-
 
 class Client(samuraix.event.EventDispatcher):
     all_clients = []
@@ -18,11 +17,21 @@ class Client(samuraix.event.EventDispatcher):
     all_frames = []
     window_2_frame_map = weakref.WeakValueDictionary()
 
-    class MoveHandler(object):
+    class ClientHandler(object):
         def __init__(self, client, x, y):
-            self.client = client 
-            client.screen.root.grab_pointer()
+            self.client = client
             self.offset_x, self.offset_y = x, y
+        
+        def on_motion_notify(self, evt):
+            pass
+
+        def on_button_releae(self, evt):
+            pass
+
+    class MoveHandler(ClientHandler):
+        def __init__(self, client, x, y):
+            super(Client.MoveHandler, self).__init__(client, x, y)
+            client.screen.root.grab_pointer()
 
         def on_motion_notify(self, evt):
             self.client.frame.configure(x=evt.root_x-self.offset_x, y=evt.root_y - self.offset_y)
@@ -31,6 +40,36 @@ class Client(samuraix.event.EventDispatcher):
         def on_button_release(self, evt):
             self.client.screen.root.remove_handlers(self)
             self.client.screen.root.ungrab_pointer()
+            self.client.force_update_geom()
+            return True
+
+    class ResizeHandler(ClientHandler):
+        def __init__(self, client, x, y):
+            super(Client.ResizeHandler, self).__init__(client, x, y)
+            client.screen.root.grab_pointer()
+
+        def on_motion_notify(self, evt):
+            return True
+
+        def on_button_release(self, evt):
+            geom = self.client.geom
+            w = evt.root_x - geom.x
+            h = evt.root_y - geom.y
+
+            self.client.window.resize(geom.x, geom.y, w, h)
+
+            self.client.frame.resize(geom.x-self.client.style['border'],
+                    geom.y-(self.client.style['title_height']+self.client.style['border']),
+                    w+self.client.style['border']*2,
+                    h+self.client.style['title_height']+(self.client.style['border']*2))
+
+            self.client.window.reparent(self.client.frame, self.client.style['border'], self.client.style['border'] + self.client.style['title_height'])
+
+            #configure(width=w, height=h)
+
+            self.client.screen.root.remove_handlers(self)
+            self.client.screen.root.ungrab_pointer()
+            self.client.frame_on_expose(None)
             return True
 
     # TODO class ResizeHandler(object)
@@ -59,8 +98,7 @@ class Client(samuraix.event.EventDispatcher):
         self._resizing = False
 
     def on_configure_notify(self, evt):
-        #self.update_geom()
-        pass
+        self.force_update_geom() # TODO. ugly
 
     def create_frame(self):
         self.frame_geom = frame_geom = self.geom.copy()
@@ -106,9 +144,17 @@ class Client(samuraix.event.EventDispatcher):
                 self.frame
         )
 
-    def update_geom(self, new_geom):
-        self.geom = new_geom
-        print "%s geom %s" % (self, new_geom)
+    def update_geom(self, geometry):
+        if isinstance(geometry, dict):
+            geometry = Rect(geometry['x'], geometry['y'], geometry['width'], geometry['height'])
+        self.geom = geometry
+        self.frame_geom = frame_geom = self.geom.copy()
+        frame_geom.height += self.style['title_height'] + (self.style['border'] * 2)
+        frame_geom.width += self.style['border'] * 2
+        frame_geom.x -= self.style['border']
+        frame_geom.y -= self.style['title_height'] + self.style['border']
+        print "%s geom %s" % (self, geometry)
+        self.frame_on_expose(None)
 
     def frame_on_button_press(self, evt):
         if evt.detail == 1:
@@ -118,7 +164,10 @@ class Client(samuraix.event.EventDispatcher):
             #self.screen.root.push_handlers(on_motion_notify=self.moving_motion_notify, on_button_release=self.moving_release)
             self.screen.root.push_handlers(self.MoveHandler(self, evt.event_x, evt.event_y))
         if evt.detail == 3:
-            self._resizing = True
+            self.screen.root.push_handlers(self.ResizeHandler(self, evt.event_x, evt.event_y))
+
+    def force_update_geom(self):
+        self.update_geom(self.window.get_geometry())
 
     """
     def frame_on_button_release(self, evt):

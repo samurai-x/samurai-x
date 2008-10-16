@@ -103,6 +103,9 @@ class Event(object):
         self._event = _event or self.event_struct()
         self._dispatch_target = self._dispatch_target or self.connection
 
+        if hasattr(self, 'response_type'):
+            self.response_type = self.event_type
+
     @classmethod
     def cast_to(cls, voidp):
         return ctypes.cast(voidp, ctypes.POINTER(cls.event_struct)).contents
