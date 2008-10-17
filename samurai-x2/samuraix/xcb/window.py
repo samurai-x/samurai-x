@@ -297,6 +297,13 @@ class Window(Drawable):
         _xcb.xcb_map_window(self.connection._connection, self._xid)
         self.connection.flush()
 
+    def unmap(self):
+        """
+            hide the window.
+        """
+        _xcb.xcb_unmap_window(self.connection._connection, self._xid)
+        self.connection.flush()
+
     def configure(self, **config):
         attr, mask = util.xize_attributes(config, WINDOW_CONFIG)
         cookie = _xcb.xcb_configure_window_checked(self.connection._connection,

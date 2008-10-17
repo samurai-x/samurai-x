@@ -7,7 +7,7 @@ from samuraix import cairo
 
 from .rect import Rect
 
-import logging 
+import logging
 log = logging.getLogger(__name__)
 
 class Client(samuraix.event.EventDispatcher):
@@ -79,6 +79,8 @@ class Client(samuraix.event.EventDispatcher):
         return cls.window_2_client_map.get(window)
 
     def __init__(self, screen, window, wa, geometry):
+        super(Client, self).__init__()
+
         self.screen = screen
         self.window = window
         self.window.attributes = {'event_mask': (samuraix.xcb.event.StructureNotifyEvent,)}
@@ -196,10 +198,29 @@ class Client(samuraix.event.EventDispatcher):
             context.text(
                     self.style['border'] + 1, 
                     self.style['border'] + 1 + context.default_font_size, 
-                    self.window.get_property('WM_NAME')[0], 
+                    (self.window.get_property('WM_NAME') or ['untitled'])[0], 
                     (255, 255, 255)
             )
 
             # TODO should the client know its own connection?
             self.window.connection.flush()
 
+    def ban(self):
+        log.debug('banning %s' % self)
+        self.window.unmap()
+        # TODO: multiple decoration
+        self.frame.unmap()
+        # TODO: set window state
+
+    def unban(self):
+        log.debug('unbanning %s' % self)
+        self.window.map()
+        # TODO: multiple decoration
+        self.frame.map()
+        # TODO: set window state
+
+    def focus(self):
+        log.error('focusing not implemented yet %s' % self)
+
+Client.register_event_type('on_focus')
+Client.register_event_type('on_removed')

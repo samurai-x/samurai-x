@@ -85,8 +85,11 @@ class PropertyRequest(Cookie):
     def _value(self):
         e = _xcb.xcb_generic_error_t()
         c = _xcb.xcb_get_property_reply(self.connection._connection, self._cookie, \
-                ctypes.pointer(ctypes.pointer(e))).contents # TODO: error handling?
-        return c
+                ctypes.pointer(ctypes.pointer(e))) # TODO: error handling?
+        if c:
+            return c.contents
+        else:
+            return None
 
     @property
     def value(self):

@@ -337,9 +337,10 @@ class CreateNotifyEvent(Event):
     event_type = _xcb.XCB_CREATE_NOTIFY
     event_name = 'on_create_notify'
     event_struct = _xcb.xcb_create_notify_event_t
+    _dispatch_class = window.Window
 
     window = event_property('window', 'window')
-    parent = event_property('window', 'parent')
+    _dispatch_target = parent = event_property('window', 'parent')
     x = event_property('unchanged', 'x')
     y = event_property('unchanged', 'y')
     width = event_property('unchanged', 'width')
@@ -351,9 +352,10 @@ class DestroyNotifyEvent(Event):
     event_type = _xcb.XCB_DESTROY_NOTIFY
     event_name = 'on_destroy_notify'
     event_struct = _xcb.xcb_destroy_notify_event_t
+    _dispatch_class = window.Window
 
     window = event_property('window', 'window')
-    event = event_property('window', 'event')
+    _dispatch_target = event = event_property('window', 'event')
 
 class MapNotifyEvent(Event):
     event_type = _xcb.XCB_MAP_NOTIFY

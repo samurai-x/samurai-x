@@ -188,6 +188,8 @@ class Connection(samuraix.event.EventDispatcher):
                        'ATOM': _pythonize_atom,
                        'WINDOW': _pythonize_window
                        }
+        if not _reply:
+            return []
         return PYTHONIZERS[atom.Atom(self, _reply.type).get_name()]()
 
     def xize_property(self, window, my_atom, prop, prop_type=None):

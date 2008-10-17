@@ -5,22 +5,26 @@ import weakref
 import os.path
 
 import samuraix.xcb
+import samuraix.event
 from samuraix.xcb import _xcb
 
 from .setroot import set_root_image
 from .client import Client
+from .desktop import Desktop, DesktopList
 
-SVGFILE = '/home/fred/dev/wmanager/samurai-x/gfx/samuraix.svg' # TODO: just for testing
+import os.path
+SVGFILE = os.path.abspath('../gfx/samuraix.svg') # TODO: just for testing
 
-class Screen(samuraix.xcb.screen.Screen):
+class Screen(samuraix.xcb.screen.Screen, samuraix.event.EventDispatcher):
     client_class = Client
+    desktop_class = Desktop
 
     def __init__(self, app, num):
         super(Screen, self).__init__(app.connection, app.connection.screens[num]._screen)
         
-        self.desktops = []
-        self.active_desktop = None
+        self.desktops = DesktopList()
         self.clients = []
+        self.active_desktop = None
         self.focused_client = None
 
         self.root.attributes = {'event_mask': (samuraix.xcb.event.MapRequestEvent,
@@ -33,9 +37,22 @@ class Screen(samuraix.xcb.screen.Screen):
                     }
         self.root.grab_key(self.connection.keysymbols.get_keycode(0x71),
                     samuraix.xcb.modifiers.MOD_MASK_4) # 'CTRL-q' for me
+        self.root.grab_key(self.connection.keysymbols.get_keycode(0x6e),
+                    samuraix.xcb.modifiers.MOD_MASK_4) # 'win-n'
+
         self.root.push_handlers(self)
 
+        # TODO: dynamic desktops
+        self.desktops.append(self.desktop_class(self, 'muh ...'))
+        self.desktops.append(self.desktop_class(self, '... sagt die kuh'))
+        self.active_desktop = self.desktops[0]
+        #self.dispatch_event('on_desktop_add', desktop)
+
         self.rootset = False
+
+    @property
+    def active_desktop_idx(self):
+        return self.desktops.index(self.active_desktop)
     
     def on_map_request(self, evt):
         #if evt.override_redirect:
@@ -53,11 +70,15 @@ class Screen(samuraix.xcb.screen.Screen):
 
     def on_key_press(self, evt):
         print 'The user pressed keysym', self.connection.keysymbols.get_keysym(evt.keycode)
-        if samuraix.xcb.keylookup.keysym_to_str(self.connection.keysymbols.get_keysym(evt.keycode)) == 'q':
+        k = samuraix.xcb.keylookup.keysym_to_str(self.connection.keysymbols.get_keysym(evt.keycode))
+        if k == 'q':
             print "It's q, so I'll shutdown."
             import sys
             self.connection.disconnect()
             sys.exit(0)
+        elif k == 'n':
+            # next desktop
+            self.set_active_desktop(self.desktops.next(self.active_desktop_idx))
 
     def manage(self, window, wa=None, geom=None):
         """ manage a new window - this may *not* result in a window being managed 
@@ -65,22 +86,34 @@ class Screen(samuraix.xcb.screen.Screen):
         if window.attributes['override_redirect']:
             log.debug('%s not managing %s override_redirect is set', self, window)
             return False
-        elif window.attributes['map_state'] != _xcb.XCB_MAP_STATE_VIEWABLE:
-            log.debug('%s not managing %s - not viewable', self, window)
-            return False
-
+        #elif window.attributes['map_state'] != _xcb.XCB_MAP_STATE_VIEWABLE:
+        #    log.debug('%s not managing %s - not viewable', self, window)
+        #    return False
+        # TODO: is that correct?
         client = self.client_class(self, window, wa or window.attributes, geom or window.get_geometry())
         logging.debug('screen %s is now managing %s' % (self, client))
         self.clients.append(weakref.ref(client))
-        return client 
+        self.active_desktop.add_client(client)
+        return client
 
     def scan(self):
         for child in self.root.children:
-            log.debug('%s found child %s %s', self, child, child.get_property('WM_NAME')[0])
+            log.debug('%s found child %s %s', self, child, child.get_property('WM_NAME'))
             log.debug('attr %s', child.get_attributes())
 
             # NB we still not might manage this window - check manage()
             self.manage(child)
 
+    def set_active_desktop(self, desktop):
+        assert desktop in self.desktops
+        if desktop is self.active_desktop:
+            return
+        if self.active_desktop:
+            logging.debug('hiding desktop %s' % self.active_desktop)
+            self.active_desktop.dispatch_event('on_hide')
+        self.active_desktop = desktop
+        logging.debug('showing desktop %s' % desktop)
+        desktop.dispatch_event('on_show')
+        self.dispatch_event('on_desktop_change')
 
-
+Screen.register_event_type('on_desktop_change')

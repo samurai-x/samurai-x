@@ -42,7 +42,9 @@ class App(object):
         # this will allow properly setting up signal callbacks and timers 
 
         while self.running:
-            self.connection.wait_for_event_dispatch()
-
+            try:
+                self.connection.wait_for_event_dispatch()
+            except Exception, e:
+                log.error(e)
 
 
