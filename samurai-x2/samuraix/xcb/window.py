@@ -52,6 +52,10 @@ STACK_MODE_BELOW = _xcb.XCB_STACK_MODE_BELOW
 GRAB_MODE_ASYNC = _xcb.XCB_GRAB_MODE_ASYNC
 GRAB_MODE_SYNC = _xcb.XCB_GRAB_MODE_SYNC
 
+INPUT_FOCUS_NONE = _xcb.XCB_INPUT_FOCUS_NONE
+INPUT_FOCUS_POINTER_ROOT = _xcb.XCB_INPUT_FOCUS_POINTER_ROOT
+INPUT_FOCUS_PARENT = _xcb.XCB_INPUT_FOCUS_PARENT
+
 ATTRIBUTE_ORDER = [
             ('back_pixmap', _xcb.XCB_CW_BACK_PIXMAP, _xize_pixmap),
             ('back_pixel', _xcb.XCB_CW_BACK_PIXEL),# TODO: xizer
@@ -422,6 +426,12 @@ class Window(Drawable):
             return False
     
         return True
+
+
+    def set_input_focus(self, revert_to=INPUT_FOCUS_POINTER_ROOT):
+        cookie = _xcb.xcb_set_input_focus_checked(self.connection._connection, revert_to, self._xid, _xcb.XCB_CURRENT_TIME)
+        self.connection.flush()
+        util.check_void_cookie(self.connection._connection, cookie)
 
     def ungrab_pointer(self):
         ungrab_ptr_c = _xcb.xcb_ungrab_pointer(self.connection._connection, _xcb.XCB_CURRENT_TIME)

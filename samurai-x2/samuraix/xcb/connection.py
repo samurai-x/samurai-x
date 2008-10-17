@@ -45,7 +45,7 @@ class Connection(samuraix.event.EventDispatcher):
         if address is None:
             address = ''
         self._connection = _xcb.xcb_connect(address, ctypes.pointer(ctypes.c_long(0))).contents # TODO: set screen
-        self._atoms = {}
+        self.atoms = atom.AtomDict(self)
         self._resource_cache = {} # Resource xid: Resource object
         self._keysymbols = None # a KeySymbols object, if needed
         self.cursors = cursor.Cursors(self)    
@@ -129,26 +129,6 @@ class Connection(samuraix.event.EventDispatcher):
         """
         return cookie.AtomRequest(self, name, only_if_exists).value
 
-    def build_atom_list(self):
-        """
-            generate the internal atom list.
-            You can access it with `atoms`.
-        """
-        self._atoms = {}
-        for name in ('CARDINAL', 'STRING'): # update: http://tronche.com/gui/x/xlib/window-information/properties-and-atoms.html
-            self._atoms[name] = self.get_atom_by_name(name, True)
-        
-    @property
-    def atoms(self):
-        """
-            return a dictionary {name: Atom object}
-            build the atom list if necessary, otherwise
-            use the atom cache `self._atoms`
-        """
-        if not self._atoms:
-            self.build_atom_list()
-        return self._atoms
-
     def pythonize_property(self, _reply):
         """
             convert a property reply to a list of python values and return it.
@@ -220,23 +200,28 @@ class Connection(samuraix.event.EventDispatcher):
             assert all(v.__class__ == cls for v in prop)
             
         def _xize_string():
-            return (ctypes.c_char_p * len(prop))(*[ctypes.c_char_p(v) for v in prop])
+            #return #(ctypes.c_char_p * len(prop))(*[ctypes.create_string_buffer(v) for v in prop])
+            return ctypes.create_string_buffer('\x00'.join(prop)+'\x00')
 
         def _xize_cardinal():
             return (ctypes.c_uint * len(prop))(*[ctypes.c_uint(v) for v in prop])
 
         def _xize_window():
-            return (ctypes.c_uint * len(prop))(*[ctypes.c_uint(v) for v in prop])
+            return (ctypes.c_uint * len(prop))(*[ctypes.c_uint(v._xid) for v in prop])
+
+        def _xize_atom():
+            return (ctypes.c_uint * len(prop))(*[ctypes.c_uint(v._atom) for v in prop])
 
         check()
 
         if not prop_type:
             prop_type = atom.Atom(self, cookie.PropertyRequest(self, window, my_atom)._value.type).get_name()
-        
         XIZERS = {
                  'STRING': _xize_string,
+                 'UTF8_STRING': _xize_string,
                  'CARDINAL': _xize_cardinal,
-                 'WINDOW': _xize_window
+                 'WINDOW': _xize_window,
+                 'ATOM': _xize_atom,
                  }
         data = XIZERS[prop_type]()
         print data[0]

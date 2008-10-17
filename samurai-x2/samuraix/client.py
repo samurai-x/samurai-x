@@ -14,9 +14,6 @@ class Client(samuraix.event.EventDispatcher):
     all_clients = []
     window_2_client_map = weakref.WeakValueDictionary()
     
-    all_frames = []
-    window_2_frame_map = weakref.WeakValueDictionary()
-
     class ClientHandler(object):
         def __init__(self, client, x, y):
             self.client = client
@@ -86,6 +83,7 @@ class Client(samuraix.event.EventDispatcher):
         self.window.attributes = {'event_mask': (samuraix.xcb.event.StructureNotifyEvent,)}
 
         self.geom = Rect(geometry['x'], geometry['y'], geometry['width'], geometry['height'])
+        self.sticky = False # display on all desktops?
 
         self.all_clients.append(self)
         self.window_2_client_map[self.window] = self
@@ -100,6 +98,17 @@ class Client(samuraix.event.EventDispatcher):
 
     def on_configure_notify(self, evt):
         self.force_update_geom() # TODO. ugly
+
+    def on_destroy_notify(self, evt):
+        # destroy me :-(
+        self.remove()
+
+    def remove(self):
+        self.all_clients.remove(self)
+        del self.window_2_client_map[self.window]
+        self.frame.destroy()
+        self.window.destroy()
+        self.dispatch_event('on_removed')
 
     def create_frame(self):
         self.frame_geom = frame_geom = self.geom.copy()
@@ -130,11 +139,7 @@ class Client(samuraix.event.EventDispatcher):
         self.window.reparent(frame, self.style['border'], self.style['border'] + self.style['title_height'])
         frame.map()
         frame.set_handler('on_button_press', self.frame_on_button_press)
-        #frame.set_handler('on_button_release', self.frame_on_button_release)
         frame.set_handler('on_expose', self.frame_on_expose)
-
-        #context = samuraix.drawcontext.DrawContext(self.screen, frame_geom.width, frame_geom.height, frame)
-        #context.text(0, 0, self.window.get_property('WM_NAME')[0], (0, 255, 255))
 
         self.frame = frame
 
@@ -153,6 +158,7 @@ class Client(samuraix.event.EventDispatcher):
         self.frame_on_expose(None)
 
     def frame_on_button_press(self, evt):
+        self.focus()
         if evt.detail == 1:
             self._moving = True
             #assert self.screen.root.grab_pointer()
@@ -186,7 +192,9 @@ class Client(samuraix.event.EventDispatcher):
         else:
             g = self.frame.get_geometry()
             log.warn(str((g, dir(g))))
-
+            if evt and not evt.x == 0: # TODO!!!11: too much flickering :-(
+                log.warn('ignoring frame expose event %s' % evt)
+                return
             cairo.cairo_set_antialias(cr, cairo.CAIRO_ANTIALIAS_NONE)
             cairo.cairo_set_line_width(cr, 1)
             cairo.cairo_set_source_rgb(cr, 0.8, 0.0, 0.0)
@@ -206,6 +214,8 @@ class Client(samuraix.event.EventDispatcher):
             self.window.connection.flush()
 
     def ban(self):
+        if self.sticky:
+            return # TODO?
         log.debug('banning %s' % self)
         self.window.unmap()
         # TODO: multiple decoration
@@ -213,6 +223,8 @@ class Client(samuraix.event.EventDispatcher):
         # TODO: set window state
 
     def unban(self):
+        if self.sticky:
+            return # TODO?
         log.debug('unbanning %s' % self)
         self.window.map()
         # TODO: multiple decoration
@@ -220,7 +232,11 @@ class Client(samuraix.event.EventDispatcher):
         # TODO: set window state
 
     def focus(self):
-        log.error('focusing not implemented yet %s' % self)
+        self.window.set_input_focus()
+        self.screen.focused_client = self
+        self.dispatch_event('on_focus')
+        self.frame.configure(stack_mode=samuraix.xcb.window.STACK_MODE_ABOVE) # have to configure `frame` here!
+        # TODO: grab buttons etc
 
 Client.register_event_type('on_focus')
 Client.register_event_type('on_removed')

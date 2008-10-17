@@ -3,6 +3,7 @@ log = logging.getLogger(__name__)
 
 import weakref
 import os.path
+import functools
 
 import samuraix.xcb
 import samuraix.event
@@ -43,16 +44,22 @@ class Screen(samuraix.xcb.screen.Screen, samuraix.event.EventDispatcher):
         self.root.push_handlers(self)
 
         # TODO: dynamic desktops
-        self.desktops.append(self.desktop_class(self, 'muh ...'))
-        self.desktops.append(self.desktop_class(self, '... sagt die kuh'))
-        self.active_desktop = self.desktops[0]
-        #self.dispatch_event('on_desktop_add', desktop)
+        self.add_desktop('muh ...')
+        self.add_desktop('... sagt die kuh')
+        #self.active_desktop = self.desktops[0]
+        self.set_active_desktop(self.desktops[0])
+        self.set_supported_hints()
 
         self.rootset = False
 
     @property
     def active_desktop_idx(self):
         return self.desktops.index(self.active_desktop)
+
+    def add_desktop(self, name):
+        desktop = self.desktop_class(self, name)
+        self.desktops.append(desktop)
+        self.dispatch_event('on_desktop_add', desktop)
     
     def on_map_request(self, evt):
         #if evt.override_redirect:
@@ -92,9 +99,29 @@ class Screen(samuraix.xcb.screen.Screen, samuraix.event.EventDispatcher):
         # TODO: is that correct?
         client = self.client_class(self, window, wa or window.attributes, geom or window.get_geometry())
         logging.debug('screen %s is now managing %s' % (self, client))
-        self.clients.append(weakref.ref(client))
+        self.clients.append(weakref.ref(client)) # do we need that?
         self.active_desktop.add_client(client)
+        client.push_handlers(on_removed=self.update_client_list)
+        try:
+            window_type = window.get_property('_NET_WM_WINDOW_TYPE')[0].name
+            if window_type == '_NET_WM_WINDOW_TYPE_DOCK':
+                # make it sticky!
+                # ugly ugly
+                client.sticky = True
+            log.info('window is a %s' % window_type)
+        except Exception, e:
+            log.error(e)
+        self.update_client_list()
         return client
+
+    def on_client_message(self, event):
+        log.info('client message received: %s %s' % (event.type.name, event.data))
+        if event.type.name == '_NET_CURRENT_DESKTOP': # client message from pager: change desktop
+            self.set_active_desktop_by_index(event.data[0])
+
+    def update_client_list(self):
+        # re-set _NET_CLIENT_LIST
+        self.root.set_property('_NET_CLIENT_LIST', [c.window for c in self.client_class.all_clients], 32, 'WINDOW')
 
     def scan(self):
         for child in self.root.children:
@@ -116,4 +143,44 @@ class Screen(samuraix.xcb.screen.Screen, samuraix.event.EventDispatcher):
         desktop.dispatch_event('on_show')
         self.dispatch_event('on_desktop_change')
 
+    def set_active_desktop_by_index(self, index):
+        self.set_active_desktop(self.desktops[index])
+
+    def on_desktop_add(self, desktop):
+        # update _NET_NUMBER_OF_DESKTOPS, _NET_DESKTOP_NAMES
+        self.root.set_property('_NET_NUMBER_OF_DESKTOPS', [len(self.desktops)], 32, 'CARDINAL')
+        self.root.set_property('_NET_DESKTOP_NAMES', [d.name for d in self.desktops], 8, 'UTF8_STRING')
+
+    def on_desktop_change(self):
+        # update _NET_CURRENT_DESKTOP
+        self.root.set_property('_NET_CURRENT_DESKTOP', [self.active_desktop_idx], 32, 'CARDINAL')
+
+    def set_supported_hints(self):
+        connection = self.root.connection # TODO?
+        atoms = [
+            connection.atoms['_NET_SUPPORTED'],
+            connection.atoms['_NET_CLIENT_LIST'],
+            connection.atoms['_NET_NUMBER_OF_DESKTOPS'],
+            connection.atoms['_NET_CURRENT_DESKTOP'],
+            connection.atoms['_NET_DESKTOP_NAMES'],
+            connection.atoms['_NET_ACTIVE_WINDOW'],
+            connection.atoms['_NET_CLOSE_WINDOW'],
+
+            connection.atoms['_NET_WM_NAME'],
+            connection.atoms['_NET_WM_ICON_NAME'],
+            connection.atoms['_NET_WM_WINDOW_TYPE'],
+            connection.atoms['_NET_WM_WINDOW_TYPE_NORMAL'],
+            connection.atoms['_NET_WM_WINDOW_TYPE_DOCK'],
+            connection.atoms['_NET_WM_WINDOW_TYPE_SPLASH'],
+            connection.atoms['_NET_WM_WINDOW_TYPE_DIALOG'],
+            connection.atoms['_NET_WM_STATE'],
+            connection.atoms['_NET_WM_STATE_STICKY'],
+            connection.atoms['_NET_WM_STATE_SKIP_TASKBAR'],
+            connection.atoms['_NET_WM_STATE_FULLSCREEN'],
+
+            connection.atoms['UTF8_STRING'],
+        ]
+        self.root.set_property('_NET_SUPPORTED', atoms, 32, 'ATOM')
+
+Screen.register_event_type('on_desktop_add')
 Screen.register_event_type('on_desktop_change')

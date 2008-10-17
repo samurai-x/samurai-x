@@ -417,6 +417,7 @@ EVENTS = (KeyPressEvent, KeyReleaseEvent, ButtonPressEvent, ButtonReleaseEvent,
           SubstructureRedirectEvent, MapRequestEvent,
           CreateNotifyEvent, ConfigureRequestEvent, MapNotifyEvent, UnmapNotifyEvent,
           DestroyNotifyEvent, ConfigureNotifyEvent,
+          ClientMessageEvent,
           )
 
 X_EVENT_MAP = dict((cls.event_type, cls) for cls in EVENTS)
