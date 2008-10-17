@@ -5,6 +5,7 @@ import weakref
 import os.path
 
 import samuraix.xcb
+from samuraix.xcb import _xcb
 
 from .setroot import set_root_image
 from .client import Client
@@ -42,6 +43,7 @@ class Screen(samuraix.xcb.screen.Screen):
         client = Client.get_by_window(evt.window)
         if client is None:
             # not created yet
+            # NB we still not might manage this window - check manage()
             self.manage(evt.window, evt.window.attributes, evt.window.get_geometry())
 
     def on_expose(self, evt):
@@ -58,18 +60,26 @@ class Screen(samuraix.xcb.screen.Screen):
             sys.exit(0)
 
     def manage(self, window, wa=None, geom=None):
+        """ manage a new window - this may *not* result in a window being managed 
+        if it is unsuitable """
+        if window.attributes['override_redirect']:
+            log.debug('%s not managing %s override_redirect is set', self, window)
+            return False
+        elif window.attributes['map_state'] != _xcb.XCB_MAP_STATE_VIEWABLE:
+            log.debug('%s not managing %s - not viewable', self, window)
+            return False
+
         client = self.client_class(self, window, wa or window.attributes, geom or window.get_geometry())
         logging.debug('screen %s is now managing %s' % (self, client))
         self.clients.append(weakref.ref(client))
+        return client 
 
     def scan(self):
         for child in self.root.children:
-            log.debug('%s found child %s', self, child)
-        
-            if child.attributes['override_redirect']:
-                log.debug('%s not managing %s override_redirect is set', self, child)
-                continue
+            log.debug('%s found child %s %s', self, child, child.get_property('WM_NAME')[0])
+            log.debug('attr %s', child.get_attributes())
 
+            # NB we still not might manage this window - check manage()
             self.manage(child)
 
 

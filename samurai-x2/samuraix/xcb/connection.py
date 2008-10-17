@@ -280,4 +280,4 @@ class Connection(samuraix.event.EventDispatcher):
         else:
             return None
 
-import event
+from samuraix.xcb import event

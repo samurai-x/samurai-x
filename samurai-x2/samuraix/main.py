@@ -28,6 +28,7 @@ def configure_logging(file_level=logging.DEBUG, console_level=logging.DEBUG):
 
 def run(app):
     configure_logging()
+    
     try:
         app.init()
         app.run()

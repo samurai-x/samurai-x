@@ -69,11 +69,10 @@ class Client(samuraix.event.EventDispatcher):
 
             self.client.screen.root.remove_handlers(self)
             self.client.screen.root.ungrab_pointer()
+            self.client.force_update_geom()
+            self.client._recreate_context()
             self.client.frame_on_expose(None)
             return True
-
-    # TODO class ResizeHandler(object)
-    # should prob descend from a base class shared with MoveHandler
 
     @classmethod
     def get_by_window(cls, window):
@@ -137,12 +136,7 @@ class Client(samuraix.event.EventDispatcher):
 
         self.frame = frame
 
-        # TODO recreate this on resize
-        self.context = samuraix.drawcontext.DrawContext(
-                self.screen, 
-                self.frame_geom.width+1, self.frame_geom.height+1, 
-                self.frame
-        )
+        self._recreate_context()
 
     def update_geom(self, geometry):
         if isinstance(geometry, dict):
@@ -169,28 +163,12 @@ class Client(samuraix.event.EventDispatcher):
     def force_update_geom(self):
         self.update_geom(self.window.get_geometry())
 
-    """
-    def frame_on_button_release(self, evt):
-        if self._moving and evt.detail == 1:
-            try:
-                self.frame.configure(x=evt.root_x, y=evt.root_y)
-            except Exception, e:
-                print 'EXCEPTION occured when moving window:', e
-            self._moving = False
-        if self._resizing and evt.detail == 3:
-            geom = self.window.get_geometry()
-            try:
-#                N = geom['x'] + x
-            # x = N - geom['x']
-                w = evt.root_x - geom['x']
-                h = evt.root_y - geom['y']
-                if w > 0 and h > 0:
-                    self.frame.resize(width=w, height=h)
-                    self.window.resize(width=w-3, height=h-22)
-            except Exception, e:
-                print 'EXCEPTION occured when resizing window:', e
-            self._resizing = False
-    """
+    def _recreate_context(self):
+        self.context = samuraix.drawcontext.DrawContext(
+                self.screen, 
+                self.frame_geom.width+1, self.frame_geom.height+1, 
+                self.frame
+        )
 
     def frame_on_expose(self, evt):
         log.warn('expose! %s', self)
