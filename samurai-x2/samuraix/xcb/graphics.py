@@ -9,6 +9,23 @@ POLY_SHAPE_COMPLEX = _xcb.XCB_POLY_SHAPE_COMPLEX
 POLY_SHAPE_CONVEX = _xcb.XCB_POLY_SHAPE_CONVEX
 POLY_SHAPE_NONCONVEX = _xcb.XCB_POLY_SHAPE_NONCONVEX
 
+GX_CLEAR = 0 # 'magic numbers' are evil, but working.
+GX_AND = 1
+GX_AND_REVERSE = 2
+GX_COPY = 3
+GX_AND_INVERTED = 4
+GX_NOOP = 5
+GX_XOR = 6
+GX_OR = 7
+GX_NOR = 8
+GX_EQUIV = 9
+GX_INVERT = 10
+GX_OR_REVERSE = 11
+GX_COPY_INVERTED = 12
+GX_OR_INVERTED = 13
+GX_NAND = 14
+GX_SET = 15
+
 GC_ATTRIBUTES = [('function', _xcb.XCB_GC_FUNCTION),
                  ('plane_mask', _xcb.XCB_GC_PLANE_MASK),
                  ('foreground', _xcb.XCB_GC_FOREGROUND)] # TODO: complete
@@ -127,6 +144,13 @@ class GraphicsContext(object):
                             c_points)
         self.connection.flush()
 
+    def change(self, **attributes):
+        attr, mask = util.xize_attributes(attributes, GC_ATTRIBUTES)
+        _xcb.xcb_change_gc(self.connection._connection,
+                            self._xid,
+                            mask,
+                            attr)
+        self.connection.flush()
 
     @classmethod
     def create(cls, connection, drawable, attributes=None):

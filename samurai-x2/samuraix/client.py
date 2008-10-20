@@ -28,16 +28,39 @@ class Client(samuraix.event.EventDispatcher):
     class MoveHandler(ClientHandler):
         def __init__(self, client, x, y):
             super(Client.MoveHandler, self).__init__(client, x, y)
+            self.gc = samuraix.xcb.graphics.GraphicsContext.create(self.client.screen.connection, self.client.screen.root,
+                    attributes={'function':samuraix.xcb.graphics.GX_XOR, 'foreground':self.client.screen.white_pixel})
             client.screen.root.grab_pointer()
+            self._x = None
+            self._y = None
 
         def on_motion_notify(self, evt):
-            self.client.frame.configure(x=evt.root_x-self.offset_x, y=evt.root_y - self.offset_y)
+            self.clear_preview()
+            x, y = evt.root_x - self.offset_x, evt.root_y - self.offset_y
+#            if x < 0 or y < 0:
+#                log.error('moving out of the screen to negative x or negative y is not yet supported.')
+            self.gc.poly_rectangle(self.client.screen.root,
+                                    [samuraix.xcb.graphics.Rectangle(x, y, self.client.geom.width, self.client.geom.height)],
+                                    False)
+            self._x = evt.root_x
+            self._y = evt.root_y
             return True
+
+        def clear_preview(self):
+            """ clear old preview if necessary """
+            if self._x:
+                x, y = self._x - self.offset_x, self._y - self.offset_y
+                self.gc.poly_rectangle(self.client.screen.root,
+                                        [samuraix.xcb.graphics.Rectangle(x, y, self.client.geom.width, self.client.geom.height)],
+                                        False)
 
         def on_button_release(self, evt):
             self.client.screen.root.remove_handlers(self)
             self.client.screen.root.ungrab_pointer()
-            self.client.force_update_geom()
+            self.clear_preview()
+            if self._x:
+                self.client.frame.configure(x=self._x - self.offset_x, y=self._y - self.offset_y)
+                self.client.force_update_geom()
             return True
 
     class ResizeHandler(ClientHandler):
