@@ -18,11 +18,11 @@ class Client(samuraix.event.EventDispatcher):
         def __init__(self, client, x, y):
             self.client = client
             self.offset_x, self.offset_y = x, y
-        
+
         def on_motion_notify(self, evt):
             pass
 
-        def on_button_releae(self, evt):
+        def on_button_release(self, evt):
             pass
 
     class MoveHandler(ClientHandler):
@@ -37,53 +37,66 @@ class Client(samuraix.event.EventDispatcher):
         def on_motion_notify(self, evt):
             self.clear_preview()
             x, y = evt.root_x - self.offset_x, evt.root_y - self.offset_y
-#            if x < 0 or y < 0:
-#                log.error('moving out of the screen to negative x or negative y is not yet supported.')
             self.gc.poly_rectangle(self.client.screen.root,
-                                    [samuraix.xcb.graphics.Rectangle(x, y, self.client.geom.width, self.client.geom.height)],
+                                    [samuraix.xcb.graphics.Rectangle(x, y, self.client.frame_geom.width, self.client.frame_geom.height)],
                                     False)
             self._x = evt.root_x
             self._y = evt.root_y
             return True
 
-        def clear_preview(self):
-            """ clear old preview if necessary """
-            if self._x:
-                x, y = self._x - self.offset_x, self._y - self.offset_y
-                self.gc.poly_rectangle(self.client.screen.root,
-                                        [samuraix.xcb.graphics.Rectangle(x, y, self.client.geom.width, self.client.geom.height)],
-                                        False)
-
         def on_button_release(self, evt):
             self.client.screen.root.remove_handlers(self)
             self.client.screen.root.ungrab_pointer()
             self.clear_preview()
-            if self._x:
+            if self._x is not None:
                 self.client.frame.configure(x=self._x - self.offset_x, y=self._y - self.offset_y)
                 self.client.force_update_geom()
             return True
 
+        def clear_preview(self):
+            """ clear old preview if necessary """
+            if self._x is not None:
+                x, y = self._x - self.offset_x, self._y - self.offset_y
+                self.gc.poly_rectangle(self.client.screen.root,
+                                        [samuraix.xcb.graphics.Rectangle(x, y, self.client.frame_geom.width, self.client.frame_geom.height)],
+                                        False)
+
     class ResizeHandler(ClientHandler):
         def __init__(self, client, x, y):
             super(Client.ResizeHandler, self).__init__(client, x, y)
+            self.gc = samuraix.xcb.graphics.GraphicsContext.create(self.client.screen.connection, self.client.screen.root,
+                    attributes={'function':samuraix.xcb.graphics.GX_XOR, 'foreground':self.client.screen.white_pixel})
             client.screen.root.grab_pointer()
+            self._w = None
+            self._h = None
 
         def on_motion_notify(self, evt):
+            self.clear_preview()
+            geom = self.client.frame_geom
+            print self.client.frame_geom
+            w = evt.root_x - geom.x + self.client.style['border'] * 2
+            h = evt.root_y - geom.y + self.client.style['title_height']+(self.client.style['border']*2)
+            self.gc.poly_rectangle(self.client.screen.root,
+                                    [samuraix.xcb.graphics.Rectangle(geom.x, geom.y, w, h)],
+                                    False)
+            self._w = w
+            self._h = h
             return True
 
         def on_button_release(self, evt):
-            geom = self.client.geom
-            w = evt.root_x - geom.x
-            h = evt.root_y - geom.y
+            self.clear_preview()
 
-            self.client.window.resize(geom.x, geom.y, w, h)
+            geom = self.client.frame_geom
+            w, h = self._w, self._h
+            if w:
+                self.client.window.resize(geom.x, geom.y, w, h)
 
-            self.client.frame.resize(geom.x-self.client.style['border'],
-                    geom.y-(self.client.style['title_height']+self.client.style['border']),
-                    w+self.client.style['border']*2,
-                    h+self.client.style['title_height']+(self.client.style['border']*2))
+                self.client.frame.resize(geom.x-self.client.style['border'],
+                        geom.y-(self.client.style['title_height']+self.client.style['border']),
+                        w+self.client.style['border']*2,
+                        h+self.client.style['title_height']+(self.client.style['border']*2))
 
-            self.client.window.reparent(self.client.frame, self.client.style['border'], self.client.style['border'] + self.client.style['title_height'])
+                self.client.window.reparent(self.client.frame, self.client.style['border'], self.client.style['border'] + self.client.style['title_height'])
 
             #configure(width=w, height=h)
 
@@ -93,6 +106,13 @@ class Client(samuraix.event.EventDispatcher):
             self.client._recreate_context()
             self.client.frame_on_expose(None)
             return True
+
+        def clear_preview(self):
+            """ clear old preview if necessary """
+            if self._w:
+                self.gc.poly_rectangle(self.client.screen.root,
+                                        [samuraix.xcb.graphics.Rectangle(self.client.frame_geom.x, self.client.frame_geom.y, self._w, self._h)],
+                                        False)
 
     @classmethod
     def get_by_window(cls, window):
@@ -120,6 +140,7 @@ class Client(samuraix.event.EventDispatcher):
         self._resizing = False
 
     def on_configure_notify(self, evt):
+        print 'CFG', evt.x, evt.y, evt.width, evt.height
         self.force_update_geom() # TODO. ugly
 
     def on_destroy_notify(self, evt):
@@ -155,13 +176,15 @@ class Client(samuraix.event.EventDispatcher):
                 1,
                 attributes={'event_mask': (samuraix.xcb.event.ExposeEvent,
                                          samuraix.xcb.event.ButtonPressEvent,
-                                         samuraix.xcb.event.ButtonReleaseEvent),
+                                         samuraix.xcb.event.ButtonReleaseEvent,
+                                         samuraix.xcb.event.ConfigureNotifyEvent,),
                            'override_redirect': True},
         )
 
         self.window.reparent(frame, self.style['border'], self.style['border'] + self.style['title_height'])
         frame.map()
         frame.set_handler('on_button_press', self.frame_on_button_press)
+        frame.set_handler('on_configure_notify', self.on_configure_notify)
         frame.set_handler('on_expose', self.frame_on_expose)
 
         self.frame = frame
@@ -171,12 +194,14 @@ class Client(samuraix.event.EventDispatcher):
     def update_geom(self, geometry):
         if isinstance(geometry, dict):
             geometry = Rect(geometry['x'], geometry['y'], geometry['width'], geometry['height'])
-        self.geom = geometry
-        self.frame_geom = frame_geom = self.geom.copy()
-        frame_geom.height += self.style['title_height'] + (self.style['border'] * 2)
-        frame_geom.width += self.style['border'] * 2
-        frame_geom.x -= self.style['border']
-        frame_geom.y -= self.style['title_height'] + self.style['border']
+#        self.geom = geometry
+        #self.frame_geom = frame_geom = self.geom.copy()
+        self.geom = geom = self.geom.copy()
+        self.frame_geom = geometry
+        geom.height -= self.style['title_height'] + (self.style['border'] * 2)
+        geom.width -= self.style['border'] * 2
+        geom.x += self.style['border']
+        geom.y += self.style['title_height'] + self.style['border']
         print "%s geom %s" % (self, geometry)
         self.frame_on_expose(None)
 
@@ -192,7 +217,7 @@ class Client(samuraix.event.EventDispatcher):
             self.screen.root.push_handlers(self.ResizeHandler(self, evt.event_x, evt.event_y))
 
     def force_update_geom(self):
-        self.update_geom(self.window.get_geometry())
+        self.update_geom(self.frame.get_geometry())
 
     def _recreate_context(self):
         self.context = samuraix.drawcontext.DrawContext(

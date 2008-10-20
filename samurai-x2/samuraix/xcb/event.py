@@ -400,8 +400,8 @@ class ConfigureNotifyEvent(Event):
     event_struct = _xcb.xcb_configure_notify_event_t
 
     _dispatch_class = window.Window
-    window = event_property('window', 'window')
-    _dispatch_target = event = event_property('window', 'event')
+    _dispatch_target = window = event_property('window', 'window')
+    event = event_property('window', 'event')
     above_sibling = event_property('window', 'above_sibling')
     x = event_property('unchanged', 'x')
     y = event_property('unchanged', 'y')
