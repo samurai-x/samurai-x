@@ -90,18 +90,19 @@ class Screen(samuraix.xcb.screen.Screen, samuraix.event.EventDispatcher):
     def manage(self, window, wa=None, geom=None):
         """ manage a new window - this may *not* result in a window being managed 
         if it is unsuitable """
+        # override redirect windows need to be ignored - theyre not for us
         if window.attributes['override_redirect']:
             log.debug('%s not managing %s override_redirect is set', self, window)
             return False
-        #elif window.attributes['map_state'] != _xcb.XCB_MAP_STATE_VIEWABLE:
-        #    log.debug('%s not managing %s - not viewable', self, window)
-        #    return False
+
         # TODO: is that correct?
         client = self.client_class(self, window, wa or window.attributes, geom or window.get_geometry())
+
         logging.debug('screen %s is now managing %s' % (self, client))
         self.clients.append(weakref.ref(client)) # do we need that?
         self.active_desktop.add_client(client)
         client.push_handlers(on_removed=self.update_client_list)
+
         try:
             window_type = window.get_property('_NET_WM_WINDOW_TYPE')[0].name
             if window_type == '_NET_WM_WINDOW_TYPE_DOCK':
@@ -124,11 +125,17 @@ class Screen(samuraix.xcb.screen.Screen, samuraix.event.EventDispatcher):
         self.root.set_property('_NET_CLIENT_LIST', [c.window for c in self.client_class.all_clients], 32, 'WINDOW')
 
     def scan(self):
+        """ scan a screen for windows to manage """
         for child in self.root.children:
             log.debug('%s found child %s %s', self, child, child.get_property('WM_NAME'))
             log.debug('attr %s', child.get_attributes())
 
-            # NB we still not might manage this window - check manage()
+            # according to awesome we only do this when scanning...
+            # ( not 100% sure why yet... )
+            if child.attributes['map_state'] != _xcb.XCB_MAP_STATE_VIEWABLE:
+                log.debug('%s not managing %s - not viewable', self, child)
+                continue
+
             self.manage(child)
 
     def set_active_desktop(self, desktop):

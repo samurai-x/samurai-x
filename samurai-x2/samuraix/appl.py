@@ -1,5 +1,6 @@
 import signal
 import sys
+from select import select
 
 import samuraix.xcb
 import samuraix.xcb.screen
@@ -25,26 +26,53 @@ class App(object):
             scr.scan()
             self.screens.append(scr)
 
-        # TODO these wont work until we fix the event loop
         signal.signal(signal.SIGINT, self.stop)
         signal.signal(signal.SIGTERM, self.stop)
         signal.signal(signal.SIGHUP, self.stop)
 
     def stop(self, *args):
-        # TODO this wont work until we fix the event loop 
+        log.info('stopping')
         self.running = False
 
     def run(self):
         self.running = True
 
-        # TODO i think we want to change this to using either a select based method 
-        # or using libevent (like awesome3 :)) 
-        # this will allow properly setting up signal callbacks and timers 
+        if True:
+            # process any events that are waiting first 
+            while True:
+                try:
+                    ev = self.connection.poll_for_event()
+                except Exception, e:
+                    log.error(e)
+                else:
+                    if ev is None:
+                        break
+                    ev.dispatch()
 
-        while self.running:
-            try:
+            while self.running:
+                log.debug('selecting...')
+                try:
+                    select([self.connection._fd], [], [self.connection._fd], 1.0)
+                except Exception, e:
+                    # error 4 is when a signal has been caught
+                    if e.args[0] == 4:
+                        pass
+                    else:
+                        log.error(str((e, type(e), dir(e), e.args)))
+                        raise 
+
+                # might as well process all events in the queue...
+                while True:
+                    try:
+                        ev = self.connection.poll_for_event()
+                    except Exception, e:
+                        log.error(e)
+                    else:
+                        if ev is None:
+                            break
+                        ev.dispatch()
+        else:
+            while self.running:
                 self.connection.wait_for_event_dispatch()
-            except Exception, e:
-                log.error(e)
 
 

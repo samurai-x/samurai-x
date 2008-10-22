@@ -53,10 +53,14 @@ class AtomNameRequest(Cookie):
     @cached_property
     def value(self):
         e = _xcb.xcb_generic_error_t()
+        # TODO: error handling?
         reply = _xcb.xcb_get_atom_name_reply(self.connection._connection,
-                        self._cookie, ctypes.pointer(ctypes.pointer(e))) # TODO: error handling?
+                        self._cookie, ctypes.pointer(ctypes.pointer(e))) 
         if not reply:
-            raise Exception('Null reply') # TODO: better exceptions
+            # TODO: better exceptions
+            raise Exception('Null reply with connection %s atom %s' % 
+                (self.connection, self.atom)
+            ) 
 
         value = ctypes.cast(_xcb.xcb_get_atom_name_name(reply), ctypes.c_char_p)
         length = _xcb.xcb_get_atom_name_name_length(reply)

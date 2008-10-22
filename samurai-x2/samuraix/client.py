@@ -64,9 +64,19 @@ class Client(samuraix.event.EventDispatcher):
     class ResizeHandler(ClientHandler):
         def __init__(self, client, x, y):
             super(Client.ResizeHandler, self).__init__(client, x, y)
-            self.gc = samuraix.xcb.graphics.GraphicsContext.create(self.client.screen.connection, self.client.screen.root,
-                    attributes={'function':samuraix.xcb.graphics.GX_XOR, 'foreground':self.client.screen.white_pixel})
+            self.gc = samuraix.xcb.graphics.GraphicsContext.create(
+                    self.client.screen.connection, 
+                    self.client.screen.root,
+                    attributes={
+                        'function':samuraix.xcb.graphics.GX_XOR, 
+                        'foreground':self.client.screen.white_pixel,
+                    }
+            )
+
             client.screen.root.grab_pointer()
+            geom = self.client.frame_geom
+            client.frame.warp_pointer(geom.width, geom.height)
+
             self._w = None
             self._h = None
 
@@ -91,12 +101,18 @@ class Client(samuraix.event.EventDispatcher):
             if w:
                 self.client.window.resize(geom.x, geom.y, w, h)
 
-                self.client.frame.resize(geom.x-self.client.style['border'],
+                self.client.frame.resize(
+                        geom.x-self.client.style['border'],
                         geom.y-(self.client.style['title_height']+self.client.style['border']),
                         w+self.client.style['border']*2,
-                        h+self.client.style['title_height']+(self.client.style['border']*2))
+                        h+self.client.style['title_height']+(self.client.style['border']*2)
+                )
 
-                self.client.window.reparent(self.client.frame, self.client.style['border'], self.client.style['border'] + self.client.style['title_height'])
+                self.client.window.reparent(
+                        self.client.frame, 
+                        self.client.style['border'], 
+                        self.client.style['border'] + self.client.style['title_height']
+                )
 
             #configure(width=w, height=h)
 
@@ -110,9 +126,14 @@ class Client(samuraix.event.EventDispatcher):
         def clear_preview(self):
             """ clear old preview if necessary """
             if self._w:
-                self.gc.poly_rectangle(self.client.screen.root,
-                                        [samuraix.xcb.graphics.Rectangle(self.client.frame_geom.x, self.client.frame_geom.y, self._w, self._h)],
-                                        False)
+                self.gc.poly_rectangle(
+                        self.client.screen.root,
+                        [samuraix.xcb.graphics.Rectangle(
+                            self.client.frame_geom.x, self.client.frame_geom.y, 
+                            self._w, self._h
+                        )],
+                        False
+                )
 
     @classmethod
     def get_by_window(cls, window):
@@ -123,10 +144,17 @@ class Client(samuraix.event.EventDispatcher):
 
         self.screen = screen
         self.window = window
-        self.window.attributes = {'event_mask': (samuraix.xcb.event.StructureNotifyEvent,)}
+        self.window.attributes = {
+                'event_mask': (samuraix.xcb.event.StructureNotifyEvent,),
+        }
 
-        self.geom = Rect(geometry['x'], geometry['y'], geometry['width'], geometry['height'])
-        self.sticky = False # display on all desktops?
+        self.geom = Rect(
+                geometry['x'], geometry['y'], 
+                geometry['width'], geometry['height']
+        )
+
+        # display on all desktops?
+        self.sticky = False 
 
         self.all_clients.append(self)
         self.window_2_client_map[self.window] = self
@@ -181,7 +209,11 @@ class Client(samuraix.event.EventDispatcher):
                            'override_redirect': True},
         )
 
-        self.window.reparent(frame, self.style['border'], self.style['border'] + self.style['title_height'])
+        self.window.reparent(frame, 
+                self.style['border'], 
+                self.style['border'] + self.style['title_height']
+        )
+
         frame.map()
         frame.set_handler('on_button_press', self.frame_on_button_press)
         frame.set_handler('on_configure_notify', self.on_configure_notify)
@@ -194,7 +226,7 @@ class Client(samuraix.event.EventDispatcher):
     def update_geom(self, geometry):
         if isinstance(geometry, dict):
             geometry = Rect(geometry['x'], geometry['y'], geometry['width'], geometry['height'])
-#        self.geom = geometry
+        #self.geom = geometry
         #self.frame_geom = frame_geom = self.geom.copy()
         self.geom = geom = self.geom.copy()
         self.frame_geom = geometry
@@ -209,12 +241,15 @@ class Client(samuraix.event.EventDispatcher):
         self.focus()
         if evt.detail == 1:
             self._moving = True
-            #assert self.screen.root.grab_pointer()
-            # TODO this should push a class not just some functions
-            #self.screen.root.push_handlers(on_motion_notify=self.moving_motion_notify, on_button_release=self.moving_release)
-            self.screen.root.push_handlers(self.MoveHandler(self, evt.event_x, evt.event_y))
+            self.screen.root.push_handlers(
+                    self.MoveHandler(self, evt.event_x, evt.event_y)
+            )
+
         if evt.detail == 3:
-            self.screen.root.push_handlers(self.ResizeHandler(self, evt.event_x, evt.event_y))
+            self._resizing = True
+            self.screen.root.push_handlers(
+                    self.ResizeHandler(self, evt.event_x, evt.event_y)
+            )
 
     def force_update_geom(self):
         self.update_geom(self.frame.get_geometry())
@@ -227,8 +262,6 @@ class Client(samuraix.event.EventDispatcher):
         )
 
     def frame_on_expose(self, evt):
-        log.warn('expose! %s', self)
-
         context = self.context
         cr = context.cr
         
@@ -239,7 +272,6 @@ class Client(samuraix.event.EventDispatcher):
             # dunk: because its specifying the baseline of the text not the top 
         else:
             g = self.frame.get_geometry()
-            log.warn(str((g, dir(g))))
             if evt and not evt.x == 0: # TODO!!!11: too much flickering :-(
                 log.warn('ignoring frame expose event %s' % evt)
                 return
@@ -251,10 +283,18 @@ class Client(samuraix.event.EventDispatcher):
             cairo.cairo_set_source_rgb(cr, 1.0, 1.0, 1.0)
             cairo.cairo_stroke(cr)
 
+            name = self.window.get_property('WM_NAME')
+            if not name:
+                name = 'untitled'
+            else:
+                name = name[0]
+
+            log.debug('drawing window name "%s"', name)
+
             context.text(
                     self.style['border'] + 1, 
                     self.style['border'] + 1 + context.default_font_size, 
-                    (self.window.get_property('WM_NAME') or ['untitled'])[0], 
+                    name,
                     (255, 255, 255)
             )
 
@@ -265,7 +305,7 @@ class Client(samuraix.event.EventDispatcher):
         if self.sticky:
             return # TODO?
         log.debug('banning %s' % self)
-        self.window.unmap()
+        #self.window.unmap()
         # TODO: multiple decoration
         self.frame.unmap()
         # TODO: set window state
@@ -274,7 +314,7 @@ class Client(samuraix.event.EventDispatcher):
         if self.sticky:
             return # TODO?
         log.debug('unbanning %s' % self)
-        self.window.map()
+        #self.window.map()
         # TODO: multiple decoration
         self.frame.map()
         # TODO: set window state

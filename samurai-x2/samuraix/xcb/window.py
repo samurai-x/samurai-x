@@ -427,7 +427,6 @@ class Window(Drawable):
     
         return True
 
-
     def set_input_focus(self, revert_to=INPUT_FOCUS_POINTER_ROOT):
         cookie = _xcb.xcb_set_input_focus_checked(self.connection._connection, revert_to, self._xid, _xcb.XCB_CURRENT_TIME)
         self.connection.flush()
@@ -436,4 +435,9 @@ class Window(Drawable):
     def ungrab_pointer(self):
         ungrab_ptr_c = _xcb.xcb_ungrab_pointer(self.connection._connection, _xcb.XCB_CURRENT_TIME)
         self.connection.flush()
-#        util.check_void_cookie(self.connection._connection, ungrab_ptr_c) # TODO?
+        #util.check_void_cookie(self.connection._connection, ungrab_ptr_c) # TODO?
+
+    def warp_pointer(self, x, y):
+        _xcb.xcb_warp_pointer(self.connection._connection, _xcb.XCB_NONE, self._xid,
+                0, 0, 0, 0, x, y)
+

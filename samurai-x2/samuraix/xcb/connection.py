@@ -45,6 +45,7 @@ class Connection(samuraix.event.EventDispatcher):
         if address is None:
             address = ''
         self._connection = _xcb.xcb_connect(address, ctypes.pointer(ctypes.c_long(0))).contents # TODO: set screen
+        self._fd = _xcb.xcb_get_file_descriptor(self._connection)
         self.atoms = atom.AtomDict(self)
         self._resource_cache = {} # Resource xid: Resource object
         self._keysymbols = None # a KeySymbols object, if needed
@@ -243,6 +244,14 @@ class Connection(samuraix.event.EventDispatcher):
         """
         _event = _xcb.xcb_wait_for_event(self._connection)
         return event.pythonize_event(self, _event.contents)
+
+    #def wait_for_event_fd(self, rlist=None, wlist=None, xlist=None, timeout=None):
+    #    select((rlist or []) + [self._fd], 
+    #           (wlist or [])
+    #           (xlist or []) + [self._fd], 
+    #           timeout
+    #    )
+        
 
     def wait_for_event_dispatch(self):
         """
