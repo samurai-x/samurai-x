@@ -96,31 +96,15 @@ class Client(samuraix.event.EventDispatcher):
         def on_button_release(self, evt):
             self.clear_preview()
 
-            geom = self.client.frame_geom
-            w, h = self._w, self._h
-            if w:
-                self.client.window.resize(geom.x, geom.y, w, h)
-
-                self.client.frame.resize(
-                        geom.x-self.client.style['border'],
-                        geom.y-(self.client.style['title_height']+self.client.style['border']),
-                        w+self.client.style['border']*2,
-                        h+self.client.style['title_height']+(self.client.style['border']*2)
-                )
-
-                self.client.window.reparent(
-                        self.client.frame, 
-                        self.client.style['border'], 
-                        self.client.style['border'] + self.client.style['title_height']
-                )
-
+            geom = self.client.frame_geom.copy()
+            geom.width, geom.height = self._w, self._h
+            if geom.width:
+                self.client.resize(geom)
             #configure(width=w, height=h)
 
             self.client.screen.root.remove_handlers(self)
             self.client.screen.root.ungrab_pointer()
-            self.client.force_update_geom()
-            self.client._recreate_context()
-            self.client.frame_on_expose(None)
+
             return True
 
         def clear_preview(self):
@@ -155,6 +139,10 @@ class Client(samuraix.event.EventDispatcher):
 
         # display on all desktops?
         self.sticky = False 
+        # full screened?
+        self.maximized = False
+        # geom backup for unmaximizing
+        self.backup_geom = None
 
         self.all_clients.append(self)
         self.window_2_client_map[self.window] = self
@@ -166,6 +154,25 @@ class Client(samuraix.event.EventDispatcher):
 
         self._moving = False
         self._resizing = False
+
+    def resize(self, geom):
+        self.window.resize(geom.x, geom.y, geom.width, geom.height)
+
+        self.frame.resize(
+                geom.x-self.style['border'],
+                geom.y-(self.style['title_height']+self.style['border']),
+                geom.width+self.style['border']*2,
+                geom.height+self.style['title_height']+(self.style['border']*2)
+        )
+
+        self.window.reparent(
+                self.frame, 
+                self.style['border'], 
+                self.style['border'] + self.style['title_height']
+        )
+        self.force_update_geom()
+        self._recreate_context()
+        self.frame_on_expose(None)
 
     def on_configure_notify(self, evt):
         print 'CFG', evt.x, evt.y, evt.width, evt.height
@@ -318,6 +325,22 @@ class Client(samuraix.event.EventDispatcher):
         # TODO: multiple decoration
         self.frame.map()
         # TODO: set window state
+
+    def maximize(self):
+        self.maximized = True
+        self.backup_geom = self.frame_geom
+        self.resize(self.screen.get_geometry())
+
+    def unmaximize(self):
+        self.maximized = False
+        assert self.backup_geom
+        self.resize(self.backup_geom)
+
+    def toggle_maximize(self):
+        if not self.maximized:
+            self.maximize()
+        else:
+            self.unmaximize()
 
     def focus(self):
         self.window.set_input_focus()

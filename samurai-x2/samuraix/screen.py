@@ -12,6 +12,7 @@ from samuraix.xcb import _xcb
 from .setroot import set_root_image
 from .client import Client
 from .desktop import Desktop, DesktopList
+from .rect import Rect
 
 import os.path
 SVGFILE = os.path.abspath('../gfx/samuraix.svg') # TODO: just for testing
@@ -40,6 +41,8 @@ class Screen(samuraix.xcb.screen.Screen, samuraix.event.EventDispatcher):
                     samuraix.xcb.modifiers.MOD_MASK_4) # 'CTRL-q' for me
         self.root.grab_key(self.connection.keysymbols.get_keycode(0x6e),
                     samuraix.xcb.modifiers.MOD_MASK_4) # 'win-n'
+        self.root.grab_key(self.connection.keysymbols.get_keycode(0x6d),
+                    samuraix.xcb.modifiers.MOD_MASK_4) # 'win-m'
 
         self.root.push_handlers(self)
 
@@ -51,6 +54,9 @@ class Screen(samuraix.xcb.screen.Screen, samuraix.event.EventDispatcher):
         self.set_supported_hints()
 
         self.rootset = False
+
+    def get_geometry(self):
+        return Rect.from_dict(self.root.get_geometry())
 
     @property
     def active_desktop_idx(self):
@@ -86,6 +92,10 @@ class Screen(samuraix.xcb.screen.Screen, samuraix.event.EventDispatcher):
         elif k == 'n':
             # next desktop
             self.set_active_desktop(self.desktops.next(self.active_desktop_idx))
+        elif k == 'm':
+            # toggle maximize
+            if self.focused_client:
+                self.focused_client.toggle_maximize()
 
     def manage(self, window, wa=None, geom=None):
         """ manage a new window - this may *not* result in a window being managed 

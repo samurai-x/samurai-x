@@ -13,5 +13,9 @@ class Rect(object):
         return "<Rect %s %s %s %s>" % (self.x, self.y, self.width, self.height)
 
     @classmethod
-    def from_struct(self, struct):
-        return Rect(struct.x, struct.y, struct.width, struct.height)
+    def from_struct(cls, struct):
+        return cls(struct.x, struct.y, struct.width, struct.height)
+
+    @classmethod
+    def from_dict(cls, dic):
+        return cls(dic['x'], dic['y'], dic['width'], dic['height'])
