@@ -12,11 +12,17 @@ __version__ = '$Id: wrap.py 1694 2008-01-30 23:12:00Z Alex.Holkner $'
 import _xcb
 
 import ctypes
+import ctypes.util
 from ctypes import *
 
-import pyglet.lib
+def load_lib(name):
+    libname = ctypes.util.find_library(name)
+    if not libname:
+        raise OSError("Could not find library '%s'" % name)
+    else:
+        return ctypes.CDLL(libname)
 
-_lib = pyglet.lib.load_library('xcb-keysyms')
+_lib = load_lib('xcb-keysyms')
 
 _int_types = (c_int16, c_int32)
 if hasattr(ctypes, 'c_int64'):

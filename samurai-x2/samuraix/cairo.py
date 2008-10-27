@@ -12,9 +12,14 @@ import samuraix.xcb._xcb as _xcb
 import ctypes
 from ctypes import *
 
-import pyglet.lib
+def load_lib(name):
+    libname = ctypes.util.find_library(name)
+    if not libname:
+        raise OSError("Could not find library '%s'" % name)
+    else:
+        return ctypes.CDLL(libname)
 
-_lib = pyglet.lib.load_library('cairo')
+_lib = load_lib('cairo')
 
 _int_types = (c_int16, c_int32)
 if hasattr(ctypes, 'c_int64'):
@@ -1639,7 +1644,7 @@ __all__ = ['CAIRO_VERSION', 'cairo_version', 'cairo_version_string',
 'cairo_matrix_transform_distance', 'cairo_matrix_transform_point',
 'cairo_debug_reset_static_data']
 
-_lib = pyglet.lib.load_library('cairo')
+_lib = load_lib('cairo')
 
 _int_types = (c_int16, c_int32)
 if hasattr(ctypes, 'c_int64'):
@@ -1688,7 +1693,7 @@ cairo_xcb_surface_set_size.argtypes = [POINTER(cairo_surface_t), c_int, c_int]
 __all__ += ['cairo_xcb_surface_create', 'cairo_xcb_surface_create_for_bitmap',
 'cairo_xcb_surface_set_size']
 
-_lib = pyglet.lib.load_library('cairo')
+_lib = load_lib('cairo')
 
 _int_types = (c_int16, c_int32)
 if hasattr(ctypes, 'c_int64'):

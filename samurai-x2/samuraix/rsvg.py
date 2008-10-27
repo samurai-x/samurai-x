@@ -1,10 +1,16 @@
 import ctypes
+import ctypes.util
 from ctypes import *
 
-import pyglet.lib
+def load_lib(name):
+    libname = ctypes.util.find_library(name)
+    if not libname:
+        raise OSError("Could not find library '%s'" % name)
+    else:
+        return ctypes.CDLL(libname)
 
-_lib = CDLL('librsvg-2.so') #pyglet.lib.load_library('rsvg')
-gobject = CDLL('libgobject-2.0.so') #pyglet.lib.load_library('gobject')
+_lib = load_lib('rsvg-2') #pyglet.lib.load_library('rsvg')
+gobject = load_lib('gobject-2.0') #pyglet.lib.load_library('gobject')
 gobject.g_type_init()
 
 class RsvgDimensionData(Structure):
