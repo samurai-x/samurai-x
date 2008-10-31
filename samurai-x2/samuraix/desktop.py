@@ -46,6 +46,9 @@ class Desktop(samuraix.event.EventDispatcher):
         else:
             client.ban()
 
+        # this doesnt make any difference to showing the window decorations...
+        client.connection.flush()
+
     def _client_removed(self, client):
         log.debug("desktop %s removing %s" % (self, client))
         for client in self.clients:

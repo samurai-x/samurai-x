@@ -19,6 +19,7 @@ class Screen(object):
         self.connection = connection
         self._screen = _screen
 
+    # TODO - surely this should be cached?!
     @property
     def root(self):
         """

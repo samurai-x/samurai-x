@@ -131,6 +131,7 @@ class Client(samuraix.event.EventDispatcher):
         self.window.attributes = {
                 'event_mask': (samuraix.xcb.event.StructureNotifyEvent,),
         }
+        self.connection = window.connection
 
         self.geom = Rect(
                 geometry['x'], geometry['y'], 
@@ -156,7 +157,12 @@ class Client(samuraix.event.EventDispatcher):
         self._resizing = False
 
     def resize(self, geom):
-        self.window.resize(geom.x, geom.y, geom.width, geom.height)
+        self.window.resize(
+                self.style['border'],
+                self.style['title_height']+self.style['border'], 
+                geom.width, 
+                geom.height
+        )
 
         self.frame.resize(
                 geom.x-self.style['border'],
@@ -165,14 +171,16 @@ class Client(samuraix.event.EventDispatcher):
                 geom.height+self.style['title_height']+(self.style['border']*2)
         )
 
-        self.window.reparent(
-                self.frame, 
-                self.style['border'], 
-                self.style['border'] + self.style['title_height']
-        )
+        # why are we doing this here?!
+        #self.window.reparent(
+        #        self.frame, 
+        #        self.style['border'], 
+        #        self.style['border'] + self.style['title_height']
+        #)
         self.force_update_geom()
         self._recreate_context()
-        self.frame_on_expose(None)
+
+        self.connection.flush()
 
     def on_configure_notify(self, evt):
         print 'CFG', evt.x, evt.y, evt.width, evt.height
@@ -221,14 +229,19 @@ class Client(samuraix.event.EventDispatcher):
                 self.style['border'] + self.style['title_height']
         )
 
-        frame.map()
         frame.set_handler('on_button_press', self.frame_on_button_press)
         frame.set_handler('on_configure_notify', self.on_configure_notify)
         frame.set_handler('on_expose', self.frame_on_expose)
 
+        log.debug('frame w %s h %s', frame_geom.width, frame_geom.height)
+
+        frame.gc = samuraix.xcb.graphics.GraphicsContext.create(self.connection, self.screen.root)
+            
         self.frame = frame
 
         self._recreate_context()
+
+        frame.map()
 
     def update_geom(self, geometry):
         if isinstance(geometry, dict):
@@ -242,7 +255,7 @@ class Client(samuraix.event.EventDispatcher):
         geom.x += self.style['border']
         geom.y += self.style['title_height'] + self.style['border']
         print "%s geom %s" % (self, geometry)
-        self.frame_on_expose(None)
+        #self.frame_on_expose(None)
 
     def frame_on_button_press(self, evt):
         self.focus()
@@ -262,10 +275,15 @@ class Client(samuraix.event.EventDispatcher):
         self.update_geom(self.frame.get_geometry())
 
     def _recreate_context(self):
+        self.frame.pixmap = samuraix.xcb.pixmap.Pixmap.create(self.connection, 
+                self.screen.root,
+                self.frame_geom.width, self.frame_geom.height,
+                depth = self.screen.root_depth
+        )
         self.context = samuraix.drawcontext.DrawContext(
                 self.screen, 
                 self.frame_geom.width+1, self.frame_geom.height+1, 
-                self.frame
+                self.frame.pixmap,
         )
 
     def frame_on_expose(self, evt):
@@ -279,9 +297,9 @@ class Client(samuraix.event.EventDispatcher):
             # dunk: because its specifying the baseline of the text not the top 
         else:
             g = self.frame.get_geometry()
-            if evt and not evt.x == 0: # TODO!!!11: too much flickering :-(
-                log.warn('ignoring frame expose event %s' % evt)
-                return
+            #if evt and not evt.x == 0: # TODO!!!11: too much flickering :-(
+            #    log.warn('ignoring frame expose event %s' % evt)
+            #    return
             cairo.cairo_set_antialias(cr, cairo.CAIRO_ANTIALIAS_NONE)
             cairo.cairo_set_line_width(cr, 1)
             cairo.cairo_set_source_rgb(cr, 0.8, 0.0, 0.0)
@@ -305,8 +323,19 @@ class Client(samuraix.event.EventDispatcher):
                     (255, 255, 255)
             )
 
-            # TODO should the client know its own connection?
-            self.window.connection.flush()
+            
+
+
+        samuraix.xcb._xcb.xcb_copy_area(self.connection._connection, 
+                self.frame.pixmap._xid, 
+                self.frame._xid, 
+                self.frame.gc._xid, 
+                evt.x, evt.y,
+                evt.x, evt.y,
+                evt.width, evt.height,
+        )
+
+        self.connection.flush()
 
     def ban(self):
         if self.sticky:

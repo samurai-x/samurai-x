@@ -60,6 +60,21 @@ Rectangle = _xcb.xcb_rectangle_t # TODO: really use a xcb internal type? :/
 Arc = _xcb.xcb_arc_t
 
 class GraphicsContext(object):
+    @classmethod
+    def create(cls, connection, drawable, attributes=None):
+        if not attributes:
+            attributes = {}
+        xid = _xcb.xcb_generate_id(connection._connection)
+        attr, mask = util.xize_attributes(attributes, GC_ATTRIBUTES)
+        _xcb.xcb_create_gc(connection._connection,
+                           xid,
+                           drawable._xid,
+                           mask,
+                           attr)
+        connection.flush()
+
+        return cls(connection, xid)
+
     def __init__(self, connection, xid):
         self.connection = connection
         self._xid = xid
@@ -152,17 +167,3 @@ class GraphicsContext(object):
                             attr)
         self.connection.flush()
 
-    @classmethod
-    def create(cls, connection, drawable, attributes=None):
-        if not attributes:
-            attributes = {}
-        xid = _xcb.xcb_generate_id(connection._connection)
-        attr, mask = util.xize_attributes(attributes, GC_ATTRIBUTES)
-        _xcb.xcb_create_gc(connection._connection,
-                           xid,
-                           drawable._xid,
-                           mask,
-                           attr)
-        connection.flush()
-
-        return cls(connection, xid)
