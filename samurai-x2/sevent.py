@@ -63,7 +63,9 @@ def on_button_event(evt):
 
 def on_expose_event(evt):
     print '%(event)s, serial %(type)s, window 0x%(window)X,'% \
-        ({'event':evt, 'type':evt.event_type, 'window':evt.event._xid})
+        ({'event':evt, 'type':evt.event_type, 'window':evt.drawable._xid})
+    print '(%(x)s,%(y)s), width %(width)s, height %(height)s, count 0'% \
+        ({'x':evt.x,'y':evt.y, 'width':evt.width, 'height':evt.height})
 
 def on_key_event(evt):
     from samuraix.xcb.keysymbols import KeySymbols
@@ -81,7 +83,7 @@ def on_key_event(evt):
 
 event_map = {xcb.event.KeyPressEvent.event_type: on_key_event,             \
             xcb.event.KeyReleaseEvent.event_type: on_key_event,            \
-            #xcb.event.ExposeEvent.event_type: on_expose_event,             \
+            xcb.event.ExposeEvent.event_type: on_expose_event,             \
             xcb.event.ButtonPressEvent.event_type: on_button_event,        \
             xcb.event.ButtonReleaseEvent.event_type: on_button_event,      \
             xcb.event.EnterNotifyEvent.event_type: on_enter_event,         \
