@@ -28,6 +28,7 @@ def configure_logging(file_level=logging.DEBUG, console_level=logging.DEBUG):
 
     log.info('logging everything to %s' % logfile)
 
+
 def load_config(config=None):
     if config is None:
         from samuraix.defaultconfig import config
@@ -35,9 +36,17 @@ def load_config(config=None):
         config = config()
     samuraix.config = config
 
-def run(app):
+
+def run(app_func=None):
     configure_logging()
     load_config()
+
+    if app_func is None:
+        from samuraix.appl import App
+        app_func = App
+
+    samuraix.app = app = app_func()
+
     try:
         app.init()
         app.run()
