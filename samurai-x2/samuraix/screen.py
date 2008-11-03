@@ -68,6 +68,8 @@ class Screen(samuraix.xcb.screen.Screen, samuraix.event.EventDispatcher):
 
         self.rootset = False
 
+        self.on_expose(None)
+
     def get_geometry(self):
         return Rect.from_dict(self.root.get_geometry())
 
