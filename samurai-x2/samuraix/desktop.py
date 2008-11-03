@@ -9,7 +9,7 @@ log = logging.getLogger(__name__)
 
 class DesktopList(list):
     def previous(self, i):
-        return self[(i or len(self)) - i]
+        return self[(i or len(self)) - 1]
 
     def next(self, i):
         return self[(i + 1) % len(self)]

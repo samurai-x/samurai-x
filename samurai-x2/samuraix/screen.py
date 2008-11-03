@@ -5,6 +5,7 @@ import weakref
 import os.path
 import functools
 
+import samuraix
 import samuraix.xcb
 import samuraix.event
 from samuraix.xcb import _xcb
@@ -19,19 +20,12 @@ import os.path
 SVGFILE = os.path.abspath('../gfx/samuraix.svg') # TODO: just for testing
 
 
-from subprocess import Popen
-class spawn(object):
-    def __init__(self, cmd):
-        self.cmd = cmd
-    def __call__(self): #, screen):
-        pid = Popen(self.cmd, shell=True).pid
-
-
 class Screen(samuraix.xcb.screen.Screen, samuraix.event.EventDispatcher):
     client_class = Client
     desktop_class = Desktop
 
     def __init__(self, app, num):
+        self.app = app
         super(Screen, self).__init__(app.connection, app.connection.screens[num]._screen)
         
         self.desktops = DesktopList()
@@ -52,18 +46,10 @@ class Screen(samuraix.xcb.screen.Screen, samuraix.event.EventDispatcher):
 
         self.keys = {}
 
-        self.bind_key(samuraix.xcb.modifiers.MOD_MASK_4, keysymdef.XK_q, app.stop)
-        self.bind_key(samuraix.xcb.modifiers.MOD_MASK_4, keysymdef.XK_n, self.next_desktop)
-        self.bind_key(samuraix.xcb.modifiers.MOD_MASK_4, keysymdef.XK_m, self.maximise_client)
-        self.bind_key(samuraix.xcb.modifiers.MOD_MASK_4, keysymdef.XK_x, spawn('xterm'))
+        self.read_config()
 
         self.root.push_handlers(self)
 
-        # TODO: dynamic desktops
-        self.add_desktop('desktop1')
-        self.add_desktop('desktop2')
-        #self.active_desktop = self.desktops[0]
-        self.set_active_desktop(self.desktops[0])
         self.set_supported_hints()
 
         self.rootset = False
@@ -77,10 +63,24 @@ class Screen(samuraix.xcb.screen.Screen, samuraix.event.EventDispatcher):
     def active_desktop_idx(self):
         return self.desktops.index(self.active_desktop)
 
+    def read_config(self):
+        self.read_keybindings()
+        self.read_desktops()
+
+    def read_keybindings(self):
+        for (mod, keysym), action in samuraix.config.get('manager.keybindings', {}).iteritems():
+            self.bind_key(mod, keysym, action)
+
+    def read_desktops(self):
+        for desktop_name in samuraix.config.get('manager.desktops', []) \
+                or ['Main desktop']: # we want at least one desktop
+            self.add_desktop(desktop_name)
+
     def add_desktop(self, name):
         desktop = self.desktop_class(self, name)
         self.desktops.append(desktop)
         self.dispatch_event('on_desktop_add', desktop)
+        self.set_active_desktop(self.desktops[0])
     
     def on_map_request(self, evt):
         #if evt.override_redirect:
@@ -109,7 +109,7 @@ class Screen(samuraix.xcb.screen.Screen, samuraix.event.EventDispatcher):
         except KeyError:
             log.warn('cant find key!')
         else:
-            func()
+            func(self)
 
     def manage(self, window, wa=None, geom=None):
         """ manage a new window - this may *not* result in a window being managed 
@@ -179,6 +179,9 @@ class Screen(samuraix.xcb.screen.Screen, samuraix.event.EventDispatcher):
 
     def next_desktop(self):
         self.set_active_desktop(self.desktops.next(self.active_desktop_idx))
+
+    def previous_desktop(self):
+        self.set_active_desktop(self.desktops.previous(self.active_desktop_idx))
 
     def maximise_client(self):
         if self.focused_client:

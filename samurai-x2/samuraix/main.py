@@ -1,6 +1,8 @@
 import logging
 log = logging.getLogger(__name__)
 
+import samuraix
+
 from .logformatter import FDFormatter
 
 def configure_logging(file_level=logging.DEBUG, console_level=logging.DEBUG):
@@ -26,9 +28,16 @@ def configure_logging(file_level=logging.DEBUG, console_level=logging.DEBUG):
 
     log.info('logging everything to %s' % logfile)
 
+def load_config(config=None):
+    if config is None:
+        from samuraix.defaultconfig import config
+    if callable(config):
+        config = config()
+    samuraix.config = config
+
 def run(app):
     configure_logging()
-    
+    load_config()
     try:
         app.init()
         app.run()
