@@ -26,9 +26,32 @@ GX_OR_INVERTED = 13
 GX_NAND = 14
 GX_SET = 15
 
-GC_ATTRIBUTES = [('function', _xcb.XCB_GC_FUNCTION),
-                 ('plane_mask', _xcb.XCB_GC_PLANE_MASK),
-                 ('foreground', _xcb.XCB_GC_FOREGROUND)] # TODO: complete
+GC_ATTRIBUTES = [
+        ('function', _xcb.XCB_GC_FUNCTION),
+        ('plane_mask', _xcb.XCB_GC_PLANE_MASK),
+        ('foreground', _xcb.XCB_GC_FOREGROUND),
+        ('background', _xcb.XCB_GC_BACKGROUND),
+        ('line_width', _xcb.XCB_GC_LINE_WIDTH),
+        ('line_style', _xcb.XCB_GC_LINE_STYLE),
+        ('cap_style', _xcb.XCB_GC_CAP_STYLE),
+        ('join_style', _xcb.XCB_GC_JOIN_STYLE),
+        ('fill_style', _xcb.XCB_GC_FILL_STYLE),
+        ('fill_rule', _xcb.XCB_GC_FILL_RULE),
+        ('tile', _xcb.XCB_GC_TILE),
+        ('stipple', _xcb.XCB_GC_STIPPLE),
+        ('stipple_origin_x', _xcb.XCB_GC_TILE_STIPPLE_ORIGIN_X),
+        ('stipple_origin_y', _xcb.XCB_GC_TILE_STIPPLE_ORIGIN_Y),
+        ('font', _xcb.XCB_GC_FONT),
+        ('subwindow_mode', _xcb.XCB_GC_SUBWINDOW_MODE),
+        ('graphics_exposures', _xcb.XCB_GC_GRAPHICS_EXPOSURES),
+        ('clip_origin_x', _xcb.XCB_GC_CLIP_ORIGIN_X),
+        ('clip_origin_y', _xcb.XCB_GC_CLIP_ORIGIN_Y),
+        ('clip_mask', _xcb.XCB_GC_CLIP_MASK),
+        ('dash_offset', _xcb.XCB_GC_DASH_OFFSET),
+        ('dash_list', _xcb.XCB_GC_DASH_LIST),
+        ('arc_mode', _xcb.XCB_GC_ARC_MODE),
+]
+
 
 def convert_point(point):
     c_point = _xcb.xcb_point_t()

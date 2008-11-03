@@ -13,9 +13,19 @@ from .setroot import set_root_image
 from .client import Client
 from .desktop import Desktop, DesktopList
 from .rect import Rect
+from samuraix.xcb import keysymdef
 
 import os.path
 SVGFILE = os.path.abspath('../gfx/samuraix.svg') # TODO: just for testing
+
+
+from subprocess import Popen
+class spawn(object):
+    def __init__(self, cmd):
+        self.cmd = cmd
+    def __call__(self): #, screen):
+        pid = Popen(self.cmd, shell=True).pid
+
 
 class Screen(samuraix.xcb.screen.Screen, samuraix.event.EventDispatcher):
     client_class = Client
@@ -29,26 +39,29 @@ class Screen(samuraix.xcb.screen.Screen, samuraix.event.EventDispatcher):
         self.active_desktop = None
         self.focused_client = None
 
-        self.root.attributes = {'event_mask': (samuraix.xcb.event.MapRequestEvent,
-                                  samuraix.xcb.event.SubstructureRedirectEvent,
-                                  samuraix.xcb.event.SubstructureNotifyEvent,
-                                  samuraix.xcb.event.StructureNotifyEvent,
-                                  samuraix.xcb.event.KeyPressEvent,
-                                  samuraix.xcb.event.ExposeEvent,
-                                  )
-                    }
-        self.root.grab_key(self.connection.keysymbols.get_keycode(0x71),
-                    samuraix.xcb.modifiers.MOD_MASK_4) # 'CTRL-q' for me
-        self.root.grab_key(self.connection.keysymbols.get_keycode(0x6e),
-                    samuraix.xcb.modifiers.MOD_MASK_4) # 'win-n'
-        self.root.grab_key(self.connection.keysymbols.get_keycode(0x6d),
-                    samuraix.xcb.modifiers.MOD_MASK_4) # 'win-m'
+        self.root.attributes = {
+            'event_mask': (
+                samuraix.xcb.event.MapRequestEvent,
+                samuraix.xcb.event.SubstructureRedirectEvent,
+                samuraix.xcb.event.SubstructureNotifyEvent,
+                samuraix.xcb.event.StructureNotifyEvent,
+                samuraix.xcb.event.KeyPressEvent,
+                samuraix.xcb.event.ExposeEvent,
+            ),
+        }
+
+        self.keys = {}
+
+        self.bind_key(samuraix.xcb.modifiers.MOD_MASK_4, keysymdef.XK_q, app.stop)
+        self.bind_key(samuraix.xcb.modifiers.MOD_MASK_4, keysymdef.XK_n, self.next_desktop)
+        self.bind_key(samuraix.xcb.modifiers.MOD_MASK_4, keysymdef.XK_m, self.maximise_client)
+        self.bind_key(samuraix.xcb.modifiers.MOD_MASK_4, keysymdef.XK_x, spawn('xterm'))
 
         self.root.push_handlers(self)
 
         # TODO: dynamic desktops
-        self.add_desktop('muh ...')
-        self.add_desktop('... sagt die kuh')
+        self.add_desktop('desktop1')
+        self.add_desktop('desktop2')
         #self.active_desktop = self.desktops[0]
         self.set_active_desktop(self.desktops[0])
         self.set_supported_hints()
@@ -81,21 +94,20 @@ class Screen(samuraix.xcb.screen.Screen, samuraix.event.EventDispatcher):
             set_root_image(self, SVGFILE)
             self.rootset = True
 
+    def bind_key(self, mod, keysym, callback):
+        keycode = self.connection.keysymbols.get_keycode(keysym)
+        self.keys[(mod, keycode)] = callback
+        self.root.grab_key(keycode, mod)
+
     def on_key_press(self, evt):
-        print 'The user pressed keysym', self.connection.keysymbols.get_keysym(evt.keycode)
-        k = samuraix.xcb.keylookup.keysym_to_str(self.connection.keysymbols.get_keysym(evt.keycode))
-        if k == 'q':
-            print "It's q, so I'll shutdown."
-            import sys
-            self.connection.disconnect()
-            sys.exit(0)
-        elif k == 'n':
-            # next desktop
-            self.set_active_desktop(self.desktops.next(self.active_desktop_idx))
-        elif k == 'm':
-            # toggle maximize
-            if self.focused_client:
-                self.focused_client.toggle_maximize()
+        log.debug(str((evt, type(evt), dir(evt))))
+
+        try:
+            func = self.keys[(evt.state, evt.keycode)]
+        except KeyError:
+            log.warn('cant find key!')
+        else:
+            func()
 
     def manage(self, window, wa=None, geom=None):
         """ manage a new window - this may *not* result in a window being managed 
@@ -162,6 +174,13 @@ class Screen(samuraix.xcb.screen.Screen, samuraix.event.EventDispatcher):
 
     def set_active_desktop_by_index(self, index):
         self.set_active_desktop(self.desktops[index])
+
+    def next_desktop(self):
+        self.set_active_desktop(self.desktops.next(self.active_desktop_idx))
+
+    def maximise_client(self):
+        if self.focused_client:
+            self.focused_client.toggle_maximize()
 
     def on_desktop_add(self, desktop):
         # update _NET_NUMBER_OF_DESKTOPS, _NET_DESKTOP_NAMES

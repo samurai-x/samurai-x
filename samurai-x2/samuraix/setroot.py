@@ -13,4 +13,4 @@ def set_root_image(screen, image, position=None, size=None):
     assert image.endswith('.svg'), 'can only render svg at the moment!'
     context.svg(image, x, y, w, h)
 
-    root.attributes = {'back_pixmap':pixmap}
+    root.attributes = {'back_pixmap': pixmap}

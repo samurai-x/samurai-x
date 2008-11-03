@@ -53,7 +53,7 @@ class DrawContext(object):
             cairo.cairo_set_source_rgb(self.cr, color[0], color[1], color[2])
             cairo.cairo_rectangle(self.cr, x, y, width, height)
             cairo.cairo_fill(self.cr)
-        self.connection.flush()
+        #self.connection.flush()
 
     def text(self, x, y, string, color=(0.0, 0.0, 0.0), 
             font=None, bold=False, align=None, font_size=None):
@@ -93,7 +93,7 @@ class DrawContext(object):
         cairo.cairo_move_to(self.cr, x, y)
         cairo.cairo_show_text(self.cr, string)
 
-        self.connection.flush()
+        #self.connection.flush()
 
     def svg(self, filename, x=0, y=0, width=None, height=None):
         try:
@@ -121,9 +121,9 @@ class DrawContext(object):
         rsvg.rsvg_handle_render_cairo(handle, self.cr)
 
         cairo.cairo_restore(self.cr)
-        self.connection.flush()
+        #self.connection.flush()
 
     def fill(self, color=(0.0, 0.0, 0.0)):
         cairo.cairo_set_source_rgb(self.cr, *color)
         cairo.cairo_paint(self.cr)
-        self.connection.flush()
+        #self.connection.flush()

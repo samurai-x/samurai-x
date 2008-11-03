@@ -20,7 +20,7 @@ class Screen(object):
         self._screen = _screen
 
     # TODO - surely this should be cached?!
-    @property
+    @cached_property
     def root(self):
         """
             return the root window instance

@@ -1,6 +1,6 @@
 import ctypes
 
-import _xcb_keysyms
+from samuraix.xcb import _xcb_keysyms
 #from .event import KeyPressEvent, KeyReleaseEvent
 
 class KeySymbols(object):
@@ -11,6 +11,7 @@ class KeySymbols(object):
             _key_symbols = _xcb_keysyms.xcb_key_symbols_alloc(self.connection._connection)
         self._key_symbols = _key_symbols
 
+    # FIXME: use __del__ instead?
     def die(self):
         """
             it would be nice to call that.

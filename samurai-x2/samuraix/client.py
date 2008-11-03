@@ -19,6 +19,18 @@ class Client(samuraix.event.EventDispatcher):
             self.client = client
             self.offset_x, self.offset_y = x, y
 
+            self.gc = samuraix.xcb.graphics.GraphicsContext.create(
+                    self.client.screen.connection, 
+                    self.client.screen.root,
+                    attributes={
+                            'function': samuraix.xcb.graphics.GX_XOR, 
+                            'foreground': self.client.screen.white_pixel,
+                            'subwindow_mode': samuraix.xcb._xcb.XCB_SUBWINDOW_MODE_INCLUDE_INFERIORS,
+                    },
+            )
+
+            client.screen.root.grab_pointer()
+
         def on_motion_notify(self, evt):
             pass
 
@@ -28,9 +40,6 @@ class Client(samuraix.event.EventDispatcher):
     class MoveHandler(ClientHandler):
         def __init__(self, client, x, y):
             super(Client.MoveHandler, self).__init__(client, x, y)
-            self.gc = samuraix.xcb.graphics.GraphicsContext.create(self.client.screen.connection, self.client.screen.root,
-                    attributes={'function':samuraix.xcb.graphics.GX_XOR, 'foreground':self.client.screen.white_pixel})
-            client.screen.root.grab_pointer()
             self._x = None
             self._y = None
 
@@ -64,16 +73,7 @@ class Client(samuraix.event.EventDispatcher):
     class ResizeHandler(ClientHandler):
         def __init__(self, client, x, y):
             super(Client.ResizeHandler, self).__init__(client, x, y)
-            self.gc = samuraix.xcb.graphics.GraphicsContext.create(
-                    self.client.screen.connection, 
-                    self.client.screen.root,
-                    attributes={
-                        'function':samuraix.xcb.graphics.GX_XOR, 
-                        'foreground':self.client.screen.white_pixel,
-                    }
-            )
 
-            client.screen.root.grab_pointer()
             geom = self.client.frame_geom
             client.frame.warp_pointer(geom.width, geom.height)
 
@@ -83,9 +83,8 @@ class Client(samuraix.event.EventDispatcher):
         def on_motion_notify(self, evt):
             self.clear_preview()
             geom = self.client.frame_geom
-            print self.client.frame_geom
-            w = evt.root_x - geom.x + self.client.style['border'] * 2
-            h = evt.root_y - geom.y + self.client.style['title_height']+(self.client.style['border']*2)
+            w = evt.root_x - geom.x
+            h = evt.root_y - geom.y
             self.gc.poly_rectangle(self.client.screen.root,
                                     [samuraix.xcb.graphics.Rectangle(geom.x, geom.y, w, h)],
                                     False)
@@ -104,6 +103,8 @@ class Client(samuraix.event.EventDispatcher):
 
             self.client.screen.root.remove_handlers(self)
             self.client.screen.root.ungrab_pointer()
+            # put the mouse back where it was 
+            self.client.frame.warp_pointer(self.offset_x, self.offset_y)
 
             return True
 
@@ -157,26 +158,20 @@ class Client(samuraix.event.EventDispatcher):
         self._resizing = False
 
     def resize(self, geom):
-        self.window.resize(
-                self.style['border'],
-                self.style['title_height']+self.style['border'], 
-                geom.width, 
+        self.frame.resize(
+                geom.x,
+                geom.y,
+                geom.width,
                 geom.height
         )
 
-        self.frame.resize(
-                geom.x-self.style['border'],
-                geom.y-(self.style['title_height']+self.style['border']),
-                geom.width+self.style['border']*2,
-                geom.height+self.style['title_height']+(self.style['border']*2)
+        self.window.resize(
+                self.style['border'],
+                self.style['title_height']+self.style['border'], 
+                geom.width - (2 * self.style['border']), 
+                geom.height - self.style['title_height'] - (2 * self.style['border'])
         )
 
-        # why are we doing this here?!
-        #self.window.reparent(
-        #        self.frame, 
-        #        self.style['border'], 
-        #        self.style['border'] + self.style['title_height']
-        #)
         self.force_update_geom()
         self._recreate_context()
 
@@ -314,7 +309,7 @@ class Client(samuraix.event.EventDispatcher):
             else:
                 name = name[0]
 
-            log.debug('drawing window name "%s"', name)
+            log.warn('drawing window name "%s" %s', name, type(name))
 
             context.text(
                     self.style['border'] + 1, 
@@ -322,9 +317,6 @@ class Client(samuraix.event.EventDispatcher):
                     name,
                     (255, 255, 255)
             )
-
-            
-
 
         samuraix.xcb._xcb.xcb_copy_area(self.connection._connection, 
                 self.frame.pixmap._xid, 
