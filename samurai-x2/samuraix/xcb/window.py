@@ -88,6 +88,77 @@ class Window(Drawable):
     """
         a window.
     """
+
+    @classmethod
+    def create(cls, connection, screen, x, y, width, height, 
+                border_width=0, parent=None, class_=None, visual=None, attributes=None):
+        """
+        create a new window and return an instance.
+
+        :Parameters:
+            `connection` : connection.Connection
+                The corresponding connection.
+            `screen` : screen.Screen
+                The corresponding screen instance.
+                If you specify `parent` *and* `visual`, you can
+                set `screen` to None.
+            `x` : int
+                The initial x coordinate.
+            `y` : int
+                The initial y coordinate.
+            `width` : int
+                The inital width (in pixels).
+            `height` : int
+                The initial height (in pixels).
+            `border_width` : int
+                The border size (in pixels).
+            `parent` : window.Window
+                The parent window instance. If this is None,
+                use `screen`'s root window
+            `class_` : int
+                One of CLASS_INPUT_OUTPUT (TODO: complete)
+                defaults to CLASS_INPUT_OUTPUT
+            `visual` : int
+                The visual ID to use. If this is None,
+                use `screen`'s root visual.
+            `attributes` : dict
+                a dictionary {key: attribute} containing
+                attributes which should be set. see `Window.attributes`.
+        :rtype: `window.Window`
+        """
+        if not class_:
+            class_ = CLASS_INPUT_OUTPUT
+        if not visual:
+            visual = screen.root_visual
+        if not attributes:
+            attributes = {}
+        if not parent:
+            parent = screen.root
+
+        parent = parent._xid
+
+        xid = _xcb.xcb_generate_id(connection._connection) # TODO
+        attr, mask = util.xize_attributes(attributes, ATTRIBUTE_ORDER)
+
+        _xcb.xcb_create_window(connection._connection, # connection
+                               _xcb.XCB_COPY_FROM_PARENT, # depth
+                               xid, # xid
+                               parent, # parent xid
+                               x, y,
+                               width, height,
+                               border_width,
+                               class_,
+                               visual,
+                               mask,
+                               attr)
+
+        if not 'event_mask' in attributes:
+            warnings.warn('You did not an event mask to your window.\n'
+                          'Do you really want that?')
+        connection.flush()
+
+        return cls(connection, xid)
+
     def __init__(self, connection, xid):
         """
             instantiate a window from a known X id.
@@ -181,75 +252,6 @@ class Window(Drawable):
         c = _xcb.xcb_destroy_window(self.connection._connection, self._xid)
         self.connection.flush()
         util.check_void_cookie(self.connection._connection, c)
-
-    @classmethod
-    def create(cls, connection, screen, x, y, width, height, border_width=0, parent=None, class_=None, visual=None, attributes=None):
-        """
-            create a new window and return an instance.
-
-            :Parameters:
-                `connection` : connection.Connection
-                    The corresponding connection.
-                `screen` : screen.Screen
-                    The corresponding screen instance.
-                    If you specify `parent` *and* `visual`, you can
-                    set `screen` to None.
-                `x` : int
-                    The initial x coordinate.
-                `y` : int
-                    The initial y coordinate.
-                `width` : int
-                    The inital width (in pixels).
-                `height` : int
-                    The initial height (in pixels).
-                `border_width` : int
-                    The border size (in pixels).
-                `parent` : window.Window
-                    The parent window instance. If this is None,
-                    use `screen`'s root window
-                `class_` : int
-                    One of CLASS_INPUT_OUTPUT (TODO: complete)
-                    defaults to CLASS_INPUT_OUTPUT
-                `visual` : int
-                    The visual ID to use. If this is None,
-                    use `screen`'s root visual.
-                `attributes` : dict
-                    a dictionary {key: attribute} containing
-                    attributes which should be set. see `Window.attributes`.
-            :rtype: `window.Window`
-        """
-        if not class_:
-            class_ = CLASS_INPUT_OUTPUT
-        if not visual:
-            visual = screen.root_visual
-        if not attributes:
-            attributes = {}
-        if not parent:
-            parent = screen.root
-
-        parent = parent._xid
-
-        xid = _xcb.xcb_generate_id(connection._connection) # TODO
-        attr, mask = util.xize_attributes(attributes, ATTRIBUTE_ORDER)
-
-        _xcb.xcb_create_window(connection._connection, # connection
-                               _xcb.XCB_COPY_FROM_PARENT, # depth
-                               xid, # xid
-                               parent, # parent xid
-                               x, y,
-                               width, height,
-                               border_width,
-                               class_,
-                               visual,
-                               mask,
-                               attr)
-
-        if not 'event_mask' in attributes:
-            warnings.warn('You did not an event mask to your window.\n'
-                          'Do you really want that?')
-        connection.flush()
-
-        return cls(connection, xid)
 
     def request_get_attributes(self):
         return cookie.GetWindowAttributesRequest(self.connection, self)

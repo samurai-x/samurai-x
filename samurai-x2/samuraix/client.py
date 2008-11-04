@@ -10,6 +10,21 @@ from .rect import Rect
 import logging
 log = logging.getLogger(__name__)
 
+
+# TODO something like this ...
+#class Frame(object):
+#    def __init__(self, client):
+#        self.client = client 
+#        self.window = samuraix.xcb.Window.create(...)
+#
+#    def on_expose(self, evt):
+#        ...
+#    def on_configure_notify(self, evt):
+#        ...
+#    def on_button_press(self, evt):
+#        ...
+
+
 class Client(samuraix.event.EventDispatcher):
     all_clients = []
     window_2_client_map = weakref.WeakValueDictionary()
@@ -130,7 +145,10 @@ class Client(samuraix.event.EventDispatcher):
         self.screen = screen
         self.window = window
         self.window.attributes = {
-                'event_mask': (samuraix.xcb.event.StructureNotifyEvent,),
+                'event_mask': (
+                    samuraix.xcb.event.StructureNotifyEvent,
+                    samuraix.xcb.event.ConfigureNotifyEvent,
+                ),
         }
         self.connection = window.connection
 
@@ -158,6 +176,7 @@ class Client(samuraix.event.EventDispatcher):
         self._resizing = False
 
     def resize(self, geom):
+        log.warn('resize %s', geom)
         self.frame.resize(
                 geom.x,
                 geom.y,
@@ -178,7 +197,23 @@ class Client(samuraix.event.EventDispatcher):
         self.connection.flush()
 
     def on_configure_notify(self, evt):
-        print 'CFG', evt.x, evt.y, evt.width, evt.height
+        # we need to fit the frame around the window when this happens 
+        # im not 100% sure when this happens, but it definatly happens when 
+        # resizing some windows ( like gnome-terminal that fits itself to a 
+        # whole col/rows )
+        log.warn('win CFG %s', str((evt.x, evt.y, evt.width, evt.height)))
+        
+        self.frame.resize(
+                self.frame_geom.x,
+                self.frame_geom.y,
+                evt.width + (2 * self.style['border']),
+                evt.height + (2 * self.style['border']) + self.style['title_height'],
+        )
+        
+        self._recreate_context()
+
+    def frame_on_configure_notify(self, evt):
+        log.warn('frame CFG %s', str((evt.x, evt.y, evt.width, evt.height)))
         self.force_update_geom() # TODO. ugly
 
     def on_destroy_notify(self, evt):
@@ -225,7 +260,7 @@ class Client(samuraix.event.EventDispatcher):
         )
 
         frame.set_handler('on_button_press', self.frame_on_button_press)
-        frame.set_handler('on_configure_notify', self.on_configure_notify)
+        frame.set_handler('frame_on_configure_notify', self.on_configure_notify)
         frame.set_handler('on_expose', self.frame_on_expose)
 
         log.debug('frame w %s h %s', frame_geom.width, frame_geom.height)
@@ -249,7 +284,7 @@ class Client(samuraix.event.EventDispatcher):
         geom.width -= self.style['border'] * 2
         geom.x += self.style['border']
         geom.y += self.style['title_height'] + self.style['border']
-        print "%s geom %s" % (self, geometry)
+        #log.warn("%s geom %s", self, geometry)
         #self.frame_on_expose(None)
 
     def frame_on_button_press(self, evt):
@@ -280,44 +315,36 @@ class Client(samuraix.event.EventDispatcher):
                 self.frame_geom.width+1, self.frame_geom.height+1, 
                 self.frame.pixmap,
         )
+        self.redraw()
 
-    def frame_on_expose(self, evt):
+    def redraw(self):
         context = self.context
         cr = context.cr
         
-        if False:
-            context.fill((255, 0, 255))
-            context.text(0, 10, self.window.get_property('WM_NAME')[0], (255, 255, 255))
-            # fred: why do I have to set y=10?
-            # dunk: because its specifying the baseline of the text not the top 
+        g = self.frame.get_geometry()
+
+        cairo.cairo_set_antialias(cr, cairo.CAIRO_ANTIALIAS_NONE)
+        cairo.cairo_set_line_width(cr, 1)
+        cairo.cairo_set_source_rgb(cr, 0.8, 0.0, 0.0)
+        cairo.cairo_rectangle(cr, 0, 0, g['width']-1, g['height']-1)
+        cairo.cairo_fill_preserve(cr)
+        cairo.cairo_set_source_rgb(cr, 1.0, 1.0, 1.0)
+        cairo.cairo_stroke(cr)
+
+        name = self.window.get_property('WM_NAME')
+        if not name:
+            name = 'untitled'
         else:
-            g = self.frame.get_geometry()
-            #if evt and not evt.x == 0: # TODO!!!11: too much flickering :-(
-            #    log.warn('ignoring frame expose event %s' % evt)
-            #    return
-            cairo.cairo_set_antialias(cr, cairo.CAIRO_ANTIALIAS_NONE)
-            cairo.cairo_set_line_width(cr, 1)
-            cairo.cairo_set_source_rgb(cr, 0.8, 0.0, 0.0)
-            cairo.cairo_rectangle(cr, 0, 0, g['width']-1, g['height']-1)
-            cairo.cairo_fill_preserve(cr)
-            cairo.cairo_set_source_rgb(cr, 1.0, 1.0, 1.0)
-            cairo.cairo_stroke(cr)
+            name = name[0]
 
-            name = self.window.get_property('WM_NAME')
-            if not name:
-                name = 'untitled'
-            else:
-                name = name[0]
+        context.text(
+                self.style['border'] + 1, 
+                self.style['border'] + 1 + context.default_font_size, 
+                name,
+                (255, 255, 255)
+        )
 
-            log.warn('drawing window name "%s" %s', name, type(name))
-
-            context.text(
-                    self.style['border'] + 1, 
-                    self.style['border'] + 1 + context.default_font_size, 
-                    name,
-                    (255, 255, 255)
-            )
-
+    def frame_on_expose(self, evt):
         samuraix.xcb._xcb.xcb_copy_area(self.connection._connection, 
                 self.frame.pixmap._xid, 
                 self.frame._xid, 
@@ -367,8 +394,13 @@ class Client(samuraix.event.EventDispatcher):
         self.window.set_input_focus()
         self.screen.focused_client = self
         self.dispatch_event('on_focus')
-        self.frame.configure(stack_mode=samuraix.xcb.window.STACK_MODE_ABOVE) # have to configure `frame` here!
+        # have to configure `frame` here!
+        self.frame.configure(stack_mode=samuraix.xcb.window.STACK_MODE_ABOVE) 
         # TODO: grab buttons etc
+
+    # TODO
+    #def blur(self):
+    #   ...
 
 Client.register_event_type('on_focus')
 Client.register_event_type('on_removed')
