@@ -106,6 +106,21 @@ def run():
         print 'state 0x%(state)X, keycode %(keycode)d (keysym 0x%(keysymbol)X, "%(keystring)s")), '% \
             ({'state':evt.state, 'keycode':evt.keycode, 'keysymbol':keysym, 'keystring':keystring})
 
+    def on_visi_event(evt):
+        print '%(event)s, serial %(type)s, window 0x%(window)X,'% \
+            ({'event':evt, 'type':evt.event_type, 'window':evt.window._xid})
+        # TODO state translation
+        print 'state VisibilityUnobscured (%s)'%evt.state
+
+    def on_motion_event(evt):
+        #TODO: need to finish this, need more info...
+        print '%(event)s, serial %(type)s, window 0x%(window)X,'% \
+            ({'event':evt, 'type':evt.event_type, 'window':evt.event._xid})
+        print 'root 0x%(root)X, time %(time)d, (%(win_x)d,%(win_y)d), root:(%(root_x)d,%(root_y)d),'% \
+            ({'root':evt.root._xid,'time':evt._event.time,'win_x':evt.event_x, 'win_y':evt.event_y, 'root_x':evt.root_x, 'root_y':evt.root_y})
+        print 'state 0x%(state)X, '% \
+            ({'state':evt.state, })
+
 
     event_map = {xcb.event.KeyPressEvent.event_type: on_key_event,             \
                 xcb.event.KeyReleaseEvent.event_type: on_key_event,            \
@@ -113,6 +128,8 @@ def run():
                 xcb.event.ButtonPressEvent.event_type: on_button_event,        \
                 xcb.event.ButtonReleaseEvent.event_type: on_button_event,      \
                 xcb.event.EnterNotifyEvent.event_type: on_enter_event,         \
+                xcb.event.VisibilityNotifyEvent.event_type: on_visi_event,     \
+                xcb.event.MotionNotifyEvent.event_type: on_motion_event,       \
                 }
     while check_timer():
         evt = c.poll_for_event()
