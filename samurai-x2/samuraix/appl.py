@@ -48,7 +48,10 @@ class App(object):
 
         for i in range(samuraix.xcb.screen.Screen.get_screen_count(self.connection)):
             scr = samuraix.screen.Screen(self, i)
-            scr.scan()
+            try:
+                scr.scan()
+            except Exception, e:
+                log.error(e)
             self.screens.append(scr)
 
         signal.signal(signal.SIGINT, self.stop)

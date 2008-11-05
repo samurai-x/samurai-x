@@ -246,8 +246,11 @@ class Client(samuraix.event.EventDispatcher):
         self.remove()
 
     def remove(self):
-        self.all_clients.remove(self)
-        del self.window_2_client_map[self.window]
+        try:
+            self.all_clients.remove(self)
+            del self.window_2_client_map[self.window]
+        except (IndexError, KeyError), e:
+            log.warning(e)
         self.frame.destroy()
         self.window.destroy()
         self.dispatch_event('on_removed')
