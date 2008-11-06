@@ -110,7 +110,7 @@ def run():
         print '%(event)s, serial %(type)s, window 0x%(window)X,'% \
             ({'event':evt, 'type':evt.event_type, 'window':evt.window._xid})
         # TODO state translation
-        print 'state VisibilityUnobscured (%s)'%evt.state
+        print 'state (%s)'%evt.visibility_notify_states[evt.state]
 
     def on_motion_event(evt):
         #TODO: need to finish this, need more info...
