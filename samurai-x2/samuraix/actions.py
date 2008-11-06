@@ -23,6 +23,8 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import logging
+
 from subprocess import Popen
 
 class Action(object):
@@ -68,4 +70,11 @@ class MaximiseClient(Action):
 
     def __call__(self, screen):
         screen.maximise_client()
+
+class DebugOutput(Action):
+    def __init__(self, msg):
+        self.msg = msg
+
+    def __call__(self, screen):
+        logging.debug(self.msg)
 
