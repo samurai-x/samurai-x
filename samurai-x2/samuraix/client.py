@@ -195,11 +195,24 @@ class Client(samuraix.event.EventDispatcher):
         self.create_frame()
         self.window.map()
 
+        self.apply_normal_hints()
+
         self.window.push_handlers(self)
 
         self._moving = False
         self._resizing = False
 
+    def apply_normal_hints(self, hints=None):
+        """
+            apply the WM_NORMAL_HINTS (TODO: complete)
+
+            :param hints: A `SizeHints` object or None (fetch it)
+        """
+        if hints is None:
+            hints = self.window.get_property('WM_NORMAL_HINTS')
+        if hints.perfect_width and hints.perfect_height: # don't set if one of them is 0
+            self.resize(Rect(self.geom.x, self.geom.y, hints.perfect_width, hints.perfect_height))
+        
     def resize(self, geom):
         log.warn('resize %s', geom)
         self.frame.resize(

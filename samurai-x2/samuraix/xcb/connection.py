@@ -33,6 +33,8 @@ import atom
 import cookie
 import screen
 import window
+
+from containers import SizeHints
 from samuraix.xcb import cursor
 
 from util import cached_property
@@ -176,6 +178,11 @@ class Connection(samuraix.event.EventDispatcher):
             p_uint8_t = ctypes.POINTER(ctypes.c_uint * _xcb.xcb_get_property_value_length(_reply))
             return list(ctypes.cast(value, p_uint8_t).contents)
 
+        def _pythonize_integer():
+            value = _xcb.xcb_get_property_value(_reply)
+            p_int8_t = ctypes.POINTER(ctypes.c_int * _xcb.xcb_get_property_value_length(_reply))
+            return list(ctypes.cast(value, p_int8_t).contents)
+
         def _pythonize_atom():
             value = _xcb.xcb_get_property_value(_reply)
             p_uint8_t = ctypes.POINTER(ctypes.c_uint * _xcb.xcb_get_property_value_length(_reply))
@@ -186,11 +193,33 @@ class Connection(samuraix.event.EventDispatcher):
             value = _xcb.xcb_get_property_value(_reply)
             p_uint8_t = ctypes.POINTER(ctypes.c_uint * _xcb.xcb_get_property_value_length(_reply))
             return [window.Window(self, xid) for xid in ctypes.cast(value, p_uint8_t).contents]
-           
+
+        def _pythonize_wm_size_hints():
+            value = _xcb.xcb_get_property_value(_reply)
+
+            length = _xcb.xcb_get_property_value_length(_reply)
+            p_int_t = ctypes.POINTER(ctypes.c_int * length) 
+            p_uint_t = ctypes.POINTER(ctypes.c_uint * length)
+
+            values = list(ctypes.cast(value, p_int_t).contents)[1:-1]
+            uints = list(ctypes.cast(value, p_uint_t).contents)
+            flags = uints[0]
+            win_gravity = uints[-1]
+
+            kwargs = dict(zip(SizeHints.properties, values))
+            kwargs['flags'] = flags
+            kwargs['win_gravity'] = win_gravity
+
+            hints = SizeHints(**kwargs)
+
+            return hints
+
         PYTHONIZERS = {
                        'CARDINAL': _pythonize_cardinal,
+                       'INTEGER': _pythonize_integer,
                        'STRING': _pythonize_string,
                        'UTF8_STRING': _pythonize_string,
+                       'WM_SIZE_HINTS': _pythonize_wm_size_hints,
                        'ATOM': _pythonize_atom,
                        'WINDOW': _pythonize_window
                        }
@@ -232,6 +261,9 @@ class Connection(samuraix.event.EventDispatcher):
         def _xize_cardinal():
             return (ctypes.c_uint * len(prop))(*[ctypes.c_uint(v) for v in prop])
 
+        def _xize_integer():
+            return (ctypes.c_int * len(prop))(*[ctypes.c_int(v) for v in prop])
+
         def _xize_window():
             return (ctypes.c_uint * len(prop))(*[ctypes.c_uint(v._xid) for v in prop])
 
@@ -242,15 +274,17 @@ class Connection(samuraix.event.EventDispatcher):
 
         if not prop_type:
             prop_type = atom.Atom(self, cookie.PropertyRequest(self, window, my_atom)._value.type).get_name()
+        
         XIZERS = {
                  'STRING': _xize_string,
                  'UTF8_STRING': _xize_string,
                  'CARDINAL': _xize_cardinal,
+                 'INTEGER': _xize_integer,
                  'WINDOW': _xize_window,
                  'ATOM': _xize_atom,
                  }
         data = XIZERS[prop_type]()
-        print data[0]
+        
         return (ctypes.cast(data, ctypes.c_void_p), self.get_atom_by_name(prop_type), len(data))
 
     def flush(self):
