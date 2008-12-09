@@ -75,7 +75,10 @@ class App(object):
                 else:
                     if ev is None:
                         break
-                    ev.dispatch()
+                    try:
+                        ev.dispatch()
+                    except Exception, e:
+                        log.error(e)
 
             while self.running:
                 log.debug('selecting...')
@@ -98,7 +101,10 @@ class App(object):
                     else:
                         if ev is None:
                             break
-                        ev.dispatch()
+                        try:
+                            ev.dispatch()
+                        except Exception, e:
+                            log.error(e)
         else:
             while self.running:
                 self.connection.wait_for_event_dispatch()

@@ -35,6 +35,7 @@ config = {
         (mods.MOD_MASK_4, keys.XK_n): NextDesktop(),
         (mods.MOD_MASK_4, keys.XK_p): PreviousDesktop(),
         (mods.MOD_MASK_4, keys.XK_m): MaximiseClient(),
+        (mods.MOD_MASK_4, keys.XK_d): DebugOutput('-- pressed d --'),
     },
 
     'manager.desktops': [

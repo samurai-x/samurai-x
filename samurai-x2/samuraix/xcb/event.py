@@ -123,10 +123,10 @@ class Event(object):
     _dispatch_target = None
     _dispatch_class = connection.Connection
 
-    def __init__(self, connection, _event=None):
+    def __init__(self, connection, _event=None, _dispatch_target=None):
         self.connection = connection
         self._event = _event or self.event_struct()
-        self._dispatch_target = self._dispatch_target or self.connection
+        self._dispatch_target = self._dispatch_target or _dispatch_target or self.connection
 
         if hasattr(self, 'response_type'):
             self.response_type = self.event_type
@@ -325,6 +325,9 @@ class KeymapNotifyEvent(Event):
     keys = event_property('unchanged', 'keys') # TODO!: make Keymap objects!
 
 class VisibilityNotifyEvent(Event):
+    visibility_notify_states = {_xcb.XCB_VISIBILITY_UNOBSCURED:'VisibilityUnobscured', \
+            _xcb.XCB_VISIBILITY_PARTIALLY_OBSCURED: 'VisibilityPartiallyObscured', \
+            _xcb.XCB_VISIBILITY_FULLY_OBSCURED: 'VisibilityObscured'}
     event_type = _xcb.XCB_VISIBILITY_NOTIFY
     event_struct = _xcb.xcb_visibility_notify_event_t
     event_mask = _xcb.XCB_EVENT_MASK_VISIBILITY_CHANGE

@@ -276,6 +276,11 @@ class Client(samuraix.event.EventDispatcher):
             border=3,
         )
 
+        if frame_geom.x == 0:
+            frame_geom.x = self.style['border']
+        if frame_geom.y == 0:
+            frame_geom.y = self.style['title_height'] + self.style['border']
+
         frame_geom.height += self.style['title_height'] + (self.style['border'] * 2)
         frame_geom.width += self.style['border'] * 2
         frame_geom.x -= self.style['border']
@@ -309,10 +314,11 @@ class Client(samuraix.event.EventDispatcher):
         frame.gc = samuraix.xcb.graphics.GraphicsContext.create(self.connection, self.screen.root)
             
         self.frame = frame
+        frame.map()
 
         self._recreate_context()
-
-        frame.map()
+        self.force_frame_expose(frame_geom.width, frame_geom.height)
+        self.connection.flush()
 
     def update_geom(self, geometry):
         if isinstance(geometry, dict):
@@ -327,6 +333,14 @@ class Client(samuraix.event.EventDispatcher):
         geom.y += self.style['title_height'] + self.style['border']
         #log.warn("%s geom %s", self, geometry)
         #self.frame_on_expose(None)
+
+    def force_frame_expose(self, width, height):
+        ev = samuraix.xcb.event.ExposeEvent(self.connection, _dispatch_target=self.frame)
+        ev.x = 0
+        ev.y = 0
+        ev.width = width
+        ev.height = height
+        self.frame_on_expose(ev)
 
     def frame_on_button_press(self, evt):
         self.focus()
