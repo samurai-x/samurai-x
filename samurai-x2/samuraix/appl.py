@@ -51,7 +51,7 @@ class App(object):
             try:
                 scr.scan()
             except Exception, e:
-                log.error(e)
+                log.exception(e)
             self.screens.append(scr)
 
         signal.signal(signal.SIGINT, self.stop)
@@ -71,14 +71,14 @@ class App(object):
                 try:
                     ev = self.connection.poll_for_event()
                 except Exception, e:
-                    log.error(e)
+                    log.exception(e)
                 else:
                     if ev is None:
                         break
                     try:
                         ev.dispatch()
                     except Exception, e:
-                        log.error(e)
+                        log.exception(e)
 
             while self.running:
                 log.debug('selecting...')
@@ -89,7 +89,7 @@ class App(object):
                     if e.args[0] == 4:
                         pass
                     else:
-                        log.error(str((e, type(e), dir(e), e.args)))
+                        log.exception(str((e, type(e), dir(e), e.args)))
                         raise 
 
                 # might as well process all events in the queue...
@@ -97,14 +97,14 @@ class App(object):
                     try:
                         ev = self.connection.poll_for_event()
                     except Exception, e:
-                        log.error(e)
+                        log.exception(e)
                     else:
                         if ev is None:
                             break
                         try:
                             ev.dispatch()
                         except Exception, e:
-                            log.error(e)
+                            log.exception(e)
         else:
             while self.running:
                 self.connection.wait_for_event_dispatch()
