@@ -116,6 +116,30 @@ class Screen(samuraix.xcb.screen.Screen, samuraix.event.EventDispatcher):
             # NB we still not might manage this window - check manage()
             self.manage(evt.window, evt.window.attributes, evt.window.get_geometry())
 
+    def on_configure_request(self, evt):
+        cnf = {}
+        mask = evt.value_mask
+        # TODO: get rid of that boilerplate code
+        if mask & _xcb.XCB_CONFIG_WINDOW_X:
+            cnf['x'] = evt.x
+        if mask & _xcb.XCB_CONFIG_WINDOW_Y:
+            cnf['y'] = evt.y
+        if mask & _xcb.XCB_CONFIG_WINDOW_WIDTH:
+            cnf['width'] = evt.width
+        if mask & _xcb.XCB_CONFIG_WINDOW_HEIGHT:
+            cnf['height'] = evt.height
+        if mask & _xcb.XCB_CONFIG_WINDOW_BORDER_WIDTH:
+            cnf['border_width'] = evt.border_width
+        if mask & _xcb.XCB_CONFIG_WINDOW_SIBLING:
+            cnf['sibling'] = evt.sibling # does that work?
+        if mask & _xcb.XCB_CONFIG_WINDOW_STACK_MODE:
+            cnf['stack_mode'] = evt.stack_mode
+
+        if cnf:
+            evt.window.configure(**cnf)
+        else:
+            log.warning('Strange configure request: No attributes set')
+
     def on_expose(self, evt):
         if not self.rootset and os.path.isfile(os.path.abspath(SVGFILE)): # TODO: not hardcoded ;-)
             set_root_image(self, SVGFILE)

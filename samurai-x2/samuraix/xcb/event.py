@@ -411,8 +411,8 @@ class ConfigureRequestEvent(Event):
 
     stack_mode = event_property('unchanged', 'stack_mode')
     _dispatch_class = window.Window
-    _dispatch_target = window = event_property('window', 'window')
-    parent = event_property('window', 'parent')
+    window = event_property('window', 'window') # <- better dispatch target
+    _dispatch_target = parent = event_property('window', 'parent') # TODO: noez!
     sibling = event_property('window', 'sibling')
 
     x = event_property('unchanged', 'x')
