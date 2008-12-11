@@ -28,9 +28,10 @@ import weakref
 import samuraix.event
 import samuraix.drawcontext
 import samuraix.xcb, samuraix.xcb._xcb
-from samuraix import cairo
+from samuraix import cairo, config
 
 from .rect import Rect
+from .utils import hex2cairocolor
 
 import logging
 log = logging.getLogger(__name__)
@@ -328,6 +329,8 @@ class Client(samuraix.event.EventDispatcher):
                            'override_redirect': True},
         )
 
+        frame.background_color = hex2cairocolor(config.get('client.frame.background_color', '#cc0000'))
+        frame.title_color = hex2cairocolor(config.get('client.frame.title_color', '#ffffff'))
         self.window.reparent(frame, 
                 self.style['border'], 
                 self.style['border'] + self.style['title_height']
@@ -408,7 +411,7 @@ class Client(samuraix.event.EventDispatcher):
 
         cairo.cairo_set_antialias(cr, cairo.CAIRO_ANTIALIAS_NONE)
         cairo.cairo_set_line_width(cr, 1)
-        cairo.cairo_set_source_rgb(cr, 0.8, 0.0, 0.0)
+        cairo.cairo_set_source_rgb(cr, *self.frame.background_color)
         cairo.cairo_rectangle(cr, 0, 0, g['width']-1, g['height']-1)
         cairo.cairo_fill_preserve(cr)
         cairo.cairo_set_source_rgb(cr, 1.0, 1.0, 1.0)
@@ -424,7 +427,7 @@ class Client(samuraix.event.EventDispatcher):
                 self.style['border'] + 1, 
                 self.style['border'] + 1 + context.default_font_size, 
                 name,
-                (255, 255, 255)
+                self.frame.title_color,
         )
 
     def frame_on_expose(self, evt):
