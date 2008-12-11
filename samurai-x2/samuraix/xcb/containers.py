@@ -23,11 +23,17 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+US_POSITION = 1 << 0
+US_SIZE = 1 << 1
+P_POSITION = 1 << 2
+P_SIZE = 1 << 3
+
 class SizeHints(object):
     properties = ('x', 'y', 'width', 'height', 'min_width', \
               'min_height', 'max_width', 'max_height', 'width_inc',
               'height_inc', 'min_aspect_num', 'min_aspect_den',
-              'max_aspect_num', 'max_aspect_den', 'base_width', 'base_height')
+              'max_aspect_num', 'max_aspect_den', 'base_width', 'base_height',
+              'flags', 'win_gravity')
  
     def __init__(self, **kwargs):
         for prop_name in self.properties:
@@ -39,20 +45,47 @@ class SizeHints(object):
         return '<SizeHints perfect size = %s>' % (self.perfect_size,)
 
     @property
+    def perfect_position(self):
+        return (self.perfect_x, self.perfect_y)
+
+    @property
+    def perfect_x(self):
+        return self.x # TODO
+
+    @property
+    def perfect_y(self):
+        return self.y # TODO
+
+    @property
     def perfect_size(self):
         return (self.perfect_width, self.perfect_height)
 
     @property
     def perfect_width(self):
-        if self.width:
+        if self.user_specified_size: #or self.program_specified_size:
             return self.width # User-specified size
-        i = 2
+        i = 10
         return (self.base_width or self.min_width) + i * self.width_inc # TODO: let the user choose `i` 
 
     @property
     def perfect_height(self):
-        print vars(self)
-        if self.height:
+        if self.user_specified_size: #or self.program_specified_size:
             return self.height # User-specified size
-        j = 2
+        j = 10
         return (self.base_height or self.min_height) + j * self.height_inc # TODO: let the user choose `j` 
+
+    @property
+    def user_specified_size(self):
+        return bool(self.flags & US_SIZE)
+
+    @property
+    def user_specified_position(self):
+        return bool(self.flags & US_POSITION)
+
+    @property
+    def program_specified_size(self):
+        return bool(self.flags & P_SIZE)
+
+    @property
+    def program_specified_position(self):
+        return bool(self.flags & P_POSITION)

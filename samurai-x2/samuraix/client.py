@@ -210,8 +210,35 @@ class Client(samuraix.event.EventDispatcher):
         """
         if hints is None:
             hints = self.window.get_property('WM_NORMAL_HINTS')
-        if hints.perfect_width and hints.perfect_height: # don't set if one of them is 0
-            self.resize(Rect(self.geom.x, self.geom.y, hints.perfect_width, hints.perfect_height))
+        
+        geom = self.frame_geom
+        hint = Rect()
+
+        if hints.user_specified_position:
+            hint.x = hints.perfect_x
+            hint.y = hints.perfect_y
+        else:
+            hint.x = geom.x
+            hint.y = geom.y
+
+        if hints.user_specified_size:
+            hint.width = hints.perfect_width
+            hint.height = hints.perfect_height
+        else:
+            hint.width = geom.width
+            hint.height = geom.height
+
+        # apply the style --- is the style added twice?
+        if hint.x == 0:
+            hint.x = self.style['border']
+        if hint.y == 0:
+            hint.y = self.style['title_height'] + self.style['border']
+        hint.x -= self.style['border']
+        hint.y -= self.style['title_height'] + self.style['border']
+        hint.height += self.style['title_height'] + (self.style['border'] * 2)
+        hint.width += self.style['border'] * 2
+
+        self.resize(hint)
         
     def resize(self, geom):
         log.warn('resize %s', geom)

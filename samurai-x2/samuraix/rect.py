@@ -25,7 +25,7 @@
 
 class Rect(object):
     __slots__ = ['x', 'y', 'width', 'height']
-    def __init__(self, x, y, width, height):
+    def __init__(self, x=0, y=0, width=100, height=100):
         self.x = x
         self.y = y
         self.width = width
