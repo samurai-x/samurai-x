@@ -96,7 +96,7 @@ ATTRIBUTE_ORDER = [
             ('event_mask', _xcb.XCB_CW_EVENT_MASK, _xize_event_mask),
             ('dont_propagate', _xcb.XCB_CW_DONT_PROPAGATE),
             ('colormap', _xcb.XCB_CW_COLORMAP), # TODO: xizer
-            ('cursor', _xcb.XCB_CW_CURSOR) # TODO: xizer
+            ('cursor', _xcb.XCB_CW_CURSOR, _xize_resource)
            ]
 
 WINDOW_CONFIG= [
@@ -444,7 +444,7 @@ class Window(Drawable):
                         _xcb.XCB_GRAB_MODE_ASYNC, 
                         _xcb.XCB_GRAB_MODE_ASYNC,
                         self._xid,  
-                        _xcb.XCB_NONE, # TODO: specify cursor
+                        cursor._xid, 
                         _xcb.XCB_CURRENT_TIME)
 
         grab_ptr_r = _xcb.xcb_grab_pointer_reply(self.connection._connection, grab_ptr_c, None)

@@ -67,6 +67,7 @@ class Screen(samuraix.xcb.screen.Screen, samuraix.event.EventDispatcher):
                 samuraix.xcb.event.KeyPressEvent,
                 samuraix.xcb.event.ExposeEvent,
             ),
+            'cursor': self.app.connection.cursors['Normal'],
         }
 
         self.keys = {}

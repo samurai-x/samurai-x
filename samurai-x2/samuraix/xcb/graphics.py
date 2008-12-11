@@ -66,7 +66,7 @@ GC_ATTRIBUTES = [
         ('stipple', _xcb.XCB_GC_STIPPLE),
         ('stipple_origin_x', _xcb.XCB_GC_TILE_STIPPLE_ORIGIN_X),
         ('stipple_origin_y', _xcb.XCB_GC_TILE_STIPPLE_ORIGIN_Y),
-        ('font', _xcb.XCB_GC_FONT),
+        ('font', _xcb.XCB_GC_FONT, lambda font: font._xid),
         ('subwindow_mode', _xcb.XCB_GC_SUBWINDOW_MODE),
         ('graphics_exposures', _xcb.XCB_GC_GRAPHICS_EXPOSURES),
         ('clip_origin_x', _xcb.XCB_GC_CLIP_ORIGIN_X),
@@ -108,6 +108,7 @@ Rectangle = _xcb.xcb_rectangle_t # TODO: really use a xcb internal type? :/
 Arc = _xcb.xcb_arc_t
 
 class GraphicsContext(object):
+    # TODO: let the user draw text
     @classmethod
     def create(cls, connection, drawable, attributes=None):
         if not attributes:

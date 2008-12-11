@@ -23,7 +23,9 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from samuraix.xcb import _xcb
+from . import _xcb
+from .font import Font
+from .resource import Resource
 
 # See http://tronche.com/gui/x/xlib/appendix/b/ for values 
 XUTIL_CURSOR_FLEUR = 52
@@ -36,9 +38,35 @@ XUTIL_CURSOR_TOP_RIGHT_CORNER = 136
 XUTIL_CURSOR_DOUBLE_ARROW_HORIZ = 108
 XUTIL_CURSOR_DOUBLE_ARROW_VERT = 116
 
+class Cursor(Resource):
+    def __init__(self, connection, xid):
+        super(Cursor, self).__init__(connection, xid)
+
+    def free(self):
+        _xcb.xcb_free_cursor(self.connection._connection, self._xid)
+
+    # TODO: wrap xcb_create_cursor (cool stuff!)
+
+    @classmethod
+    def create_glyph(cls, connection, source_font, mask_font, source_char, \
+            mask_char, fore_red, fore_green, fore_blue,
+            back_red, back_green, back_blue):
+            xid = _xcb.xcb_generate_id(connection._connection)
+            _xcb.xcb_create_glyph_cursor(connection._connection, xid, 
+                    source_font._xid, 
+                    mask_font._xid, 
+                    source_char, 
+                    mask_char, 
+                    fore_red, fore_green, fore_blue,
+                    back_red, back_green, back_blue)
+
+            return cls(connection, xid)
+
+
 class Cursors(dict):
     def __init__(self, connection):
         self.connection = connection    
+        self.font = None
 
         cursors = (
             ('Normal',    XUTIL_CURSOR_LEFT_PTR),
@@ -56,12 +84,12 @@ class Cursors(dict):
             self._new(name, cursor_font)
 
     def _new(self, name, cursor_font):
-        font = _xcb.xcb_generate_id(self.connection._connection)
-        _xcb.xcb_open_font(self.connection._connection, font, len("cursor")-1, "cursor")
+        if self.font is None:
+            self.font = Font.open(self.connection, "cursor") 
 
-        cursor = _xcb.xcb_generate_id(self.connection._connection)
-        _xcb.xcb_create_glyph_cursor(self.connection._connection, cursor, font, font, 
-                cursor_font, cursor_font + 1, 
+        cursor = Cursor.create_glyph(self.connection, 
+                self.font, self.font,
+                cursor_font, cursor_font + 1,
                 0, 0, 0,
                 65535, 65535, 65535)
 

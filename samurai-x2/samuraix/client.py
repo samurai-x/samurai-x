@@ -56,7 +56,7 @@ class Client(samuraix.event.EventDispatcher):
     window_2_client_map = weakref.WeakValueDictionary()
     
     class ClientHandler(object):
-        def __init__(self, client, x, y):
+        def __init__(self, client, x, y, cursor=None):
             self.client = client
             self.offset_x, self.offset_y = x, y
 
@@ -70,7 +70,8 @@ class Client(samuraix.event.EventDispatcher):
                     },
             )
 
-            client.screen.root.grab_pointer()
+            client.screen.root.grab_pointer(cursor)
+
 
         def on_motion_notify(self, evt):
             pass
@@ -80,7 +81,7 @@ class Client(samuraix.event.EventDispatcher):
 
     class MoveHandler(ClientHandler):
         def __init__(self, client, x, y):
-            super(Client.MoveHandler, self).__init__(client, x, y)
+            super(Client.MoveHandler, self).__init__(client, x, y, client.screen.connection.cursors['Move'])
             self._x = None
             self._y = None
 
@@ -113,7 +114,7 @@ class Client(samuraix.event.EventDispatcher):
 
     class ResizeHandler(ClientHandler):
         def __init__(self, client, x, y):
-            super(Client.ResizeHandler, self).__init__(client, x, y)
+            super(Client.ResizeHandler, self).__init__(client, x, y, client.screen.connection.cursors['Resize'])
 
             geom = self.client.frame_geom
             client.frame.warp_pointer(geom.width, geom.height)
