@@ -266,15 +266,24 @@ class Client(samuraix.event.EventDispatcher):
         # resizing some windows ( like gnome-terminal that fits itself to a 
         # whole col/rows )
         log.warn('win CFG %s', str((evt.x, evt.y, evt.width, evt.height)))
+        width = evt.width + (2 * self.style['border'])
+        height = evt.height + (2 * self.style['border']) + self.style['title_height']
         
+        new_geom = self.frame_geom.copy()
+        new_geom.width = width
+        new_geom.height = height
+        self.update_geom(new_geom)
+
         self.frame.resize(
                 self.frame_geom.x,
                 self.frame_geom.y,
-                evt.width + (2 * self.style['border']),
-                evt.height + (2 * self.style['border']) + self.style['title_height'],
+                width,
+                height
         )
-        
+        self.connection.flush()
+
         self._recreate_context()
+        self.force_frame_expose(width, height)
 
     def frame_on_configure_notify(self, evt):
         log.warn('frame CFG %s', str((evt.x, evt.y, evt.width, evt.height)))

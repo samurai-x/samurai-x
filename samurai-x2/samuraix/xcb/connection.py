@@ -225,7 +225,10 @@ class Connection(samuraix.event.EventDispatcher):
                        }
         if not _reply:
             return []
-        return PYTHONIZERS[atom.Atom(self, _reply.type).get_name()]()
+        try:
+            return PYTHONIZERS[atom.Atom(self, _reply.type).get_name()]()
+        except KeyError, e:
+            return None # TODO: raise?
 
     def xize_property(self, window, my_atom, prop, prop_type=None):
         """
