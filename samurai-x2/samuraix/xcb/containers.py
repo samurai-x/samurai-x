@@ -23,10 +23,18 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+from __future__ import division
+
 US_POSITION = 1 << 0
 US_SIZE = 1 << 1
 P_POSITION = 1 << 2
 P_SIZE = 1 << 3
+P_MINSIZE = 1 << 4
+P_MAXSIZE = 1 << 5
+P_RESIZEINC = 1 << 6
+P_ASPECT = 1 << 7
+P_BASESIZE = 1 << 8
+P_WINGRAVITY = 1 << 9
 
 class SizeHints(object):
     properties = ('x', 'y', 'width', 'height', 'min_width', \
@@ -36,56 +44,89 @@ class SizeHints(object):
               'flags', 'win_gravity')
  
     def __init__(self, **kwargs):
-        for prop_name in self.properties:
-            setattr(self, prop_name, kwargs.get(prop_name, 0)) # TODO: not so nice
+        flags = kwargs['flags']
+        valid = False
 
-        # TODO: implement aspect ratios (using `fractions`?)
+        if flags & P_SIZE:
+            self.base_width = kwargs['base_width']
+            self.base_height = kwargs['base_height']
+            valid = True
+        elif flags & P_MINSIZE:
+            self.base_width = kwargs['min_width']
+            self.base_height = kwargs['min_height']
+            valid = True
+        else:
+            self.base_width, self.base_height = 0, 0
+        if flags & P_RESIZEINC:
+            self.width_inc = kwargs['width_inc']
+            self.height_inc = kwargs['height_inc']
+            valid = True
+        else:
+            self.width_inc, self.height_inc = 0, 0
+        if flags & P_MAXSIZE:
+            self.max_width = kwargs['max_width']
+            self.max_height = kwargs['height_inc']
+            valid = True
+        else:
+            self.max_width, self.max_height = 0, 0
+        if flags & P_MINSIZE:
+            self.min_width = kwargs['min_width']
+            self.min_height = kwargs['min_height']
+            valid = True
+        elif flags & P_BASESIZE:
+            self.min_width = kwargs['base_width']
+            self.min_height = kwargs['base_height']
+            valid = True
+        if flags & P_ASPECT:
+            self.min_aspect_num = kwargs['min_aspect_num']
+            self.min_aspect_den = kwargs['min_aspect_den']
+            self.max_aspect_num = kwargs['max_aspect_num']
+            self.max_aspect_den = kwargs['max_aspect_den']
+            valid = True
+        else:
+            self.min_aspect_num = 0
+            self.min_aspect_den = 0
+            self.max_aspect_num = 0
+            self.max_aspect_den = 0
 
-    def __repr__(self):
-        return '<SizeHints perfect size = %s>' % (self.perfect_size,)
+        self.valid = valid
 
-    @property
-    def perfect_position(self):
-        return (self.perfect_x, self.perfect_y)
+    def compute(self, geom):
+        """
+            compute `geom`
+        """
+        if self.min_aspect_den > 0 and self.max_aspect_den > 0 and \
+                (geom.width - self.base_width) > 0 and \
+                (geom.height - self.base_height) > 0:
+            dx = geom.width - self.base_width
+            dy = geom.height - self.base_height
+            min_ = self.min_aspect_num / self.min_aspect_den # float division
+            max_ = self.max_aspect_num / self.max_aspect_den
 
-    @property
-    def perfect_x(self):
-        return self.x # TODO
+            ratio = dx / dy
+            if max_ > 0 and min_ > 0 and ratio > 0:
+                if ratio < min:
+                    dy = (dx * min_ + dy) / (min_ * min_ + 1)
+                    dx = dy * min_
+                    geom.width = int(dx + self.base_width)
+                    geom.height = int(dy + self.base_height)
+                elif ratio > max:
+                    dy = (dx * min_ + dy) / (max_ * max_ + 1)
+                    dx = dy * min_
+                    geom.width = int(dx + self.base_width)
+                    geom.height = int(dy + self.base_height)
+        if self.min_width:
+            geom.width = max(self.min_width, geom.width)
+        if self.min_height:
+            geom.height = max(self.min_height, geom.height)
+        if self.max_width:
+            geom.width = min(self.max_width, geom.width)
+        if self.max_height:
+            geom.height = min(self.max_height, geom.height)
 
-    @property
-    def perfect_y(self):
-        return self.y # TODO
+        if self.width_inc:
+            geom.width -= (geom.width - self.base_width) % self.width_inc
+        if self.height_inc:
+            geom.height -= (geom.height - self.base_height) % self.height_inc
 
-    @property
-    def perfect_size(self):
-        return (self.perfect_width, self.perfect_height)
 
-    @property
-    def perfect_width(self):
-        if self.user_specified_size: #or self.program_specified_size:
-            return self.width # User-specified size
-        i = 10
-        return (self.base_width or self.min_width) + i * self.width_inc # TODO: let the user choose `i` 
-
-    @property
-    def perfect_height(self):
-        if self.user_specified_size: #or self.program_specified_size:
-            return self.height # User-specified size
-        j = 10
-        return (self.base_height or self.min_height) + j * self.height_inc # TODO: let the user choose `j` 
-
-    @property
-    def user_specified_size(self):
-        return bool(self.flags & US_SIZE)
-
-    @property
-    def user_specified_position(self):
-        return bool(self.flags & US_POSITION)
-
-    @property
-    def program_specified_size(self):
-        return bool(self.flags & P_SIZE)
-
-    @property
-    def program_specified_position(self):
-        return bool(self.flags & P_POSITION)

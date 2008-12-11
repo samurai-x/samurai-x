@@ -195,51 +195,50 @@ class Client(samuraix.event.EventDispatcher):
         self.create_frame()
         self.window.map()
 
-        self.apply_normal_hints()
-
         self.window.push_handlers(self)
+
+        self.apply_normal_hints()
 
         self._moving = False
         self._resizing = False
 
-    def apply_normal_hints(self, hints=None):
+    def apply_normal_hints(self, hints=None, geom=None):
         """
             apply the WM_NORMAL_HINTS (TODO: complete)
 
             :param hints: A `SizeHints` object or None (fetch it)
+            :param geom: received geom - will not be modified; if None,
+                use a copy of `self.geom`
         """
+        apply_style = True
         if hints is None:
             hints = self.window.get_property('WM_NORMAL_HINTS')
+        if geom is None:
+            geom = self.geom
+        geom = geom.copy()
         
-        geom = self.frame_geom
-        hint = Rect()
-
-        if hints.user_specified_position:
-            hint.x = hints.perfect_x
-            hint.y = hints.perfect_y
-        else:
-            hint.x = geom.x
-            hint.y = geom.y
-
-        if hints.user_specified_size:
-            hint.width = hints.perfect_width
-            hint.height = hints.perfect_height
-        else:
-            hint.width = geom.width
-            hint.height = geom.height
-
-        # apply the style --- is the style added twice?
-        if hint.x == 0:
-            hint.x = self.style['border']
-        if hint.y == 0:
-            hint.y = self.style['title_height'] + self.style['border']
-        hint.x -= self.style['border']
-        hint.y -= self.style['title_height'] + self.style['border']
-        hint.height += self.style['title_height'] + (self.style['border'] * 2)
-        hint.width += self.style['border'] * 2
-
-        self.resize(hint)
+        hints.compute(geom)
+        self.apply_style(geom)
         
+        self.resize(geom)
+        self.force_frame_expose(geom.width, geom.height)
+
+    def apply_style(self, geom):
+        """
+            apply `self.style` on `geom`.
+
+            `geom` will be modified in-place.
+        """
+        if geom.x == 0:
+            geom.x = self.style['border']
+        if geom.y == 0:
+            geom.y = self.style['title_height'] + self.style['border']
+
+        geom.height += self.style['title_height'] + (self.style['border'] * 2)
+        geom.width += self.style['border'] * 2
+        geom.x -= self.style['border']
+        geom.y -= self.style['title_height'] + self.style['border']
+
     def resize(self, geom):
         log.warn('resize %s', geom)
         self.frame.resize(
@@ -303,15 +302,8 @@ class Client(samuraix.event.EventDispatcher):
             border=3,
         )
 
-        if frame_geom.x == 0:
-            frame_geom.x = self.style['border']
-        if frame_geom.y == 0:
-            frame_geom.y = self.style['title_height'] + self.style['border']
+        self.apply_style(frame_geom)
 
-        frame_geom.height += self.style['title_height'] + (self.style['border'] * 2)
-        frame_geom.width += self.style['border'] * 2
-        frame_geom.x -= self.style['border']
-        frame_geom.y -= self.style['title_height'] + self.style['border']
         frame = samuraix.xcb.window.Window.create(
                 self.screen.connection,
                 self.screen,
