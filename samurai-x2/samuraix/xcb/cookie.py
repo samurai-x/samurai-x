@@ -30,7 +30,7 @@ import _xcb
 
 import ctypes
 
-LONG_LENGTH = 512 # TODO: Wazzup?
+LONG_LENGTH = 2 ** 32 - 1 # TODO: Wazzup?
 
 class Cookie(object):
     def __init__(self, connection):

@@ -23,6 +23,9 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+from __future__ import division
+import ctypes
+
 import samuraix
 from samuraix import (rsvg, cairo)
 from samuraix.sxctypes import byref
@@ -152,3 +155,60 @@ class DrawContext(object):
         cairo.cairo_set_source_rgb(self.cr, *color)
         cairo.cairo_paint(self.cr)
         #self.connection.flush()
+
+    def netwm_icon(self, inp, x=0, y=0, resize_to=(24, 24)):
+        """
+            Draw the netwm icon, specified in _NET_WM_ICON property.
+
+            It's a list of cardinals (ints).
+
+            :Parameters:
+                `inp` : list
+                    A list of integers, as described in the netwm standard
+                `x` : int
+                    x offset
+                `y` : int
+                    y offset
+                `resize_to` : tuple or None
+                    if `resize_to` is not None, resize the icon to the
+                    specified width and height.
+
+            :note: As described in `a bug report`_, _NET_WM_ICON could contain
+            several icon sizes. At the moment, only the first listed is used.
+            TODO : That should be fixed.
+            
+            .. _a bug report: http://bugs.kde.org/show_bug.cgi?id=131590 
+        """
+        cairo.cairo_save(self.cr)
+       
+        width = inp[0]
+        height = inp[1]
+        stride = cairo.cairo_format_stride_for_width(cairo.CAIRO_FORMAT_ARGB32, width) 
+
+        data = (ctypes.c_uint * (width * height))(*inp[2:2 + width*height])
+
+        surface = cairo.cairo_image_surface_create_for_data(
+                ctypes.cast(data, ctypes.POINTER(ctypes.c_ubyte)),
+                cairo.CAIRO_FORMAT_ARGB32,
+                width,
+                height,
+                stride)
+
+        ic = cairo.cairo_create(self.surface)
+        cairo.cairo_set_operator(ic, cairo.CAIRO_OPERATOR_OVER)
+
+        # Resize
+        if resize_to:
+            new_width, new_height = resize_to
+            scale_x = new_width / width
+            scale_y = new_height / height
+            cairo.cairo_scale(ic, scale_x, scale_y)
+
+        cairo.cairo_set_source_surface(ic, surface, x, y)
+        cairo.cairo_paint(ic)
+
+        cairo.cairo_surface_finish(surface)
+        cairo.cairo_destroy(ic)
+        # Restore. We're finished.
+        cairo.cairo_restore(self.cr)
+

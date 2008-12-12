@@ -311,6 +311,7 @@ class Client(samuraix.event.EventDispatcher):
         self.style = dict(
             title_height=20,
             border=3,
+            icon_size=(24, 24),
         )
 
         self.apply_style(frame_geom)
@@ -425,11 +426,18 @@ class Client(samuraix.event.EventDispatcher):
             name = name[0]
 
         context.text(
-                self.style['border'] + 1, 
+                self.style['border'] + self.style['icon_size'][0] + 1, 
                 self.style['border'] + 1 + context.default_font_size, 
                 name,
                 self.frame.title_color,
         )
+        
+        pixels = self.window.get_property('_NET_WM_ICON')
+        if pixels:
+            try:
+                context.netwm_icon(pixels, resize_to=self.style['icon_size'])
+            except Exception, e:
+                log.exception(e)
 
     def frame_on_expose(self, evt):
         samuraix.xcb._xcb.xcb_copy_area(self.connection._connection, 
