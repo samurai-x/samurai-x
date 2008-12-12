@@ -223,7 +223,7 @@ class Connection(samuraix.event.EventDispatcher):
                        'ATOM': _pythonize_atom,
                        'WINDOW': _pythonize_window
                        }
-        if not _reply:
+        if not (_reply and _reply.type): # return if reply's atom is 0 -> invalid
             return []
         try:
             return PYTHONIZERS[atom.Atom(self, _reply.type).get_name()]()

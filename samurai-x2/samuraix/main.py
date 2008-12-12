@@ -23,12 +23,29 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import sys
+import traceback
 import logging
+
+class SamuraiLogger(logging.Logger):
+    def exception(self, exc):
+        """
+            Improved exception logger.
+            
+            :param exc: An Exception instance
+        """
+        type_, value, tb = sys.exc_info()
+        formatted = '\n'.join(traceback.format_exception(type_, value, tb))
+        self._log(logging.ERROR, formatted, (), {})
+
+logging.setLoggerClass(SamuraiLogger)
+
 log = logging.getLogger(__name__)
 
 import samuraix
 
 from .logformatter import FDFormatter
+
 
 def configure_logging(file_level=logging.DEBUG, console_level=logging.DEBUG):
     '''Set up the logging for the client.
@@ -52,7 +69,6 @@ def configure_logging(file_level=logging.DEBUG, console_level=logging.DEBUG):
     logging.getLogger('').addHandler(lastlog)
 
     log.info('logging everything to %s' % logfile)
-
 
 def load_config(config=None):
     if config is None:

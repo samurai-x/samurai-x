@@ -121,8 +121,7 @@ class XCBException(Exception):
         self.err = err
 
     def __str__(self):
-        return "(%s)" % (self.err.error_code, err_help.get(self.err.error_code, 'Unknown'))
-
+        return "(%s: %s)" % (self.err.error_code, err_help.get(self.err.error_code, 'Unknown'))
 
 def check_for_error(err):
     if err and not err.contents.error_code == 0:
