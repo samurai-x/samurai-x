@@ -353,6 +353,11 @@ class Client(samuraix.event.EventDispatcher):
         self.force_frame_expose(frame_geom.width, frame_geom.height)
         self.connection.flush()
 
+    def on_reparent_notify(self, evt):
+        # remove. TODO: untested
+        if evt.parent is not self.frame:
+            self.remove()
+
     def update_geom(self, geometry):
         if isinstance(geometry, dict):
             geometry = Rect(geometry['x'], geometry['y'], geometry['width'], geometry['height'])

@@ -438,6 +438,19 @@ class ConfigureNotifyEvent(Event):
     border_width = event_property('unchanged', 'border_width')
     override_redirect = event_property('unchanged', 'override_redirect')
 
+class ReparentNotifyEvent(Event):
+    event_type = _xcb.XCB_REPARENT_NOTIFY
+    event_name = 'on_reparent_notify'
+    event_struct = _xcb.xcb_reparent_notify_event_t
+    _dispatch_class = window.Window
+    
+    _dispatch_target = window = event_property('window', 'window')
+    event = event_property('window', 'event')
+    parent = event_property('window', 'parent')
+    x = event_property('unchanged', 'x')
+    y = event_property('unchanged', 'y')
+    override_redirect = event_property('unchanged', 'override_redirect')
+
 EVENTS = (KeyPressEvent, KeyReleaseEvent, ButtonPressEvent, ButtonReleaseEvent,
           EnterNotifyEvent, LeaveNotifyEvent, ExposeEvent,
           MotionNotifyEvent, KeymapNotifyEvent, VisibilityNotifyEvent,
@@ -445,7 +458,7 @@ EVENTS = (KeyPressEvent, KeyReleaseEvent, ButtonPressEvent, ButtonReleaseEvent,
           SubstructureRedirectEvent, MapRequestEvent,
           CreateNotifyEvent, ConfigureRequestEvent, MapNotifyEvent, UnmapNotifyEvent,
           DestroyNotifyEvent, ConfigureNotifyEvent,
-          ClientMessageEvent,
+          ClientMessageEvent, ReparentNotifyEvent,
           )
 
 X_EVENT_MAP = dict((cls.event_type, cls) for cls in EVENTS)
