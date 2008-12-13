@@ -24,7 +24,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import logging
-
+import weakref
 from subprocess import Popen
 
 class Action(object):
@@ -34,7 +34,6 @@ class Action(object):
     def __call__(self, screen):
         pass
 
-
 class Spawn(Action):
     def __init__(self, cmd):
         self.cmd = cmd
@@ -42,11 +41,9 @@ class Spawn(Action):
     def __call__(self, screen):
         pid = Popen(self.cmd, shell=True).pid
 
-
 class Quit(Action):
     def __call__(self, screen):
         screen.app.stop()
-
 
 class NextDesktop(Action):
     def __init__(self):
@@ -55,7 +52,6 @@ class NextDesktop(Action):
     def __call__(self, screen):
         screen.next_desktop()
 
-
 class PreviousDesktop(Action):
     def __init__(self):
         pass
@@ -63,13 +59,21 @@ class PreviousDesktop(Action):
     def __call__(self, screen):
         screen.previous_desktop()
 
-
-class MaximiseClient(Action):
-    def __init__(self):
-        pass
+class MaximizeClient(Action):
+    def __init__(self, subject):
+        self.subject = subject
 
     def __call__(self, screen):
-        screen.maximise_client()
+        self.subject(screen).toggle_maximize()
+
+class NextClient(Action):
+    def __call__(self, screen):
+        desktop = screen.active_desktop
+        focused = screen.focused_client
+        idx = 0
+        if focused is not None:
+            idx = (desktop.clients.index(weakref.ref(focused)) + 1) % len(desktop.clients)
+        desktop.focus_client(desktop.clients[idx]())
 
 class DebugOutput(Action):
     def __init__(self, msg):
@@ -78,3 +82,19 @@ class DebugOutput(Action):
     def __call__(self, screen):
         logging.debug(self.msg)
 
+# -- subjects
+
+class Subject(object):
+    def __init__(self):
+        pass
+
+    def __call__(self, screen):
+        raise NotImplementedError()
+
+class FocusedClient(Subject):
+    """
+        This subject returns the current focused client
+        or None if no client is focused.
+    """
+    def __call__(self, screen):
+        return screen.focused_client

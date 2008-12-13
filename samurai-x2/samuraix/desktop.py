@@ -76,11 +76,9 @@ class Desktop(samuraix.event.EventDispatcher):
 
     def _client_removed(self, client):
         log.debug("desktop %s removing %s" % (self, client))
-        for client in self.clients:
-            if client() == client:
-                self.clients.remove(client)
-                self.focus_stack.remove(client)
-                break
+        weakclient = weakref.ref(client)
+        self.clients.remove(weakclient)
+        self.focus_stack.remove(weakclient)
 
     def _client_focused(self, client):
         log.debug('_client_focused %s' % client)
