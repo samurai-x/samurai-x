@@ -175,7 +175,8 @@ class Screen(samuraix.xcb.screen.Screen, samuraix.event.EventDispatcher):
         logging.debug('screen %s is now managing %s' % (self, client))
         self.clients.append(weakref.ref(client)) # do we need that?
         self.active_desktop.add_client(client)
-        client.push_handlers(on_removed=self.update_client_list)
+        client.push_handlers(on_removed=self.update_client_list,
+                             on_focus=self.update_active_window)
 
         try:
             window_type = window.get_property('_NET_WM_WINDOW_TYPE')[0].name
@@ -197,6 +198,13 @@ class Screen(samuraix.xcb.screen.Screen, samuraix.event.EventDispatcher):
     def update_client_list(self):
         # re-set _NET_CLIENT_LIST
         self.root.set_property('_NET_CLIENT_LIST', [c.window for c in self.client_class.all_clients], 32, 'WINDOW')
+
+    def update_active_window(self):
+        """
+            Update _NET_ACTIVE_WINDOW;
+            self.focused_client is the new focused client
+        """
+        self.root.set_property('_NET_ACTIVE_WINDOW', [self.focused_client.window], 32, 'WINDOW')
 
     def scan(self):
         """ scan a screen for windows to manage """
