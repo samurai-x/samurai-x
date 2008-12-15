@@ -53,6 +53,9 @@ class Resource(samuraix.event.EventDispatcher):
 
     def __eq__(self, other):
         return self._xid == other._xid
+    
+    def xize(self):
+        return self._xid
 
     def delete(self):
         """ 

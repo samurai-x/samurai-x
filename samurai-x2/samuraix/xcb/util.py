@@ -24,12 +24,15 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import ctypes
-import _xcb
+
+from . import _xcb
 
 import logging
 log = logging.getLogger(__name__)
 
 CACHE_KEYWORD = '_cached'
+# There is operator.methodcaller in Python 2.6!
+methodcaller = lambda method: lambda value: getattr(value, method)()
 
 def cached(func):
     # TODO: UGLY UGLY UGLY
@@ -52,19 +55,22 @@ def xize_attributes(attributes, attributes_list):
     mask = 0
     values = []
     for tup in attributes_list:
-        if len(tup) > 2: # has a xizer
+        if len(tup) > 2: # has a xizer information
             key, attr_mask, xizer = tup
-        else: # has no xizer
+            # * if xizer is False, nothing will be xized
+            # * if it is something else, it should be a callable. 
+            # * if it is not a callable, it'll crash.
+        else: # use `.xize` method
             key, attr_mask = tup
-            xizer = None
+            xizer = methodcaller('xize')
         if key in attributes:
             mask |= attr_mask
             val = attributes[key]
             if xizer:
+                assert hasattr(xizer, '__call__')
                 val = xizer(val)
             values.append(val)
     return (ctypes.c_uint * len(values))(*values), mask
-
 
 XUTIL_SUCCESS = 0                                                                                  
 XUTIL_BAD_REQUEST = 1

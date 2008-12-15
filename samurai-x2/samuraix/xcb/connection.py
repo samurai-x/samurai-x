@@ -23,21 +23,15 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import _xcb
 import ctypes
 
 import samuraix.event
 
-import keysymbols
-import atom
-import cookie
-import screen
-import window
+from . import (_xcb, keysymbols, atom, cookie, screen, cursor)
 
-from containers import SizeHints
-from samuraix.xcb import cursor
-
-from util import cached_property
+from .containers import SizeHints
+from .util import cached_property
+from .pythonize import Pythonizer
 
 class XcbException(Exception):
     pass
@@ -76,7 +70,8 @@ class Connection(samuraix.event.EventDispatcher):
         self.atoms = atom.AtomDict(self)
         self._resource_cache = {} # Resource xid: Resource object
         self._keysymbols = None # a KeySymbols object, if needed
-        self.cursors = cursor.Cursors(self)    
+        self.pythonizer = Pythonizer(self)
+        self.cursors = cursor.Cursors(self)
        
     @property
     def keysymbols(self):
@@ -87,6 +82,13 @@ class Connection(samuraix.event.EventDispatcher):
         if self._keysymbols is None:
             self._keysymbols = keysymbols.KeySymbols(self)
         return self._keysymbols
+
+    def pythonize(self, identifier, data):
+        """
+            just a convenience method, a shortcut for
+            `connection.pythonizer.pythonize(identifier, data)`.
+        """
+        return self.pythonizer.pythonize(identifier, data)
 
     def get_from_cache(self, xid):
         """ 
@@ -184,15 +186,10 @@ class Connection(samuraix.event.EventDispatcher):
             return list(ctypes.cast(value, p_int8_t).contents)
 
         def _pythonize_atom():
-            value = _xcb.xcb_get_property_value(_reply)
-            p_uint8_t = ctypes.POINTER(ctypes.c_uint * _xcb.xcb_get_property_value_length(_reply))
-            atom_values = ctypes.cast(value, p_uint8_t).contents
-            return [atom.Atom(self, atom_value) for atom_value in atom_values]
+            return [self.pythonize('ATOM', xid) for xid in _pythonize_cardinal()]
 
         def _pythonize_window():
-            value = _xcb.xcb_get_property_value(_reply)
-            p_uint8_t = ctypes.POINTER(ctypes.c_uint * _xcb.xcb_get_property_value_length(_reply))
-            return [window.Window(self, xid) for xid in ctypes.cast(value, p_uint8_t).contents]
+            return [self.pythonize('WINDOW', xid) for xid in _pythonize_cardinal()]
 
         def _pythonize_wm_size_hints():
             value = _xcb.xcb_get_property_value(_reply)
@@ -258,20 +255,19 @@ class Connection(samuraix.event.EventDispatcher):
             assert all(v.__class__ == cls for v in prop)
             
         def _xize_string():
-            #return #(ctypes.c_char_p * len(prop))(*[ctypes.create_string_buffer(v) for v in prop])
             return ctypes.create_string_buffer('\x00'.join(prop)+'\x00')
 
         def _xize_cardinal():
-            return (ctypes.c_uint * len(prop))(*[ctypes.c_uint(v) for v in prop])
+            return (ctypes.c_uint * len(prop))(*[v for v in prop])
 
         def _xize_integer():
-            return (ctypes.c_int * len(prop))(*[ctypes.c_int(v) for v in prop])
+            return (ctypes.c_int * len(prop))(*[v for v in prop])
 
         def _xize_window():
-            return (ctypes.c_uint * len(prop))(*[ctypes.c_uint(v._xid) for v in prop])
+            return (ctypes.c_uint * len(prop))(*[v.xize() for v in prop])
 
         def _xize_atom():
-            return (ctypes.c_uint * len(prop))(*[ctypes.c_uint(v._atom) for v in prop])
+            return (ctypes.c_uint * len(prop))(*[v.xize() for v in prop])
 
         check()
 

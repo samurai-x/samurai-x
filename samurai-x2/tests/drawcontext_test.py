@@ -50,6 +50,7 @@ context = samuraix.drawcontext.DrawContext(screen, 480, 480, w)
 @w.event
 def on_expose(evt):
     context.text(100, 100, '*test* Don\'t panic! *test*', (0, 0, 0))
+    c.flush()
 #    context.svg('../gfx/samuraix.svg', width=480)
 
 while 1:
