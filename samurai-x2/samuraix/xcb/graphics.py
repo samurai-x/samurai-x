@@ -24,8 +24,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import ctypes
-import _xcb
-import util
+
+from . import (_xcb, util)
 
 COORD_MODE_ORIGIN = _xcb.XCB_COORD_MODE_ORIGIN
 COORD_MODE_PREVIOUS = _xcb.XCB_COORD_MODE_PREVIOUS
@@ -52,29 +52,29 @@ GX_NAND = 14
 GX_SET = 15
 
 GC_ATTRIBUTES = [
-        ('function', _xcb.XCB_GC_FUNCTION),
-        ('plane_mask', _xcb.XCB_GC_PLANE_MASK),
-        ('foreground', _xcb.XCB_GC_FOREGROUND),
-        ('background', _xcb.XCB_GC_BACKGROUND),
-        ('line_width', _xcb.XCB_GC_LINE_WIDTH),
-        ('line_style', _xcb.XCB_GC_LINE_STYLE),
-        ('cap_style', _xcb.XCB_GC_CAP_STYLE),
-        ('join_style', _xcb.XCB_GC_JOIN_STYLE),
-        ('fill_style', _xcb.XCB_GC_FILL_STYLE),
-        ('fill_rule', _xcb.XCB_GC_FILL_RULE),
-        ('tile', _xcb.XCB_GC_TILE),
-        ('stipple', _xcb.XCB_GC_STIPPLE),
-        ('stipple_origin_x', _xcb.XCB_GC_TILE_STIPPLE_ORIGIN_X),
-        ('stipple_origin_y', _xcb.XCB_GC_TILE_STIPPLE_ORIGIN_Y),
-        ('font', _xcb.XCB_GC_FONT, lambda font: font._xid),
-        ('subwindow_mode', _xcb.XCB_GC_SUBWINDOW_MODE),
-        ('graphics_exposures', _xcb.XCB_GC_GRAPHICS_EXPOSURES),
-        ('clip_origin_x', _xcb.XCB_GC_CLIP_ORIGIN_X),
-        ('clip_origin_y', _xcb.XCB_GC_CLIP_ORIGIN_Y),
-        ('clip_mask', _xcb.XCB_GC_CLIP_MASK),
-        ('dash_offset', _xcb.XCB_GC_DASH_OFFSET),
-        ('dash_list', _xcb.XCB_GC_DASH_LIST),
-        ('arc_mode', _xcb.XCB_GC_ARC_MODE),
+        ('function', _xcb.XCB_GC_FUNCTION, None),
+        ('plane_mask', _xcb.XCB_GC_PLANE_MASK, None),
+        ('foreground', _xcb.XCB_GC_FOREGROUND, None),
+        ('background', _xcb.XCB_GC_BACKGROUND, None),
+        ('line_width', _xcb.XCB_GC_LINE_WIDTH, None),
+        ('line_style', _xcb.XCB_GC_LINE_STYLE, None),
+        ('cap_style', _xcb.XCB_GC_CAP_STYLE, None),
+        ('join_style', _xcb.XCB_GC_JOIN_STYLE, None),
+        ('fill_style', _xcb.XCB_GC_FILL_STYLE, None),
+        ('fill_rule', _xcb.XCB_GC_FILL_RULE, None),
+        ('tile', _xcb.XCB_GC_TILE, None),
+        ('stipple', _xcb.XCB_GC_STIPPLE, None),
+        ('stipple_origin_x', _xcb.XCB_GC_TILE_STIPPLE_ORIGIN_X, None),
+        ('stipple_origin_y', _xcb.XCB_GC_TILE_STIPPLE_ORIGIN_Y, None),
+        ('font', _xcb.XCB_GC_FONT), # is a font
+        ('subwindow_mode', _xcb.XCB_GC_SUBWINDOW_MODE, None),
+        ('graphics_exposures', _xcb.XCB_GC_GRAPHICS_EXPOSURES, None),
+        ('clip_origin_x', _xcb.XCB_GC_CLIP_ORIGIN_X, None),
+        ('clip_origin_y', _xcb.XCB_GC_CLIP_ORIGIN_Y, None),
+        ('clip_mask', _xcb.XCB_GC_CLIP_MASK, None),
+        ('dash_offset', _xcb.XCB_GC_DASH_OFFSET, None),
+        ('dash_list', _xcb.XCB_GC_DASH_LIST, None),
+        ('arc_mode', _xcb.XCB_GC_ARC_MODE, None),
 ]
 
 

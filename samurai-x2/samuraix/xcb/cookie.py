@@ -23,12 +23,10 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from util import cached_property
-import atom
-
-import _xcb
-
 import ctypes
+
+from . import _xcb
+from .util import cached_property
 
 LONG_LENGTH = 2 ** 32 - 1 # TODO: Wazzup?
 
@@ -63,7 +61,7 @@ class AtomRequest(Cookie):
 
     @cached_property
     def value(self):
-        return atom.Atom(self.connection, self._value.atom)
+        return self.connection.pythonize('ATOM', self._value.atom)
 
     def request(self):
         self._cookie = _xcb.xcb_intern_atom(self.connection._connection, \
@@ -94,7 +92,7 @@ class AtomNameRequest(Cookie):
 
     def request(self):
         self._cookie = _xcb.xcb_get_atom_name(self.connection._connection, \
-                        self.atom._atom)
+                        self.atom.xize())
 
 class PropertyRequest(Cookie):
     def __init__(self, connection, window, atom):
@@ -105,8 +103,8 @@ class PropertyRequest(Cookie):
 
     def request(self):
         self._cookie = _xcb.xcb_get_property(self.connection._connection,
-                0, self.window._xid,
-                self.atom._atom,_xcb.XCB_GET_PROPERTY_TYPE_ANY,
+                0, self.window.xize(),
+                self.atom.xize(),_xcb.XCB_GET_PROPERTY_TYPE_ANY,
                 0, LONG_LENGTH)
 
     # NOTE: not cached.
@@ -142,10 +140,9 @@ class ChangePropertyRequest(Cookie):
 
     def request(self):
         data, type_atom, length = self.connection.xize_property(self.window, self.atom, self.obj, self.prop_type)
-        print type_atom._atom, length, self.window._xid
         self._cookie = _xcb.xcb_change_property_checked(self.connection._connection,
-             _xcb.XCB_PROP_MODE_REPLACE,   self.window._xid,
-             self.atom._atom, type_atom._atom, self.format, # TODO: 8? oO
+             _xcb.XCB_PROP_MODE_REPLACE, self.window.xize(),
+             self.atom.xize(), type_atom.xize(), self.format, # TODO: 8? oO
             length, data)
         #print _xcb.xcb_request_check(self.connection._connection, self._cookie).contents.error_code
 
@@ -161,7 +158,7 @@ class SendEventRequest(Cookie):
 
     def request(self):
         self._cookie = _xcb.xcb_send_event_checked(self.connection._connection,
-                0, self.window._xid,
+                0, self.window.xize(),
                 _xcb.XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT | _xcb.XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY, # TODO: what's that?
                 self.event.char_p)
     
@@ -175,7 +172,7 @@ class GetGeometryRequest(Cookie):
 
     def request(self):
         self._cookie = _xcb.xcb_get_geometry(self.connection._connection,
-                                             self.drawable._xid)
+                                             self.drawable.xize())
 
     @cached_property
     def _value(self):
@@ -189,16 +186,14 @@ class GetGeometryRequest(Cookie):
         attr = {}
         for at in ('x', 'y', 'width', 'height', 'border_width', 'depth',):
             attr[at] = getattr(struct, at)
-        import window
-        attr['root'] = window.Window(self.connection, struct.root)
+        attr['root'] = self.connection.pythonize('WINDOW', struct.root)
         return attr
 
 class QueryPointer(object):
     def __init__(self, connection, reply):
         self.same_screen = reply.same_screen
-        import window
-        self.root = window.Window(connection, reply.root)
-        self.child = window.Window(connection, reply.child)
+        self.root = connection.pythonize('WINDOW', reply.root)
+        self.child = connection.pythonize('WINDOW', reply.child)
         self.root_x = reply.root_x
         self.root_y = reply.root_y
         self.win_x = reply.win_x
@@ -212,7 +207,7 @@ class QueryPointerRequest(Cookie):
 
     def request(self):
         self._cookie = _xcb.xcb_query_pointer(self.connection._connection,
-                                              self.window._xid)
+                                              self.window.xize())
 
     @cached_property
     def value(self):
@@ -227,7 +222,7 @@ class GetWindowAttributesRequest(Cookie):
 
     def request(self):
         self._cookie = _xcb.xcb_get_window_attributes(self.connection._connection,
-                                                      self.window._xid)
+                                                      self.window.xize())
 
     @cached_property
     def _value(self):

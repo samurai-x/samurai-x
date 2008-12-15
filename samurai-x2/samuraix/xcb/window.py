@@ -23,16 +23,15 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import ctypes
 import warnings
 
 import samuraix.event
 
-import cookie
-import _xcb
-import ctypes
-import util
+from . import (_xcb, cookie, util)
 from .drawable import Drawable
 from .pixmap import Pixmap
+from .pythonize import Pythonizer
 
 import logging 
 log = logging.getLogger(__name__)
@@ -82,31 +81,31 @@ INPUT_FOCUS_POINTER_ROOT = _xcb.XCB_INPUT_FOCUS_POINTER_ROOT
 INPUT_FOCUS_PARENT = _xcb.XCB_INPUT_FOCUS_PARENT
 
 ATTRIBUTE_ORDER = [
-            ('back_pixmap', _xcb.XCB_CW_BACK_PIXMAP, _xize_pixmap),
-            ('back_pixel', _xcb.XCB_CW_BACK_PIXEL),# TODO: xizer
-            ('border_pixmap', _xcb.XCB_CW_BORDER_PIXMAP, _xize_pixmap),
-            ('border_pixel', _xcb.XCB_CW_BORDER_PIXEL),# TODO: xizer
-            ('bit_gravity', _xcb.XCB_CW_BIT_GRAVITY),
-            ('win_gravity', _xcb.XCB_CW_WIN_GRAVITY),
-            ('backing_store', _xcb.XCB_CW_BACKING_STORE),
-            ('backing_planes', _xcb.XCB_CW_BACKING_PLANES),
-            ('backing_pixel', _xcb.XCB_CW_BACKING_PIXEL),
-            ('override_redirect', _xcb.XCB_CW_OVERRIDE_REDIRECT),
-            ('save_under', _xcb.XCB_CW_SAVE_UNDER),
+            ('back_pixmap', _xcb.XCB_CW_BACK_PIXMAP),
+            ('back_pixel', _xcb.XCB_CW_BACK_PIXEL, None),# TODO: xizer
+            ('border_pixmap', _xcb.XCB_CW_BORDER_PIXMAP),
+            ('border_pixel', _xcb.XCB_CW_BORDER_PIXEL, None),# TODO: xizer
+            ('bit_gravity', _xcb.XCB_CW_BIT_GRAVITY, None),
+            ('win_gravity', _xcb.XCB_CW_WIN_GRAVITY, None),
+            ('backing_store', _xcb.XCB_CW_BACKING_STORE, None),
+            ('backing_planes', _xcb.XCB_CW_BACKING_PLANES, None),
+            ('backing_pixel', _xcb.XCB_CW_BACKING_PIXEL, None),
+            ('override_redirect', _xcb.XCB_CW_OVERRIDE_REDIRECT, None),
+            ('save_under', _xcb.XCB_CW_SAVE_UNDER, None),
             ('event_mask', _xcb.XCB_CW_EVENT_MASK, _xize_event_mask),
-            ('dont_propagate', _xcb.XCB_CW_DONT_PROPAGATE),
-            ('colormap', _xcb.XCB_CW_COLORMAP), # TODO: xizer
-            ('cursor', _xcb.XCB_CW_CURSOR, _xize_resource)
+            ('dont_propagate', _xcb.XCB_CW_DONT_PROPAGATE, None),
+            ('colormap', _xcb.XCB_CW_COLORMAP, None), # TODO: xizer
+            ('cursor', _xcb.XCB_CW_CURSOR)
            ]
 
 WINDOW_CONFIG= [
-            ('x', _xcb.XCB_CONFIG_WINDOW_X),
-            ('y', _xcb.XCB_CONFIG_WINDOW_Y),
-            ('width', _xcb.XCB_CONFIG_WINDOW_WIDTH),
-            ('height', _xcb.XCB_CONFIG_WINDOW_HEIGHT),
-            ('border_width', _xcb.XCB_CONFIG_WINDOW_BORDER_WIDTH),
-            ('sibling', _xcb.XCB_CONFIG_WINDOW_SIBLING),
-            ('stack_mode', _xcb.XCB_CONFIG_WINDOW_STACK_MODE)
+            ('x', _xcb.XCB_CONFIG_WINDOW_X, None),
+            ('y', _xcb.XCB_CONFIG_WINDOW_Y, None),
+            ('width', _xcb.XCB_CONFIG_WINDOW_WIDTH, None),
+            ('height', _xcb.XCB_CONFIG_WINDOW_HEIGHT, None),
+            ('border_width', _xcb.XCB_CONFIG_WINDOW_BORDER_WIDTH, None),
+            ('sibling', _xcb.XCB_CONFIG_WINDOW_SIBLING), # is a window
+            ('stack_mode', _xcb.XCB_CONFIG_WINDOW_STACK_MODE, None)
         ]
 
 class Window(Drawable):
@@ -468,3 +467,6 @@ class Window(Drawable):
         _xcb.xcb_warp_pointer(self.connection._connection, _xcb.XCB_NONE, self._xid,
                 0, 0, 0, 0, x, y)
 
+@Pythonizer.pythonizer('WINDOW')
+def pythonize_window(connection, xid):
+    return Window(connection, xid)

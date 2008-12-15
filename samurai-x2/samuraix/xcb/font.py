@@ -25,7 +25,7 @@
 
 import ctypes
 
-from . import _xcb, util
+from . import (_xcb, util)
 from .resource import Resource
 
 class Font(Resource):

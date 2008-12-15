@@ -23,7 +23,9 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from util import cached_property
+from . import cookie
+from .util import cached_property
+from .pythonize import Pythonizer
 
 class Atom(object):
     def __init__(self, connection, _atom):
@@ -33,6 +35,9 @@ class Atom(object):
     def __repr__(self):
         return '<XCB Atom ID: %d>' % self._atom
 
+    def xize(self):
+        return self._atom
+
     @cached_property
     def name(self):
         return self.get_name()
@@ -41,7 +46,6 @@ class Atom(object):
         return self.request_name().value
 
     def request_name(self):
-        import cookie # TODO: not nice.
         return cookie.AtomNameRequest(self.connection, self)
 
     def __eq__(self, other):
@@ -53,6 +57,9 @@ class Atom(object):
     def __bool__(self):
         return self._atom > 0
 
+@Pythonizer.pythonizer('ATOM')
+def pythonize_atom(connection, xid):
+    return Atom(connection, xid)
 
 class AtomDict(dict):
     def __init__(self, connection, *boo, **far):

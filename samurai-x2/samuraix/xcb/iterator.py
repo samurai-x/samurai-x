@@ -31,7 +31,8 @@ class BaseIterator(object):
         self._stop = False
 
     def _transform(self, data):
-        """ a placeholder to transform the iterator data `data`
+        """ 
+            a placeholder to transform the iterator data `data`
             to a python object, if needed
             
             :param data: an iterator's data
