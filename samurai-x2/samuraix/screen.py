@@ -66,6 +66,7 @@ class Screen(samuraix.xcb.screen.Screen, samuraix.event.EventDispatcher):
                 samuraix.xcb.event.StructureNotifyEvent,
                 samuraix.xcb.event.KeyPressEvent,
                 samuraix.xcb.event.ExposeEvent,
+                samuraix.xcb.event.PropertyChangeEvent,
             ),
             'cursor': self.app.connection.cursors['Normal'],
         }
@@ -145,6 +146,9 @@ class Screen(samuraix.xcb.screen.Screen, samuraix.event.EventDispatcher):
         if not self.rootset and os.path.isfile(os.path.abspath(SVGFILE)): # TODO: not hardcoded ;-)
             set_root_image(self, SVGFILE)
             self.rootset = True
+
+    def on_property_change(self, evt):
+        log.debug('property change: %s' % repr(evt.atom.name))
 
     def bind_key(self, mod, keysym, callback):
         keycode = self.connection.keysymbols.get_keycode(keysym)

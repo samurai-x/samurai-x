@@ -451,13 +451,24 @@ class ReparentNotifyEvent(Event):
     y = event_property('unchanged', 'y')
     override_redirect = event_property('unchanged', 'override_redirect')
 
+class PropertyChangeEvent(Event):
+    event_type = _xcb.XCB_PROPERTY_NOTIFY
+    event_name = 'on_property_change'
+    event_struct = _xcb.xcb_property_notify_event_t
+    _dispatch_class = window.Window
+
+    _dispatch_target = window = event_property('window', 'window')
+    atom = event_property('atom', 'atom')
+    time = event_property('unchanged', 'time') # TODO: `datetime` wrapper?
+    state = event_property('unchanged', 'state')
+
 EVENTS = (KeyPressEvent, KeyReleaseEvent, ButtonPressEvent, ButtonReleaseEvent,
           EnterNotifyEvent, LeaveNotifyEvent, ExposeEvent,
           MotionNotifyEvent, KeymapNotifyEvent, VisibilityNotifyEvent,
           StructureNotifyEvent, ResizeRedirectEvent, SubstructureNotifyEvent,
           SubstructureRedirectEvent, MapRequestEvent,
           CreateNotifyEvent, ConfigureRequestEvent, MapNotifyEvent, UnmapNotifyEvent,
-          DestroyNotifyEvent, ConfigureNotifyEvent,
+          DestroyNotifyEvent, ConfigureNotifyEvent, PropertyChangeEvent,
           ClientMessageEvent, ReparentNotifyEvent,
           )
 

@@ -175,7 +175,10 @@ class Client(samuraix.event.EventDispatcher):
                 'event_mask': (
                     samuraix.xcb.event.StructureNotifyEvent,
                     samuraix.xcb.event.ConfigureNotifyEvent,
-                ),
+                    samuraix.xcb.event.PropertyChangeEvent,
+                    samuraix.xcb.event.SubstructureRedirectEvent,
+                    samuraix.xcb.event.SubstructureNotifyEvent,
+               ),
         }
         self.connection = window.connection
 
@@ -299,7 +302,7 @@ class Client(samuraix.event.EventDispatcher):
         try:
             self.all_clients.remove(self)
             del self.window_2_client_map[self.window]
-        except (IndexError, KeyError), e:
+        except (ValueError, KeyError), e:
             log.warning(e)
         self.frame.destroy()
         self.window.destroy()
@@ -327,7 +330,9 @@ class Client(samuraix.event.EventDispatcher):
                 attributes={'event_mask': (samuraix.xcb.event.ExposeEvent,
                                          samuraix.xcb.event.ButtonPressEvent,
                                          samuraix.xcb.event.ButtonReleaseEvent,
-                                         samuraix.xcb.event.ConfigureNotifyEvent,),
+                                         samuraix.xcb.event.ConfigureNotifyEvent,
+
+                                         ),
                            'override_redirect': True},
         )
 

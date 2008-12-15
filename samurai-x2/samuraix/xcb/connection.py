@@ -254,8 +254,9 @@ class Connection(samuraix.event.EventDispatcher):
         """
         def check():
             assert isinstance(prop, list) # TODO: and iterables?
-            cls = prop[0].__class__
-            assert all(v.__class__ == cls for v in prop)
+            if prop:
+                cls = prop[0].__class__
+                assert all(v.__class__ == cls for v in prop)
             
         def _xize_string():
             #return #(ctypes.c_char_p * len(prop))(*[ctypes.create_string_buffer(v) for v in prop])
