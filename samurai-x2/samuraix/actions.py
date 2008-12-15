@@ -31,43 +31,43 @@ class Action(object):
     def __init__(self):
         pass
 
-    def __call__(self, screen):
+    def __call__(self, screen, unused_data):
         pass
 
 class Spawn(Action):
     def __init__(self, cmd):
         self.cmd = cmd
 
-    def __call__(self, screen):
+    def __call__(self, screen, unused_data):
         pid = Popen(self.cmd, shell=True).pid
 
 class Quit(Action):
-    def __call__(self, screen):
+    def __call__(self, screen, unused_data):
         screen.app.stop()
 
 class NextDesktop(Action):
     def __init__(self):
         pass
 
-    def __call__(self, screen):
+    def __call__(self, screen, unused_data):
         screen.next_desktop()
 
 class PreviousDesktop(Action):
     def __init__(self):
         pass
 
-    def __call__(self, screen):
+    def __call__(self, screen, unused_data):
         screen.previous_desktop()
 
 class MaximizeClient(Action):
     def __init__(self, subject):
         self.subject = subject
 
-    def __call__(self, screen):
+    def __call__(self, screen, unused_data):
         self.subject(screen).toggle_maximize()
 
 class NextClient(Action):
-    def __call__(self, screen):
+    def __call__(self, screen, unused_data):
         desktop = screen.active_desktop
         focused = screen.focused_client
         idx = 0
@@ -75,11 +75,27 @@ class NextClient(Action):
             idx = (desktop.clients.index(weakref.ref(focused)) + 1) % len(desktop.clients)
         desktop.focus_client(desktop.clients[idx]())
 
+class Resize(Action):
+    def __call__(self, screen, data):
+        """
+            `data` is a (Client, x, y) tuple
+        """
+        client, x, y = data
+        client.user_resize(x, y)
+
+class Move(Action):
+    def __call__(self, screen, data):
+        """
+            `data` is a (Client, x, y) tuple
+        """
+        client, x, y = data
+        client.user_move(x, y)
+
 class DebugOutput(Action):
     def __init__(self, msg):
         self.msg = msg
 
-    def __call__(self, screen):
+    def __call__(self, screen, unused_data):
         logging.debug(self.msg)
 
 # -- subjects
@@ -88,7 +104,7 @@ class Subject(object):
     def __init__(self):
         pass
 
-    def __call__(self, screen):
+    def __call__(self, screen, unused_data):
         raise NotImplementedError()
 
 class FocusedClient(Subject):
@@ -96,5 +112,5 @@ class FocusedClient(Subject):
         This subject returns the current focused client
         or None if no client is focused.
     """
-    def __call__(self, screen):
+    def __call__(self, screen, unused_data):
         return screen.focused_client

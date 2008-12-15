@@ -72,6 +72,7 @@ class Screen(samuraix.xcb.screen.Screen, samuraix.event.EventDispatcher):
         }
 
         self.keys = {}
+        self.buttons = {}
 
         self.read_config()
 
@@ -92,11 +93,16 @@ class Screen(samuraix.xcb.screen.Screen, samuraix.event.EventDispatcher):
 
     def read_config(self):
         self.read_keybindings()
+        self.read_buttonbindings()
         self.read_desktops()
 
     def read_keybindings(self):
         for (mod, keysym), action in samuraix.config.get('manager.keybindings', {}).iteritems():
             self.bind_key(mod, keysym, action)
+
+    def read_buttonbindings(self):
+        for (mod, button), action in samuraix.config.get('manager.client.buttonbindings', {}).iteritems():
+            self.bind_button(mod, button, action)
 
     def read_desktops(self):
         for desktop_name in samuraix.config.get('manager.desktops', []) \
@@ -155,6 +161,9 @@ class Screen(samuraix.xcb.screen.Screen, samuraix.event.EventDispatcher):
         self.keys[(mod, keycode)] = callback
         self.root.grab_key(keycode, mod)
 
+    def bind_button(self, mod, button, callback):
+        self.buttons[(mod, button)] = callback
+
     def on_key_press(self, evt):
         log.debug(str((evt, type(evt), dir(evt))))
 
@@ -163,7 +172,7 @@ class Screen(samuraix.xcb.screen.Screen, samuraix.event.EventDispatcher):
         except KeyError:
             log.warn('cant find key!')
         else:
-            func(self)
+            func(self, None)
 
     def manage(self, window, wa=None, geom=None):
         """ manage a new window - this may *not* result in a window being managed 

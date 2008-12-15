@@ -39,6 +39,11 @@ config = {
         (mods.MOD_MASK_4, keys.XK_c): NextClient(),
     },
 
+    'manager.client.buttonbindings': {
+        (mods.MOD_MASK_1, 1): Move(),
+        (mods.MOD_MASK_1, 3): Resize(),
+    },
+
     'manager.desktops': [
         'some', 
         'more', 

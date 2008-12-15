@@ -427,10 +427,38 @@ class Window(Drawable):
         self.connection.flush()
         util.check_void_cookie(self.connection._connection, cookie)
 
+    def grab_button(self, button, modifiers=0, cursor=None, owner_events=True, \
+            pointer_mode=GRAB_MODE_ASYNC, keyboard_mode=GRAB_MODE_ASYNC):
+        if cursor is None:
+            cursor = _xcb.XCB_NONE 
+        else:
+            cursor = cursor.xize()
+        
+        # need to put this somewhere generic...
+        MOUSEMASK = (_xcb.XCB_EVENT_MASK_BUTTON_PRESS 
+                   | _xcb.XCB_EVENT_MASK_BUTTON_RELEASE 
+                   | _xcb.XCB_EVENT_MASK_POINTER_MOTION)
+
+        cookie = _xcb.xcb_grab_button(self.connection._connection,
+                                   owner_events,
+                                   self._xid,
+                                   MOUSEMASK,
+                                   pointer_mode,
+                                   keyboard_mode,
+                                   self._xid,
+                                   cursor,
+                                   button,
+                                   modifiers
+                                   )
+        self.connection.flush()
+        util.check_void_cookie(self.connection._connection, cookie)
+    # TODO: ungrab_button
+
     def grab_pointer(self, cursor=None):
         if cursor is None:
-            cursor = self.connection.cursors['Normal']
-
+            cursor = _xcb.XCB_NONE 
+        else:
+            cursor = cursor.xize()
         # need to put this somewhere generic...
         MOUSEMASK = (_xcb.XCB_EVENT_MASK_BUTTON_PRESS 
                    | _xcb.XCB_EVENT_MASK_BUTTON_RELEASE 
@@ -443,7 +471,7 @@ class Window(Drawable):
                         _xcb.XCB_GRAB_MODE_ASYNC, 
                         _xcb.XCB_GRAB_MODE_ASYNC,
                         self._xid,  
-                        cursor._xid, 
+                        cursor, 
                         _xcb.XCB_CURRENT_TIME)
 
         grab_ptr_r = _xcb.xcb_grab_pointer_reply(self.connection._connection, grab_ptr_c, None)

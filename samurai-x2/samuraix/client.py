@@ -176,6 +176,7 @@ class Client(samuraix.event.EventDispatcher):
                     samuraix.xcb.event.StructureNotifyEvent,
                     samuraix.xcb.event.ConfigureNotifyEvent,
                     samuraix.xcb.event.PropertyChangeEvent,
+                    samuraix.xcb.event.ButtonPressEvent,
                     samuraix.xcb.event.SubstructureRedirectEvent,
                     samuraix.xcb.event.SubstructureNotifyEvent,
                ),
@@ -199,6 +200,7 @@ class Client(samuraix.event.EventDispatcher):
 
         self.create_frame()
         self.window.map()
+        self.grab_buttons()
 
         self.window.push_handlers(self)
 
@@ -206,6 +208,10 @@ class Client(samuraix.event.EventDispatcher):
 
         self._moving = False
         self._resizing = False
+
+    def grab_buttons(self):
+        for (mod, button) in self.screen.buttons.iterkeys():
+            self.window.grab_button(button, mod)
 
     def apply_normal_hints(self, hints=None, geom=None):
         """
@@ -264,6 +270,16 @@ class Client(samuraix.event.EventDispatcher):
         self._recreate_context()
 
         self.connection.flush()
+
+    def on_button_press(self, evt):
+        log.debug('got button press event: button #%d x=%d y=%d' % (evt.button, evt.event_x, evt.event_y))
+
+        try:
+            func = self.screen.buttons[(evt.state, evt.button)]
+        except KeyError:
+            log.warn('cant find button')
+        else:
+            func(self.screen, (self, evt.event_x, evt.event_y))
 
     def on_configure_notify(self, evt):
         # we need to fit the frame around the window when this happens 
@@ -386,18 +402,25 @@ class Client(samuraix.event.EventDispatcher):
         self.frame_on_expose(ev)
 
     def frame_on_button_press(self, evt):
-        self.focus()
         if evt.detail == 1:
-            self._moving = True
-            self.screen.root.push_handlers(
-                    self.MoveHandler(self, evt.event_x, evt.event_y)
-            )
-
+            self.user_move(evt.event_x, evt.event_y)
         if evt.detail == 3:
-            self._resizing = True
-            self.screen.root.push_handlers(
-                    self.ResizeHandler(self, evt.event_x, evt.event_y)
-            )
+            self.user_resize(evt.event_x, evt.event_y)
+
+    def user_move(self, x, y):
+        self.focus()
+        self._moving = True
+        self.screen.root.push_handlers(
+                self.MoveHandler(self, x, y)
+        )
+
+
+    def user_resize(self, x, y):
+        self.focus()
+        self._resizing = True
+        self.screen.root.push_handlers(
+                self.ResizeHandler(self, x, y)
+        )
 
     def force_update_geom(self):
         self.update_geom(self.frame.get_geometry())
