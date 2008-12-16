@@ -148,6 +148,7 @@ class Window(Drawable):
             `attributes` : dict
                 a dictionary {key: attribute} containing
                 attributes which should be set. see `Window.attributes`.
+
         :rtype: `window.Window`
         """
         if not class_:
@@ -299,25 +300,34 @@ class Window(Drawable):
         back_pixmap : pixmap.Pixmap
             The background pixmap.
         back_pixel
+            ...
         border_pixmap : pixmap.Pixmap
             The pixmap used for the borders
         bit_gravity
+            ...
         win_gravity
+            ...
         backing_store
+            ...
         backing_planes
+            ...
         backing_pixel
+            ...
         override_redirect : bool
             Should be window be visible to the window manager?
         save_under
+            ...
         event_mask : iterable of `event.Event` subclasses
             The event classes which should be propagated to the window.
         dont_propagate
+            ...
         colormap
+            ...
         cursor
+            ...
 
-    TODO:
-    Not all attributes are 'pythonized' yet.
-    Only attribute changing is supported for now, not retrieving.
+    :todo: Not all attributes are 'pythonized' yet.
+    :todo: Only attribute changing is supported for now, not retrieving.
     """)
 
     def map(self):

@@ -77,6 +77,8 @@ class SizeHints(object):
             self.min_width = kwargs['base_width']
             self.min_height = kwargs['base_height']
             valid = True
+        else:
+            self.min_width, self.min_height = 0, 0
         if flags & P_ASPECT:
             self.min_aspect_num = kwargs['min_aspect_num']
             self.min_aspect_den = kwargs['min_aspect_den']

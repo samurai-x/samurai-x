@@ -28,6 +28,9 @@ from .util import cached_property
 from .pythonize import Pythonizer
 
 class Atom(object):
+    """
+        This class represents an X atom.
+    """
     def __init__(self, connection, _atom):
         self.connection = connection
         self._atom = _atom
@@ -40,9 +43,15 @@ class Atom(object):
 
     @cached_property
     def name(self):
+        """
+            Its name - this property is cached.
+        """
         return self.get_name()
 
     def get_name(self):
+        """
+            get the atom's name - that's not cached.
+        """
         return self.request_name().value
 
     def request_name(self):
@@ -58,10 +67,23 @@ class Atom(object):
         return self._atom > 0
 
 @Pythonizer.pythonizer('ATOM')
-def pythonize_atom(connection, xid):
-    return Atom(connection, xid)
+def pythonize_atom(connection, atom_id):
+    """
+        The standard atom pythonizer.
+        Returns an `Atom` instance.
+    """
+    return Atom(connection, atom_id)
 
 class AtomDict(dict):
+    """
+        A dictionary which is able to lazily load an atom:
+
+        ::
+
+            dic = AtomDict(my_connection)
+            print dic['WM_CLASS'] # Yay, it is lazily loaded!
+
+    """
     def __init__(self, connection, *boo, **far):
         super(AtomDict, self).__init__(*boo, **far)
         self.connection = connection

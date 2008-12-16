@@ -54,7 +54,7 @@ class DrawContext(object):
         cairo.cairo_set_source_surface(self.cr, self.surface, 0, 0)
         cairo.cairo_set_source_rgba(self.cr, 255, 0, 0, 0)
 
-        self.default_font = "snap"
+        self.default_font = "a_font_that_does_not_exist" # TODO
         self.default_font_size = 10
 
         log.debug('created drawcontext %s' % self)

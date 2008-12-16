@@ -39,10 +39,18 @@ XUTIL_CURSOR_DOUBLE_ARROW_HORIZ = 108
 XUTIL_CURSOR_DOUBLE_ARROW_VERT = 116
 
 class Cursor(Resource):
+    """
+        A cursor wrapper.
+
+        :todo: more functions
+    """
     def __init__(self, connection, xid):
         super(Cursor, self).__init__(connection, xid)
 
     def free(self):
+        """
+            free the cursor on the server.
+        """
         _xcb.xcb_free_cursor(self.connection._connection, self._xid)
 
     # TODO: wrap xcb_create_cursor (cool stuff!)
@@ -51,22 +59,90 @@ class Cursor(Resource):
     def create_glyph(cls, connection, source_font, mask_font, source_char, \
             mask_char, fore_red, fore_green, fore_blue,
             back_red, back_green, back_blue):
-            xid = _xcb.xcb_generate_id(connection._connection)
-            _xcb.xcb_create_glyph_cursor(connection._connection, xid, 
-                    source_font._xid, 
-                    mask_font._xid, 
-                    source_char, 
-                    mask_char, 
-                    fore_red, fore_green, fore_blue,
-                    back_red, back_green, back_blue)
+        """
+            Create a cursor from a font.
+            
+            :Parameters:
+                `source_font` : font.Font
+                    Specifies the font for the source glyph. 
+                `mask_font` : font.Font
+                    Specifies the font for the mask glyph or None.
+                `source_char` : int
+                    Specifies the character glyph for the source.
+                `mask_char` : int
+                    Specifies the character glyph for the mask.
+                `fore_red` : int (0..65535)
+                    Specifies the R values for the foreground of the source.
+                `fore_green` : int (0..65535)
+                    Specifies the G values for the foreground of the source.
+                `fore_blue` : int (0..65535)
+                    Specifies the B values for the foreground of the source.
+                `back_red` : int (0..65535)
+                    Specifies the R values for the background of the source.
+                `back_green` : int (0..65535)
+                    Specifies the G values for the background of the source.
+                `back_blue` : int (0..65535)
+                    Specifies the B values for the background of the source.
 
-            return cls(connection, xid)
+            :returns: A brand new `Cursor` instance
+        """
+        source_font = source_font.xize()
+        if mask_font is None:
+            mask_font = _xcb.XCB_NONE
+        else:
+            mask_font = mask_font.xize()
+
+        xid = _xcb.xcb_generate_id(connection._connection)
+        _xcb.xcb_create_glyph_cursor(connection._connection, xid, 
+                source_font, 
+                mask_font, 
+                source_char, 
+                mask_char, 
+                fore_red, fore_green, fore_blue,
+                back_red, back_green, back_blue)
+
+        return cls(connection, xid)
 
 
 class Cursors(dict):
+    """
+        A dictionary holding some `Cursor` instances,
+        generated from the 'cursor' font.
+
+        Currently it has the following items (each cursor
+        listed with its corresponding cursor
+        on http://tronche.com/gui/x/xlib/appendix/b/):
+
+        'Normal'
+            XC_left_ptr
+        'Resize'
+            XC_sizing
+        'ResizeH'
+            XC_sb_h_double_arrow
+        'ResizeV'
+            XC_sb_v_double_arrow
+        'Move'
+            XC_fleur
+        'TopRight'
+            XC_top_right_corner
+        'TopLeft'
+            XC_top_left_corner
+        'BotRight'
+            XC_bottom_right_corner
+        'BotLeft'
+            XC_bottom_left_corner
+
+        Example:
+        
+        ::
+
+            cursors = Cursors(my_connection)
+            print cursors['Resize']
+
+    """
     def __init__(self, connection):
         self.connection = connection    
-        self.font = None
+        self.font = Font.open(self.connection, "cursor") 
 
         cursors = (
             ('Normal',    XUTIL_CURSOR_LEFT_PTR),
@@ -84,9 +160,6 @@ class Cursors(dict):
             self._new(name, cursor_font)
 
     def _new(self, name, cursor_font):
-        if self.font is None:
-            self.font = Font.open(self.connection, "cursor") 
-
         cursor = Cursor.create_glyph(self.connection, 
                 self.font, self.font,
                 cursor_font, cursor_font + 1,

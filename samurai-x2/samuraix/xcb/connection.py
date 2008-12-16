@@ -163,10 +163,14 @@ class Connection(samuraix.event.EventDispatcher):
         """
             convert a property reply to a list of python values and return it.
 
-            STRING, UTF8_STRING : list of str
-            CARDINAL : list of int
-            ATOM : list of `atom.Atom`
-            WINDOW : list of `window.Window`
+            STRING, UTF8_STRING
+                list of str
+            CARDINAL 
+                list of int
+            ATOM 
+                list of `atom.Atom`
+            WINDOW 
+                list of `window.Window`
         """
         def _pythonize_string():
             length = _xcb.xcb_get_property_value_length(_reply)

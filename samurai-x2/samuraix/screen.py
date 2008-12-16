@@ -199,7 +199,7 @@ class Screen(samuraix.xcb.screen.Screen, samuraix.event.EventDispatcher):
                 client.sticky = True
             log.info('window is a %s' % window_type)
         except Exception, e:
-            log.error(e)
+            log.info('window does not seem to have size hints: %s' % repr(e))
         self.update_client_list()
         return client
 
