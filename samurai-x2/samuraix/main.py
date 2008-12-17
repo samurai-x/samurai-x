@@ -24,6 +24,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import sys
+import os
 import traceback
 import logging
 
@@ -77,10 +78,24 @@ def load_config(config=None):
         config = config()
     samuraix.config = config
 
+def load_user_config(configfile=None):
+    if configfile is None:
+        configfile = '~/.samuraix'
+    configfile = os.path.normpath(os.path.expanduser(configfile))
+    log.info('reading config from %s...' % configfile)
+    locals = {}
+    try:
+        execfile(configfile, {}, locals)
+    except IOError, e:
+        log.warn('failed reading config file: %s - using defaultconfig' % e)
+        return None
+    return locals['config']
 
 def run(app_func=None):
     configure_logging()
-    load_config()
+
+    cfg = load_user_config()
+    load_config(cfg)
 
     if app_func is None:
         from samuraix.appl import App
