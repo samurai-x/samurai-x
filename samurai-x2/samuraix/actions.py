@@ -64,7 +64,7 @@ class MaximizeClient(Action):
         self.subject = subject
 
     def __call__(self, screen, unused_data):
-        self.subject(screen).toggle_maximize()
+        self.subject(screen, unused_data).toggle_maximize()
 
 class NextClient(Action):
     def __call__(self, screen, unused_data):
