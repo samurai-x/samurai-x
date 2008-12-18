@@ -123,6 +123,8 @@ class Event(object):
     _dispatch_target = None
     _dispatch_class = connection.Connection
 
+    response_type = event_property('unchanged', 'response_type')
+
     def __init__(self, connection, _event=None, _dispatch_target=None):
         self.connection = connection
         self._event = _event or self.event_struct()
