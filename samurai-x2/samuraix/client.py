@@ -27,7 +27,8 @@ import weakref
 
 import samuraix.event
 import samuraix.drawcontext
-import samuraix.xcb, samuraix.xcb._xcb
+import samuraix.xcb
+from samuraix.xcb import _xcb
 from samuraix import cairo, config
 
 from .rect import Rect
@@ -66,7 +67,7 @@ class Client(samuraix.event.EventDispatcher):
                     attributes={
                             'function': samuraix.xcb.graphics.GX_XOR, 
                             'foreground': self.client.screen.white_pixel,
-                            'subwindow_mode': samuraix.xcb._xcb.XCB_SUBWINDOW_MODE_INCLUDE_INFERIORS,
+                            'subwindow_mode': _xcb.XCB_SUBWINDOW_MODE_INCLUDE_INFERIORS,
                     },
             )
 
@@ -217,6 +218,32 @@ class Client(samuraix.event.EventDispatcher):
         self._moving = False
         self._resizing = False
 
+    def on_configure_request(self, evt):
+        log.debug('Client received configure request: Window=%s' % evt.window)
+        cnf = {}
+        mask = evt.value_mask
+        # ... copied from screen.py
+        # TODO: get rid of that boilerplate code
+        if mask & _xcb.XCB_CONFIG_WINDOW_X:
+            cnf['x'] = evt.x
+        if mask & _xcb.XCB_CONFIG_WINDOW_Y:
+            cnf['y'] = evt.y
+        if mask & _xcb.XCB_CONFIG_WINDOW_WIDTH:
+            cnf['width'] = evt.width
+        if mask & _xcb.XCB_CONFIG_WINDOW_HEIGHT:
+            cnf['height'] = evt.height
+        if mask & _xcb.XCB_CONFIG_WINDOW_BORDER_WIDTH:
+            cnf['border_width'] = evt.border_width
+        if mask & _xcb.XCB_CONFIG_WINDOW_SIBLING:
+            cnf['sibling'] = evt.sibling # does that work?
+        if mask & _xcb.XCB_CONFIG_WINDOW_STACK_MODE:
+            cnf['stack_mode'] = evt.stack_mode
+
+        if cnf:
+            evt.window.configure(**cnf)
+        else:
+            log.warning('Strange configure request: No attributes set')
+
     def grab_focus_button(self):
         """ 
             grab the 'focus button'.
@@ -353,12 +380,12 @@ class Client(samuraix.event.EventDispatcher):
 
     def on_destroy_notify(self, evt):
         # destroy me :-(
-        log.warning('DESTROY NOTIFY %s %s %s' % (self.window, evt.event, evt.window))
+        log.warning('got a destroy notify self=%s event.event=%s event.window=%s' % (self.window, evt.event, evt.window))
         if evt.window is self.window: # only for the window, not for the frame
             self.remove(False)
 
     def remove(self, destroy=True):
-        log.error('Removing me! clients: %s %s' % (self.all_clients, self))
+        log.info('Removing me=%s! clients=%s' % (self, self.all_clients))
         try:
             self.all_clients.remove(self)
             del self.window_2_client_map[self.window]
@@ -530,7 +557,7 @@ class Client(samuraix.event.EventDispatcher):
                 log.exception(e)
 
     def frame_on_expose(self, evt):
-        samuraix.xcb._xcb.xcb_copy_area(self.connection._connection, 
+        _xcb.xcb_copy_area(self.connection._connection, 
                 self.frame.pixmap._xid, 
                 self.frame._xid, 
                 self.frame.gc._xid, 
