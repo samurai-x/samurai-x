@@ -274,7 +274,7 @@ class Window(Drawable):
         super(Window, self).delete()
 
     def destroy(self):
-        c = _xcb.xcb_destroy_window(self.connection._connection, self._xid)
+        c = _xcb.xcb_destroy_window_checked(self.connection._connection, self._xid)
         self.connection.flush()
         util.check_void_cookie(self.connection._connection, c)
 
@@ -341,7 +341,7 @@ class Window(Drawable):
         """
             hide the window.
         """
-        _xcb.xcb_unmap_window(self.connection._connection, self._xid)
+        _xcb.xcb_unmap_window_checked(self.connection._connection, self._xid)
         self.connection.flush()
 
     def configure(self, **config):
@@ -438,7 +438,7 @@ class Window(Drawable):
         util.check_void_cookie(self.connection._connection, cookie)
 
     def grab_button(self, button, modifiers=0, cursor=None, owner_events=True, \
-            pointer_mode=GRAB_MODE_ASYNC, keyboard_mode=GRAB_MODE_ASYNC):
+            pointer_mode=GRAB_MODE_SYNC, keyboard_mode=GRAB_MODE_ASYNC):
         if cursor is None:
             cursor = _xcb.XCB_NONE 
         else:
@@ -446,10 +446,10 @@ class Window(Drawable):
         
         # need to put this somewhere generic...
         MOUSEMASK = (_xcb.XCB_EVENT_MASK_BUTTON_PRESS 
-                   | _xcb.XCB_EVENT_MASK_BUTTON_RELEASE 
-                   | _xcb.XCB_EVENT_MASK_POINTER_MOTION)
-
-        cookie = _xcb.xcb_grab_button(self.connection._connection,
+                   |_xcb.XCB_EVENT_MASK_BUTTON_RELEASE ) # TODO!
+                   #| _xcb.XCB_EVENT_MASK_POINTER_MOTION)
+        
+        cookie = _xcb.xcb_grab_button_checked(self.connection._connection,
                                    owner_events,
                                    self._xid,
                                    MOUSEMASK,
@@ -458,11 +458,18 @@ class Window(Drawable):
                                    self._xid,
                                    cursor,
                                    button,
-                                   modifiers
+                                   modifiers 
                                    )
         self.connection.flush()
         util.check_void_cookie(self.connection._connection, cookie)
-    # TODO: ungrab_button
+
+    def ungrab_button(self, button, modifiers=0):
+        cookie = _xcb.xcb_ungrab_button(self.connection._connection,
+                                   button,
+                                   self.xize(),
+                                   modifiers)
+        self.connection.flush()
+        util.check_void_cookie(self.connection._connection, cookie)
 
     def grab_pointer(self, cursor=None):
         if cursor is None:

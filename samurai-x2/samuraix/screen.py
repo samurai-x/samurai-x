@@ -54,7 +54,7 @@ class Screen(samuraix.xcb.screen.Screen, samuraix.event.EventDispatcher):
         super(Screen, self).__init__(app.connection, app.connection.screens[num]._screen)
         
         self.desktops = DesktopList()
-        self.clients = []
+        self.clients = self.client_class.all_clients # Hmmm ...
         self.active_desktop = None
         self.focused_client = None
 
@@ -148,6 +148,13 @@ class Screen(samuraix.xcb.screen.Screen, samuraix.event.EventDispatcher):
         else:
             log.warning('Strange configure request: No attributes set')
 
+    def on_destroy_notify(self, evt):
+        win = evt.window
+        client = Client.get_by_window(evt.window)
+        log.debug('Root window got destroy notify event for window %s client %s' % (evt.window, client))
+        if client is not None:
+            client.remove()
+
     def on_expose(self, evt):
         if not self.rootset and os.path.isfile(os.path.abspath(SVGFILE)): # TODO: not hardcoded ;-)
             set_root_image(self, SVGFILE)
@@ -186,7 +193,7 @@ class Screen(samuraix.xcb.screen.Screen, samuraix.event.EventDispatcher):
         client = self.client_class(self, window, wa or window.attributes, geom or window.get_geometry())
 
         logging.debug('screen %s is now managing %s' % (self, client))
-        self.clients.append(weakref.ref(client)) # do we need that?
+        #self.clients.append(weakref.ref(client)) # do we need that?
         self.active_desktop.add_client(client)
         client.push_handlers(on_removed=self.update_client_list,
                              on_focus=self.update_active_window)

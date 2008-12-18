@@ -171,14 +171,21 @@ class Client(samuraix.event.EventDispatcher):
 
         self.screen = screen
         self.window = window
+        
         self.window.attributes = {
                 'event_mask': (
                     samuraix.xcb.event.StructureNotifyEvent,
                     samuraix.xcb.event.ConfigureNotifyEvent,
                     samuraix.xcb.event.PropertyChangeEvent,
-                    samuraix.xcb.event.ButtonPressEvent,
+                    # commented out because there would be strange
+                    # errors with frames if the following is commented
+                    # in. But WHY?
+#                    samuraix.xcb.event.ButtonPressEvent,
+#                    samuraix.xcb.event.MotionNotifyEvent,
+#                    samuraix.xcb.event.ButtonReleaseEventp,
                     samuraix.xcb.event.SubstructureRedirectEvent,
                     samuraix.xcb.event.SubstructureNotifyEvent,
+                    samuraix.xcb.event.UnmapNotifyEvent,
                ),
         }
         self.connection = window.connection
@@ -201,6 +208,7 @@ class Client(samuraix.event.EventDispatcher):
         self.create_frame()
         self.window.map()
         self.grab_buttons()
+        self.grab_focus_button()
 
         self.window.push_handlers(self)
 
@@ -209,9 +217,28 @@ class Client(samuraix.event.EventDispatcher):
         self._moving = False
         self._resizing = False
 
+    def grab_focus_button(self):
+        """ 
+            grab the 'focus button'.
+            If you click inside a window, 
+            it will be focused.
+
+            However, it is necessary to ungrab
+            the buttons after focusing; otherwise
+            the window won't get any button events :(
+        """
+        self.window.grab_button(1, 0)
+
+    def ungrab_focus_button(self):
+        self.window.ungrab_button(1, 0)
+
     def grab_buttons(self):
         for (mod, button) in self.screen.buttons.iterkeys():
             self.window.grab_button(button, mod)
+
+    def ungrab_buttons(self):
+        for (mod, button) in self.screen.buttons.iterkeys():
+            self.window.ungrab_button(button, mod)
 
     def apply_normal_hints(self, hints=None, geom=None):
         """
@@ -272,14 +299,28 @@ class Client(samuraix.event.EventDispatcher):
         self.connection.flush()
 
     def on_button_press(self, evt):
-        log.debug('got button press event: button #%d x=%d y=%d' % (evt.button, evt.event_x, evt.event_y))
-
-        try:
-            func = self.screen.buttons[(evt.state, evt.button)]
-        except KeyError:
-            log.warn('cant find button')
+        log.debug('got button press event: button #%d modifiers=%d' % (evt.button, evt.state))
+        # first: is it the focus button? (no modifiers, button #1)
+        if evt.button == 1 and evt.state == 0:
+            self.focus()
+            self.connection.allow_events(2)
+            self.connection.flush()
         else:
-            func(self.screen, (self, evt.event_x, evt.event_y))
+            # no, it is probably a button binding.
+            try:
+                func = self.screen.buttons[(evt.state, evt.button)]
+            except KeyError:
+                log.warn('cant find button')
+            else:
+                func(self.screen, (self, evt.event_x, evt.event_y))
+
+    def on_unmap_notify(self, evt):
+        log.debug('Got unmap notify for window %s, i am %s' % (evt.window, self.window))
+        if evt.window is self.window:
+            # if i am focused, unfocus me 
+            if self.screen.focused_client is self:
+                self.screen.focused_client = None
+            self.frame.unmap()
 
     def on_configure_notify(self, evt):
         # we need to fit the frame around the window when this happens 
@@ -312,16 +353,32 @@ class Client(samuraix.event.EventDispatcher):
 
     def on_destroy_notify(self, evt):
         # destroy me :-(
-        self.remove()
+        log.warning('DESTROY NOTIFY %s %s %s' % (self.window, evt.event, evt.window))
+        if evt.window is self.window: # only for the window, not for the frame
+            self.remove(False)
 
-    def remove(self):
+    def remove(self, destroy=True):
+        log.error('Removing me! clients: %s %s' % (self.all_clients, self))
         try:
             self.all_clients.remove(self)
             del self.window_2_client_map[self.window]
         except (ValueError, KeyError), e:
             log.warning(e)
+        if self.screen.focused_client is self:
+            self.screen.focused_client = None
+
+        self.connection.grab_server()
+        #self.window.ungrab_button(0, 1 << 15) # urgh
+        self.ungrab_buttons()
+        self.ungrab_focus_button()
+        self.connection.flush()
+
         self.frame.destroy()
-        self.window.destroy()
+        self.frame.delete()
+        if destroy:
+            self.window.destroy()
+        self.connection.flush()
+        self.connection.ungrab_server()
         self.dispatch_event('on_removed')
 
     def create_frame(self):
@@ -519,16 +576,27 @@ class Client(samuraix.event.EventDispatcher):
             self.unmaximize()
 
     def focus(self):
+        self.ungrab_focus_button()
         self.window.set_input_focus()
+
+        if self.screen.focused_client is not None:
+            self.screen.focused_client.blur()
+
         self.screen.focused_client = self
         self.dispatch_event('on_focus')
         # have to configure `frame` here!
         self.frame.configure(stack_mode=samuraix.xcb.window.STACK_MODE_ABOVE) 
         # TODO: grab buttons etc
 
-    # TODO
-    #def blur(self):
-    #   ...
+    def blur(self):
+        """
+            Oh no! I am no longer focused!
+
+            Grab the focus button and dispatch 'on_blur'.
+        """
+        self.grab_focus_button()
+        self.dispatch_event('on_blur')
 
 Client.register_event_type('on_focus')
+Client.register_event_type('on_blur')
 Client.register_event_type('on_removed')

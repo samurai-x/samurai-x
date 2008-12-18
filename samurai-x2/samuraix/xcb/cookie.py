@@ -159,7 +159,8 @@ class SendEventRequest(Cookie):
     def request(self):
         self._cookie = _xcb.xcb_send_event_checked(self.connection._connection,
                 0, self.window.xize(),
-                _xcb.XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT | _xcb.XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY, # TODO: what's that?
+                0xFFFFFF, # ... awesome says!
+                #_xcb.XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT | _xcb.XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY, # TODO: what's that?
                 self.event.char_p)
     
     def execute(self):

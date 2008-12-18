@@ -339,4 +339,15 @@ class Connection(samuraix.event.EventDispatcher):
         else:
             return None
 
+    def allow_events(self, mode):
+        _xcb.xcb_allow_events(self._connection,
+                mode,
+                _xcb.XCB_CURRENT_TIME)
+
+    def grab_server(self):
+        _xcb.xcb_grab_server(self._connection)
+
+    def ungrab_server(self):
+        _xcb.xcb_ungrab_server(self._connection)
+
 from samuraix.xcb import event

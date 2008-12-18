@@ -171,7 +171,6 @@ class ClientMessageEvent(Event):
         super(ClientMessageEvent, self).__init__(connection, _event)
         self.response_type = _xcb.XCB_CLIENT_MESSAGE
         
-    response_type = event_property('unchanged', 'response_type')
     _dispatch_target = window = event_property('window', 'window')
     type = event_property('atom', 'type')
     format = event_property('format', 'format')
@@ -382,15 +381,16 @@ class DestroyNotifyEvent(Event):
     event_struct = _xcb.xcb_destroy_notify_event_t
     _dispatch_class = window.Window
 
-    window = event_property('window', 'window')
-    _dispatch_target = event = event_property('window', 'event')
+    _dispatch_target = window = event_property('window', 'window')
+    event = event_property('window', 'event')
 
 class MapNotifyEvent(Event):
     event_type = _xcb.XCB_MAP_NOTIFY
     event_name = 'on_map_notify'
     event_struct = _xcb.xcb_map_notify_event_t
     
-    window = event_property('window', 'window')
+    _dispatch_class = window.Window
+    _dispatch_target = window = event_property('window', 'window')
     event = event_property('window', 'event')
     override_redirect = event_property('unchanged', 'override_redirect')
 
