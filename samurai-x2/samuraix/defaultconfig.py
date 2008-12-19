@@ -40,8 +40,8 @@ config = {
     },
 
     'manager.client.buttonbindings': {
-        (mods.MOD_MASK_1, 1): Move(),
-        (mods.MOD_MASK_1, 3): Resize(),
+        (mods.MOD_MASK_4, 1): Move(),
+        (mods.MOD_MASK_4, 3): Resize(),
     },
 
     'manager.desktops': [
