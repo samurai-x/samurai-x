@@ -162,6 +162,8 @@ class Screen(samuraix.xcb.screen.Screen, samuraix.event.EventDispatcher):
             color = samuraix.config.get('manager.root_background_color', '#000000')
             set_root_image(self, color=color, image=image)
 
+            self.rootset = True
+
     def on_property_change(self, evt):
         log.debug('property change: %s' % repr(evt.atom.name))
 
