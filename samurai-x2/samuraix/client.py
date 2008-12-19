@@ -318,6 +318,9 @@ class Client(samuraix.event.EventDispatcher):
                 log.warn('cant find button')
             else:
                 func(self.screen, (self, evt.event_x, evt.event_y))
+                # seems to be necessary
+                self.connection.allow_events(2)
+                self.connection.flush()
 
     def on_unmap_notify(self, evt):
         log.debug('Got Unmap notify for window %s, i am %s' % (evt.window, self.window))
@@ -419,8 +422,8 @@ class Client(samuraix.event.EventDispatcher):
                            'override_redirect': True},
         )
 
-        frame.background_color = hex2cairocolor(config.get('client.frame.background_color', '#cc0000'))
-        frame.title_color = hex2cairocolor(config.get('client.frame.title_color', '#ffffff'))
+        frame.background_color = hex2cairocolor(config.get('manager.client.frame.background_color', '#cc0000'))
+        frame.title_color = hex2cairocolor(config.get('manager.client.frame.title_color', '#ffffff'))
         self.window.reparent(frame, 
                 self.style['border'], 
                 self.style['border'] + self.style['title_height']
