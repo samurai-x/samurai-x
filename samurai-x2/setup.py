@@ -12,7 +12,7 @@ samurai-x is a window manager written in pure python using ctypes, xcb and cairo
         'Development Status :: 3 - Alpha',
         'Environment :: X11 Applications',
         'Intended Audience :: End Users/Desktop',
-        'License :: OSI Approved :: GNU General Public License (GPL)',
+        'License :: OSI Approved :: BSD License',
         'Operating System :: POSIX',
         'Programming Language :: Python',
         'Topic :: Desktop Environment :: Window Managers',
@@ -29,7 +29,7 @@ samurai-x is a window manager written in pure python using ctypes, xcb and cairo
     ],
     entry_points="""
     [console_scripts]
-    samurai-x = samuraix.main:run
+    sx-wm = samuraix.main:run
     sx-event = samuraix.tools.sevent:run
     #sx-setroot = samuraix.setroot:run
     """,
