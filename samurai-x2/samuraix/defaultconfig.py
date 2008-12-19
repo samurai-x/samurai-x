@@ -87,6 +87,14 @@ config = {
         # Meta and 2nd mouse button spawns xterm
         #(mods.MOD_MASK_4, 2): Spawn('xterm'),
     },
+    
+    # You can specify an image file (currently .svg and .png
+    # supported) for the root window background.
+    #'manager.root_background_image': '/path/to/image/file',
+
+    # You can also specify a color for the root background.
+    # Default color is #000000
+    #'manager.root_background_color': '#ffffff',
 
     # Sets the color of the frame background (in hexadecimal
     # rgb notation). Default: #cc0000

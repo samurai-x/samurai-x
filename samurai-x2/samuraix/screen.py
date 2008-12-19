@@ -33,17 +33,14 @@ import functools
 import samuraix
 import samuraix.xcb
 import samuraix.event
-from samuraix.xcb import _xcb
+from samuraix.xcb import _xcb, keysymdef
 
 from .setroot import set_root_image
 from .client import Client
 from .desktop import Desktop, DesktopList
 from .rect import Rect
-from samuraix.xcb import keysymdef
 
 import os.path
-SVGFILE = os.path.abspath('../gfx/samuraix.svg') # TODO: just for testing
-
 
 class Screen(samuraix.xcb.screen.Screen, samuraix.event.EventDispatcher):
     client_class = Client
@@ -156,9 +153,14 @@ class Screen(samuraix.xcb.screen.Screen, samuraix.event.EventDispatcher):
             client.remove()
 
     def on_expose(self, evt):
-        if not self.rootset and os.path.isfile(os.path.abspath(SVGFILE)): # TODO: not hardcoded ;-)
-            set_root_image(self, SVGFILE)
-            self.rootset = True
+        if not self.rootset:
+            image = samuraix.config.get('manager.root_background_image', '')
+            if not os.path.isfile(image):
+                log.warning('File "%s" not found.' % image)
+                image = None
+            
+            color = samuraix.config.get('manager.root_background_color', '#000000')
+            set_root_image(self, color=color, image=image)
 
     def on_property_change(self, evt):
         log.debug('property change: %s' % repr(evt.atom.name))

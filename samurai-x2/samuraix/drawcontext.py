@@ -156,6 +156,22 @@ class DrawContext(object):
         cairo.cairo_paint(self.cr)
         #self.connection.flush()
 
+    def png(self, filename, x=0, y=0, w=None, h=None):
+        """
+            paint a png file.
+            :todo: `w` and `h` currently unused
+        """
+        # TODO: width, height
+        cairo.cairo_save(self.cr)
+
+        surf = cairo.cairo_image_surface_create_from_png(filename)
+        cairo.cairo_set_source_surface(self.cr, surf, x, y)
+        cairo.cairo_paint(self.cr)
+
+        cairo.cairo_surface_finish(surf)
+
+        cairo.cairo_restore(self.cr)
+
     def netwm_icon(self, inp, x=0, y=0, resize_to=(24, 24)):
         """
             Draw the netwm icon, specified in _NET_WM_ICON property.

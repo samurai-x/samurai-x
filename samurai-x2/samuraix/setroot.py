@@ -23,10 +23,28 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import logging
+log = logging.getLogger(__name__)
+
 import samuraix.drawcontext
 import samuraix.xcb
 
-def set_root_image(screen, image, position=None, size=None):
+from .utils import hex2cairocolor
+
+def set_root_image(screen, color=None, image=None, position=None, size=None):
+    """
+        :Parameters:
+            `screen`
+                The xcb.screen.screen
+            `color`
+                Color as hex value (e.g. #ff0000)
+            `image`
+                The image filename
+            `position`
+                image position as tuple (default: (0, 0))
+            `size`
+                root size as tuple (default: screen's full size)
+    """
     root = screen.root
     
     x, y = position or (0, 0)
@@ -35,7 +53,16 @@ def set_root_image(screen, image, position=None, size=None):
     pixmap = samuraix.xcb.pixmap.Pixmap.create(screen.connection, root, w, h, screen.root_depth)
     context = samuraix.drawcontext.DrawContext(screen, w, h, pixmap)
 
-    assert image.endswith('.svg'), 'can only render svg at the moment!'
-    context.svg(image, x, y, w, h)
+    if color is not None:
+        context.fill(hex2cairocolor(color))
 
+    if image is not None:
+        if image.endswith('.svg'):
+            context.svg(image, x, y, w, h)
+        elif image.endswith('.png'):
+            context.png(image, x, y, w, h)
+        else:
+            log.error('Can only render svg and png as root background at the moment! (%s) ' % image)
+            
     root.attributes = {'back_pixmap': pixmap}
+
