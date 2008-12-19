@@ -220,6 +220,8 @@ class Client(samuraix.event.EventDispatcher):
         self._moving = False
         self._resizing = False
 
+        log.info('Hi! I am a new Client! Window=%s Frame=%s' % (repr(self.window), repr(self.frame)))
+
     def grab_focus_button(self):
         """ 
             grab the 'focus button'.
@@ -318,12 +320,17 @@ class Client(samuraix.event.EventDispatcher):
                 func(self.screen, (self, evt.event_x, evt.event_y))
 
     def on_unmap_notify(self, evt):
-        log.debug('Got unmap notify for window %s, i am %s' % (evt.window, self.window))
+        log.debug('Got Unmap notify for window %s, i am %s' % (evt.window, self.window))
         if evt.window is self.window:
             # if i am focused, unfocus me 
             if self.screen.focused_client is self:
                 self.screen.focused_client = None
             self.frame.unmap()
+
+    def on_map_notify(self, evt):
+        log.debug('Got Map notify for window %s, i am %s' % (evt.window, self.window))
+        if evt.window is self.window:
+            self.frame.map()
 
     def on_configure_notify(self, evt):
         # we need to fit the frame around the window when this happens 
