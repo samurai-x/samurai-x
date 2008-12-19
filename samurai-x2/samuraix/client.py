@@ -184,7 +184,9 @@ class Client(samuraix.event.EventDispatcher):
 #                    samuraix.xcb.event.ButtonPressEvent,
 #                    samuraix.xcb.event.MotionNotifyEvent,
 #                    samuraix.xcb.event.ButtonReleaseEventp,
-                    samuraix.xcb.event.SubstructureRedirectEvent,
+                    # commented out the Substructure redirect event:
+                    # no need to handle subwindow's *requests anymore
+#                    samuraix.xcb.event.SubstructureRedirectEvent,
                     samuraix.xcb.event.SubstructureNotifyEvent,
                     samuraix.xcb.event.UnmapNotifyEvent,
                ),
@@ -217,32 +219,6 @@ class Client(samuraix.event.EventDispatcher):
 
         self._moving = False
         self._resizing = False
-
-    def on_configure_request(self, evt):
-        log.debug('Client received configure request: Window=%s' % evt.window)
-        cnf = {}
-        mask = evt.value_mask
-        # ... copied from screen.py
-        # TODO: get rid of that boilerplate code
-        if mask & _xcb.XCB_CONFIG_WINDOW_X:
-            cnf['x'] = evt.x
-        if mask & _xcb.XCB_CONFIG_WINDOW_Y:
-            cnf['y'] = evt.y
-        if mask & _xcb.XCB_CONFIG_WINDOW_WIDTH:
-            cnf['width'] = evt.width
-        if mask & _xcb.XCB_CONFIG_WINDOW_HEIGHT:
-            cnf['height'] = evt.height
-        if mask & _xcb.XCB_CONFIG_WINDOW_BORDER_WIDTH:
-            cnf['border_width'] = evt.border_width
-        if mask & _xcb.XCB_CONFIG_WINDOW_SIBLING:
-            cnf['sibling'] = evt.sibling # does that work?
-        if mask & _xcb.XCB_CONFIG_WINDOW_STACK_MODE:
-            cnf['stack_mode'] = evt.stack_mode
-
-        if cnf:
-            evt.window.configure(**cnf)
-        else:
-            log.warning('Strange configure request: No attributes set')
 
     def grab_focus_button(self):
         """ 
