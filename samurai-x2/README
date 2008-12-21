@@ -1,0 +1,58 @@
+samurai-x2
+==========
+
+samurai-x2 is a work in progress window manager written in pure python.
+
+Installing
+----------
+
+In order to run samurai-x, you'll need the following software installed:
+
+* Python >= 2.5 (http://www.python.org)
+* setuptools (http://peak.telecommunity.com/DevCenter/setuptools)
+* ``libxcb`` and ``xcb-util`` (http://xcb.freedesktop.org)
+* ``cairo`` with enabled xcb backend  (http://cairographics.org)
+* ``librsvg`` (http://librsvg.sourceforge.net)
+
+You can find distribution-specific installation notes in our
+`Wiki <http://samurai-x.org/wiki/Installation>`__.
+
+Then, as root, type the following to install samurai-x:
+
+::
+
+    python setup.py install
+
+This will create two console scripts: ``sx-wm``, the
+window manager, and ``sx-events``, an ``xev`` clone
+written in Python using the samuraix.xcb module.
+
+Using
+-----
+
+Just type ``sx-wm`` to launch the samurai-x2 window manager.
+If you want it not to run on the current display, set its
+``DISPLAY`` environment variable.
+
+As an example,
+
+::
+
+    DISPLAY=:1 sx-wm
+
+will launch samurai-x on display :1.
+
+Configuring
+-----------
+
+At the moment, samurai-x is configured using python scripts.
+You can read more about that in the file ``samuraix/defaultconfig.py``
+in the samurai-x2 distribution.
+
+Bugs
+----
+
+We encourage you to report bugs on our `website`_.
+Please attach the generated logfile ``lastrun.log``.
+
+.. _website: http://samurai-x.org
