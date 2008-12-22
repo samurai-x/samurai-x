@@ -98,11 +98,11 @@ config = {
 
     # Sets the color of the frame background (in hexadecimal
     # rgb notation). Default: #cc0000
-    'manager.client.frame.background_color': '#ff00ff',
+    #'manager.client.frame.background_color': '#0000ff',
 
     # Sets the font color of the frame title (the
     # window title). Default: #ffffff
-    'manager.client.frame.title_color': '#000000',
+    #'manager.client.frame.title_color': '#000000',
 
     # Finally, 'manager.desktops' holds a list
     # of desktop names. Here we define three desktops.
