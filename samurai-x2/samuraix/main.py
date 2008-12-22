@@ -27,6 +27,7 @@ import sys
 import os
 import traceback
 import logging
+import pkg_resources
 from optparse import OptionParser
 
 SXWM_USAGE = '''sx-wm [options] '''
@@ -100,11 +101,20 @@ def parse_options():
             help='use samuraix configuration from FILE (default: %default)', metavar='FILE',
             default='~/.samuraix')
 
+    parser.add_option('', '--default-config', dest='print_default_config', 
+            help='print the default configuration to stdout',
+            action='store_true',
+            default=False)
+
     options, args = parser.parse_args()
     return options
 
 def run(app_func=None):
     options = parse_options()
+    if options.print_default_config: # just print samuraix.defaultconfig and quit.
+        print pkg_resources.resource_string('samuraix', 'defaultconfig.py')
+        return
+
     configure_logging()
 
     cfg = load_user_config(options.configfile)
