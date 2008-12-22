@@ -169,6 +169,7 @@ class Screen(samuraix.xcb.screen.Screen, samuraix.event.EventDispatcher):
             set_root_image(self, color=color, image=image)
 
             self.rootset = True
+            self.connection.flush()
 
     def on_property_change(self, evt):
         log.debug('property change: %s' % repr(evt.atom.name))
