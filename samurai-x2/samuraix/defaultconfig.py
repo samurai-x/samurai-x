@@ -65,8 +65,8 @@ config = {
         # So: Meta-m maximizes (or minimizes) the currently 
         # focused client.
         (mods.MOD_MASK_4, keys.XK_m): MaximizeClient(FocusedClient()),
-        # Meta-c cycles the clients of the current desktop.
-        (mods.MOD_MASK_4, keys.XK_c): NextClient(),
+        # Meta-Tab cycles the clients of the current desktop.
+        (mods.MOD_MASK_4, keys.XK_Tab): NextClient(),
     },
 
     # Here we map a modifier and a button to an action.
