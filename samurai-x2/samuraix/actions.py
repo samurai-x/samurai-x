@@ -75,6 +75,15 @@ class NextClient(Action):
             idx = (desktop.clients.index(weakref.ref(focused)) + 1) % len(desktop.clients)
         desktop.focus_client(desktop.clients[idx]())
 
+class PreviousClient(Action):
+    def __call__(self, screen, unused_data):
+        desktop = screen.active_desktop
+        focused = screen.focused_client
+        idx = len(desktop.clients)
+        if focused is not None:
+            idx = (desktop.clients.index(weakref.ref(focused)) or len(desktop.clients)) - 1
+        desktop.focus_client(desktop.clients[idx]())
+
 class Resize(Action):
     def __call__(self, screen, data):
         """

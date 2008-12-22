@@ -67,6 +67,8 @@ config = {
         (mods.MOD_MASK_4, keys.XK_m): MaximizeClient(FocusedClient()),
         # Meta-Tab cycles the clients of the current desktop.
         (mods.MOD_MASK_4, keys.XK_Tab): NextClient(),
+        # Meta-Alt-Tab cycles the clients of the current desktop backwards.
+        (mods.MOD_MASK_4 | mods.MOD_MASK_1, keys.XK_Tab): PreviousClient(),
     },
 
     # Here we map a modifier and a button to an action.
