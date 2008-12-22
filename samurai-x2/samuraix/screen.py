@@ -30,6 +30,8 @@ import weakref
 import os.path
 import functools
 
+import pkg_resources
+
 import samuraix
 import samuraix.xcb
 import samuraix.event
@@ -154,7 +156,11 @@ class Screen(samuraix.xcb.screen.Screen, samuraix.event.EventDispatcher):
 
     def on_expose(self, evt):
         if not self.rootset:
-            image = samuraix.config.get('manager.root_background_image', '')
+            image = samuraix.config.get('manager.root_background_image', None)
+            
+            if image is None: # load default svg
+                image = pkg_resources.resource_filename('samuraix', 'data/samuraix.svg')
+
             if not os.path.isfile(image):
                 log.warning('File "%s" not found.' % image)
                 image = None
