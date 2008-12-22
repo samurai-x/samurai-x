@@ -27,6 +27,9 @@ import sys
 import os
 import traceback
 import logging
+from optparse import OptionParser
+
+SXWM_USAGE = '''sx-wm [options] '''
 
 class SamuraiLogger(logging.Logger):
     def exception(self, exc):
@@ -91,10 +94,20 @@ def load_user_config(configfile=None):
         return None
     return locals['config']
 
+def parse_options():
+    parser = OptionParser(SXWM_USAGE)
+    parser.add_option('-c', '--config', dest='configfile', 
+            help='use samuraix configuration from FILE (default: %default)', metavar='FILE',
+            default='~/.samuraix')
+
+    options, args = parser.parse_args()
+    return options
+
 def run(app_func=None):
+    options = parse_options()
     configure_logging()
 
-    cfg = load_user_config()
+    cfg = load_user_config(options.configfile)
     load_config(cfg)
 
     if app_func is None:
