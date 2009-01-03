@@ -422,7 +422,7 @@ class Window(Drawable):
         
         tree_len = _xcb.xcb_query_tree_children_length(tree_r)
 
-        return (Window(self.connection, wins[i]) for i in range(tree_len))
+        return (self.connection.pythonize('WINDOW', wins[i]) for i in range(tree_len))
             
     def grab_key(self, keycode, modifiers=0, owner_events=True, pointer_mode=GRAB_MODE_ASYNC, keyboard_mode=GRAB_MODE_ASYNC):
         cookie = _xcb.xcb_grab_key(self.connection._connection,
@@ -512,4 +512,4 @@ class Window(Drawable):
 
 @Pythonizer.pythonizer('WINDOW')
 def pythonize_window(connection, xid):
-    return Window(connection, xid)
+    return connection.get_from_cache_fallback(xid, Window)

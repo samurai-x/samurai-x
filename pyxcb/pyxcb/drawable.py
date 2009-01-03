@@ -32,5 +32,5 @@ class Drawable(Resource):
 
 @Pythonizer.pythonizer('DRAWABLE')
 def pythonize_drawable(connection, xid):
-    return Drawable(connection, xid)
+    return connection.get_from_cache_fallback(xid, Drawable)
 

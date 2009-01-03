@@ -96,6 +96,18 @@ class Connection(EventDispatcher):
         """
         return self._resource_cache.get(xid, None)
 
+    def get_from_cache_fallback(self, xid, cls):
+        """
+            if `xid` is contained in the connection's cache,
+            return the corresponding object, otherwise create
+            an instance of the `Resource` subclass `cls`, which
+            is automatically added to the cache in its __init__.
+        """
+        if xid in self._resource_cache:
+            return self._resource_cache[xid]
+        else:
+            return cls(self, xid)
+
     def add_to_cache(self, obj):
         """
             add the resource object `obj` to the cache
