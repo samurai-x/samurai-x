@@ -30,22 +30,26 @@ from . import _xcb
 import logging
 log = logging.getLogger(__name__)
 
-CACHE_KEYWORD = '_cached'
 # There is operator.methodcaller in Python 2.6!
 methodcaller = lambda method: lambda value: getattr(value, method)()
 
-def cached(func):
-    # TODO: UGLY UGLY UGLY
-    def do_cache(self, *args, **kwargs):
-        if CACHE_KEYWORD not in func.func_dict: # table does not exist
-            func.func_dict[CACHE_KEYWORD] = {}
-        if self not in func.func_dict[CACHE_KEYWORD]:
-            func.func_dict[CACHE_KEYWORD][self] = func(self, *args, **kwargs)
-        return func.func_dict[CACHE_KEYWORD][self]
-    return do_cache
-
 def cached_property(func):
-    return property(cached(func))
+    """
+        `property`, but cached;
+
+        taken from http://code.activestate.com/recipes/576563/ - thanks.
+    """
+    def getter(self):
+        try:
+            return self._property_cache[func]
+        except AttributeError:
+            self._property_cache = {}
+            self._property_cache[func] = ret = func(self)
+            return ret
+        except KeyError:
+            self._property_cache[func] = ret = func(self)
+            return ret
+    return property(getter)
 
 def reverse_dict(d):
     return dict((value, key) for key, value in d.iteritems())
