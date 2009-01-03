@@ -25,18 +25,17 @@
 
 import ctypes
 
-import samuraix.event
-
 from . import (_xcb, keysymbols, atom, cookie, screen, cursor)
 
 from .containers import SizeHints
 from .util import cached_property
 from .pythonize import Pythonizer
+from .eventsystem import EventDispatcher
 
 class XcbException(Exception):
     pass
 
-class Connection(samuraix.event.EventDispatcher):
+class Connection(EventDispatcher):
     """
         The central connection, similar to Xlib's Display.
         You have to create a connection before you can use
@@ -306,7 +305,7 @@ class Connection(samuraix.event.EventDispatcher):
             `event.Event` subclass instance.
         """
         _event = _xcb.xcb_wait_for_event(self._connection)
-        return event.pythonize_event(self, _event.contents)
+        return self.pythonize('EVENT', _event.contents)
 
     #def wait_for_event_fd(self, rlist=None, wlist=None, xlist=None, timeout=None):
     #    select((rlist or []) + [self._fd], 
@@ -320,10 +319,9 @@ class Connection(samuraix.event.EventDispatcher):
         """
             wait for a xcb event and dispatch it using the
             pyglet event dispatcher coming with samurai-x
-            as `samuraix.event`.
+            as `pyxcb.eventsystem`.
         """
-        _event = _xcb.xcb_wait_for_event(self._connection)
-        pyevent = event.pythonize_event(self, _event.contents)
+        pyevent = self.wait_for_event() 
         if pyevent:
             pyevent.dispatch()
 
@@ -335,7 +333,7 @@ class Connection(samuraix.event.EventDispatcher):
         """
         _event = _xcb.xcb_poll_for_event(self._connection)
         if _event:
-            return event.pythonize_event(self, _event.contents)
+            return self.pythonize('EVENT', _event.contents)
         else:
             return None
 
@@ -349,5 +347,3 @@ class Connection(samuraix.event.EventDispatcher):
 
     def ungrab_server(self):
         _xcb.xcb_ungrab_server(self._connection)
-
-from samuraix.xcb import event

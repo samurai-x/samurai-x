@@ -23,9 +23,14 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+from .pythonize import Pythonizer
 from .resource import Resource
 
 class Drawable(Resource):
     def __init__(self, connection, xid):
         super(Drawable, self).__init__(connection, xid)
+
+@Pythonizer.pythonizer('DRAWABLE')
+def pythonize_drawable(connection, xid):
+    return Drawable(connection, xid)
 

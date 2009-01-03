@@ -1,28 +1,3 @@
-# Copyright (c) 2008, samurai-x.org
-# All rights reserved.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-#     * Redistributions of source code must retain the above copyright
-#       notice, this list of conditions and the following disclaimer.
-#     * Redistributions in binary form must reproduce the above copyright
-#       notice, this list of conditions and the following disclaimer in the
-#       documentation and/or other materials provided with the distribution.
-#     * Neither the name of the samurai-x.org nor the
-#       names of its contributors may be used to endorse or promote products
-#       derived from this software without specific prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED BY SAMURAI-X.ORG ``AS IS'' AND ANY
-# EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-# DISCLAIMED. IN NO EVENT SHALL SAMURAI-X.ORG  BE LIABLE FOR ANY
-# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 # ----------------------------------------------------------------------------
 # pyglet
 # Copyright (c) 2006-2008 Alex Holkner
@@ -348,9 +323,10 @@ class EventDispatcher(object):
         `EventDispatcher` implementors; applications should call
         the ``dispatch_events`` method.
 
-        Since pyglet 1.2, the method returns ``True`` if an event handler
-        returned `EVENT_HANDLED`.  If no matching event handlers are in the
-        stack, or if none returned `EVENT_HANDLED`, ``False`` is returned.
+        Since pyglet 1.2, the method returns `EVENT_HANDLED` if an event
+        handler returned `EVENT_HANDLED` or `EVENT_UNHANDLED` if all events
+        returned `EVENT_UNHANDLED`.  If no matching event handlers are in the
+        stack, ``False`` is returned.
 
         :Parameters:
             `event_type` : str
@@ -358,21 +334,26 @@ class EventDispatcher(object):
             `args` : sequence
                 Arguments to pass to the event handler.
 
-        :rtype: bool
-        :return: (Since pyglet 1.2) ``True`` if an event handler was invoked and
-            it returned `EVENT_HANDLED`; otherwise ``False``.  In pyglet 1.1
-            and earler, the return value is always ``None``.
+        :rtype: bool or None
+        :return: (Since pyglet 1.2) `EVENT_HANDLED` if an event handler 
+            returned `EVENT_HANDLED`; `EVENT_UNHANDLED` if one or more event
+            handlers were invoked but returned only `EVENT_UNHANDLED`;
+            otherwise ``False``.  In pyglet 1.1 and earler, the return value
+            is always ``None``.
 
         '''
         assert event_type in self.event_types
+
+        invoked = False
 
         # Search handler stack for matching event handlers
         for frame in list(self._event_stack):
             handler = frame.get(event_type, None)
             if handler:
                 try:
+                    invoked = True
                     if handler(*args):
-                        return True
+                        return EVENT_HANDLED
                 except TypeError:
                     self._raise_dispatch_exception(event_type, args, handler)
 
@@ -380,11 +361,15 @@ class EventDispatcher(object):
         # Check instance for an event handler
         if hasattr(self, event_type):
             try:
+                invoked = True
                 if getattr(self, event_type)(*args):
-                    return True
+                    return EVENT_HANDLED
             except TypeError:
                 self._raise_dispatch_exception(
                     event_type, args, getattr(self, event_type))
+
+        if invoked:
+            return EVENT_UNHANDLED
 
         return False
 

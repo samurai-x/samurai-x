@@ -27,9 +27,9 @@ import signal
 import sys
 from select import select
 
-import samuraix.xcb
-import samuraix.xcb.screen
-import samuraix.event
+import pyxcb
+import pyxcb.screen
+import pyxcb.event
 import samuraix.screen
 
 import logging
@@ -40,13 +40,13 @@ class App(object):
         self.screens = []
 
     def init(self):
-        self.connection = samuraix.xcb.connection.Connection()
+        self.connection = pyxcb.connection.Connection()
         self.connection.push_handlers(self)
         self.running = False
 
-        log.debug("found %d screens" % samuraix.xcb.screen.Screen.get_screen_count(self.connection))
+        log.debug("found %d screens" % pyxcb.screen.Screen.get_screen_count(self.connection))
 
-        for i in range(samuraix.xcb.screen.Screen.get_screen_count(self.connection)):
+        for i in range(pyxcb.screen.Screen.get_screen_count(self.connection)):
             scr = samuraix.screen.Screen(self, i)
             try:
                 scr.scan()

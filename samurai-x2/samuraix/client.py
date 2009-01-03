@@ -25,12 +25,11 @@
 
 import weakref
 
-import samuraix.event
 import samuraix.drawcontext
-import samuraix.xcb
-from samuraix.xcb import _xcb
-from samuraix import cairo, config
+import pyxcb
+from pyxcb import _xcb
 
+from samuraix import cairo, config
 from .rect import Rect
 from .utils import hex2cairocolor
 
@@ -42,7 +41,7 @@ log = logging.getLogger(__name__)
 #class Frame(object):
 #    def __init__(self, client):
 #        self.client = client 
-#        self.window = samuraix.xcb.Window.create(...)
+#        self.window = pyxcb.Window.create(...)
 #
 #    def on_expose(self, evt):
 #        ...
@@ -52,7 +51,7 @@ log = logging.getLogger(__name__)
 #        ...
 
 
-class Client(samuraix.event.EventDispatcher):
+class Client(pyxcb.eventsystem.EventDispatcher):
     all_clients = []
     window_2_client_map = weakref.WeakValueDictionary()
     
@@ -61,11 +60,11 @@ class Client(samuraix.event.EventDispatcher):
             self.client = client
             self.offset_x, self.offset_y = x, y
 
-            self.gc = samuraix.xcb.graphics.GraphicsContext.create(
+            self.gc = pyxcb.graphics.GraphicsContext.create(
                     self.client.screen.connection, 
                     self.client.screen.root,
                     attributes={
-                            'function': samuraix.xcb.graphics.GX_XOR, 
+                            'function': pyxcb.graphics.GX_XOR, 
                             'foreground': self.client.screen.white_pixel,
                             'subwindow_mode': _xcb.XCB_SUBWINDOW_MODE_INCLUDE_INFERIORS,
                     },
@@ -90,7 +89,7 @@ class Client(samuraix.event.EventDispatcher):
             self.clear_preview()
             x, y = evt.root_x - self.offset_x, evt.root_y - self.offset_y
             self.gc.poly_rectangle(self.client.screen.root,
-                                    [samuraix.xcb.graphics.Rectangle(x, y, self.client.frame_geom.width, self.client.frame_geom.height)],
+                                    [pyxcb.graphics.Rectangle(x, y, self.client.frame_geom.width, self.client.frame_geom.height)],
                                     False)
             self._x = evt.root_x
             self._y = evt.root_y
@@ -110,7 +109,7 @@ class Client(samuraix.event.EventDispatcher):
             if self._x is not None:
                 x, y = self._x - self.offset_x, self._y - self.offset_y
                 self.gc.poly_rectangle(self.client.screen.root,
-                                        [samuraix.xcb.graphics.Rectangle(x, y, self.client.frame_geom.width, self.client.frame_geom.height)],
+                                        [pyxcb.graphics.Rectangle(x, y, self.client.frame_geom.width, self.client.frame_geom.height)],
                                         False)
 
     class ResizeHandler(ClientHandler):
@@ -129,7 +128,7 @@ class Client(samuraix.event.EventDispatcher):
             w = evt.root_x - geom.x
             h = evt.root_y - geom.y
             self.gc.poly_rectangle(self.client.screen.root,
-                                    [samuraix.xcb.graphics.Rectangle(geom.x, geom.y, w, h)],
+                                    [pyxcb.graphics.Rectangle(geom.x, geom.y, w, h)],
                                     False)
             self._w = w
             self._h = h
@@ -156,7 +155,7 @@ class Client(samuraix.event.EventDispatcher):
             if self._w:
                 self.gc.poly_rectangle(
                         self.client.screen.root,
-                        [samuraix.xcb.graphics.Rectangle(
+                        [pyxcb.graphics.Rectangle(
                             self.client.frame_geom.x, self.client.frame_geom.y, 
                             self._w, self._h
                         )],
@@ -175,20 +174,20 @@ class Client(samuraix.event.EventDispatcher):
         
         self.window.attributes = {
                 'event_mask': (
-                    samuraix.xcb.event.StructureNotifyEvent,
-                    samuraix.xcb.event.ConfigureNotifyEvent,
-                    samuraix.xcb.event.PropertyChangeEvent,
+                    pyxcb.event.StructureNotifyEvent,
+                    pyxcb.event.ConfigureNotifyEvent,
+                    pyxcb.event.PropertyChangeEvent,
                     # commented out because there would be strange
                     # errors with frames if the following is commented
                     # in. But WHY?
-#                    samuraix.xcb.event.ButtonPressEvent,
-#                    samuraix.xcb.event.MotionNotifyEvent,
-#                    samuraix.xcb.event.ButtonReleaseEventp,
+#                    pyxcb.event.ButtonPressEvent,
+#                    pyxcb.event.MotionNotifyEvent,
+#                    pyxcb.event.ButtonReleaseEventp,
                     # commented out the Substructure redirect event:
                     # no need to handle subwindow's *requests anymore
-#                    samuraix.xcb.event.SubstructureRedirectEvent,
-                    samuraix.xcb.event.SubstructureNotifyEvent,
-                    samuraix.xcb.event.UnmapNotifyEvent,
+#                    pyxcb.event.SubstructureRedirectEvent,
+                    pyxcb.event.SubstructureNotifyEvent,
+                    pyxcb.event.UnmapNotifyEvent,
                ),
         }
         self.connection = window.connection
@@ -405,7 +404,7 @@ class Client(samuraix.event.EventDispatcher):
 
         self.apply_style(frame_geom)
 
-        frame = samuraix.xcb.window.Window.create(
+        frame = pyxcb.window.Window.create(
                 self.screen.connection,
                 self.screen,
                 frame_geom.x,
@@ -413,10 +412,10 @@ class Client(samuraix.event.EventDispatcher):
                 frame_geom.width,
                 frame_geom.height,
                 1,
-                attributes={'event_mask': (samuraix.xcb.event.ExposeEvent,
-                                         samuraix.xcb.event.ButtonPressEvent,
-                                         samuraix.xcb.event.ButtonReleaseEvent,
-                                         samuraix.xcb.event.ConfigureNotifyEvent,
+                attributes={'event_mask': (pyxcb.event.ExposeEvent,
+                                         pyxcb.event.ButtonPressEvent,
+                                         pyxcb.event.ButtonReleaseEvent,
+                                         pyxcb.event.ConfigureNotifyEvent,
 
                                          ),
                            'override_redirect': True},
@@ -435,7 +434,7 @@ class Client(samuraix.event.EventDispatcher):
 
         log.debug('frame w %s h %s', frame_geom.width, frame_geom.height)
 
-        frame.gc = samuraix.xcb.graphics.GraphicsContext.create(self.connection, self.screen.root)
+        frame.gc = pyxcb.graphics.GraphicsContext.create(self.connection, self.screen.root)
             
         self.frame = frame
         frame.map()
@@ -464,7 +463,7 @@ class Client(samuraix.event.EventDispatcher):
         #self.frame_on_expose(None)
 
     def force_frame_expose(self, width, height):
-        ev = samuraix.xcb.event.ExposeEvent(self.connection, _dispatch_target=self.frame)
+        ev = pyxcb.event.ExposeEvent(self.connection, _dispatch_target=self.frame)
         ev.x = 0
         ev.y = 0
         ev.width = width
@@ -496,7 +495,7 @@ class Client(samuraix.event.EventDispatcher):
         self.update_geom(self.frame.get_geometry())
 
     def _recreate_context(self):
-        self.frame.pixmap = samuraix.xcb.pixmap.Pixmap.create(self.connection, 
+        self.frame.pixmap = pyxcb.pixmap.Pixmap.create(self.connection, 
                 self.screen.root,
                 self.frame_geom.width, self.frame_geom.height,
                 depth = self.screen.root_depth
@@ -598,7 +597,7 @@ class Client(samuraix.event.EventDispatcher):
         self.screen.focused_client = self
         self.dispatch_event('on_focus')
         # have to configure `frame` here!
-        self.frame.configure(stack_mode=samuraix.xcb.window.STACK_MODE_ABOVE) 
+        self.frame.configure(stack_mode=pyxcb.window.STACK_MODE_ABOVE) 
         # TODO: grab buttons etc
 
     def blur(self):

@@ -33,7 +33,7 @@
 
 __docformat__ =  'restructuredtext'
 __version__ = '$Id: wrap.py 1694 2008-01-30 23:12:00Z Alex.Holkner $'
-import samuraix.xcb._xcb as _xcb
+import pyxcb._xcb as _xcb
 import ctypes
 from ctypes import *
 

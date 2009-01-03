@@ -25,7 +25,7 @@
 
 import ctypes
 
-from samuraix.xcb import _xcb_keysyms
+from . import _xcb_keysyms
 #from .event import KeyPressEvent, KeyReleaseEvent
 
 class KeySymbols(object):

@@ -23,11 +23,9 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import _xcb
-import window
+from . import (depth, _xcb)
 from .iterator import BaseIterator
-from util import cached_property
-from . import depth
+from .util import cached_property
 
 class DepthIterator(BaseIterator):
     next_func = _xcb.xcb_depth_next
@@ -50,7 +48,7 @@ class Screen(object):
         """
             return the root window instance
         """
-        return window.Window(self.connection, self._screen.root)
+        return self.connection.pythonize('WINDOW', self._screen.root)
 
     @property
     def root_visual(self):

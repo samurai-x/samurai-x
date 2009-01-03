@@ -26,8 +26,6 @@
 import ctypes
 import warnings
 
-import samuraix.event
-
 from . import (_xcb, cookie, util)
 from .drawable import Drawable
 from .pixmap import Pixmap

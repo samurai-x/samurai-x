@@ -28,13 +28,9 @@ log = logging.getLogger(__name__)
 
 import ctypes
 
-import _xcb
-
-from util import reverse_dict
-import drawable
-import window
-import atom
-import connection
+from . import (_xcb, window, drawable, connection)
+from .pythonize import Pythonizer
+from .util import reverse_dict
 
 class DummyStruct(object):
     pass
@@ -57,34 +53,28 @@ class BaseEventPropertyDescriptor(object):
     def __set__(self, instance, value):
         return setattr(instance._event, self.property_name, self.py_to_x(instance.connection, value))
 
+def make_descriptor(ident):
+    """
+        Return a new Descriptor class which uses the pythonizing
+        mechanism using the value identifier `ident`, e.g.
+        'WINDOW'.
+    """
+
+    class _Descriptor(BaseEventPropertyDescriptor):
+        def x_to_py(self, connection, val):
+            return (connection.pythonize(ident, val) if val else None)
+
+        def py_to_x(self, connection, val):
+            return val.xize()
+
+    _Descriptor.__name__ = '%sPropertyDescriptor' % ident.capitalize()
+    return _Descriptor
+        
 # TODO: should property descriptors cache objects and return the identical objects which were passed to them?
 
-class DrawablePropertyDescriptor(BaseEventPropertyDescriptor):
-    _class = drawable.Drawable
-
-    def x_to_py(self, connection, val):
-        return (drawable.Drawable(connection, val) if val else None)
-
-    def py_to_x(self, connection, val):
-        return val._xid
-
-class WindowPropertyDescriptor(BaseEventPropertyDescriptor):
-    _class = window.Window
-
-    def x_to_py(self, connection, val):
-        return (window.Window(connection, val) if val else None)
-
-    def py_to_x(self, connection, val):
-        return val._xid
-
-class AtomPropertyDescriptor(BaseEventPropertyDescriptor):
-    _class = atom.Atom
-
-    def x_to_py(self, connection, val):
-        return (atom.Atom(connection, val) if val else None)
-
-    def py_to_x(self, connection, val):
-        return val._atom
+DrawablePropertyDescriptor = make_descriptor('DRAWABLE')
+WindowPropertyDescriptor = make_descriptor('WINDOW')
+AtomPropertyDescriptor = make_descriptor('ATOM')
 
 class FormatPropertyDescriptor(BaseEventPropertyDescriptor):
     _class = None
@@ -477,6 +467,7 @@ EVENTS = (KeyPressEvent, KeyReleaseEvent, ButtonPressEvent, ButtonReleaseEvent,
 X_EVENT_MAP = dict((cls.event_type, cls) for cls in EVENTS)
 EVENT_X_MAP = reverse_dict(X_EVENT_MAP)
 
+@Pythonizer.pythonizer('EVENT')
 def pythonize_event(connection, _event):
     event_type = _event.response_type & ~0x80 # strip 'send event' bit
     if event_type == 0:

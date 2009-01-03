@@ -30,7 +30,7 @@ Input monitoring for key events and mouse (press/release) events.
 import sys
 import time
 
-import samuraix.xcb as xcb
+import pyxcb as xcb
 
 def run():
     # get connection to the xcb
@@ -94,8 +94,8 @@ def run():
             ({'x':evt.x,'y':evt.y, 'width':evt.width, 'height':evt.height})
 
     def on_key_event(evt):
-        from samuraix.xcb.keysymbols import KeySymbols
-        from samuraix.xcb.keylookup import  keysym_to_str
+        from pyxcb.keysymbols import KeySymbols
+        from pyxcb.keylookup import  keysym_to_str
         keysymbols = KeySymbols(c)
         keysym = keysymbols.get_keysym(evt.keycode)
         keystring = keysym_to_str(keysym)

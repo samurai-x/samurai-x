@@ -33,9 +33,8 @@ import functools
 import pkg_resources
 
 import samuraix
-import samuraix.xcb
-import samuraix.event
-from samuraix.xcb import _xcb, keysymdef
+import pyxcb
+from pyxcb import _xcb, keysymdef
 
 from .setroot import set_root_image
 from .client import Client
@@ -44,7 +43,7 @@ from .rect import Rect
 
 import os.path
 
-class Screen(samuraix.xcb.screen.Screen, samuraix.event.EventDispatcher):
+class Screen(pyxcb.screen.Screen, pyxcb.eventsystem.EventDispatcher):
     client_class = Client
     desktop_class = Desktop
 
@@ -59,13 +58,13 @@ class Screen(samuraix.xcb.screen.Screen, samuraix.event.EventDispatcher):
 
         self.root.attributes = {
             'event_mask': (
-                samuraix.xcb.event.MapRequestEvent,
-                samuraix.xcb.event.SubstructureRedirectEvent,
-                samuraix.xcb.event.SubstructureNotifyEvent,
-                samuraix.xcb.event.StructureNotifyEvent,
-                samuraix.xcb.event.KeyPressEvent,
-                samuraix.xcb.event.ExposeEvent,
-                samuraix.xcb.event.PropertyChangeEvent,
+                pyxcb.event.MapRequestEvent,
+                pyxcb.event.SubstructureRedirectEvent,
+                pyxcb.event.SubstructureNotifyEvent,
+                pyxcb.event.StructureNotifyEvent,
+                pyxcb.event.KeyPressEvent,
+                pyxcb.event.ExposeEvent,
+                pyxcb.event.PropertyChangeEvent,
             ),
             'cursor': self.app.connection.cursors['Normal'],
         }

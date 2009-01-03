@@ -32,11 +32,11 @@
 # default configuration file which you read currently.
 
 # We need some modules:
-import samuraix.xcb.modifiers as mods
-# samuraix.xcb.modifiers has some modifier constants you can use:
+import pyxcb.modifiers as mods
+# pyxcb.modifiers has some modifier constants you can use:
 # MOD_MASK_1 to MOD_MASK_5, MOD_MASK_SHIFT, MOD_MASK_LOCK, MOD_MASK_CONTROL
 # The `xmodmap` tool is always helpful.
-import samuraix.xcb.keysymdef as keys
+import pyxcb.keysymdef as keys
 # You will most likely only use the XK_a to XK_z constants. 
 from samuraix.actions import *
 

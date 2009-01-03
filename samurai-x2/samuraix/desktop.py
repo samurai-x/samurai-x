@@ -26,7 +26,7 @@
 import weakref
 import functools
 
-import samuraix.event
+import pyxcb
 from samuraix.focus import FocusStack
 
 import logging
@@ -39,7 +39,7 @@ class DesktopList(list):
     def next(self, i):
         return self[(i + 1) % len(self)]
 
-class Desktop(samuraix.event.EventDispatcher):
+class Desktop(pyxcb.eventsystem.EventDispatcher):
     """ 
         relationship:
         Screen -> Desktop -> Client

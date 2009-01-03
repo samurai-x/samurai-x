@@ -27,7 +27,7 @@ import logging
 log = logging.getLogger(__name__)
 
 import samuraix.drawcontext
-import samuraix.xcb
+import pyxcb
 
 from .utils import hex2cairocolor
 
@@ -35,7 +35,7 @@ def set_root_image(screen, color=None, image=None, position=None, size=None):
     """
         :Parameters:
             `screen`
-                The xcb.screen.screen
+                The pyxcb.screen.screen
             `color`
                 Color as hex value (e.g. #ff0000)
             `image`
@@ -50,7 +50,7 @@ def set_root_image(screen, color=None, image=None, position=None, size=None):
     x, y = position or (0, 0)
     w, h = size or screen.size_in_pixels
 
-    pixmap = samuraix.xcb.pixmap.Pixmap.create(screen.connection, root, w, h, screen.root_depth)
+    pixmap = pyxcb.pixmap.Pixmap.create(screen.connection, root, w, h, screen.root_depth)
     context = samuraix.drawcontext.DrawContext(screen, w, h, pixmap)
 
     if color is not None:
