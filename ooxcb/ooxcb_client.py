@@ -484,6 +484,10 @@ def request_helper(self, name, void, regular):
         func_name = pythonize_name(func_name)
     else:
         func_name = reqinfo['name']
+        if checked:
+            func_name += '_checked'
+        if unchecked:
+            func_name += '_unchecked'
 
     param_fields = []
     wire_fields = []
@@ -590,6 +594,9 @@ def request_helper(self, name, void, regular):
         meth.code.append('buf.write(pack("%s", %s))' % (format, ', '.join(
             [prefix_if_needed(f.field_name) for f in fields])))
 
+    if 'precode' in reqinfo:
+        meth.code.extend(reqinfo['precode'])
+
     meth.code.append('return self.conn.%s.send_request(ooxcb.Request(self.conn, buf.getvalue(), %s, %s, %s), \\' % \
             (NAMESPACE.header, self.opcode, void, func_flags))
     meth.code.append(INDENT)
@@ -607,6 +614,7 @@ def py_request(self, name):
     if self.reply:
         # Cookie class declaration
         cookiecls = PyClass(self.py_cookie_name)
+        cookiecls.base = 'ooxcb.Cookie'
         ALL[self.py_cookie_name] = cookiecls
 
     if self.reply:
@@ -627,6 +635,7 @@ def py_reply(self, name):
     setup_type(self, name, 'Reply')
 
     cls = PyClass(self.py_reply_name)
+    cls.base = 'ooxcb.Reply'
     init = cls.new_method('__init__')
     init.arguments.extend(['conn', 'parent'])
     init.code.append('ooxcb.Reply.__init__(self, conn, parent)')

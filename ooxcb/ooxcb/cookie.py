@@ -33,5 +33,5 @@ class Cookie(object):
             raise IOError("I/O error on X server connection.")
         shim = util.MemBuffer(data)
 
-        return self.reply_cls(shim)
+        return self.reply_cls(self.conn, shim)
 

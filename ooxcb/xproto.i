@@ -25,6 +25,20 @@ Requests:
         subject: window
         name: map
 
+    ChangeWindowAttributes:
+        subject: window
+        name: change_attributes
+        arguments: ["**values"]
+        precode: [!xizer "CW"]
+
+    GetWindowAttributes:
+        subject: window
+        name: get_attributes
+
+    DestroyWindow:
+        subject: window
+        name: destroy
+
 Classes:
     Window:
         - classmethod:

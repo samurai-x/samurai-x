@@ -27,6 +27,8 @@ def on_button_press(evt):
 conn.flush()
 #print win.get_property_request(1, foo, conn.XA_STRING).reply().type.get_name().as_string
 
+print "The window's colormap is %s!" % win.get_attributes().reply().colormap
+
 while True:
     try:
         conn.wait_for_event().dispatch()

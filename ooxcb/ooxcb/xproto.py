@@ -11,10 +11,10 @@ def unpack_ex(fmt, protobj, offset=0):
     s = protobj.get_slice(calcsize(fmt), offset)
     return unpack_from(fmt, s, 0)
 
-class GetModifierMappingCookie(object):
+class GetModifierMappingCookie(ooxcb.Cookie):
     pass
 
-class TranslateCoordinatesReply(object):
+class TranslateCoordinatesReply(ooxcb.Reply):
     def __init__(self, conn, parent):
         ooxcb.Reply.__init__(self, conn, parent)
         count = 0
@@ -33,7 +33,7 @@ class HostMode(object):
     Insert = 0
     Delete = 1
 
-class QueryBestSizeCookie(object):
+class QueryBestSizeCookie(ooxcb.Cookie):
     pass
 
 class GraphicsExposureEvent(ooxcb.Event):
@@ -68,7 +68,7 @@ class ClientMessageData(ooxcb.Union):
         self.data32 = ooxcb.List(conn, self, 0, 5, 'I', 4)
         count = max(count, len(self.data32.buf()))
 
-class QueryExtensionReply(object):
+class QueryExtensionReply(ooxcb.Reply):
     def __init__(self, conn, parent):
         ooxcb.Reply.__init__(self, conn, parent)
         count = 0
@@ -78,7 +78,7 @@ class QueryExtensionReply(object):
         self.first_event = _unpacked[2]
         self.first_error = _unpacked[3]
 
-class QueryTreeReply(object):
+class QueryTreeReply(ooxcb.Reply):
     def __init__(self, conn, parent):
         ooxcb.Reply.__init__(self, conn, parent)
         count = 0
@@ -89,7 +89,7 @@ class QueryTreeReply(object):
         count += 32
         self.children = ooxcb.List(conn, self, count, self.children_len, 'I', 4)
 
-class ListInstalledColormapsReply(object):
+class ListInstalledColormapsReply(ooxcb.Reply):
     def __init__(self, conn, parent):
         ooxcb.Reply.__init__(self, conn, parent)
         count = 0
@@ -108,7 +108,7 @@ class Rgb(ooxcb.Struct):
         self.blue = _unpacked[2]
         ooxcb._resize_obj(self, count)
 
-class QueryTreeCookie(object):
+class QueryTreeCookie(ooxcb.Cookie):
     pass
 
 class VisualClass(object):
@@ -119,7 +119,7 @@ class VisualClass(object):
     TrueColor = 4
     DirectColor = 5
 
-class GetWindowAttributesReply(object):
+class GetWindowAttributesReply(ooxcb.Reply):
     def __init__(self, conn, parent):
         ooxcb.Reply.__init__(self, conn, parent)
         count = 0
@@ -146,7 +146,7 @@ class FillStyle(object):
     Stippled = 2
     OpaqueStippled = 3
 
-class AllocColorCookie(object):
+class AllocColorCookie(ooxcb.Cookie):
     pass
 
 class Exposures(object):
@@ -175,7 +175,7 @@ class Colormap(ooxcb.Resource):
     def __init__(self, conn, xid):
         ooxcb.Resource.__init__(self, conn, xid)
 
-class SetModifierMappingReply(object):
+class SetModifierMappingReply(ooxcb.Reply):
     def __init__(self, conn, parent):
         ooxcb.Reply.__init__(self, conn, parent)
         count = 0
@@ -191,7 +191,7 @@ class ConfigWindow(object):
     Sibling = (1 << 5)
     StackMode = (1 << 6)
 
-class GrabPointerReply(object):
+class GrabPointerReply(ooxcb.Reply):
     def __init__(self, conn, parent):
         ooxcb.Reply.__init__(self, conn, parent)
         count = 0
@@ -260,7 +260,7 @@ class Setupauthenticate(ooxcb.Struct):
         self.reason = ooxcb.List(conn, self, count, (self.length * 4), 'b', 1)
         count += len(self.reason.buf())
 
-class GetScreenSaverReply(object):
+class GetScreenSaverReply(ooxcb.Reply):
     def __init__(self, conn, parent):
         ooxcb.Reply.__init__(self, conn, parent)
         count = 0
@@ -283,7 +283,7 @@ class AccessControl(object):
     Disable = 0
     Enable = 1
 
-class ListFontsWithInfoCookie(object):
+class ListFontsWithInfoCookie(ooxcb.Cookie):
     pass
 
 class Blanking(object):
@@ -415,7 +415,7 @@ class GC(object):
     DashList = (1 << 21)
     ArcMode = (1 << 22)
 
-class GetSelectionOwnerCookie(object):
+class GetSelectionOwnerCookie(ooxcb.Cookie):
     pass
 
 class Keysym(ooxcb.Resource):
@@ -431,7 +431,7 @@ class ImplementationError(ooxcb.Error):
         self.minor_opcode = _unpacked[1]
         self.major_opcode = _unpacked[2]
 
-class ListHostsReply(object):
+class ListHostsReply(ooxcb.Reply):
     def __init__(self, conn, parent):
         ooxcb.Reply.__init__(self, conn, parent)
         count = 0
@@ -441,7 +441,7 @@ class ListHostsReply(object):
         count += 32
         self.hosts = ooxcb.List(conn, self, count, self.hosts_len, Host, -1)
 
-class GetModifierMappingReply(object):
+class GetModifierMappingReply(ooxcb.Reply):
     def __init__(self, conn, parent):
         ooxcb.Reply.__init__(self, conn, parent)
         count = 0
@@ -450,7 +450,7 @@ class GetModifierMappingReply(object):
         count += 32
         self.keycodes = ooxcb.List(conn, self, count, (self.keycodes_per_modifier * 8), 'B', 1)
 
-class GetPointerMappingReply(object):
+class GetPointerMappingReply(ooxcb.Reply):
     def __init__(self, conn, parent):
         ooxcb.Reply.__init__(self, conn, parent)
         count = 0
@@ -470,14 +470,14 @@ class DestroyNotifyEvent(ooxcb.Event):
         self.window = conn.get_from_cache_fallback(_unpacked[1], Window)
         self.event_target = self.window
 
-class QueryKeymapReply(object):
+class QueryKeymapReply(ooxcb.Reply):
     def __init__(self, conn, parent):
         ooxcb.Reply.__init__(self, conn, parent)
         count = 0
         count += 8
         self.keys = ooxcb.List(conn, self, count, 32, 'B', 1)
 
-class AllocColorReply(object):
+class AllocColorReply(ooxcb.Reply):
     def __init__(self, conn, parent):
         ooxcb.Reply.__init__(self, conn, parent)
         count = 0
@@ -490,10 +490,10 @@ class AllocColorReply(object):
 class BadName(ooxcb.ProtocolException):
     pass
 
-class ListInstalledColormapsCookie(object):
+class ListInstalledColormapsCookie(ooxcb.Cookie):
     pass
 
-class GetScreenSaverCookie(object):
+class GetScreenSaverCookie(ooxcb.Cookie):
     pass
 
 class Arc(ooxcb.Struct):
@@ -512,14 +512,14 @@ class Arc(ooxcb.Struct):
 class Kill(object):
     AllTemporary = 0
 
-class QueryFontCookie(object):
+class QueryFontCookie(ooxcb.Cookie):
     pass
 
 class Font(ooxcb.Resource):
     def __init__(self, conn, xid):
         ooxcb.Resource.__init__(self, conn, xid)
 
-class QueryKeymapCookie(object):
+class QueryKeymapCookie(ooxcb.Cookie):
     pass
 
 class ExposeEvent(ooxcb.Event):
@@ -550,7 +550,7 @@ class GravityNotifyEvent(ooxcb.Event):
         self.y = _unpacked[3]
         self.event_target = self.conn
 
-class GrabKeyboardReply(object):
+class GrabKeyboardReply(ooxcb.Reply):
     def __init__(self, conn, parent):
         ooxcb.Reply.__init__(self, conn, parent)
         count = 0
@@ -577,7 +577,7 @@ class KeyPressEvent(ooxcb.Event):
         self.same_screen = _unpacked[10]
         self.event_target = self.event
 
-class ListPropertiesReply(object):
+class ListPropertiesReply(ooxcb.Reply):
     def __init__(self, conn, parent):
         ooxcb.Reply.__init__(self, conn, parent)
         count = 0
@@ -586,7 +586,7 @@ class ListPropertiesReply(object):
         count += 32
         self.atoms = ooxcb.List(conn, self, count, self.atoms_len, 'I', 4)
 
-class ListExtensionsReply(object):
+class ListExtensionsReply(ooxcb.Reply):
     def __init__(self, conn, parent):
         ooxcb.Reply.__init__(self, conn, parent)
         count = 0
@@ -601,7 +601,7 @@ class CapStyle(object):
     Round = 2
     Projecting = 3
 
-class AllocNamedColorCookie(object):
+class AllocNamedColorCookie(ooxcb.Cookie):
     pass
 
 class MatchError(ooxcb.Error):
@@ -648,7 +648,7 @@ class IDChoiceError(ooxcb.Error):
         self.minor_opcode = _unpacked[1]
         self.major_opcode = _unpacked[2]
 
-class AllocColorCellsReply(object):
+class AllocColorCellsReply(ooxcb.Reply):
     def __init__(self, conn, parent):
         ooxcb.Reply.__init__(self, conn, parent)
         count = 0
@@ -683,7 +683,7 @@ class ConfigureRequestEvent(ooxcb.Event):
 class BadImplementation(ooxcb.ProtocolException):
     pass
 
-class TranslateCoordinatesCookie(object):
+class TranslateCoordinatesCookie(ooxcb.Cookie):
     pass
 
 class BadRequest(ooxcb.ProtocolException):
@@ -697,7 +697,7 @@ class GrabMode(object):
     Sync = 0
     Async = 1
 
-class GetKeyboardControlCookie(object):
+class GetKeyboardControlCookie(ooxcb.Cookie):
     pass
 
 class ColormapAlloc(object):
@@ -765,52 +765,6 @@ class xprotoExtension(ooxcb.Extension):
         buf.write(pack("xBxxIIhhHHHHII", depth, wid, parent, x, y, width, height, border_width, _class, visual, value_mask))
         buf.write(str(buffer(array("I", value_list))))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 1, True, False), \
-            ooxcb.VoidCookie())
-
-    def change_window_attributes_checked(self, window_, value_mask, value_list):
-        window = window_.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xxxxII", window, value_mask))
-        buf.write(str(buffer(array("I", value_list))))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 2, True, True), \
-            ooxcb.VoidCookie())
-
-    def change_window_attributes(self, window_, value_mask, value_list):
-        window = window_.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xxxxII", window, value_mask))
-        buf.write(str(buffer(array("I", value_list))))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 2, True, False), \
-            ooxcb.VoidCookie())
-
-    def get_window_attributes(self, window_):
-        window = window_.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xxxxI", window))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 3, False, True), \
-            GetWindowAttributesCookie(),
-            GetWindowAttributesReply)
-
-    def get_window_attributes_unchecked(self, window_):
-        window = window_.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xxxxI", window))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 3, False, False), \
-            GetWindowAttributesCookie(),
-            GetWindowAttributesReply)
-
-    def destroy_window_checked(self, window_):
-        window = window_.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xxxxI", window))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 4, True, True), \
-            ooxcb.VoidCookie())
-
-    def destroy_window(self, window_):
-        window = window_.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xxxxI", window))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 4, True, False), \
             ooxcb.VoidCookie())
 
     def destroy_subwindows_checked(self, window_):
@@ -2682,7 +2636,7 @@ class KeymapNotifyEvent(ooxcb.Event):
 class BadIDChoice(ooxcb.ProtocolException):
     pass
 
-class GetKeyboardMappingCookie(object):
+class GetKeyboardMappingCookie(ooxcb.Cookie):
     pass
 
 class SubwindowMode(object):
@@ -2709,7 +2663,7 @@ class StackMode(object):
     BottomIf = 3
     Opposite = 4
 
-class AllocColorPlanesCookie(object):
+class AllocColorPlanesCookie(ooxcb.Cookie):
     pass
 
 class BadMatch(ooxcb.ProtocolException):
@@ -2753,13 +2707,13 @@ class AutoRepeatMode(object):
     On = 1
     Default = 2
 
-class GrabPointerCookie(object):
+class GrabPointerCookie(ooxcb.Cookie):
     pass
 
 class BadValue(ooxcb.ProtocolException):
     pass
 
-class GetInputFocusCookie(object):
+class GetInputFocusCookie(ooxcb.Cookie):
     pass
 
 class Grab(object):
@@ -2778,7 +2732,7 @@ class DrawableError(ooxcb.Error):
         self.minor_opcode = _unpacked[1]
         self.major_opcode = _unpacked[2]
 
-class AllocColorCellsCookie(object):
+class AllocColorCellsCookie(ooxcb.Cookie):
     pass
 
 class MappingStatus(object):
@@ -2786,7 +2740,7 @@ class MappingStatus(object):
     Busy = 1
     Failure = 2
 
-class SetPointerMappingCookie(object):
+class SetPointerMappingCookie(ooxcb.Cookie):
     pass
 
 class SelectionNotifyEvent(ooxcb.Event):
@@ -2825,7 +2779,7 @@ class ColormapState(object):
     Uninstalled = 0
     Installed = 1
 
-class ListPropertiesCookie(object):
+class ListPropertiesCookie(ooxcb.Cookie):
     pass
 
 class Gcontext(ooxcb.Resource):
@@ -2840,7 +2794,7 @@ class ColorFlag(object):
 class BadGContext(ooxcb.ProtocolException):
     pass
 
-class GetGeometryCookie(object):
+class GetGeometryCookie(ooxcb.Cookie):
     pass
 
 class BadDrawable(ooxcb.ProtocolException):
@@ -2856,7 +2810,7 @@ class Allow(object):
     AsyncBoth = 6
     SyncBoth = 7
 
-class AllocNamedColorReply(object):
+class AllocNamedColorReply(ooxcb.Reply):
     def __init__(self, conn, parent):
         ooxcb.Reply.__init__(self, conn, parent)
         count = 0
@@ -2869,10 +2823,10 @@ class AllocNamedColorReply(object):
         self.visual_green = _unpacked[5]
         self.visual_blue = _unpacked[6]
 
-class GetImageCookie(object):
+class GetImageCookie(ooxcb.Cookie):
     pass
 
-class LookupColorCookie(object):
+class LookupColorCookie(ooxcb.Cookie):
     pass
 
 class EnterNotifyEvent(ooxcb.Event):
@@ -2907,7 +2861,7 @@ class MapRequestEvent(ooxcb.Event):
         self.window = conn.get_from_cache_fallback(_unpacked[1], Window)
         self.event_target = self.parent
 
-class QueryPointerCookie(object):
+class QueryPointerCookie(ooxcb.Cookie):
     pass
 
 class ColormapError(ooxcb.Error):
@@ -2938,7 +2892,7 @@ class AccessError(ooxcb.Error):
         self.minor_opcode = _unpacked[1]
         self.major_opcode = _unpacked[2]
 
-class GrabKeyboardCookie(object):
+class GrabKeyboardCookie(ooxcb.Cookie):
     pass
 
 class KeyReleaseEvent(ooxcb.Event):
@@ -2961,7 +2915,7 @@ class KeyReleaseEvent(ooxcb.Event):
         self.same_screen = _unpacked[10]
         self.event_target = self.event
 
-class QueryTextExtentsCookie(object):
+class QueryTextExtentsCookie(ooxcb.Cookie):
     pass
 
 class ClipOrdering(object):
@@ -2985,10 +2939,10 @@ class ImageOrder(object):
     LSBFirst = 0
     MSBFirst = 1
 
-class ListFontsCookie(object):
+class ListFontsCookie(ooxcb.Cookie):
     pass
 
-class GetPropertyReply(object):
+class GetPropertyReply(ooxcb.Reply):
     def __init__(self, conn, parent):
         ooxcb.Reply.__init__(self, conn, parent)
         count = 0
@@ -3000,7 +2954,7 @@ class GetPropertyReply(object):
         count += 32
         self.value = ooxcb.List(conn, self, count, self.value_len, 'B', 1)
 
-class LookupColorReply(object):
+class LookupColorReply(ooxcb.Reply):
     def __init__(self, conn, parent):
         ooxcb.Reply.__init__(self, conn, parent)
         count = 0
@@ -3090,10 +3044,10 @@ class Char2b(ooxcb.Struct):
         self.byte2 = _unpacked[1]
         ooxcb._resize_obj(self, count)
 
-class InternAtomCookie(object):
+class InternAtomCookie(ooxcb.Cookie):
     pass
 
-class ListFontsWithInfoReply(object):
+class ListFontsWithInfoReply(ooxcb.Reply):
     def __init__(self, conn, parent):
         ooxcb.Reply.__init__(self, conn, parent)
         count = 0
@@ -3125,7 +3079,7 @@ class ListFontsWithInfoReply(object):
         count += ooxcb.type_pad(1, count)
         self.name = ooxcb.List(conn, self, count, self.name_len, 'b', 1)
 
-class QueryTextExtentsReply(object):
+class QueryTextExtentsReply(ooxcb.Reply):
     def __init__(self, conn, parent):
         ooxcb.Reply.__init__(self, conn, parent)
         count = 0
@@ -3205,7 +3159,7 @@ class ButtonPressEvent(ooxcb.Event):
         self.same_screen = _unpacked[10]
         self.event_target = self.event
 
-class GetKeyboardControlReply(object):
+class GetKeyboardControlReply(ooxcb.Reply):
     def __init__(self, conn, parent):
         ooxcb.Reply.__init__(self, conn, parent)
         count = 0
@@ -3219,10 +3173,10 @@ class GetKeyboardControlReply(object):
         count += 20
         self.auto_repeats = ooxcb.List(conn, self, count, 32, 'B', 1)
 
-class GetPointerControlCookie(object):
+class GetPointerControlCookie(ooxcb.Cookie):
     pass
 
-class GetPropertyCookie(object):
+class GetPropertyCookie(ooxcb.Cookie):
     pass
 
 class JoinStyle(object):
@@ -3244,7 +3198,7 @@ class Gravity(object):
     SouthEast = 9
     Static = 10
 
-class GetAtomNameCookie(object):
+class GetAtomNameCookie(ooxcb.Cookie):
     pass
 
 class Str(ooxcb.Struct):
@@ -3257,7 +3211,7 @@ class Str(ooxcb.Struct):
         self.name = ooxcb.List(conn, self, count, self.name_len, 'b', 1)
         count += len(self.name.buf())
 
-class AllocColorPlanesReply(object):
+class AllocColorPlanesReply(ooxcb.Reply):
     def __init__(self, conn, parent):
         ooxcb.Reply.__init__(self, conn, parent)
         count = 0
@@ -3298,10 +3252,10 @@ class CW(object):
     Colormap = (1 << 13)
     Cursor = (1 << 14)
 
-class QueryExtensionCookie(object):
+class QueryExtensionCookie(ooxcb.Cookie):
     pass
 
-class GetWindowAttributesCookie(object):
+class GetWindowAttributesCookie(ooxcb.Cookie):
     pass
 
 class KB(object):
@@ -3314,7 +3268,7 @@ class KB(object):
     Key = (1 << 6)
     AutoRepeatMode = (1 << 7)
 
-class GetMotionEventsReply(object):
+class GetMotionEventsReply(ooxcb.Reply):
     def __init__(self, conn, parent):
         ooxcb.Reply.__init__(self, conn, parent)
         count = 0
@@ -3323,7 +3277,7 @@ class GetMotionEventsReply(object):
         count += 32
         self.events = ooxcb.List(conn, self, count, self.events_len, Timecoord, 8)
 
-class ListFontsReply(object):
+class ListFontsReply(ooxcb.Reply):
     def __init__(self, conn, parent):
         ooxcb.Reply.__init__(self, conn, parent)
         count = 0
@@ -3367,7 +3321,7 @@ class EventMask(object):
     ColorMapChange = (1 << 23)
     OwnerGrabButton = (1 << 24)
 
-class InternAtomReply(object):
+class InternAtomReply(ooxcb.Reply):
     def __init__(self, conn, parent):
         ooxcb.Reply.__init__(self, conn, parent)
         count = 0
@@ -3383,7 +3337,7 @@ class Point(ooxcb.Struct):
         self.y = _unpacked[1]
         ooxcb._resize_obj(self, count)
 
-class GetPointerControlReply(object):
+class GetPointerControlReply(ooxcb.Reply):
     def __init__(self, conn, parent):
         ooxcb.Reply.__init__(self, conn, parent)
         count = 0
@@ -3392,7 +3346,7 @@ class GetPointerControlReply(object):
         self.acceleration_denominator = _unpacked[1]
         self.threshold = _unpacked[2]
 
-class GetFontPathCookie(object):
+class GetFontPathCookie(ooxcb.Cookie):
     pass
 
 class LeaveNotifyEvent(ooxcb.Event):
@@ -3420,7 +3374,7 @@ class VisualID(ooxcb.Resource):
     def __init__(self, conn, xid):
         ooxcb.Resource.__init__(self, conn, xid)
 
-class QueryColorsCookie(object):
+class QueryColorsCookie(ooxcb.Cookie):
     pass
 
 class AtomError(ooxcb.Error):
@@ -3432,10 +3386,10 @@ class AtomError(ooxcb.Error):
         self.minor_opcode = _unpacked[1]
         self.major_opcode = _unpacked[2]
 
-class ListHostsCookie(object):
+class ListHostsCookie(ooxcb.Cookie):
     pass
 
-class GetMotionEventsCookie(object):
+class GetMotionEventsCookie(ooxcb.Cookie):
     pass
 
 class Pixmap(ooxcb.Resource):
@@ -3454,7 +3408,7 @@ class MapNotifyEvent(ooxcb.Event):
         self.override_redirect = _unpacked[2]
         self.event_target = self.window
 
-class GetAtomNameReply(object):
+class GetAtomNameReply(ooxcb.Reply):
     def __init__(self, conn, parent):
         ooxcb.Reply.__init__(self, conn, parent)
         count = 0
@@ -3476,7 +3430,145 @@ class Window(ooxcb.Resource):
     def __init__(self, conn, xid):
         ooxcb.Resource.__init__(self, conn, xid)
 
-    def map(self):
+    def change_attributes_checked(self, value_mask, value_list):
+        window = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xxxxII", window, value_mask))
+        buf.write(str(buffer(array("I", value_list))))
+        value_mask, value_list = 0, []
+        if "back_pixmap" in values:
+            value_mask |= (1 << 0)
+            value_list.append(values["back_pixmap"].get_internal())
+        if "back_pixel" in values:
+            value_mask |= (1 << 1)
+            value_list.append(values["back_pixel"])
+        if "border_pixmap" in values:
+            value_mask |= (1 << 2)
+            value_list.append(values["border_pixmap"])
+        if "border_pixel" in values:
+            value_mask |= (1 << 3)
+            value_list.append(values["border_pixel"])
+        if "bit_gravity" in values:
+            value_mask |= (1 << 4)
+            value_list.append(values["bit_gravity"])
+        if "win_gravity" in values:
+            value_mask |= (1 << 5)
+            value_list.append(values["win_gravity"])
+        if "backing_store" in values:
+            value_mask |= (1 << 6)
+            value_list.append(values["backing_store"])
+        if "backing_planes" in values:
+            value_mask |= (1 << 7)
+            value_list.append(values["backing_planes"])
+        if "backing_pixel" in values:
+            value_mask |= (1 << 8)
+            value_list.append(values["backing_pixel"])
+        if "override_redirect" in values:
+            value_mask |= (1 << 9)
+            value_list.append(values["override_redirect"])
+        if "save_under" in values:
+            value_mask |= (1 << 10)
+            value_list.append(values["save_under"])
+        if "event_mask" in values:
+            value_mask |= (1 << 11)
+            value_list.append(values["event_mask"])
+        if "dont_propagate" in values:
+            value_mask |= (1 << 12)
+            value_list.append(values["dont_propagate"])
+        if "colormap" in values:
+            value_mask |= (1 << 13)
+            value_list.append(values["colormap"])
+        if "cursor" in values:
+            value_mask |= (1 << 14)
+            value_list.append(values["cursor"])
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 2, True, True), \
+            ooxcb.VoidCookie())
+
+    def change_attributes(self, value_mask, value_list):
+        window = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xxxxII", window, value_mask))
+        buf.write(str(buffer(array("I", value_list))))
+        value_mask, value_list = 0, []
+        if "back_pixmap" in values:
+            value_mask |= (1 << 0)
+            value_list.append(values["back_pixmap"].get_internal())
+        if "back_pixel" in values:
+            value_mask |= (1 << 1)
+            value_list.append(values["back_pixel"])
+        if "border_pixmap" in values:
+            value_mask |= (1 << 2)
+            value_list.append(values["border_pixmap"])
+        if "border_pixel" in values:
+            value_mask |= (1 << 3)
+            value_list.append(values["border_pixel"])
+        if "bit_gravity" in values:
+            value_mask |= (1 << 4)
+            value_list.append(values["bit_gravity"])
+        if "win_gravity" in values:
+            value_mask |= (1 << 5)
+            value_list.append(values["win_gravity"])
+        if "backing_store" in values:
+            value_mask |= (1 << 6)
+            value_list.append(values["backing_store"])
+        if "backing_planes" in values:
+            value_mask |= (1 << 7)
+            value_list.append(values["backing_planes"])
+        if "backing_pixel" in values:
+            value_mask |= (1 << 8)
+            value_list.append(values["backing_pixel"])
+        if "override_redirect" in values:
+            value_mask |= (1 << 9)
+            value_list.append(values["override_redirect"])
+        if "save_under" in values:
+            value_mask |= (1 << 10)
+            value_list.append(values["save_under"])
+        if "event_mask" in values:
+            value_mask |= (1 << 11)
+            value_list.append(values["event_mask"])
+        if "dont_propagate" in values:
+            value_mask |= (1 << 12)
+            value_list.append(values["dont_propagate"])
+        if "colormap" in values:
+            value_mask |= (1 << 13)
+            value_list.append(values["colormap"])
+        if "cursor" in values:
+            value_mask |= (1 << 14)
+            value_list.append(values["cursor"])
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 2, True, False), \
+            ooxcb.VoidCookie())
+
+    def get_attributes(self):
+        window = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xxxxI", window))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 3, False, True), \
+            GetWindowAttributesCookie(),
+            GetWindowAttributesReply)
+
+    def get_attributes_unchecked(self):
+        window = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xxxxI", window))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 3, False, False), \
+            GetWindowAttributesCookie(),
+            GetWindowAttributesReply)
+
+    def destroy_checked(self):
+        window = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xxxxI", window))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 4, True, True), \
+            ooxcb.VoidCookie())
+
+    def destroy(self):
+        window = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xxxxI", window))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 4, True, False), \
+            ooxcb.VoidCookie())
+
+    def map_checked(self):
         window = self.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("xxxxI", window))
@@ -3585,7 +3677,7 @@ class LineStyle(object):
     OnOffDash = 1
     DoubleDash = 2
 
-class QueryBestSizeReply(object):
+class QueryBestSizeReply(ooxcb.Reply):
     def __init__(self, conn, parent):
         ooxcb.Reply.__init__(self, conn, parent)
         count = 0
@@ -3660,7 +3752,7 @@ class CirculateRequestEvent(ooxcb.Event):
         self.place = _unpacked[2]
         self.event_target = self.conn
 
-class QueryFontReply(object):
+class QueryFontReply(ooxcb.Reply):
     def __init__(self, conn, parent):
         ooxcb.Reply.__init__(self, conn, parent)
         count = 0
@@ -3724,7 +3816,7 @@ class ResizeRequestEvent(ooxcb.Event):
         self.height = _unpacked[2]
         self.event_target = self.conn
 
-class QueryColorsReply(object):
+class QueryColorsReply(ooxcb.Reply):
     def __init__(self, conn, parent):
         ooxcb.Reply.__init__(self, conn, parent)
         count = 0
@@ -3766,7 +3858,7 @@ class CloseDown(object):
     RetainPermanent = 1
     RetainTemporary = 2
 
-class SetPointerMappingReply(object):
+class SetPointerMappingReply(ooxcb.Reply):
     def __init__(self, conn, parent):
         ooxcb.Reply.__init__(self, conn, parent)
         count = 0
@@ -3793,7 +3885,7 @@ class ValueError(ooxcb.Error):
         self.minor_opcode = _unpacked[1]
         self.major_opcode = _unpacked[2]
 
-class GetInputFocusReply(object):
+class GetInputFocusReply(ooxcb.Reply):
     def __init__(self, conn, parent):
         ooxcb.Reply.__init__(self, conn, parent)
         count = 0
@@ -3813,7 +3905,7 @@ class MappingNotifyEvent(ooxcb.Event):
         self.count = _unpacked[2]
         self.event_target = self.conn
 
-class GetGeometryReply(object):
+class GetGeometryReply(ooxcb.Reply):
     def __init__(self, conn, parent):
         ooxcb.Reply.__init__(self, conn, parent)
         count = 0
@@ -3864,7 +3956,7 @@ class Depth(ooxcb.Struct):
         self.visuals = ooxcb.List(conn, self, count, self.visuals_len, Visualtype, 24)
         count += len(self.visuals.buf())
 
-class ListExtensionsCookie(object):
+class ListExtensionsCookie(ooxcb.Cookie):
     pass
 
 class ButtonMask(object):
@@ -3900,7 +3992,7 @@ class FocusInEvent(ooxcb.Event):
         self.mode = _unpacked[2]
         self.event_target = self.conn
 
-class GetImageReply(object):
+class GetImageReply(ooxcb.Reply):
     def __init__(self, conn, parent):
         ooxcb.Reply.__init__(self, conn, parent)
         count = 0
@@ -3922,7 +4014,7 @@ class PixmapError(ooxcb.Error):
 class BadAlloc(ooxcb.ProtocolException):
     pass
 
-class QueryPointerReply(object):
+class QueryPointerReply(ooxcb.Reply):
     def __init__(self, conn, parent):
         ooxcb.Reply.__init__(self, conn, parent)
         count = 0
@@ -3951,13 +4043,13 @@ class PolyShape(object):
     Nonconvex = 1
     Convex = 2
 
-class SetModifierMappingCookie(object):
+class SetModifierMappingCookie(ooxcb.Cookie):
     pass
 
-class GetPointerMappingCookie(object):
+class GetPointerMappingCookie(ooxcb.Cookie):
     pass
 
-class GetSelectionOwnerReply(object):
+class GetSelectionOwnerReply(ooxcb.Reply):
     def __init__(self, conn, parent):
         ooxcb.Reply.__init__(self, conn, parent)
         count = 0
@@ -3996,7 +4088,7 @@ class PropertyNotifyEvent(ooxcb.Event):
         self.state = _unpacked[3]
         self.event_target = self.conn
 
-class GetFontPathReply(object):
+class GetFontPathReply(ooxcb.Reply):
     def __init__(self, conn, parent):
         ooxcb.Reply.__init__(self, conn, parent)
         count = 0
@@ -4005,7 +4097,7 @@ class GetFontPathReply(object):
         count += 32
         self.path = ooxcb.List(conn, self, count, self.path_len, Str, -1)
 
-class GetKeyboardMappingReply(object):
+class GetKeyboardMappingReply(ooxcb.Reply):
     def __init__(self, conn, parent):
         ooxcb.Reply.__init__(self, conn, parent)
         count = 0
