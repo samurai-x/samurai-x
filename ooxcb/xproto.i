@@ -11,19 +11,57 @@ Xizers:
         xize:
             - back_pixmap
 
+    ConfigWindow:
+        type: values
+        enum_name: ConfigWindow
+        values_dict_name: values
+
+    Name:
+        type: seq
+        seq_in: name
+        length_out: name_len
+        seq_out: name
+
+    PropertyName:
+        type: lazy_atom
+        name: property_
+
+    PropertyType:
+        type: lazy_atom
+        name: type_
+
 ClassAliases:
     VISUALID: VisualID
 
 Requests:
+    # xproto objects
+    InternAtom:
+        arguments: ["name", "only_if_exists"]
+        precode: [!xizer "Name"]
+
+    # Atom objects
+    GetAtomName:
+        subject: atom
+        name: get_name
+
     # Window objects
     GetProperty:
         subject: window
+        precode: [!xizer "PropertyName", !xizer "PropertyType"]
         defaults:
             long_offset: 0
             long_length: 2**32-1
+            delete: False
+
     MapWindow:
         subject: window
         name: map
+
+    ConfigureWindow:
+        subject: window
+        precode: [!xizer "ConfigWindow"]
+        arguments: ["**values"]
+        name: "configure"
 
     ChangeWindowAttributes:
         subject: window
@@ -38,6 +76,13 @@ Requests:
     DestroyWindow:
         subject: window
         name: destroy
+
+    QueryTree:
+        subject: window
+
+    GetGeometry:
+        subject: drawable
+        class: Window # TODO: for drawable, not for Window!
 
 Classes:
     Window:
@@ -86,7 +131,7 @@ Events:
     UnmapNotify:
         member: window
     ConfigureRequest:
-        member: window # is that correct??
+        member: parent # is that correct?? TODO: we should change that
     ConfigureNotify:
         member: window # correct??
     ReparentNotify:

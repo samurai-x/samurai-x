@@ -23,31 +23,32 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import signal
-import sys
-from select import select
-
-import pyxcb
-import pyxcb.screen
-import pyxcb.event
-import samuraix.screen
-
 import logging
 log = logging.getLogger(__name__)
+import sys
+import signal
+from select import select
+
+import ooxcb
+
+from .screen import Screen
 
 class App(object):
     def __init__(self):
         self.screens = []
 
     def init(self):
-        self.connection = pyxcb.connection.Connection()
-        self.connection.push_handlers(self)
+        self.conn = ooxcb.connect()
+
+        self.conn.push_handlers(self)
         self.running = False
 
-        log.debug("found %d screens" % pyxcb.screen.Screen.get_screen_count(self.connection))
+        setup = self.conn.get_setup()
 
-        for i in range(pyxcb.screen.Screen.get_screen_count(self.connection)):
-            scr = samuraix.screen.Screen(self, i)
+        log.debug("found %d screens" % setup.roots_len)
+
+        for i in range(setup.roots_len):
+            scr = Screen(self, i)
             try:
                 scr.scan()
             except Exception, e:
@@ -65,11 +66,38 @@ class App(object):
     def run(self):
         self.running = True
 
-        if True:
-            # process any events that are waiting first 
+        fd = self.conn.get_file_descriptor()
+
+        # process any events that are waiting first 
+        while True:
+            try:
+                ev = self.conn.poll_for_event()
+            except Exception, e:
+                log.exception(e)
+            else:
+                if ev is None:
+                    break
+                try:
+                    ev.dispatch()
+                except Exception, e:
+                    log.exception(e)
+
+        while self.running:
+            log.debug('selecting...')
+            try:
+                select([fd], [], [fd], 1.0)
+            except Exception, e:
+                # error 4 is when a signal has been caught
+                if e.args[0] == 4:
+                    pass
+                else:
+                    log.exception(str((e, type(e), dir(e), e.args)))
+                    raise 
+
+            # might as well process all events in the queue...
             while True:
                 try:
-                    ev = self.connection.poll_for_event()
+                    ev = self.conn.poll_for_event()
                 except Exception, e:
                     log.exception(e)
                 else:
@@ -80,33 +108,5 @@ class App(object):
                     except Exception, e:
                         log.exception(e)
 
-            while self.running:
-                log.debug('selecting...')
-                try:
-                    select([self.connection._fd], [], [self.connection._fd], 1.0)
-                except Exception, e:
-                    # error 4 is when a signal has been caught
-                    if e.args[0] == 4:
-                        pass
-                    else:
-                        log.exception(str((e, type(e), dir(e), e.args)))
-                        raise 
-
-                # might as well process all events in the queue...
-                while True:
-                    try:
-                        ev = self.connection.poll_for_event()
-                    except Exception, e:
-                        log.exception(e)
-                    else:
-                        if ev is None:
-                            break
-                        try:
-                            ev.dispatch()
-                        except Exception, e:
-                            log.exception(e)
-        else:
-            while self.running:
-                self.connection.wait_for_event_dispatch()
-
-
+    def on_property_notify(self, ev):
+        log.info('Got a property notify event ... %s' % ''.join(map(chr, ev.atom.get_name().reply().name)))

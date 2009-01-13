@@ -14,7 +14,11 @@ visual = setup.roots[0].root_visual
 win = Window.create(conn, root, depth, visual, back_pixel=setup.roots[0].white_pixel, 
         event_mask=EventMask.Exposure | EventMask.ButtonPress)
 
+win.configure_checked(width=100).check()
+
 win.map()
+
+conn.flush()
 
 @win.event
 def on_button_press(evt):

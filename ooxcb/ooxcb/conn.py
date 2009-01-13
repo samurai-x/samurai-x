@@ -5,6 +5,7 @@ from .util import MemBuffer
 from .event import Event
 from .eventsys import EventDispatcher
 from .error import Error
+from .atoms import AtomDict
 
 class Connection(EventDispatcher):
     def __init__(self, core):
@@ -20,6 +21,7 @@ class Connection(EventDispatcher):
         self._setup = None
 
         self._cache = {}
+        self.atoms = AtomDict(self)
 
     def setup(self):
         import ooxcb
@@ -79,7 +81,7 @@ class Connection(EventDispatcher):
 
     def get_file_descriptor(self):
         self.check_conn()
-        return libxcb.xcb_connection_get_file_descriptor(self.conn)
+        return libxcb.xcb_get_file_descriptor(self.conn)
     
     def get_maximum_request_length(self):
         self.check_conn()
@@ -117,7 +119,8 @@ class Connection(EventDispatcher):
     def poll_for_event(self):
         data = libxcb.xcb_poll_for_event(self.conn)
         if not data:
-            raise IOError("I/O error on X server connection.")
+            return None 
+
         if data.contents.response_type == 0:
             Error.set(self, ctypes.cast(data, ctypes.POINTER(libxcb.xcb_generic_error_t)))
             return

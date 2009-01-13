@@ -19,3 +19,21 @@ class MemBuffer(object):
 
 def struct_to_str(struct):
     return ctypes.string_at(ctypes.addressof(struct), ctypes.sizeof(struct))
+
+class cached_property(object):
+    """
+        A simple cached property descriptor.
+        from http://ronny.uberhost.de/simple-cached-for-properties-done-right
+    """
+    def __init__(self, func):
+        self.func = func
+        self.name = func.__name__
+
+    def __get__(self, obj, type=None):
+        if obj is None:
+            return self
+        
+        result = self.func(obj) 
+        setattr(obj, self.name, result)
+        return result
+

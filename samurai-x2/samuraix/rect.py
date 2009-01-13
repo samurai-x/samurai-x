@@ -38,7 +38,7 @@ class Rect(object):
         return "<Rect %s %s %s %s>" % (self.x, self.y, self.width, self.height)
 
     @classmethod
-    def from_struct(cls, struct):
+    def from_class(cls, struct):
         return cls(struct.x, struct.y, struct.width, struct.height)
 
     @classmethod

@@ -10,7 +10,6 @@ class Protobj(MemBuffer):
             size = len(parent) - offset
         elif isinstance(parent, MemBuffer):
             address = parent.address + offset
-            size = 0
         else:
             raise Exception("what for an instance?? %s" % repr(parent))
 

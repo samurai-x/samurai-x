@@ -80,7 +80,6 @@ def get_field_by_name(fields, name):
         if prefix_if_needed(field.field_name) == name:
             return field
     raise KeyError('No field named "%s" found!' % name)
-
     
 def get_wrapped(name):
     if name in WRAPPERS:
@@ -99,6 +98,21 @@ def get_modifier(field):
         return '%s'
 
 # --- xizers
+
+def make_seq_xizer(seq_in='value', seq_out='value', length_out='value_len'):
+    code = []
+    code.append(template('$length_out = len($seq_in)', length_out=length_out, seq_in=seq_in))
+    if seq_in != seq_out:
+        code.append(template('$seq_out = $seq_in', seq_out=seq_out, seq_in=seq_in))
+    return lambda code=code: code
+
+def make_lazy_atom_xizer(name, conn='self.conn'):
+    code = []
+    code.append(template("if isinstance($name, basestring):", name=name))
+    code.append(INDENT)
+    code.append(template("$name = $conn.atoms[$name]", conn=conn, name=name))
+    code.append(DEDENT)
+    return lambda code=code: code
 
 def make_values_xizer(enum_name, values_dict_name, mask_out='value_mask', list_out='value_list', xize=[]):
     """ 
@@ -143,7 +157,9 @@ def make_values_xizer(enum_name, values_dict_name, mask_out='value_mask', list_o
     
     return lambda code=code: code 
 
-XIZER_MAKERS = {'values': make_values_xizer}
+XIZER_MAKERS = {'values': make_values_xizer,
+        'seq': make_seq_xizer,
+        'lazy_atom': make_lazy_atom_xizer}
 XIZERS = {}
 
 def get_length_field(expr):
@@ -289,10 +305,14 @@ def py_complex(self, name):
         need_alignment = True
 
         if field.type.is_list:
-            code.append('self.%s = ooxcb.List(conn, self, count, %s, %s, %d)' % \
-                    (prefix_if_needed(field.field_name), get_expr(field.type.expr), 
+            lcode = ('ooxcb.List(conn, self, count, %s, %s, %d)' % \
+                    (get_expr(field.type.expr), 
                         field.py_listtype, 
                         field.py_listsize))
+            if field.py_type in INTERFACE.get('ResourceClasses'):
+                # is a resource. wrap them.
+                lcode = '[%s for w in %s]' % (get_modifier(field) % 'w', lcode)
+            code.append('self.%s = %s' % (field.field_name, lcode))
             code.append('count += len(self.%s.buf())' % prefix_if_needed(field.field_name))
         elif field.type.is_container and field.type.fixed_size():
             code.append('self.%s = %s(self, count, %s)' % (prefix_if_needed(field.field_name), 
@@ -500,9 +520,13 @@ def request_helper(self, name, void, regular):
     # Check for a subject parameter, use extension class as fallback
     if 'subject' in reqinfo:
         # yep, there's a subject. so, try to get the py class of the
-        # subject.
+        # subject. or, maybe it's givin explicitly!
         subject_field = get_field_by_name(self.fields, reqinfo['subject'])
-        cls = WRAPPERS[subject_field.py_type]
+        clsname = reqinfo.get('class', None)
+        if not clsname:
+            cls = WRAPPERS[subject_field.py_type]
+        else:
+            cls = ALL[clsname]
     else:
         clsname = reqinfo.get('class', None)
         if clsname is None:
@@ -532,9 +556,16 @@ def request_helper(self, name, void, regular):
             else:
                 param_fields.append(f)
 
+    if 'arguments' in reqinfo:
+        param_fields = reqinfo['arguments']
+        optional_param_fields = []
+
     meth.arguments.extend(param_fields)
     meth.arguments.extend(optional_param_fields)
     
+    if 'precode' in reqinfo:
+        meth.code.extend(reqinfo['precode'])
+
     # Check if we have to append some `.get_internal()` somewhere
     for field in self.fields:
         if field.py_type in WRAPPERS and field is not subject_field:
@@ -593,9 +624,6 @@ def request_helper(self, name, void, regular):
     if size > 0:
         meth.code.append('buf.write(pack("%s", %s))' % (format, ', '.join(
             [prefix_if_needed(f.field_name) for f in fields])))
-
-    if 'precode' in reqinfo:
-        meth.code.extend(reqinfo['precode'])
 
     meth.code.append('return self.conn.%s.send_request(ooxcb.Request(self.conn, buf.getvalue(), %s, %s, %s), \\' % \
             (NAMESPACE.header, self.opcode, void, func_flags))
