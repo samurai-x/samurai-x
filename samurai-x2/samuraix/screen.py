@@ -65,10 +65,6 @@ class Screen(EventDispatcher):
     def get_geometry(self):
         return Rect.from_dict(self.root.get_geometry())
 
-    @property
-    def active_desktop_idx(self):
-        return self.desktops.index(self.active_desktop)
-
     def on_configure_request(self, evt):
         """
             Event's parent window is the event target of the
@@ -122,11 +118,9 @@ class Screen(EventDispatcher):
         """ manage a new window - this may *not* result in a window being managed 
         if it is unsuitable """
         attributes = window.get_attributes().reply()
-        # TODO: get geom
         geom = window.get_geometry().reply()
 
         # override redirect windows need to be ignored - theyre not for us
-        
         if attributes.override_redirect:
             log.debug('%s not managing %s override_redirect is set', self, window)
             return False
@@ -134,7 +128,7 @@ class Screen(EventDispatcher):
         client = self.client_class(self, window, attributes, geom)
 
         logging.debug('screen %s is now managing %s' % (self, client))
-        client.push_handlers(on_removed=self.update_client_list,
+        client.push_handlers(on_removed=lambda foo: self.update_client_list,
                              on_focus=self.update_active_window)
         self.clients.add(client)
 
@@ -150,23 +144,20 @@ class Screen(EventDispatcher):
         self.update_client_list()
         return client
 
-    def on_client_message(self, event):
-        log.info('client message received: %s %s' % (event.type.name, event.data))
-        if event.type.name == '_NET_CURRENT_DESKTOP': # client message from pager: change desktop
-            self.set_active_desktop_by_index(event.data[0])
-
     def update_client_list(self):
         # re-set _NET_CLIENT_LIST
-        #self.root.set_property('_NET_CLIENT_LIST', [c.window for c in self.client_class.all_clients], 32, 'WINDOW')
-        pass
+        self.root.change_property('_NET_CLIENT_LIST', 
+                'WINDOW',
+                32,
+                [c.window.get_internal() for c in self.client_class.all_clients])
+        # TODO: calling get_internal() is not that nice. we'll have to change that.
 
-    def update_active_window(self):
+    def update_active_window(self, client):
         """
             Update _NET_ACTIVE_WINDOW;
             self.focused_client is the new focused client
         """
-        #self.root.set_property('_NET_ACTIVE_WINDOW', [self.focused_client.window], 32, 'WINDOW')
-        pass
+        self.root.change_property('_NET_ACTIVE_WINDOW', 'WINDOW', 32, [self.window.get_internal()])
 
     def scan(self):
         """ scan a screen for windows to manage """

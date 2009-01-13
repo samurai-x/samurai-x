@@ -1518,7 +1518,7 @@ class xprotoExtension(xcb.Extension):
 
     def ConfigureWindowChecked(self, window, value_mask, value_list):
         buf = cStringIO.StringIO()
-        buf.write(pack('xx2xIH', window, value_mask))
+        buf.write(pack('xx2xIHxx', window, value_mask))
         buf.write(str(buffer(array('I', value_list))))
         return self.send_request(xcb.Request(buf.getvalue(), 12, True, True),
                                  xcb.VoidCookie())

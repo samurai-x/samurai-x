@@ -22,6 +22,12 @@ Xizers:
         length_out: name_len
         seq_out: name
 
+    Data:
+        type: seq
+        seq_in: data
+        length_out: data_len
+        seq_out: data
+
     PropertyName:
         type: lazy_atom
         name: property_
@@ -52,6 +58,13 @@ Requests:
             long_offset: 0
             long_length: 2**32-1
             delete: False
+
+    ChangeProperty:
+        subject: window
+        precode: [!xizer "Data", !xizer "PropertyName", !xizer "PropertyType"]
+        arguments: ["property_", "type_", "format", "data", "mode=PropMode.Replace"]
+        #defaults: 
+        #    mode: PropMode.Replace
 
     MapWindow:
         subject: window

@@ -45,9 +45,14 @@ class Client(EventDispatcher):
     def __init__(self, screen, window, wa, geometry):
         EventDispatcher.__init__(self)
 
+        self.conn = window.conn
+        self.geom = geometry
+        
         self.screen = screen
         self.window = window
         self.actor = window
+        self.window.push_handlers(self)
+        log.info('New client: Client=%s Window=%s Actor=%s' % (self, self.window, self.actor))
         
         self.window.change_attributes(
                 event_mask =
@@ -55,22 +60,12 @@ class Client(EventDispatcher):
                     EventMask.SubstructureNotify |
                     EventMask.PropertyChange
         )
-        self.conn = window.conn
-
-        self.geom = geometry
-        # full screened?
-        self.maximized = False
-        # geom backup for unmaximizing
-        self.backup_geom = None
 
         self.all_clients.append(self)
         self.window_2_client_map[self.window] = self
 
-        self.window.map()
-        self.window.push_handlers(self)
         self.apply_normal_hints()
-
-        log.info('Hi! I am a new Client! Window=%s Actor=%s' % (repr(self.window), repr(self.actor)))
+        self.window.map()
 
     def apply_normal_hints(self, hints=None, geom=None):
         """
@@ -99,42 +94,36 @@ class Client(EventDispatcher):
         self.window.configure_checked(width=geom.width, height=geom.height).check()
         self.conn.flush()
 
-    def on_unmap_notify(self, evt):
-        log.debug('Got Unmap notify for window %s, i am %s' % (evt.window, self.window))
-        if evt.window is self.window:
-            # if i am focused, unfocus me 
-            if self.screen.focused_client is self:
-                self.screen.focused_client = None
-            #self.actor.unmap()
-
-    def on_map_notify(self, evt):
-        log.debug('Got Map notify for window %s, i am %s' % (evt.window, self.window))
-        #if evt.window is self.window:
-        #    self.actor.map()
+    # No map and unmap notify handlers here. 
+    # Normally, we don't have another window
+    # that needs to be mapped. The decoration plugin 
+    # will have to setup this.
+    #
+    #def on_unmap_notify(self, evt):
+    #    if evt.window is self.window:
+    #        # if i am focused, unfocus me 
+    #        if self.screen.focused_client is self:
+    #            self.screen.focused_client = None
+    #        self.actor.unmap()
+    #
+    #def on_map_notify(self, evt):
+    #    self.actor.map()
 
     def on_destroy_notify(self, evt):
-        # destroy me :-(
-        log.warning('got a destroy notify self=%s event.event=%s event.window=%s' % (self.window, evt.event, evt.window))
-        if evt.window is self.window: # only for the window, not for the frame
-            self.remove(False)
+        log.warning('Got destroy notify event, Client=%s' % (self))
+        self.remove()
 
-    def remove(self, destroy=True):
+    def remove(self):
         try:
             self.all_clients.remove(self)
             del self.window_2_client_map[self.window]
         except (ValueError, KeyError), e:
             log.warning(e)
-        log.info('Removing me=%s! clients=%s' % (self, self.all_clients))
+        log.info('Removed me=%s! clients=%s' % (self, self.all_clients))
         if self.screen.focused_client is self:
             self.screen.focused_client = None
 
-        #self.frame.destroy()
-        #self.frame.delete()
-        #if destroy:
-        #    self.window.destroy()
-        #self.conn.flush()
-        #self.conn.ungrab_server()
-        self.dispatch_event('on_removed')
+        self.dispatch_event('on_removed', self)
 
     def ban(self):
         if self.sticky:
@@ -171,14 +160,13 @@ class Client(EventDispatcher):
             self.unmaximize()
 
     def focus(self):
-        self.ungrab_focus_button()
-        self.window.set_input_focus()
+        #self.window.set_input_focus()
 
         if self.screen.focused_client is not None:
             self.screen.focused_client.blur()
 
         self.screen.focused_client = self
-        self.dispatch_event('on_focus')
+        self.dispatch_event('on_focus', self)
         # have to configure `frame` here!
         #self.actor.configure(stack_mode=pyxcb.window.STACK_MODE_ABOVE) 
         # TODO: grab buttons etc
@@ -189,8 +177,7 @@ class Client(EventDispatcher):
 
             Grab the focus button and dispatch 'on_blur'.
         """
-        self.grab_focus_button()
-        self.dispatch_event('on_blur')
+        self.dispatch_event('on_blur', self)
 
 Client.register_event_type('on_focus')
 Client.register_event_type('on_blur')

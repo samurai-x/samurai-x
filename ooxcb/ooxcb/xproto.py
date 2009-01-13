@@ -885,26 +885,6 @@ class xprotoExtension(ooxcb.Extension):
             InternAtomCookie(),
             InternAtomReply)
 
-    def change_property_checked(self, mode, window_, property_, type_, format, data_len, data):
-        window = window_.get_internal()
-        property = property_.get_internal()
-        type = type_.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xBxxIIIBxxxI", mode, window, property, type, format, data_len))
-        buf.write(str(buffer(array("B", data))))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 18, True, True), \
-            ooxcb.VoidCookie())
-
-    def change_property(self, mode, window_, property_, type_, format, data_len, data):
-        window = window_.get_internal()
-        property = property_.get_internal()
-        type = type_.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xBxxIIIBxxxI", mode, window, property, type, format, data_len))
-        buf.write(str(buffer(array("B", data))))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 18, True, False), \
-            ooxcb.VoidCookie())
-
     def delete_property_checked(self, window_, property_):
         window = window_.get_internal()
         property = property_.get_internal()
@@ -3575,7 +3555,7 @@ class Window(ooxcb.Resource):
             value_list.append(values["stack_mode"])
         window = self.get_internal()
         buf = StringIO.StringIO()
-        buf.write(pack("xxxxII", window, value_mask))
+        buf.write(pack("xxxxIHxx", window, value_mask)) # TODO: The two pad bytes will be auto generated in xcb-proto 1.3.
         buf.write(str(buffer(array("I", value_list))))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 12, True, False), \
             ooxcb.VoidCookie())
@@ -3611,6 +3591,37 @@ class Window(ooxcb.Resource):
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 15, False, False), \
             QueryTreeCookie(),
             QueryTreeReply)
+
+    def change_property_checked(self, property_, type_, format, data, mode=PropMode.Replace):
+        data_len = len(data)
+        if isinstance(property_, basestring):
+            property_ = self.conn.atoms[property_]
+        if isinstance(type_, basestring):
+            type_ = self.conn.atoms[type_]
+        window = self.get_internal()
+        property = property_.get_internal()
+        type = type_.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xBxxIIIBxxxI", mode, window, property, type, format, data_len))
+        buf.write(str(buffer(array("B", data))))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 18, True, True), \
+            ooxcb.VoidCookie())
+
+    def change_property(self, property_, type_, format, data, mode=PropMode.Replace):
+        data_len = len(data)
+        if isinstance(property_, basestring):
+            property_ = self.conn.atoms[property_]
+        if isinstance(type_, basestring):
+            type_ = self.conn.atoms[type_]
+        window = self.get_internal()
+        property = property_.get_internal()
+        type = type_.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xBxxIIIBxxxI", mode, window, property, type, format, data_len))
+        BORK = {8:'B', 16:'H', 32:'I'}
+        buf.write(str(buffer(array(BORK[format], data))))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 18, True, False), \
+            ooxcb.VoidCookie())
 
     def get_property(self, property_, type_, delete=False, long_offset=0, long_length=2**32-1):
         if isinstance(property_, basestring):
