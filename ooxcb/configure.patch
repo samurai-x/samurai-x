@@ -1,0 +1,22 @@
+--- a/ooxcb/xproto.py	2009-01-15 13:53:18.000000000 +0100
++++ b/ooxcb/xproto.py	2009-01-15 13:53:06.000000000 +0100
+@@ -3526,8 +3526,8 @@
+         window = self.get_internal()
+         buf = StringIO.StringIO()
+         buf.write(pack("xxxxIH", window, value_mask))
+-        buf.write(array("I", value_list).tostring())
+         buf.write(pack("xx", ))
++        buf.write(array("I", value_list).tostring())
+         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 12, True, True), \
+             ooxcb.VoidCookie())
+ 
+@@ -3557,8 +3557,8 @@
+         window = self.get_internal()
+         buf = StringIO.StringIO()
+         buf.write(pack("xxxxIH", window, value_mask))
+-        buf.write(array("I", value_list).tostring())
+         buf.write(pack("xx", ))
++        buf.write(array("I", value_list).tostring())
+         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 12, True, False), \
+             ooxcb.VoidCookie())
+ 

@@ -40,7 +40,7 @@ CARDINAL_TYPES = {'CARD8':  'B', 'uint8_t': 'B',
                    'BYTE': 'B',
                    'BOOL': 'B',
                    'char': 'b',
-                   'void': 'B',
+#                   'void': 'B',
                    'float': 'f',
                    'double' : 'd'}
 MODIFIERS = {'resource': 'conn.get_from_cache_fallback(%%s, %s)'}
@@ -220,7 +220,6 @@ def setup_type(self, name, postfix=''):
 
         for field in self.fields:
             setup_type(field.type, field.field_type)
-
             field.py_type = strip_ns(field.field_type)
 
             if field.type.py_format_len < 0:
@@ -229,10 +228,10 @@ def setup_type(self, name, postfix=''):
             elif self.py_format_len >= 0:
                 self.py_format_str += field.type.py_format_str
                 self.py_format_len += field.type.py_format_len
-
+            
             if field.type.is_list:
                 setup_type(field.type.member, field.field_type)
-
+                
                 field.py_listtype = get_wrapped(strip_ns(field.type.member.name))
                 if field.type.member.is_simple:
                     field.py_listtype = "'" + field.type.member.py_format_str + "'"
@@ -240,7 +239,6 @@ def setup_type(self, name, postfix=''):
                 field.py_listsize = -1
                 if field.type.member.fixed_size():
                     field.py_listsize = field.type.member.size
-
             if field.type.fixed_size():
                 self.py_fixed_size += field.type.size
 
@@ -534,10 +532,9 @@ def request_helper(self, name, void, regular):
         else:
             cls = ALL[clsname]
     cls.add_member(meth)
-
+    
     for field in self.fields:
         if field.wire:
-            # We need to set the field up in the structure
             wire_fields.append(field)
 
         if field is subject_field:
@@ -609,8 +606,9 @@ def request_helper(self, name, void, regular):
             meth.code.append('buf.write(pack("%s", *elt))' % field.type.py_format_str)
             meth.code.append(DEDENT)
         elif field.type.is_list and field.type.member.is_simple:
-            meth.code.append('buf.write(str(buffer(array("%s", %s))))' % \
-                    (field.type.member.py_format_str, prefix_if_needed(field.field_name)))
+            meth.code.append('buf.write(array("%s", %s).tostring())' % \
+                    (field.type.member.py_format_str, 
+                    prefix_if_needed(field.field_name)))
         else:
             meth.code.append('for elt in ooxcb.Iterator(%s, %d, "%s", True):' % \
                 (prefix_if_needed(field.field_name), 
