@@ -82,9 +82,7 @@ def load_config(config=None):
         config = config()
     samuraix.config = config
 
-def load_user_config(configfile=None):
-    if configfile is None:
-        configfile = '~/.samuraix'
+def load_user_config(configfile):
     configfile = os.path.normpath(os.path.expanduser(configfile))
     log.info('reading config from %s...' % configfile)
     locals = {}
@@ -99,7 +97,7 @@ def parse_options():
     parser = OptionParser(SXWM_USAGE)
     parser.add_option('-c', '--config', dest='configfile', 
             help='use samuraix configuration from FILE (default: %default)', metavar='FILE',
-            default='~/.samuraix')
+            default='~/.samuraix/config')
 
     parser.add_option('', '--default-config', dest='print_default_config', 
             help='print the default configuration to stdout',
