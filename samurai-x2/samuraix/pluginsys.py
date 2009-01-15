@@ -23,7 +23,41 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-config = {
-    'core.plugin_paths': ['~/.samuraix/plugins'],
-    'core.plugins': ['sxdesktops']
-}
+import logging
+log = logging.getLogger(__name__)
+
+import os.path
+
+import pkg_resources
+
+from samuraix import config
+
+class PluginLoader(dict):
+    def __init__(self, app):
+        self.app = app
+
+    def setup(self):
+        self.add_entries()
+        self.load_all()
+
+    def add_entries(self):
+        """
+            add the plugin paths to the working set
+        """
+        for path in map(os.path.expanduser, config.get('core.plugin_paths', [])):
+            map(pkg_resources.working_set.add,
+                    pkg_resources.find_distributions(path, False))
+    
+    def load_all(self):
+        """
+            load all plugins, warn if a plugin couldn't be loaded.
+        """
+        names = set(config.get('core.plugins', []))
+        for ep in pkg_resources.iter_entry_points('samuraix.plugin'):
+            if ep.name in names:
+                cls = ep.load()
+                self[ep.name] = cls(self.app)
+                names.remove(ep.name)
+
+        if names:
+            log.error("The following plugins couldn't be loaded: %s" % ', '.join(names))

@@ -32,6 +32,7 @@ from select import select
 import ooxcb
 
 from .screen import Screen
+from .pluginsys import PluginLoader
 
 class App(object):
     def __init__(self):
@@ -42,6 +43,8 @@ class App(object):
 
         self.conn.push_handlers(self)
         self.running = False
+        self.plugins = PluginLoader(self)
+        self.plugins.setup()
 
         setup = self.conn.get_setup()
 
