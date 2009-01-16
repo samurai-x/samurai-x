@@ -33,9 +33,12 @@ import ooxcb
 
 from .screen import Screen
 from .pluginsys import PluginLoader
+from .base import SXObject 
 
-class App(object):
+class App(SXObject):
     def __init__(self):
+        SXObject.__init__(self)
+
         self.screens = []
 
     def init(self):
@@ -45,6 +48,7 @@ class App(object):
         self.running = False
         self.plugins = PluginLoader(self)
         self.plugins.setup()
+        self.plugins.require_key('desktop') # we need a desktop plugin
 
         setup = self.conn.get_setup()
 
@@ -52,6 +56,8 @@ class App(object):
 
         for i in range(setup.roots_len):
             scr = Screen(self, i)
+            self.dispatch_event('on_new_screen', self, scr)
+            
             try:
                 scr.scan()
             except Exception, e:
@@ -61,6 +67,13 @@ class App(object):
         signal.signal(signal.SIGINT, self.stop)
         signal.signal(signal.SIGTERM, self.stop)
         signal.signal(signal.SIGHUP, self.stop)
+
+        self.reload_config()
+        self.dispatch_event('on_ready', self)
+
+    def reload_config(self):
+        from samuraix import config # TODO?
+        self.dispatch_event('on_load_config', config)
 
     def stop(self, *args):
         log.info('stopping')
@@ -113,3 +126,7 @@ class App(object):
 
     def on_property_notify(self, ev):
         log.info('Got a property notify event ... %s' % ''.join(map(chr, ev.atom.get_name().reply().name)))
+
+App.register_event_type('on_load_config')
+App.register_event_type('on_new_screen')
+App.register_event_type('on_ready')

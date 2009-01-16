@@ -3,6 +3,10 @@ ResourceClasses:
     - DRAWABLE
     - COLORMAP
 
+Ignored:
+    - KEYCODE
+    - KEYSYM
+
 Xizers:
     CW:
         type: values 
@@ -69,6 +73,10 @@ Requests:
     MapWindow:
         subject: window
         name: map
+    
+    UnmapWindow:
+        subject: window
+        name: unmap
 
     ConfigureWindow:
         subject: window
@@ -96,6 +104,13 @@ Requests:
     GetGeometry:
         subject: drawable
         class: Window # TODO: for drawable, not for Window!
+
+    GrabKey:
+        subject: grab_window
+        defaults:
+            owner_events: True
+            pointer_mode: GrabMode.Async
+            keyboard_mode: GrabMode.Async
 
 Classes:
     Window:

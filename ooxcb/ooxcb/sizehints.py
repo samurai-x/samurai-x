@@ -47,49 +47,54 @@ class SizeHints(object):
         flags = kwargs['flags']
         valid = False
 
-        if flags & P_SIZE:
-            self.base_width = kwargs['base_width']
-            self.base_height = kwargs['base_height']
-            valid = True
-        elif flags & P_MINSIZE:
-            self.base_width = kwargs['min_width']
-            self.base_height = kwargs['min_height']
-            valid = True
-        else:
-            self.base_width, self.base_height = 0, 0
-        if flags & P_RESIZEINC:
-            self.width_inc = kwargs['width_inc']
-            self.height_inc = kwargs['height_inc']
-            valid = True
-        else:
-            self.width_inc, self.height_inc = 0, 0
-        if flags & P_MAXSIZE:
-            self.max_width = kwargs['max_width']
-            self.max_height = kwargs['height_inc']
-            valid = True
-        else:
-            self.max_width, self.max_height = 0, 0
-        if flags & P_MINSIZE:
-            self.min_width = kwargs['min_width']
-            self.min_height = kwargs['min_height']
-            valid = True
-        elif flags & P_BASESIZE:
-            self.min_width = kwargs['base_width']
-            self.min_height = kwargs['base_height']
-            valid = True
-        else:
-            self.min_width, self.min_height = 0, 0
-        if flags & P_ASPECT:
-            self.min_aspect_num = kwargs['min_aspect_num']
-            self.min_aspect_den = kwargs['min_aspect_den']
-            self.max_aspect_num = kwargs['max_aspect_num']
-            self.max_aspect_den = kwargs['max_aspect_den']
-            valid = True
-        else:
-            self.min_aspect_num = 0
-            self.min_aspect_den = 0
-            self.max_aspect_num = 0
-            self.max_aspect_den = 0
+        print 'HINTS', kwargs
+
+        try:
+            if flags & P_SIZE:
+                self.base_width = kwargs['base_width']
+                self.base_height = kwargs['base_height']
+                valid = True
+            elif flags & P_MINSIZE:
+                self.base_width = kwargs['min_width']
+                self.base_height = kwargs['min_height']
+                valid = True
+            else:
+                self.base_width, self.base_height = 0, 0
+            if flags & P_RESIZEINC:
+                self.width_inc = kwargs['width_inc']
+                self.height_inc = kwargs['height_inc']
+                valid = True
+            else:
+                self.width_inc, self.height_inc = 0, 0
+            if flags & P_MAXSIZE:
+                self.max_width = kwargs['max_width']
+                self.max_height = kwargs['height_inc']
+                valid = True
+            else:
+                self.max_width, self.max_height = 0, 0
+            if flags & P_MINSIZE:
+                self.min_width = kwargs['min_width']
+                self.min_height = kwargs['min_height']
+                valid = True
+            elif flags & P_BASESIZE:
+                self.min_width = kwargs['base_width']
+                self.min_height = kwargs['base_height']
+                valid = True
+            else:
+                self.min_width, self.min_height = 0, 0
+            if flags & P_ASPECT:
+                self.min_aspect_num = kwargs['min_aspect_num']
+                self.min_aspect_den = kwargs['min_aspect_den']
+                self.max_aspect_num = kwargs['max_aspect_num']
+                self.max_aspect_den = kwargs['max_aspect_den']
+                valid = True
+            else:
+                self.min_aspect_num = 0
+                self.min_aspect_den = 0
+                self.max_aspect_num = 0
+                self.max_aspect_den = 0
+        except KeyError:
+            valid = False
 
         self.valid = valid
 
@@ -105,6 +110,10 @@ class SizeHints(object):
         """
             compute `geom`
         """
+        if not self.valid:
+            # don't compute if not valid
+            return
+
         if self.min_aspect_den > 0 and self.max_aspect_den > 0 and \
                 (geom.width - self.base_width) > 0 and \
                 (geom.height - self.base_height) > 0:

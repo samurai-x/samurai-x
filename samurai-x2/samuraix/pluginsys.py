@@ -47,7 +47,10 @@ class PluginLoader(dict):
         for path in map(os.path.expanduser, config.get('core.plugin_paths', [])):
             map(pkg_resources.working_set.add,
                     pkg_resources.find_distributions(path, False))
-    
+   
+    def require_key(self, key):
+        assert key in self, 'You have to install a plugin implementing the "%s" key!' % key
+        
     def load_all(self):
         """
             load all plugins, warn if a plugin couldn't be loaded.
@@ -56,7 +59,7 @@ class PluginLoader(dict):
         for ep in pkg_resources.iter_entry_points('samuraix.plugin'):
             if ep.name in names:
                 cls = ep.load()
-                self[ep.name] = cls(self.app)
+                self[cls.key] = cls(self.app)
                 names.remove(ep.name)
 
         if names:

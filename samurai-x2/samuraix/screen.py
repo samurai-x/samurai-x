@@ -31,16 +31,16 @@ import os.path
 import pkg_resources
 from ooxcb import xproto
 from ooxcb.xproto import EventMask
-from ooxcb.eventsys import EventDispatcher
 
 from .client import Client
 from .rect import Rect
+from .base import SXObject
 
-class Screen(EventDispatcher):
+class Screen(SXObject):
     client_class = Client
 
     def __init__(self, app, num):
-        EventDispatcher.__init__(self)
+        SXObject.__init__(self)
 
         self.app = app
         
@@ -61,6 +61,7 @@ class Screen(EventDispatcher):
         self.root.push_handlers(self)
 
         self.set_supported_hints()
+
 
     def get_geometry(self):
         return Rect.from_dict(self.root.get_geometry())
@@ -94,7 +95,6 @@ class Screen(EventDispatcher):
         else:
             log.warning('Strange configure request: No attributes set')
 
-
     def on_map_request(self, evt):
         #if evt.override_redirect:
         #    return # TODO: strange override_redirect values (88? oO)
@@ -126,7 +126,8 @@ class Screen(EventDispatcher):
             return False
 
         client = self.client_class(self, window, attributes, geom)
-
+        
+        self.dispatch_event('on_new_client', self, client)
         logging.debug('screen %s is now managing %s' % (self, client))
         client.push_handlers(on_removed=lambda foo: self.update_client_list,
                              on_focus=self.update_active_window)
@@ -207,3 +208,5 @@ class Screen(EventDispatcher):
 #            connection.atoms['UTF8_STRING'],
 #        ]
 #        self.root.set_property('_NET_SUPPORTED', atoms, 32, 'ATOM')
+
+Screen.register_event_type('on_new_client')

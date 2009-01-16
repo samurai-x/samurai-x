@@ -339,8 +339,8 @@ class Setup(ooxcb.Struct):
         self.bitmap_format_bit_order = _unpacked[13]
         self.bitmap_format_scanline_unit = _unpacked[14]
         self.bitmap_format_scanline_pad = _unpacked[15]
-        self.min_keycode = Keycode(conn, _unpacked[16])
-        self.max_keycode = Keycode(conn, _unpacked[17])
+        self.min_keycode = _unpacked[16]
+        self.max_keycode = _unpacked[17]
         count += 40
         self.vendor = ooxcb.List(conn, self, count, self.vendor_len, 'b', 1)
         count += len(self.vendor.buf())
@@ -417,10 +417,6 @@ class GC(object):
 
 class GetSelectionOwnerCookie(ooxcb.Cookie):
     pass
-
-class Keysym(ooxcb.Resource):
-    def __init__(self, conn, xid):
-        ooxcb.Resource.__init__(self, conn, xid)
 
 class ImplementationError(ooxcb.Error):
     def __init__(self, conn, parent):
@@ -556,26 +552,6 @@ class GrabKeyboardReply(ooxcb.Reply):
         count = 0
         _unpacked = unpack_ex("xBxxxxxx", self, count)
         self.status = _unpacked[0]
-
-class KeyPressEvent(ooxcb.Event):
-    event_name = "on_key_press"
-    event_target_class = "Window"
-    def __init__(self, conn, parent):
-        ooxcb.Event.__init__(self, conn, parent)
-        count = 0
-        _unpacked = unpack_ex("xBxxIIIIhhhhHBx", self, count)
-        self.detail = Keycode(conn, _unpacked[0])
-        self.time = Timestamp(conn, _unpacked[1])
-        self.root = conn.get_from_cache_fallback(_unpacked[2], Window)
-        self.event = conn.get_from_cache_fallback(_unpacked[3], Window)
-        self.child = conn.get_from_cache_fallback(_unpacked[4], Window)
-        self.root_x = _unpacked[5]
-        self.root_y = _unpacked[6]
-        self.event_x = _unpacked[7]
-        self.event_y = _unpacked[8]
-        self.state = _unpacked[9]
-        self.same_screen = _unpacked[10]
-        self.event_target = self.event
 
 class ListPropertiesReply(ooxcb.Reply):
     def __init__(self, conn, parent):
@@ -823,20 +799,6 @@ class xprotoExtension(ooxcb.Extension):
         buf = StringIO.StringIO()
         buf.write(pack("xxxxI", window))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 9, True, False), \
-            ooxcb.VoidCookie())
-
-    def unmap_window_checked(self, window_):
-        window = window_.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xxxxI", window))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 10, True, True), \
-            ooxcb.VoidCookie())
-
-    def unmap_window(self, window_):
-        window = window_.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xxxxI", window))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 10, True, False), \
             ooxcb.VoidCookie())
 
     def unmap_subwindows_checked(self, window_):
@@ -1105,32 +1067,14 @@ class xprotoExtension(ooxcb.Extension):
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 32, True, False), \
             ooxcb.VoidCookie())
 
-    def grab_key_checked(self, owner_events, grab_window_, modifiers, key_, pointer_mode, keyboard_mode):
-        grab_window = grab_window_.get_internal()
-        key = key_.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xBxxIHBBBxxx", owner_events, grab_window, modifiers, key, pointer_mode, keyboard_mode))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 33, True, True), \
-            ooxcb.VoidCookie())
-
-    def grab_key(self, owner_events, grab_window_, modifiers, key_, pointer_mode, keyboard_mode):
-        grab_window = grab_window_.get_internal()
-        key = key_.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xBxxIHBBBxxx", owner_events, grab_window, modifiers, key, pointer_mode, keyboard_mode))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 33, True, False), \
-            ooxcb.VoidCookie())
-
-    def ungrab_key_checked(self, key_, grab_window_, modifiers):
-        key = key_.get_internal()
+    def ungrab_key_checked(self, key, grab_window_, modifiers):
         grab_window = grab_window_.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("xBxxIHxx", key, grab_window, modifiers))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 34, True, True), \
             ooxcb.VoidCookie())
 
-    def ungrab_key(self, key_, grab_window_, modifiers):
-        key = key_.get_internal()
+    def ungrab_key(self, key, grab_window_, modifiers):
         grab_window = grab_window_.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("xBxxIHxx", key, grab_window, modifiers))
@@ -2243,34 +2187,28 @@ class xprotoExtension(ooxcb.Extension):
             ListExtensionsCookie(),
             ListExtensionsReply)
 
-    def change_keyboard_mapping_checked(self, keycode_count, first_keycode_, keysyms_per_keycode, keysyms_):
-        first_keycode = first_keycode_.get_internal()
-        keysyms = keysyms_.get_internal()
+    def change_keyboard_mapping_checked(self, keycode_count, first_keycode, keysyms_per_keycode, keysyms):
         buf = StringIO.StringIO()
         buf.write(pack("xBxxBB", keycode_count, first_keycode, keysyms_per_keycode))
         buf.write(array("I", keysyms).tostring())
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 100, True, True), \
             ooxcb.VoidCookie())
 
-    def change_keyboard_mapping(self, keycode_count, first_keycode_, keysyms_per_keycode, keysyms_):
-        first_keycode = first_keycode_.get_internal()
-        keysyms = keysyms_.get_internal()
+    def change_keyboard_mapping(self, keycode_count, first_keycode, keysyms_per_keycode, keysyms):
         buf = StringIO.StringIO()
         buf.write(pack("xBxxBB", keycode_count, first_keycode, keysyms_per_keycode))
         buf.write(array("I", keysyms).tostring())
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 100, True, False), \
             ooxcb.VoidCookie())
 
-    def get_keyboard_mapping(self, first_keycode_, count):
-        first_keycode = first_keycode_.get_internal()
+    def get_keyboard_mapping(self, first_keycode, count):
         buf = StringIO.StringIO()
         buf.write(pack("xxxxBB", first_keycode, count))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 101, False, True), \
             GetKeyboardMappingCookie(),
             GetKeyboardMappingReply)
 
-    def get_keyboard_mapping_unchecked(self, first_keycode_, count):
-        first_keycode = first_keycode_.get_internal()
+    def get_keyboard_mapping_unchecked(self, first_keycode, count):
         buf = StringIO.StringIO()
         buf.write(pack("xxxxBB", first_keycode, count))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 101, False, False), \
@@ -2493,8 +2431,7 @@ class xprotoExtension(ooxcb.Extension):
             GetPointerMappingCookie(),
             GetPointerMappingReply)
 
-    def set_modifier_mapping(self, keycodes_per_modifier, keycodes_):
-        keycodes = keycodes_.get_internal()
+    def set_modifier_mapping(self, keycodes_per_modifier, keycodes):
         buf = StringIO.StringIO()
         buf.write(pack("xBxx", keycodes_per_modifier))
         buf.write(array("B", keycodes).tostring())
@@ -2502,8 +2439,7 @@ class xprotoExtension(ooxcb.Extension):
             SetModifierMappingCookie(),
             SetModifierMappingReply)
 
-    def set_modifier_mapping_unchecked(self, keycodes_per_modifier, keycodes_):
-        keycodes = keycodes_.get_internal()
+    def set_modifier_mapping_unchecked(self, keycodes_per_modifier, keycodes):
         buf = StringIO.StringIO()
         buf.write(pack("xBxx", keycodes_per_modifier))
         buf.write(array("B", keycodes).tostring())
@@ -2565,9 +2501,10 @@ class Circulate(object):
     RaiseLowest = 0
     LowerHighest = 1
 
-class Keycode(ooxcb.Resource):
-    def __init__(self, conn, xid):
-        ooxcb.Resource.__init__(self, conn, xid)
+class AutoRepeatMode(object):
+    Off = 0
+    On = 1
+    Default = 2
 
 class BackingStore(object):
     NotUseful = 0
@@ -2620,11 +2557,6 @@ class Place(object):
     OnTop = 0
     OnBottom = 1
 
-class AutoRepeatMode(object):
-    Off = 0
-    On = 1
-    Default = 2
-
 class GrabPointerCookie(ooxcb.Cookie):
     pass
 
@@ -2661,19 +2593,14 @@ class MappingStatus(object):
 class SetPointerMappingCookie(ooxcb.Cookie):
     pass
 
-class SelectionNotifyEvent(ooxcb.Event):
-    event_name = "on_selection_notify"
-    event_target_class = ooxcb.Connection
-    def __init__(self, conn, parent):
-        ooxcb.Event.__init__(self, conn, parent)
+class Point(ooxcb.Struct):
+    def __init__(self, conn, parent, offset, size):
+        ooxcb.Struct.__init__(self, conn, parent, offset, size)
         count = 0
-        _unpacked = unpack_ex("xxxxIIIII", self, count)
-        self.time = Timestamp(conn, _unpacked[0])
-        self.requestor = conn.get_from_cache_fallback(_unpacked[1], Window)
-        self.selection = Atom(conn, _unpacked[2])
-        self.target = Atom(conn, _unpacked[3])
-        self.property = Atom(conn, _unpacked[4])
-        self.event_target = self.conn
+        _unpacked = unpack_ex("hh", self, count)
+        self.x = _unpacked[0]
+        self.y = _unpacked[1]
+        ooxcb._resize_obj(self, count)
 
 class BadColormap(ooxcb.ProtocolException):
     pass
@@ -2820,7 +2747,7 @@ class KeyReleaseEvent(ooxcb.Event):
         ooxcb.Event.__init__(self, conn, parent)
         count = 0
         _unpacked = unpack_ex("xBxxIIIIhhhhHBx", self, count)
-        self.detail = Keycode(conn, _unpacked[0])
+        self.detail = _unpacked[0]
         self.time = Timestamp(conn, _unpacked[1])
         self.root = conn.get_from_cache_fallback(_unpacked[2], Window)
         self.event = conn.get_from_cache_fallback(_unpacked[3], Window)
@@ -3246,14 +3173,25 @@ class InternAtomReply(ooxcb.Reply):
         _unpacked = unpack_ex("xxxxxxxxI", self, count)
         self.atom = Atom(conn, _unpacked[0])
 
-class Point(ooxcb.Struct):
-    def __init__(self, conn, parent, offset, size):
-        ooxcb.Struct.__init__(self, conn, parent, offset, size)
+class KeyPressEvent(ooxcb.Event):
+    event_name = "on_key_press"
+    event_target_class = "Window"
+    def __init__(self, conn, parent):
+        ooxcb.Event.__init__(self, conn, parent)
         count = 0
-        _unpacked = unpack_ex("hh", self, count)
-        self.x = _unpacked[0]
-        self.y = _unpacked[1]
-        ooxcb._resize_obj(self, count)
+        _unpacked = unpack_ex("xBxxIIIIhhhhHBx", self, count)
+        self.detail = _unpacked[0]
+        self.time = Timestamp(conn, _unpacked[1])
+        self.root = conn.get_from_cache_fallback(_unpacked[2], Window)
+        self.event = conn.get_from_cache_fallback(_unpacked[3], Window)
+        self.child = conn.get_from_cache_fallback(_unpacked[4], Window)
+        self.root_x = _unpacked[5]
+        self.root_y = _unpacked[6]
+        self.event_x = _unpacked[7]
+        self.event_y = _unpacked[8]
+        self.state = _unpacked[9]
+        self.same_screen = _unpacked[10]
+        self.event_target = self.event
 
 class GetPointerControlReply(ooxcb.Reply):
     def __init__(self, conn, parent):
@@ -3500,6 +3438,20 @@ class Window(ooxcb.Resource):
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 8, True, False), \
             ooxcb.VoidCookie())
 
+    def unmap_checked(self):
+        window = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xxxxI", window))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 10, True, True), \
+            ooxcb.VoidCookie())
+
+    def unmap(self):
+        window = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xxxxI", window))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 10, True, False), \
+            ooxcb.VoidCookie())
+
     def configure_checked(self, **values):
         value_mask, value_list = 0, []
         if "x" in values:
@@ -3652,6 +3604,20 @@ class Window(ooxcb.Resource):
             GetPropertyCookie(),
             GetPropertyReply)
 
+    def grab_key_checked(self, modifiers, key, owner_events=True, pointer_mode=GrabMode.Async, keyboard_mode=GrabMode.Async):
+        grab_window = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xBxxIHBBBxxx", owner_events, grab_window, modifiers, key, pointer_mode, keyboard_mode))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 33, True, True), \
+            ooxcb.VoidCookie())
+
+    def grab_key(self, modifiers, key, owner_events=True, pointer_mode=GrabMode.Async, keyboard_mode=GrabMode.Async):
+        grab_window = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xBxxIHBBBxxx", owner_events, grab_window, modifiers, key, pointer_mode, keyboard_mode))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 33, True, False), \
+            ooxcb.VoidCookie())
+
     @classmethod
     def create(cls, conn, parent, depth, visual, x=0, y=0, width=640, height=480, border_width=0, _class=WindowClass.InputOutput, **values):
         wid = conn.generate_id()
@@ -3721,6 +3687,16 @@ class GrabStatus(object):
     InvalidTime = 2
     NotViewable = 3
     Frozen = 4
+
+class Timecoord(ooxcb.Struct):
+    def __init__(self, conn, parent, offset, size):
+        ooxcb.Struct.__init__(self, conn, parent, offset, size)
+        count = 0
+        _unpacked = unpack_ex("Ihh", self, count)
+        self.time = Timestamp(conn, _unpacked[0])
+        self.x = _unpacked[1]
+        self.y = _unpacked[2]
+        ooxcb._resize_obj(self, count)
 
 class LineStyle(object):
     Solid = 0
@@ -3967,7 +3943,7 @@ class MappingNotifyEvent(ooxcb.Event):
         count = 0
         _unpacked = unpack_ex("xxxxBBBx", self, count)
         self.request = _unpacked[0]
-        self.first_keycode = Keycode(conn, _unpacked[1])
+        self.first_keycode = _unpacked[1]
         self.count = _unpacked[2]
         self.event_target = self.conn
 
@@ -4094,15 +4070,19 @@ class QueryPointerReply(ooxcb.Reply):
         self.win_y = _unpacked[6]
         self.mask = _unpacked[7]
 
-class Timecoord(ooxcb.Struct):
-    def __init__(self, conn, parent, offset, size):
-        ooxcb.Struct.__init__(self, conn, parent, offset, size)
+class SelectionNotifyEvent(ooxcb.Event):
+    event_name = "on_selection_notify"
+    event_target_class = ooxcb.Connection
+    def __init__(self, conn, parent):
+        ooxcb.Event.__init__(self, conn, parent)
         count = 0
-        _unpacked = unpack_ex("Ihh", self, count)
+        _unpacked = unpack_ex("xxxxIIIII", self, count)
         self.time = Timestamp(conn, _unpacked[0])
-        self.x = _unpacked[1]
-        self.y = _unpacked[2]
-        ooxcb._resize_obj(self, count)
+        self.requestor = conn.get_from_cache_fallback(_unpacked[1], Window)
+        self.selection = Atom(conn, _unpacked[2])
+        self.target = Atom(conn, _unpacked[3])
+        self.property = Atom(conn, _unpacked[4])
+        self.event_target = self.conn
 
 class PolyShape(object):
     Complex = 0

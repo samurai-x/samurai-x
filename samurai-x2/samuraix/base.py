@@ -23,9 +23,13 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-config = {
-    'core.plugin_paths': ['~/.samuraix/plugins'],
-    'core.plugins': ['sxdesktops', 'sxbind'],
+from ooxcb.eventsys import EventDispatcher
 
-    'desktops.names': ['one', 'another'],
-}
+class SXObject(EventDispatcher):
+    def __init__(self):
+        EventDispatcher.__init__(self)
+        self.data = {} # key: data
+
+    def attach_data(self, key, data):
+        self.data[key] = data
+

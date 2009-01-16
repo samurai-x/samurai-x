@@ -28,13 +28,13 @@ log = logging.getLogger(__name__)
 import weakref
 
 from ooxcb import xproto
-from ooxcb.eventsys import EventDispatcher
 from ooxcb.xproto import EventMask
 from ooxcb.sizehints import SizeHints
 
 from .rect import Rect
+from .base import SXObject
 
-class Client(EventDispatcher):
+class Client(SXObject):
     all_clients = []
     window_2_client_map = weakref.WeakValueDictionary()
     
@@ -43,7 +43,7 @@ class Client(EventDispatcher):
         return cls.window_2_client_map.get(window)
 
     def __init__(self, screen, window, wa, geometry):
-        EventDispatcher.__init__(self)
+        SXObject.__init__(self)
 
         self.conn = window.conn
         self.geom = geometry
@@ -126,20 +126,18 @@ class Client(EventDispatcher):
         self.dispatch_event('on_removed', self)
 
     def ban(self):
-        if self.sticky:
-            return # TODO?
+        # TODO: respect sticky?
         log.debug('banning %s' % self)
         self.window.unmap()
-        # TODO: multiple decoration
+        self.conn.flush()
         #self.actor.unmap()
         # TODO: set window state
 
     def unban(self):
-        if self.sticky:
-            return # TODO?
+        # TODO: respect sticky?
         log.debug('unbanning %s' % self)
-        self.window.map()
-        # TODO: multiple decoration
+        self.actor.map()
+        self.conn.flush()
         #self.actor.map()
         # TODO: set window state
 

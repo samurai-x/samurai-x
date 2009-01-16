@@ -23,9 +23,12 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-config = {
-    'core.plugin_paths': ['~/.samuraix/plugins'],
-    'core.plugins': ['sxdesktops', 'sxbind'],
+class Plugin(object):
+    key = NotImplemented
 
-    'desktops.names': ['one', 'another'],
-}
+    def attach_data_to(self, obj, data):
+        obj.attach_data(self.key, data)
+
+    def get_data(self, obj):
+        return obj.data[self.key]
+
