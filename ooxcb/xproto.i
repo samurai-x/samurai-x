@@ -1,3 +1,6 @@
+ImportCode:
+    ["from ooxcb.types import make_void_array"]
+
 ResourceClasses:
     - WINDOW
     - DRAWABLE
@@ -65,10 +68,11 @@ Requests:
 
     ChangeProperty:
         subject: window
-        precode: [!xizer "Data", !xizer "PropertyName", !xizer "PropertyType"]
         arguments: ["property_", "type_", "format", "data", "mode=PropMode.Replace"]
-        #defaults: 
-        #    mode: PropMode.Replace
+        initcode: [!xizer "Data", !xizer "PropertyName", !xizer "PropertyType",
+        "buf = StringIO.StringIO()",
+        'buf.write(pack("xBxxIIIBxxxI", mode, self.get_internal(), property_.get_internal(), type_.get_internal(), format, data_len))',
+        'buf.write(make_void_array(data, format))']
 
     MapWindow:
         subject: window

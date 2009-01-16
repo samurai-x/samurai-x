@@ -347,8 +347,12 @@ def py_open(self):
                 ('import StringIO') \
                 .dedent() \
       ('from struct import pack, unpack_from, calcsize') \
-      ('from array import array') \
-      () \
+      ('from array import array')
+    
+    if 'ImportCode' in INTERFACE:
+        py(INTERFACE['ImportCode'])
+
+    py() \
       ('def unpack_ex(fmt, protobj, offset=0):') \
       .indent() \
                 ('s = protobj.get_slice(calcsize(fmt), offset)') \
@@ -563,65 +567,68 @@ def request_helper(self, name, void, regular):
     if 'precode' in reqinfo:
         meth.code.extend(reqinfo['precode'])
 
-    # Check if we have to append some `.get_internal()` somewhere
-    for field in self.fields:
-        if field.py_type in WRAPPERS and field is not subject_field:
-            meth.code.append('%s = %s_.get_internal()' %  (field.field_name, field.field_name))
-        if field is subject_field:
-            meth.code.append('%s = self.get_internal()' % field.field_name)
+    if 'initcode' in reqinfo:
+        meth.code.extend(reqinfo['initcode'])
+    else:
+        # Check if we have to append some `.get_internal()` somewhere
+        for field in self.fields:
+            if field.py_type in WRAPPERS and field is not subject_field:
+                meth.code.append('%s = %s_.get_internal()' %  (field.field_name, field.field_name))
+            if field is subject_field:
+                meth.code.append('%s = self.get_internal()' % field.field_name)
 
-    meth.code.append('buf = StringIO.StringIO()')
-    
-    struct = Struct()
-    for field in wire_fields:
-        if field.auto:
-            struct.push_pad(field.type.size)
-            continue
-        if field.type.is_simple:
-            struct.push_format(field)
-            continue
-        if field.type.is_pad:
-            struct.push_pad(field.type.nmemb)
-            continue
+        meth.code.append('buf = StringIO.StringIO()')
+        
+        struct = Struct()
+        for field in wire_fields:
+            if field.auto:
+                struct.push_pad(field.type.size)
+                continue
+            if field.type.is_simple:
+                struct.push_format(field)
+                continue
+            if field.type.is_pad:
+                struct.push_pad(field.type.nmemb)
+                continue
+
+            fields, size, format = struct.flush()
+
+            if size > 0:
+                meth.code.append('buf.write(pack("%s", %s))' % (format, \
+                        ', '.join([prefix_if_needed(f.field_name) for f in fields])))
+
+            if field.type.is_expr:
+                #_py('        buf.write(pack(\'%s\', %s))', field.type.py_format_str, _py_get_expr(field.type.expr))
+                meth.code.append('buf.write(pack("%s", %s))' % (field.type.py_format_str,
+                    get_expr(field.type.expr)))
+
+            elif field.type.is_pad:
+                meth.code.append('buf.write(pack("%sx"))' % field.type.nmemb)
+            elif field.type.is_container:
+                meth.code.append('for elt in ooxcb.Iterator(%s, %d, "%s", False):' % \
+                        (prefix_if_needed(field.field_name), 
+                            field.type.py_format_len, 
+                            prefix_if_needed(field.field_name)))
+                meth.code.append(INDENT)
+                meth.code.append('buf.write(pack("%s", *elt))' % field.type.py_format_str)
+                meth.code.append(DEDENT)
+            elif field.type.is_list and field.type.member.is_simple:
+                meth.code.append('buf.write(array("%s", %s).tostring())' % \
+                        (field.type.member.py_format_str, 
+                        prefix_if_needed(field.field_name)))
+            else:
+                meth.code.append('for elt in ooxcb.Iterator(%s, %d, "%s", True):' % \
+                    (prefix_if_needed(field.field_name), 
+                        field.type.member.py_format_len, 
+                        prefix_if_needed(field.field_name)))
+                meth.code.append(INDENT)
+                meth.code.append('buf.write(pack("%s", *elt))' % field.type.member.py_format_str)
+                meth.code.append(DEDENT)
 
         fields, size, format = struct.flush()
-
         if size > 0:
-            meth.code.append('buf.write(pack("%s", %s))' % (format, \
-                    ', '.join([prefix_if_needed(f.field_name) for f in fields])))
-
-        if field.type.is_expr:
-            #_py('        buf.write(pack(\'%s\', %s))', field.type.py_format_str, _py_get_expr(field.type.expr))
-            meth.code.append('buf.write(pack("%s", %s))' % (field.type.py_format_str,
-                get_expr(field.type.expr)))
-
-        elif field.type.is_pad:
-            meth.code.append('buf.write(pack("%sx"))' % field.type.nmemb)
-        elif field.type.is_container:
-            meth.code.append('for elt in ooxcb.Iterator(%s, %d, "%s", False):' % \
-                    (prefix_if_needed(field.field_name), 
-                        field.type.py_format_len, 
-                        prefix_if_needed(field.field_name)))
-            meth.code.append(INDENT)
-            meth.code.append('buf.write(pack("%s", *elt))' % field.type.py_format_str)
-            meth.code.append(DEDENT)
-        elif field.type.is_list and field.type.member.is_simple:
-            meth.code.append('buf.write(array("%s", %s).tostring())' % \
-                    (field.type.member.py_format_str, 
-                    prefix_if_needed(field.field_name)))
-        else:
-            meth.code.append('for elt in ooxcb.Iterator(%s, %d, "%s", True):' % \
-                (prefix_if_needed(field.field_name), 
-                    field.type.member.py_format_len, 
-                    prefix_if_needed(field.field_name)))
-            meth.code.append(INDENT)
-            meth.code.append('buf.write(pack("%s", *elt))' % field.type.member.py_format_str)
-            meth.code.append(DEDENT)
-
-    fields, size, format = struct.flush()
-    if size > 0:
-        meth.code.append('buf.write(pack("%s", %s))' % (format, ', '.join(
-            [prefix_if_needed(f.field_name) for f in fields])))
+            meth.code.append('buf.write(pack("%s", %s))' % (format, ', '.join(
+                [prefix_if_needed(f.field_name) for f in fields])))
 
     meth.code.append('return self.conn.%s.send_request(ooxcb.Request(self.conn, buf.getvalue(), %s, %s, %s), \\' % \
             (NAMESPACE.header, self.opcode, void, func_flags))

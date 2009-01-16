@@ -66,6 +66,7 @@ class Client(SXObject):
 
         self.apply_normal_hints()
         self.window.map()
+        self.conn.flush()
 
     def apply_normal_hints(self, hints=None, geom=None):
         """

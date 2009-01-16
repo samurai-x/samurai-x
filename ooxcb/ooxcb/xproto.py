@@ -6,6 +6,7 @@ except ImportError:
     import StringIO
 from struct import pack, unpack_from, calcsize
 from array import array
+from ooxcb.types import make_void_array
 
 def unpack_ex(fmt, protobj, offset=0):
     s = protobj.get_slice(calcsize(fmt), offset)
@@ -3552,12 +3553,9 @@ class Window(ooxcb.Resource):
             property_ = self.conn.atoms[property_]
         if isinstance(type_, basestring):
             type_ = self.conn.atoms[type_]
-        window = self.get_internal()
-        property = property_.get_internal()
-        type = type_.get_internal()
         buf = StringIO.StringIO()
-        buf.write(pack("xBxxIIIBxxxI", mode, window, property, type, format, data_len))
-        buf.write(array("B", data).tostring())
+        buf.write(pack("xBxxIIIBxxxI", mode, self.get_internal(), property_.get_internal(), type_.get_internal(), format, data_len))
+        buf.write(make_void_array(data, format))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 18, True, True), \
             ooxcb.VoidCookie())
 
@@ -3567,12 +3565,9 @@ class Window(ooxcb.Resource):
             property_ = self.conn.atoms[property_]
         if isinstance(type_, basestring):
             type_ = self.conn.atoms[type_]
-        window = self.get_internal()
-        property = property_.get_internal()
-        type = type_.get_internal()
         buf = StringIO.StringIO()
-        buf.write(pack("xBxxIIIBxxxI", mode, window, property, type, format, data_len))
-        buf.write(array("B", data).tostring())
+        buf.write(pack("xBxxIIIBxxxI", mode, self.get_internal(), property_.get_internal(), type_.get_internal(), format, data_len))
+        buf.write(make_void_array(data, format))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 18, True, False), \
             ooxcb.VoidCookie())
 
