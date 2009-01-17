@@ -48,3 +48,10 @@ class List(list):
     def buf(self):
         return self._buf # c compatibility ...
 
+    def to_string(self):
+        """
+            my value is a list of ordinal values; return
+            the string.
+            :todo: use utf-8 (unichr)?
+        """
+        return ''.join(map(chr, self))

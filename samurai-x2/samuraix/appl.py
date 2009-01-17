@@ -125,7 +125,7 @@ class App(SXObject):
                         log.exception(e)
 
     def on_property_notify(self, ev):
-        log.info('Got a property notify event ... %s' % ''.join(map(chr, ev.atom.get_name().reply().name)))
+        log.info('Got a property notify event ... %s' % ev.atom.get_name().reply().name.to_string())
 
 App.register_event_type('on_load_config')
 App.register_event_type('on_new_screen')

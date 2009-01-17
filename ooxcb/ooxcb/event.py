@@ -15,7 +15,7 @@ class Event(Response):
 
         type = cls
 
-        if (opcode < len(conn.events) and conn.events[opcode]):
+        if (opcode in conn.events and conn.events[opcode]):
             type = conn.events[opcode]
 
         shim = MemBuffer(ctypes.addressof(event.contents)) 
