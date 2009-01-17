@@ -96,7 +96,6 @@ class SXBind(Plugin):
         self.bindings[(modifiers, keycode)] = line 
         for screen in self.app.screens:
             screen.root.grab_key(modifiers, keycode)
-        print self.bindings
 
     def bind_keystroke(self, keystroke, line):
         modifiers, keysym = parse_keystroke(keystroke)

@@ -29,7 +29,7 @@ config = {
 
     'desktops.names': ['one', 'another', 'desktop'],
     'bind.keys': {
-            'Meta+n': 'desktop.cycle count=1',
-            'Meta+p': 'desktop.cycle count=-1',
+            'Meta+n': 'desktop.cycle offset=1',
+            'Meta+p': 'desktop.cycle offset=-1',
         }
 }

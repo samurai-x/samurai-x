@@ -122,11 +122,11 @@ class SXDesktops(Plugin):
             cycle desktop
 
             parameters:
-                `count`: int
-                    offset (optional, defaults to 1)
+                `offset`: int
+                    optional, defaults to 1
 
         """
-        self.get_data(info['screen']).cycle_desktops(info.get('count', 1))
+        self.get_data(info['screen']).cycle_desktops(info.get('offset', 1))
 
     def action_goto(self, info):
         """
