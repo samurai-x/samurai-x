@@ -1,7 +1,7 @@
 import ctypes
 from . import (libxcb, exception)
 from .conn import Connection
-from .constant import *
+from ooxcb.constant import *
 
 SETUP = None
 
@@ -71,19 +71,19 @@ def _add_ext(key, value, events, errors):
 def _resize_obj(obj, size):
     obj.size = size
 
-from .list import *
-from .event import *
-from .structure import *
-from .request import *
-from .union import *
-from .error import *
-from .iter import *
-from .exception import *
-from .cookie import *
-from .void import *
-from .reply import *
-from .ext import *
-from .extkey import *
-from .resource import *
+from ooxcb.list import *
+from ooxcb.event import *
+from ooxcb.structure import *
+from ooxcb.request import *
+from ooxcb.union import *
+from ooxcb.error import *
+from ooxcb.iter import *
+from ooxcb.exception import *
+from ooxcb.cookie import *
+from ooxcb.void import *
+from ooxcb.reply import *
+from ooxcb.ext import *
+from ooxcb.extkey import *
+from ooxcb.resource import *
 
 __all__ = [ 'xproto', 'bigreq', 'xc_misc' ]
