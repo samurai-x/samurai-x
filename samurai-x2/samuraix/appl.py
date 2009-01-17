@@ -124,6 +124,16 @@ class App(SXObject):
                     except Exception, e:
                         log.exception(e)
 
+    def get_screen_by_root(self, root):
+        """
+            return the Screen instance for the given
+            root window or None.
+        """
+        for screen in self.screens:
+            if screen.root is root: # cached, so we can use identity comparison
+                return screen
+        return None
+
     def on_property_notify(self, ev):
         log.info('Got a property notify event ... %s' % ev.atom.get_name().reply().name.to_string())
 

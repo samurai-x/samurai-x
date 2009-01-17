@@ -116,5 +116,5 @@ class SXActions(Plugin):
         """
         ident, kwargs = parse_emission(line)
         info.update(kwargs)
-        return self.actions[ident](kwargs)
+        return self.actions[ident](info)
 

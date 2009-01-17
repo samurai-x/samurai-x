@@ -54,8 +54,6 @@ class ScreenData(object):
         self.screen.push_handlers(self)
         self.scan()
 
-        self.screen.app.plugins['actions'].register('desktop.cycle', self.action_cycle_desktops)
-
     def scan(self):
         """
             scan the screen for already existing clients which are not
@@ -95,17 +93,6 @@ class ScreenData(object):
     def cycle_desktops(self, offset=+1):
         self.set_active_desktop_idx(cycle_indices(self.active_desktop_idx, offset, len(self.desktops)))
 
-    def action_cycle_desktops(self, info):
-        """
-            cycle desktop
-
-            parameters:
-                `count`: int
-                    offset
-
-        """
-        self.cycle_desktops(info.get('count', 1))
-        
 class ClientData(object):
     def __init__(self, desktop, client):
         self.client = client
@@ -118,6 +105,8 @@ class SXDesktops(Plugin):
     def __init__(self, app):
         self.app = app
         app.push_handlers(self)
+        app.plugins['actions'].register('desktop.cycle', self.action_cycle)
+        app.plugins['actions'].register('desktop.goto', self.action_goto)
 
     def on_load_config(self, config):
         self.names = config.get('desktops.names', ['one desktop'])
@@ -127,3 +116,26 @@ class SXDesktops(Plugin):
         for screen in screens:
             desktops = [Desktop(self, screen, name) for name in self.names]
             self.attach_data_to(screen, ScreenData(screen, desktops))
+
+    def action_cycle(self, info):
+        """
+            cycle desktop
+
+            parameters:
+                `count`: int
+                    offset (optional, defaults to 1)
+
+        """
+        self.get_data(info['screen']).cycle_desktops(info.get('count', 1))
+
+    def action_goto(self, info):
+        """
+            go to a specified desktop
+
+            parameters:
+                `index`: int
+                    index, starting at 0 (required)
+
+        """
+        self.get_data(info['screen']).set_active_desktop_idx(info['index'])
+
