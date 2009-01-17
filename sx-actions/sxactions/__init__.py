@@ -1,3 +1,5 @@
+import subprocess
+
 from samuraix.plugin import Plugin
 
 class UnsuitableAction(Exception):
@@ -23,14 +25,14 @@ def parse_emission(line):
         return char
 
     def p_string(char):
-        # `char` is " or '
+        start_char = char
         s = ''
         while True:
             char = gen.next()
             if char == '\\':
                 # escaped character follows ...
                 char = (char + gen.next()).decode('string-escape')
-            if char in '"\'':
+            if char == start_char:
                 break
             s += char
         return s
@@ -90,7 +92,27 @@ class SXActions(Plugin):
 
     def __init__(self, app):
         self.app = app
-        self.actions = {}
+        self.actions = {
+                'spawn': self.action_spawn,
+                'quit': self.action_quit,
+                } # TODO: dotted names?
+
+    def action_spawn(self, info):
+        """
+            spawn an application.
+
+            Parameters:
+                `cmdline`: str
+
+        """
+        cmdline = info['cmdline']
+        subprocess.Popen(cmdline, shell=True)
+
+    def action_quit(self, info):
+        """
+            quit samurai-x.
+        """
+        self.app.stop()
 
     def register(self, ident, action):
         """
