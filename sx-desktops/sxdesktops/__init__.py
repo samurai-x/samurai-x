@@ -53,6 +53,8 @@ class ScreenData(object):
         self.active_desktop_idx = 0
         self.screen.push_handlers(self)
 
+        self.screen.app.plugins['actions'].register('desktop.cycle', self.action_cycle_desktops)
+
     def on_new_client(self, screen, client):
         #data = ClientData(self.active_desktop, client)
         #...attach_data_to(client, data)
@@ -84,6 +86,17 @@ class ScreenData(object):
 
     def cycle_desktops(self, offset=+1):
         self.set_active_desktop_idx(cycle_indices(self.active_desktop_idx, offset, len(self.desktops)))
+
+    def action_cycle_desktops(self, info):
+        """
+            cycle desktop
+
+            parameters:
+                `count`: int
+                    offset
+
+        """
+        self.cycle_desktops(info.get('count', 1))
         
 class ClientData(object):
     def __init__(self, desktop, client):

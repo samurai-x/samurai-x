@@ -55,12 +55,16 @@ class PluginLoader(dict):
         """
             load all plugins, warn if a plugin couldn't be loaded.
         """
-        names = set(config.get('core.plugins', []))
-        for ep in pkg_resources.iter_entry_points('samuraix.plugin'):
-            if ep.name in names:
+        names = config.get('core.plugins', [])
+        entrypoints = list(pkg_resources.iter_entry_points('samuraix.plugin'))
+        dct = dict((ep.name, ep) for ep in entrypoints)
+
+        for name in names:
+            try:
+                ep = dct[name]
+            except KeyError:
+                log.error("The plugin '%s' couldn't be found!" % name)
+            else:
                 cls = ep.load()
                 self[cls.key] = cls(self.app)
-                names.remove(ep.name)
 
-        if names:
-            log.error("The following plugins couldn't be loaded: %s" % ', '.join(names))

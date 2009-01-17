@@ -25,7 +25,7 @@
 
 config = {
     'core.plugin_paths': ['~/.samuraix/plugins'],
-    'core.plugins': ['sxdesktops', 'sxbind'],
+    'core.plugins': ['sxactions', 'sxdesktops', 'sxbind'],
 
     'desktops.names': ['one', 'another'],
 }
