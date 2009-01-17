@@ -16,7 +16,7 @@ class SXBind(Plugin):
         app.push_handlers(self)
 
     def on_ready(self, config):
-        self.bind_key_to_action(ModMask._4, 24, 'desktop.cycle count=2')
+        self.bind_key_to_action(ModMask._4, 24, 'desktop.cycle count=1')
         self.setup_handlers()
 
     def setup_handlers(self):

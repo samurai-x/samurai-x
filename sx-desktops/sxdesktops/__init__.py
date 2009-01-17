@@ -52,8 +52,16 @@ class ScreenData(object):
         self.active_desktop = desktops[0]
         self.active_desktop_idx = 0
         self.screen.push_handlers(self)
+        self.scan()
 
         self.screen.app.plugins['actions'].register('desktop.cycle', self.action_cycle_desktops)
+
+    def scan(self):
+        """
+            scan the screen for already existing clients which are not
+            catched by the `on_new_client` event handler
+        """
+        map(self.active_desktop.clients.append, self.screen.clients)
 
     def on_new_client(self, screen, client):
         #data = ClientData(self.active_desktop, client)
