@@ -45,8 +45,11 @@ def parse_emission(line):
             if char in ' \t:=':
                 break
             py += char
-        if py.isdigit():
+        try:    
             py = int(py)
+        except ValueError:
+            pass
+
         return py
 
     def p_value(c):

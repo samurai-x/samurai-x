@@ -2,9 +2,63 @@ import logging
 log = logging.getLogger(__name__)
 
 from samuraix.plugin import Plugin
+
+from ooxcb import keysymdef
 from ooxcb.xproto import ModMask
 
 from sxactions import ActionInfo
+
+MODIFIERS = {
+        # TODO: I am not sure about the 
+        # following four modifiers.
+        'alt': ModMask._1,
+        'numlock': ModMask._2,
+        'meta': ModMask._4,
+        'altgr': ModMask._5,
+
+        'shift': ModMask.Shift,
+        'lock': ModMask.Lock,
+        'ctrl': ModMask.Control,
+        'control': ModMask.Control,
+
+        'mod1': ModMask._1,
+        'mod2': ModMask._2,
+        'mod3': ModMask._3,
+        'mod4': ModMask._4,
+        'mod5': ModMask._5,
+        }
+
+def parse_keystroke(s):
+    """
+        Return (modifiers, keysym), extracted from the string `s`.
+
+        It has to contain several modifiers and keysym names,
+        joined together with a '+':
+
+        CTRL+A
+        MOD4+q
+    """
+    modmask, keysym = 0, 0
+
+    parts = s.split('+') 
+    modifiers = parts[:-1]
+    key = parts[-1]
+    
+    # create modmask
+    for mod in modifiers:
+        try:
+            modmask |= MODIFIERS[mod.lower()]
+        except KeyError:
+            log.error('Unknown modifier: "%s"' % mod)
+
+    # get keysym
+    try:
+        keysym = getattr(keysymdef, 'XK_%s' % key)
+    except AttributeError:
+        log.error('Unknown key: "%s"' % key)
+
+    return modmask, keysym
+
 
 class SXBind(Plugin):
     key = 'bind'
@@ -16,8 +70,11 @@ class SXBind(Plugin):
         app.push_handlers(self)
 
     def on_ready(self, config):
-        self.bind_key_to_action(ModMask._4, 24, 'desktop.cycle')
         self.setup_handlers()
+
+    def on_load_config(self, config):
+        for keystroke, action in config.get('bind.keys', {}).iteritems():
+            self.bind_keystroke(keystroke, action)
 
     def setup_handlers(self):
         for screen in self.app.screens:
@@ -41,3 +98,8 @@ class SXBind(Plugin):
             screen.root.grab_key(modifiers, keycode)
         print self.bindings
 
+    def bind_keystroke(self, keystroke, line):
+        modifiers, keysym = parse_keystroke(keystroke)
+        keycode = self.app.conn.keysyms.get_keycode(keysym)
+        
+        self.bind_key_to_action(modifiers, keycode, line)

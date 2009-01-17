@@ -6,6 +6,7 @@ from .event import Event
 from .eventsys import EventDispatcher
 from .error import Error
 from .atoms import AtomDict
+from .keysyms import Keysyms
 
 class Connection(EventDispatcher):
     def __init__(self, core):
@@ -20,9 +21,11 @@ class Connection(EventDispatcher):
         self.extcache = {}
         self._setup = None
 
+        self.keysyms = Keysyms(self)
+
         self._cache = {}
         self.atoms = AtomDict(self)
-
+        
     def setup(self):
         import ooxcb
         # load core ...

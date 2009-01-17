@@ -27,5 +27,9 @@ config = {
     'core.plugin_paths': ['~/.samuraix/plugins'],
     'core.plugins': ['sxactions', 'sxdesktops', 'sxbind'],
 
-    'desktops.names': ['one', 'another'],
+    'desktops.names': ['one', 'another', 'desktop'],
+    'bind.keys': {
+            'Meta+n': 'desktop.cycle count=1',
+            'Meta+p': 'desktop.cycle count=-1',
+        }
 }
