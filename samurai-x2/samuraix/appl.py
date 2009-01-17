@@ -48,7 +48,7 @@ class App(SXObject):
         self.running = False
         self.plugins = PluginLoader(self)
         self.plugins.setup()
-        self.plugins.require_key('desktop') # we need a desktop plugin
+        self.plugins.require_key('desktops') # we need a desktop manager plugin
 
         setup = self.conn.get_setup()
 

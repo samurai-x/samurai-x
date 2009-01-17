@@ -100,13 +100,13 @@ class ClientData(object):
 
 class SXDesktops(Plugin):
     # atm, every screen has the same amount of desktops
-    key = 'desktop'
+    key = 'desktops'
 
     def __init__(self, app):
         self.app = app
         app.push_handlers(self)
-        app.plugins['actions'].register('desktop.cycle', self.action_cycle)
-        app.plugins['actions'].register('desktop.goto', self.action_goto)
+        app.plugins['actions'].register('desktops.cycle', self.action_cycle)
+        app.plugins['actions'].register('desktops.goto', self.action_goto)
 
     def on_load_config(self, config):
         self.names = config.get('desktops.names', ['one desktop'])

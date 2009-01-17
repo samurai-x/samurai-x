@@ -29,8 +29,8 @@ config = {
 
     'desktops.names': ['one', 'another', 'desktop'],
     'bind.keys': {
-            'Meta+n': 'desktop.cycle offset=1',
-            'Meta+p': 'desktop.cycle offset=-1',
+            'Meta+n': 'desktops.cycle offset=1',
+            'Meta+p': 'desktops.cycle offset=-1',
             'META+X': 'spawn cmdline="xterm -bg \'#cc0000\'"',
             'Meta+Q': 'quit',
         }
