@@ -129,7 +129,7 @@ class Client(SXObject):
     def ban(self):
         # TODO: respect sticky?
         log.debug('banning %s' % self)
-        self.window.unmap()
+        self.actor.unmap()
         self.conn.flush()
         #self.actor.unmap()
         # TODO: set window state
