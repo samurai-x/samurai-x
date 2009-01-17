@@ -91,24 +91,13 @@ class Client(SXObject):
             log.warning('Invalid hints received!')
 
     def resize(self, geom):
+        """
+            Configure the main window (not the actor)
+            to use width and height from `geom`.
+        """
         log.debug('Resizing: %s' % geom)
         self.window.configure_checked(width=geom.width, height=geom.height).check()
         self.conn.flush()
-
-    # No map and unmap notify handlers here. 
-    # Normally, we don't have another window
-    # that needs to be mapped. The decoration plugin 
-    # will have to setup this.
-    #
-    #def on_unmap_notify(self, evt):
-    #    if evt.window is self.window:
-    #        # if i am focused, unfocus me 
-    #        if self.screen.focused_client is self:
-    #            self.screen.focused_client = None
-    #        self.actor.unmap()
-    #
-    #def on_map_notify(self, evt):
-    #    self.actor.map()
 
     def on_destroy_notify(self, evt):
         log.warning('Got destroy notify event, Client=%s' % (self))
@@ -127,6 +116,9 @@ class Client(SXObject):
         self.dispatch_event('on_removed', self)
 
     def ban(self):
+        """
+            Unmap the actor window.
+        """
         # TODO: respect sticky?
         log.debug('banning %s' % self)
         self.actor.unmap()
@@ -135,28 +127,15 @@ class Client(SXObject):
         # TODO: set window state
 
     def unban(self):
+        """
+            Map the actor window.
+        """
         # TODO: respect sticky?
         log.debug('unbanning %s' % self)
         self.actor.map()
         self.conn.flush()
         #self.actor.map()
         # TODO: set window state
-
-    def maximize(self):
-        self.maximized = True
-        self.backup_geom = self.frame_geom
-        self.resize(self.screen.get_geometry())
-
-    def unmaximize(self):
-        self.maximized = False
-        assert self.backup_geom
-        self.resize(self.backup_geom)
-
-    def toggle_maximize(self):
-        if not self.maximized:
-            self.maximize()
-        else:
-            self.unmaximize()
 
     def focus(self):
         #self.window.set_input_focus()

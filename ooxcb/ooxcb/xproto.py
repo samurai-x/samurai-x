@@ -1190,22 +1190,6 @@ class xprotoExtension(ooxcb.Extension):
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 41, True, False), \
             ooxcb.VoidCookie())
 
-    def set_input_focus_checked(self, revert_to, focus_, time_):
-        focus = focus_.get_internal()
-        time = time_.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xBxxII", revert_to, focus, time))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 42, True, True), \
-            ooxcb.VoidCookie())
-
-    def set_input_focus(self, revert_to, focus_, time_):
-        focus = focus_.get_internal()
-        time = time_.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xBxxII", revert_to, focus, time))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 42, True, False), \
-            ooxcb.VoidCookie())
-
     def get_input_focus(self):
         buf = StringIO.StringIO()
         buf.write(pack("xxxx", ))
@@ -3479,7 +3463,7 @@ class Window(ooxcb.Resource):
         window = self.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("xxxxIH", window, value_mask))
-        buf.write(pack("xx", ))
+        buf.write(pack("xx"))
         buf.write(array("I", value_list).tostring())
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 12, True, True), \
             ooxcb.VoidCookie())
@@ -3510,7 +3494,7 @@ class Window(ooxcb.Resource):
         window = self.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("xxxxIH", window, value_mask))
-        buf.write(pack("xx", ))
+        buf.write(pack("xx"))
         buf.write(array("I", value_list).tostring())
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 12, True, False), \
             ooxcb.VoidCookie())
@@ -3611,6 +3595,22 @@ class Window(ooxcb.Resource):
         buf = StringIO.StringIO()
         buf.write(pack("xBxxIHBBBxxx", owner_events, grab_window, modifiers, key, pointer_mode, keyboard_mode))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 33, True, False), \
+            ooxcb.VoidCookie())
+
+    def set_input_focus_checked(self, time_, revert_to=1):
+        focus = self.get_internal()
+        time = time_.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xBxxII", revert_to, focus, time))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 42, True, True), \
+            ooxcb.VoidCookie())
+
+    def set_input_focus(self, time_, revert_to=1):
+        focus = self.get_internal()
+        time = time_.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xBxxII", revert_to, focus, time))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 42, True, False), \
             ooxcb.VoidCookie())
 
     @classmethod

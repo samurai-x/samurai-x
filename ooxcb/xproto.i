@@ -77,6 +77,12 @@ Requests:
     MapWindow:
         subject: window
         name: map
+
+    SetInputFocus:
+        subject: focus
+        defaults: 
+            revert_to: 1 # TODO: well, 1 is InputFocus.PointerRoot, but Python gets angry if InputFocus isn't defined before set_input_focus, so that's a workaround.
+            time: 0 # TODO: CurrentTime?
     
     UnmapWindow:
         subject: window
@@ -84,7 +90,14 @@ Requests:
 
     ConfigureWindow:
         subject: window
-        precode: [!xizer "ConfigWindow"]
+        initcode: 
+            - !xizer "ConfigWindow"
+            - "window = self.get_internal()"
+            - "buf = StringIO.StringIO()"
+            - 'buf.write(pack("xxxxIH", window, value_mask))'
+            - 'buf.write(pack("xx"))' # NOTE: The pad has to be after the value mask, but xcbgen seems to put it after the value list. So, that's just a workaround.
+            - 'buf.write(array("I", value_list).tostring())'
+
         arguments: ["**values"]
         name: "configure"
 
@@ -172,3 +185,5 @@ Events:
         member: window
 
     # TODO: hundreds of events to be mapped.
+
+# vim: ft=yaml
