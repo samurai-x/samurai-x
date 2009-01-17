@@ -25,7 +25,7 @@
 
 config = {
     'core.plugin_paths': ['~/.samuraix/plugins'],
-    'core.plugins': ['sxactions', 'sxdesktops', 'sxbind'],
+    'core.plugins': ['sxactions', 'sxdesktops', 'sxbind', 'sxsimpledeco', 'sxmoveresize'],
 
     'desktops.names': ['one', 'another', 'desktop'],
     'bind.keys': {
@@ -33,6 +33,8 @@ config = {
             'Meta+p': 'desktops.cycle offset=-1',
             'Meta+c': 'desktops.cycle_clients',
             'META+X': 'spawn cmdline="xterm -bg \'#cc0000\'"',
+            'meta+m': 'moveresize.move',
+            'meta+r': 'moveresize.resize',
             'Meta+Q': 'quit',
         }
 }

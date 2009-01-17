@@ -157,9 +157,20 @@ def make_values_xizer(enum_name, values_dict_name, mask_out='value_mask', list_o
     
     return lambda code=code: code 
 
+def make_lazy_none_xizer(value, from_='None', to='XNone'):
+    code = ['if %s is %s:' % (value, from_),
+            INDENT,
+                '%s = %s' % (value, to),
+            DEDENT,
+            ]
+
+    return lambda code=code: code
+
 XIZER_MAKERS = {'values': make_values_xizer,
         'seq': make_seq_xizer,
-        'lazy_atom': make_lazy_atom_xizer}
+        'lazy_atom': make_lazy_atom_xizer,
+        'lazy_none': make_lazy_none_xizer,
+        }
 XIZERS = {}
 
 def get_length_field(expr):
@@ -340,6 +351,7 @@ def py_open(self):
 
     py('# auto generated. yay.') \
       ('import ooxcb') \
+      ('from ooxcb.resource import XNone') \
       ('try:').indent() \
                 ('import cStringIO as StringIO') \
                 .dedent() \

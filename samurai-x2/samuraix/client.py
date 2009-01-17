@@ -46,7 +46,7 @@ class Client(SXObject):
         SXObject.__init__(self)
 
         self.conn = window.conn
-        self.geom = geometry
+        self.geom = Rect.from_class(geometry)
         
         self.screen = screen
         self.window = window
@@ -96,7 +96,7 @@ class Client(SXObject):
             to use width and height from `geom`.
         """
         log.debug('Resizing: %s' % geom)
-        self.window.configure_checked(width=geom.width, height=geom.height).check()
+        self.actor.configure_checked(width=geom.width, height=geom.height).check()
         self.conn.flush()
 
     def on_destroy_notify(self, evt):

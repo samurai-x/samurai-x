@@ -47,7 +47,8 @@ class Screen(SXObject):
         self.clients = set() 
         self.focused_client = None
 
-        self.root = app.conn.get_setup().roots[num].root
+        self.info = app.conn.get_setup().roots[num]
+        self.root = self.info.root
 
         self.root.change_attributes(
             event_mask=
@@ -133,6 +134,10 @@ class Screen(SXObject):
         client.push_handlers(on_removed=lambda foo: self.update_client_list,
                              on_focus=self.update_active_window)
         self.clients.add(client)
+
+        # If we have no focused client yet, use the newly managed client.
+        if self.focused_client is None: 
+            self.focus(client)
 
 #        try:
 #            window_type = window.get_property('_NET_WM_WINDOW_TYPE')[0].name

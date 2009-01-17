@@ -11,3 +11,11 @@ class Resource(EventDispatcher):
     def get_internal(self):
         return self.xid
 
+class _XNone(object):
+    def __repr__(self):
+        return '<XNone>'
+
+    def get_internal(self):
+        return 0
+
+XNone = _XNone()

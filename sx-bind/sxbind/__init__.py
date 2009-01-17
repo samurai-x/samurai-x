@@ -75,6 +75,7 @@ class SXBind(Plugin):
     def on_load_config(self, config):
         for keystroke, action in config.get('bind.keys', {}).iteritems():
             self.bind_keystroke(keystroke, action)
+        self.app.conn.flush()
 
     def setup_handlers(self):
         for screen in self.app.screens:
@@ -96,7 +97,7 @@ class SXBind(Plugin):
         self.bindings[(modifiers, keycode)] = line 
         for screen in self.app.screens:
             screen.root.grab_key(modifiers, keycode)
-
+        
     def bind_keystroke(self, keystroke, line):
         modifiers, keysym = parse_keystroke(keystroke)
         keycode = self.app.conn.keysyms.get_keycode(keysym)

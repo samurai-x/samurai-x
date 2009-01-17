@@ -19,6 +19,12 @@ Xizers:
         xize:
             - back_pixmap
 
+    GC:
+        type: values
+        enum_name: GC
+        values_dict_name: values
+        xize: []
+
     ConfigWindow:
         type: values
         enum_name: ConfigWindow
@@ -29,6 +35,12 @@ Xizers:
         seq_in: name
         length_out: name_len
         seq_out: name
+
+    String:
+        type: seq
+        seq_in: string
+        length_out: string_len
+        seq_out: string
 
     Data:
         type: seq
@@ -44,8 +56,17 @@ Xizers:
         type: lazy_atom
         name: type_
 
+    CursorNone:
+        type: lazy_none
+        value: cursor_
+
+    ConfineToNone:
+        type: lazy_none
+        value: confine_to_
+
 ClassAliases:
     VISUALID: VisualID
+    GCONTEXT: GContext
 
 Requests:
     # xproto objects
@@ -130,6 +151,44 @@ Requests:
             pointer_mode: GrabMode.Async
             keyboard_mode: GrabMode.Async
 
+    ReparentWindow:
+        name: reparent
+        subject: window
+        defaults:
+            x: 0
+            y: 0
+
+    ClearArea:
+        name: clear_area
+        subject: window
+        defaults:
+            exposures: False
+
+    GrabPointer:
+        subject: grab_window
+        defaults:
+            owner_events: True
+            pointer_mode: GrabMode.Async
+            keyboard_mode: GrabMode.Async
+            time: 0 # TODO: CurrentTime
+            confine_to_: 'None'
+            cursor_: 'None'
+        precode: 
+            - !xizer "ConfineToNone"
+            - !xizer "CursorNone"
+
+        # TODO: (!!!) confine_to can be None. Maybe with a xizer? -- is XNone the cool solution?
+    
+    UngrabPointer:
+        defaults:
+            time: 0 # TODO: CurrentTime
+        
+    # GContext objects
+    ImageText8:
+        subject: gc
+        precode: [!xizer "String"]
+        arguments: ["drawable_", "x", "y", "string"]
+
 Classes:
     Window:
         - classmethod:
@@ -142,6 +201,19 @@ Classes:
                     'conn.core.create_window_checked(depth, win, parent, x, y, width, height, border_width, _class, visual, value_mask, value_list).check()', 
                     'conn.add_to_cache(wid, win)',
                     'return win'
+                ]
+    
+    GContext:
+        - classmethod:
+            name: create
+            arguments: ["conn", "drawable", "**values"]
+            code: [
+                    'cid = conn.generate_id()',
+                    'gc = cls(conn, cid)',
+                    !xizer "GC" ,
+                    'conn.core.create_g_c_checked(gc, drawable, value_mask, value_list).check()', 
+                    'conn.add_to_cache(cid, gc)',
+                    'return gc'
                 ]
 
 Events:
@@ -161,6 +233,8 @@ Events:
         member: event
     GraphicsExposure:
         member: drawable
+    Expose:
+        member: window
     MotionNotify:
         member: event
     #KeymapNotify:

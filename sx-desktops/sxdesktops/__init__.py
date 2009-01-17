@@ -80,7 +80,10 @@ class ScreenData(EventDispatcher):
         self.update_clients(prev)
         # focus any client on the new desktop,
         # we don't want an off screen focus.
-        self.screen.focus(self.active_desktop.clients.get(0, None))
+        try:
+            self.screen.focus(self.active_desktop.clients[0])
+        except IndexError:
+            self.screen.focus(None)
 
     def set_active_desktop_idx(self, idx):
         prev = self.active_desktop
