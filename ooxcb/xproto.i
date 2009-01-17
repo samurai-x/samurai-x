@@ -9,6 +9,7 @@ ResourceClasses:
 Ignored:
     - KEYCODE
     - KEYSYM
+    - TIMESTAMP
 
 Xizers:
     CW:

@@ -364,7 +364,7 @@ class SelectionClearEvent(ooxcb.Event):
         ooxcb.Event.__init__(self, conn, parent)
         count = 0
         _unpacked = unpack_ex("xxxxIII", self, count)
-        self.time = Timestamp(conn, _unpacked[0])
+        self.time = _unpacked[0]
         self.owner = conn.get_from_cache_fallback(_unpacked[1], Window)
         self.selection = Atom(conn, _unpacked[2])
         self.event_target = self.conn
@@ -880,19 +880,17 @@ class xprotoExtension(ooxcb.Extension):
             ListPropertiesCookie(),
             ListPropertiesReply)
 
-    def set_selection_owner_checked(self, owner_, selection_, time_):
+    def set_selection_owner_checked(self, owner_, selection_, time):
         owner = owner_.get_internal()
         selection = selection_.get_internal()
-        time = time_.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("xxxxIII", owner, selection, time))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 22, True, True), \
             ooxcb.VoidCookie())
 
-    def set_selection_owner(self, owner_, selection_, time_):
+    def set_selection_owner(self, owner_, selection_, time):
         owner = owner_.get_internal()
         selection = selection_.get_internal()
-        time = time_.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("xxxxIII", owner, selection, time))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 22, True, False), \
@@ -914,23 +912,21 @@ class xprotoExtension(ooxcb.Extension):
             GetSelectionOwnerCookie(),
             GetSelectionOwnerReply)
 
-    def convert_selection_checked(self, requestor_, selection_, target_, property_, time_):
+    def convert_selection_checked(self, requestor_, selection_, target_, property_, time):
         requestor = requestor_.get_internal()
         selection = selection_.get_internal()
         target = target_.get_internal()
         property = property_.get_internal()
-        time = time_.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("xxxxIIIII", requestor, selection, target, property, time))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 24, True, True), \
             ooxcb.VoidCookie())
 
-    def convert_selection(self, requestor_, selection_, target_, property_, time_):
+    def convert_selection(self, requestor_, selection_, target_, property_, time):
         requestor = requestor_.get_internal()
         selection = selection_.get_internal()
         target = target_.get_internal()
         property = property_.get_internal()
-        time = time_.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("xxxxIIIII", requestor, selection, target, property, time))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 24, True, False), \
@@ -952,37 +948,33 @@ class xprotoExtension(ooxcb.Extension):
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 25, True, False), \
             ooxcb.VoidCookie())
 
-    def grab_pointer(self, owner_events, grab_window_, event_mask, pointer_mode, keyboard_mode, confine_to_, cursor_, time_):
+    def grab_pointer(self, owner_events, grab_window_, event_mask, pointer_mode, keyboard_mode, confine_to_, cursor_, time):
         grab_window = grab_window_.get_internal()
         confine_to = confine_to_.get_internal()
         cursor = cursor_.get_internal()
-        time = time_.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("xBxxIHBBIII", owner_events, grab_window, event_mask, pointer_mode, keyboard_mode, confine_to, cursor, time))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 26, False, True), \
             GrabPointerCookie(),
             GrabPointerReply)
 
-    def grab_pointer_unchecked(self, owner_events, grab_window_, event_mask, pointer_mode, keyboard_mode, confine_to_, cursor_, time_):
+    def grab_pointer_unchecked(self, owner_events, grab_window_, event_mask, pointer_mode, keyboard_mode, confine_to_, cursor_, time):
         grab_window = grab_window_.get_internal()
         confine_to = confine_to_.get_internal()
         cursor = cursor_.get_internal()
-        time = time_.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("xBxxIHBBIII", owner_events, grab_window, event_mask, pointer_mode, keyboard_mode, confine_to, cursor, time))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 26, False, False), \
             GrabPointerCookie(),
             GrabPointerReply)
 
-    def ungrab_pointer_checked(self, time_):
-        time = time_.get_internal()
+    def ungrab_pointer_checked(self, time):
         buf = StringIO.StringIO()
         buf.write(pack("xxxxI", time))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 27, True, True), \
             ooxcb.VoidCookie())
 
-    def ungrab_pointer(self, time_):
-        time = time_.get_internal()
+    def ungrab_pointer(self, time):
         buf = StringIO.StringIO()
         buf.write(pack("xxxxI", time))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 27, True, False), \
@@ -1020,49 +1012,43 @@ class xprotoExtension(ooxcb.Extension):
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 29, True, False), \
             ooxcb.VoidCookie())
 
-    def change_active_pointer_grab_checked(self, cursor_, time_, event_mask):
+    def change_active_pointer_grab_checked(self, cursor_, time, event_mask):
         cursor = cursor_.get_internal()
-        time = time_.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("xxxxIIHxx", cursor, time, event_mask))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 30, True, True), \
             ooxcb.VoidCookie())
 
-    def change_active_pointer_grab(self, cursor_, time_, event_mask):
+    def change_active_pointer_grab(self, cursor_, time, event_mask):
         cursor = cursor_.get_internal()
-        time = time_.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("xxxxIIHxx", cursor, time, event_mask))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 30, True, False), \
             ooxcb.VoidCookie())
 
-    def grab_keyboard(self, owner_events, grab_window_, time_, pointer_mode, keyboard_mode):
+    def grab_keyboard(self, owner_events, grab_window_, time, pointer_mode, keyboard_mode):
         grab_window = grab_window_.get_internal()
-        time = time_.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("xBxxIIBBxx", owner_events, grab_window, time, pointer_mode, keyboard_mode))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 31, False, True), \
             GrabKeyboardCookie(),
             GrabKeyboardReply)
 
-    def grab_keyboard_unchecked(self, owner_events, grab_window_, time_, pointer_mode, keyboard_mode):
+    def grab_keyboard_unchecked(self, owner_events, grab_window_, time, pointer_mode, keyboard_mode):
         grab_window = grab_window_.get_internal()
-        time = time_.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("xBxxIIBBxx", owner_events, grab_window, time, pointer_mode, keyboard_mode))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 31, False, False), \
             GrabKeyboardCookie(),
             GrabKeyboardReply)
 
-    def ungrab_keyboard_checked(self, time_):
-        time = time_.get_internal()
+    def ungrab_keyboard_checked(self, time):
         buf = StringIO.StringIO()
         buf.write(pack("xxxxI", time))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 32, True, True), \
             ooxcb.VoidCookie())
 
-    def ungrab_keyboard(self, time_):
-        time = time_.get_internal()
+    def ungrab_keyboard(self, time):
         buf = StringIO.StringIO()
         buf.write(pack("xxxxI", time))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 32, True, False), \
@@ -1082,15 +1068,13 @@ class xprotoExtension(ooxcb.Extension):
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 34, True, False), \
             ooxcb.VoidCookie())
 
-    def allow_events_checked(self, mode, time_):
-        time = time_.get_internal()
+    def allow_events_checked(self, mode, time):
         buf = StringIO.StringIO()
         buf.write(pack("xBxxI", mode, time))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 35, True, True), \
             ooxcb.VoidCookie())
 
-    def allow_events(self, mode, time_):
-        time = time_.get_internal()
+    def allow_events(self, mode, time):
         buf = StringIO.StringIO()
         buf.write(pack("xBxxI", mode, time))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 35, True, False), \
@@ -1136,20 +1120,16 @@ class xprotoExtension(ooxcb.Extension):
             QueryPointerCookie(),
             QueryPointerReply)
 
-    def get_motion_events(self, window_, start_, stop_):
+    def get_motion_events(self, window_, start, stop):
         window = window_.get_internal()
-        start = start_.get_internal()
-        stop = stop_.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("xxxxIII", window, start, stop))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 39, False, True), \
             GetMotionEventsCookie(),
             GetMotionEventsReply)
 
-    def get_motion_events_unchecked(self, window_, start_, stop_):
+    def get_motion_events_unchecked(self, window_, start, stop):
         window = window_.get_internal()
-        start = start_.get_internal()
-        stop = stop_.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("xxxxIII", window, start, stop))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 39, False, False), \
@@ -2667,7 +2647,7 @@ class EnterNotifyEvent(ooxcb.Event):
         count = 0
         _unpacked = unpack_ex("xBxxIIIIhhhhHBB", self, count)
         self.detail = _unpacked[0]
-        self.time = Timestamp(conn, _unpacked[1])
+        self.time = _unpacked[1]
         self.root = conn.get_from_cache_fallback(_unpacked[2], Window)
         self.event = conn.get_from_cache_fallback(_unpacked[3], Window)
         self.child = conn.get_from_cache_fallback(_unpacked[4], Window)
@@ -2733,7 +2713,7 @@ class KeyReleaseEvent(ooxcb.Event):
         count = 0
         _unpacked = unpack_ex("xBxxIIIIhhhhHBx", self, count)
         self.detail = _unpacked[0]
-        self.time = Timestamp(conn, _unpacked[1])
+        self.time = _unpacked[1]
         self.root = conn.get_from_cache_fallback(_unpacked[2], Window)
         self.event = conn.get_from_cache_fallback(_unpacked[3], Window)
         self.child = conn.get_from_cache_fallback(_unpacked[4], Window)
@@ -2795,10 +2775,6 @@ class LookupColorReply(ooxcb.Reply):
         self.visual_red = _unpacked[3]
         self.visual_green = _unpacked[4]
         self.visual_blue = _unpacked[5]
-
-class Timestamp(ooxcb.Resource):
-    def __init__(self, conn, xid):
-        ooxcb.Resource.__init__(self, conn, xid)
 
 class Screen(ooxcb.Struct):
     def __init__(self, conn, parent, offset):
@@ -2931,7 +2907,7 @@ class ButtonReleaseEvent(ooxcb.Event):
         count = 0
         _unpacked = unpack_ex("xBxxIIIIhhhhHBx", self, count)
         self.detail = Button(conn, _unpacked[0])
-        self.time = Timestamp(conn, _unpacked[1])
+        self.time = _unpacked[1]
         self.root = conn.get_from_cache_fallback(_unpacked[2], Window)
         self.event = conn.get_from_cache_fallback(_unpacked[3], Window)
         self.child = conn.get_from_cache_fallback(_unpacked[4], Window)
@@ -2977,7 +2953,7 @@ class ButtonPressEvent(ooxcb.Event):
         count = 0
         _unpacked = unpack_ex("xBxxIIIIhhhhHBx", self, count)
         self.detail = Button(conn, _unpacked[0])
-        self.time = Timestamp(conn, _unpacked[1])
+        self.time = _unpacked[1]
         self.root = conn.get_from_cache_fallback(_unpacked[2], Window)
         self.event = conn.get_from_cache_fallback(_unpacked[3], Window)
         self.child = conn.get_from_cache_fallback(_unpacked[4], Window)
@@ -3166,7 +3142,7 @@ class KeyPressEvent(ooxcb.Event):
         count = 0
         _unpacked = unpack_ex("xBxxIIIIhhhhHBx", self, count)
         self.detail = _unpacked[0]
-        self.time = Timestamp(conn, _unpacked[1])
+        self.time = _unpacked[1]
         self.root = conn.get_from_cache_fallback(_unpacked[2], Window)
         self.event = conn.get_from_cache_fallback(_unpacked[3], Window)
         self.child = conn.get_from_cache_fallback(_unpacked[4], Window)
@@ -3198,7 +3174,7 @@ class LeaveNotifyEvent(ooxcb.Event):
         count = 0
         _unpacked = unpack_ex("xBxxIIIIhhhhHBB", self, count)
         self.detail = _unpacked[0]
-        self.time = Timestamp(conn, _unpacked[1])
+        self.time = _unpacked[1]
         self.root = conn.get_from_cache_fallback(_unpacked[2], Window)
         self.event = conn.get_from_cache_fallback(_unpacked[3], Window)
         self.child = conn.get_from_cache_fallback(_unpacked[4], Window)
@@ -3597,17 +3573,15 @@ class Window(ooxcb.Resource):
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 33, True, False), \
             ooxcb.VoidCookie())
 
-    def set_input_focus_checked(self, time_, revert_to=1):
+    def set_input_focus_checked(self, revert_to=1, time=0):
         focus = self.get_internal()
-        time = time_.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("xBxxII", revert_to, focus, time))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 42, True, True), \
             ooxcb.VoidCookie())
 
-    def set_input_focus(self, time_, revert_to=1):
+    def set_input_focus(self, revert_to=1, time=0):
         focus = self.get_internal()
-        time = time_.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("xBxxII", revert_to, focus, time))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 42, True, False), \
@@ -3688,7 +3662,7 @@ class Timecoord(ooxcb.Struct):
         ooxcb.Struct.__init__(self, conn, parent, offset, size)
         count = 0
         _unpacked = unpack_ex("Ihh", self, count)
-        self.time = Timestamp(conn, _unpacked[0])
+        self.time = _unpacked[0]
         self.x = _unpacked[1]
         self.y = _unpacked[2]
         ooxcb._resize_obj(self, count)
@@ -3854,7 +3828,7 @@ class MotionNotifyEvent(ooxcb.Event):
         count = 0
         _unpacked = unpack_ex("xBxxIIIIhhhhHBx", self, count)
         self.detail = _unpacked[0]
-        self.time = Timestamp(conn, _unpacked[1])
+        self.time = _unpacked[1]
         self.root = conn.get_from_cache_fallback(_unpacked[2], Window)
         self.event = conn.get_from_cache_fallback(_unpacked[3], Window)
         self.child = conn.get_from_cache_fallback(_unpacked[4], Window)
@@ -3966,7 +3940,7 @@ class SelectionRequestEvent(ooxcb.Event):
         ooxcb.Event.__init__(self, conn, parent)
         count = 0
         _unpacked = unpack_ex("xxxxIIIIII", self, count)
-        self.time = Timestamp(conn, _unpacked[0])
+        self.time = _unpacked[0]
         self.owner = conn.get_from_cache_fallback(_unpacked[1], Window)
         self.requestor = conn.get_from_cache_fallback(_unpacked[2], Window)
         self.selection = Atom(conn, _unpacked[3])
@@ -4072,7 +4046,7 @@ class SelectionNotifyEvent(ooxcb.Event):
         ooxcb.Event.__init__(self, conn, parent)
         count = 0
         _unpacked = unpack_ex("xxxxIIIII", self, count)
-        self.time = Timestamp(conn, _unpacked[0])
+        self.time = _unpacked[0]
         self.requestor = conn.get_from_cache_fallback(_unpacked[1], Window)
         self.selection = Atom(conn, _unpacked[2])
         self.target = Atom(conn, _unpacked[3])
@@ -4125,7 +4099,7 @@ class PropertyNotifyEvent(ooxcb.Event):
         _unpacked = unpack_ex("xxxxIIIBxxx", self, count)
         self.window = conn.get_from_cache_fallback(_unpacked[0], Window)
         self.atom = Atom(conn, _unpacked[1])
-        self.time = Timestamp(conn, _unpacked[2])
+        self.time = _unpacked[2]
         self.state = _unpacked[3]
         self.event_target = self.conn
 

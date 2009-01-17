@@ -31,6 +31,7 @@ config = {
     'bind.keys': {
             'Meta+n': 'desktops.cycle offset=1',
             'Meta+p': 'desktops.cycle offset=-1',
+            'Meta+c': 'desktops.cycle_clients',
             'META+X': 'spawn cmdline="xterm -bg \'#cc0000\'"',
             'Meta+Q': 'quit',
         }

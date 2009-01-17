@@ -172,16 +172,19 @@ class Screen(SXObject):
             Update _NET_ACTIVE_WINDOW;
             self.focused_client is the new focused client
         """
-        self.root.change_property('_NET_ACTIVE_WINDOW', 'WINDOW', 32, [self.window.get_internal()])
+        if self.focused_client is not None:
+            self.root.change_property('_NET_ACTIVE_WINDOW', 'WINDOW', 32, [self.focused_client.window.get_internal()])
 
     def focus(self, client):
         """
             focus the client `client`.
+            It may be None => No focus.
         """
         if self.focused_client is not None:
             self.focused_client.blur()
         self.focused_client = client
-        client.focus()
+        if client is not None:
+            client.focus()
 
     def scan(self):
         """ scan a screen for windows to manage """

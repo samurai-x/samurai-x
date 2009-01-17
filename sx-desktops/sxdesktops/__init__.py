@@ -27,6 +27,7 @@ import logging
 log = logging.getLogger(__name__)
 
 from samuraix.plugin import Plugin
+from ooxcb.eventsys import EventDispatcher
 
 def cycle_indices(current, offset, length):
     """
@@ -45,8 +46,10 @@ class Desktop(object):
     def __repr__(self):
         return '<Desktop "%s">' % self.name
 
-class ScreenData(object):
+class ScreenData(EventDispatcher):
     def __init__(self, screen, desktops):
+        EventDispatcher.__init__(self)
+
         self.screen = screen
         self.desktops = desktops
         self.active_desktop = desktops[0]
@@ -71,13 +74,19 @@ class ScreenData(object):
         prev = self.active_desktop
         self.active_desktop = desktop
         self.active_desktop_idx = self.desktops.index(0)
+        self.dispatch_event('on_change_desktop', self, prev)
+
+    def on_change_desktop(self, fles, prev):
         self.update_clients(prev)
+        # focus any client on the new desktop,
+        # we don't want an off screen focus.
+        self.screen.focus(self.active_desktop.clients.get(0, None))
 
     def set_active_desktop_idx(self, idx):
         prev = self.active_desktop
         self.active_desktop_idx = idx
         self.active_desktop = self.desktops[idx]
-        self.update_clients(prev)
+        self.dispatch_event('on_change_desktop', self, prev)
 
     def update_clients(self, previous_desktop):
         """
@@ -93,6 +102,20 @@ class ScreenData(object):
     def cycle_desktops(self, offset=+1):
         self.set_active_desktop_idx(cycle_indices(self.active_desktop_idx, offset, len(self.desktops)))
 
+    def cycle_clients(self, offset=+1):
+        clients = self.active_desktop.clients
+        if self.screen.focused_client is None:
+            idx = 0
+        else:
+            idx = clients.index(self.screen.focused_client)
+        try:
+            client = clients[cycle_indices(idx, offset, len(clients))]
+        except IndexError:
+            client = None
+        self.screen.focus(client)
+
+ScreenData.register_event_type('on_change_desktop')
+
 class ClientData(object):
     def __init__(self, desktop, client):
         self.client = client
@@ -106,6 +129,7 @@ class SXDesktops(Plugin):
         self.app = app
         app.push_handlers(self)
         app.plugins['actions'].register('desktops.cycle', self.action_cycle)
+        app.plugins['actions'].register('desktops.cycle_clients', self.action_cycle_clients)
         app.plugins['actions'].register('desktops.goto', self.action_goto)
 
     def on_load_config(self, config):
@@ -127,6 +151,9 @@ class SXDesktops(Plugin):
 
         """
         self.get_data(info['screen']).cycle_desktops(info.get('offset', 1))
+
+    def action_cycle_clients(self, info):
+        self.get_data(info['screen']).cycle_clients(info.get('offset', 1))
 
     def action_goto(self, info):
         """
