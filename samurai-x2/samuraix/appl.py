@@ -76,6 +76,10 @@ class App(SXObject):
         self.dispatch_event('on_load_config', config)
 
     def stop(self, *args):
+        log.info('Unmanaging all remaining clients ...')
+        for screen in self.screens:
+            screen.unmanage_all()
+        self.conn.flush()
         log.info('stopping')
         self.running = False
 
@@ -123,6 +127,8 @@ class App(SXObject):
                         ev.dispatch()
                     except Exception, e:
                         log.exception(e)
+
+        self.conn.disconnect()
 
     def get_screen_by_root(self, root):
         """

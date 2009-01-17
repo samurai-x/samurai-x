@@ -62,7 +62,6 @@ class Screen(SXObject):
 
         self.set_supported_hints()
 
-
     def get_geometry(self):
         return Rect.from_dict(self.root.get_geometry())
 
@@ -115,8 +114,10 @@ class Screen(SXObject):
         log.debug('property change: %s' % repr(evt.atom.name))
 
     def manage(self, window):
-        """ manage a new window - this may *not* result in a window being managed 
-        if it is unsuitable """
+        """ 
+            manage a new window - this may *not* result in a window being managed 
+            if it is unsuitable 
+        """
         attributes = window.get_attributes().reply()
         geom = window.get_geometry().reply()
 
@@ -145,6 +146,19 @@ class Screen(SXObject):
         self.update_client_list()
         return client
 
+    def unmanage(self, client):
+        """
+            Unmanage the client `client`.
+            That means: map it. If we don't map it,
+            it is unmapped. If it is unmapped, 
+            samurai-x won't manage it if it's
+            restarted.
+        """
+        client.actor.map()
+
+    def unmanage_all(self):
+        map(self.unmanage, self.clients)
+
     def update_client_list(self):
         # re-set _NET_CLIENT_LIST
         self.root.change_property('_NET_CLIENT_LIST', 
@@ -159,6 +173,15 @@ class Screen(SXObject):
             self.focused_client is the new focused client
         """
         self.root.change_property('_NET_ACTIVE_WINDOW', 'WINDOW', 32, [self.window.get_internal()])
+
+    def focus(self, client):
+        """
+            focus the client `client`.
+        """
+        if self.focused_client is not None:
+            self.focused_client.blur()
+        self.focused_client = client
+        client.focus()
 
     def scan(self):
         """ scan a screen for windows to manage """
@@ -175,10 +198,6 @@ class Screen(SXObject):
                 continue
             # TODO: we receive the attributes two times here.
             self.manage(child)
-
-    def maximise_client(self):
-        if self.focused_client:
-            self.focused_client.toggle_maximize()
 
     def set_supported_hints(self):
         pass

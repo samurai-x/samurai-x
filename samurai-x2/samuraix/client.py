@@ -138,22 +138,22 @@ class Client(SXObject):
         # TODO: set window state
 
     def focus(self):
-        #self.window.set_input_focus()
-
-        if self.screen.focused_client is not None:
-            self.screen.focused_client.blur()
-
-        self.screen.focused_client = self
-        self.dispatch_event('on_focus', self)
-        # have to configure `frame` here!
-        #self.actor.configure(stack_mode=pyxcb.window.STACK_MODE_ABOVE) 
+        """
+            Focus the client. Do not call that, use
+            `Screen.focus` instead.
+        """
+        # grab the input focus
+        self.window.set_input_focus()
+        # set it abvoe
+        self.actor.configure(stack_mode=xproto.StackMode.Above)
+        self.conn.flush()
         # TODO: grab buttons etc
+        self.dispatch_event('on_focus', self)
 
     def blur(self):
         """
-            Oh no! I am no longer focused!
-
-            Grab the focus button and dispatch 'on_blur'.
+            Blur / Unfocus the client.
+            Do not call, use `Screen.focus`.
         """
         self.dispatch_event('on_blur', self)
 
