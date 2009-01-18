@@ -136,6 +136,8 @@ class Screen(SXObject):
         client.push_handlers(on_removed=self.on_client_removed)
         self.clients.add(client)
 
+        client.init()
+
         # If we have no focused client yet, use the newly managed client.
         if self.focused_client is None: 
             self.focus(client)

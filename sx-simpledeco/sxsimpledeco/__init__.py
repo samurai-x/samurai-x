@@ -108,7 +108,7 @@ class ClientData(object):
             self.client.conn.flush()
 
     def on_button_press(self, evt):
-        self.plugin.emit_action(evt)
+        self.plugin.emit_action(self.client, evt)
 
     def on_property_notify(self, evt):
         """
@@ -197,17 +197,19 @@ class SXDeco(Plugin):
                     xproto.EventMask.ButtonPress,
                 )
         client.window.reparent(client.actor, 0, BAR_HEIGHT)
-
-        self.attach_data_to(client, ClientData(self, screen, client))
+        
+        data = ClientData(self, screen, client)
+        self.attach_data_to(client, data)
         client.actor.map()
-        log.debug('created client actor %s', client)
+        log.debug('created client actor client=%s actor=%s data=%s', client, client.actor, data)
 
-    def emit_action(self, evt):
+    def emit_action(self, client, evt):
         stroke = (evt.state, evt.detail)
         if stroke in self.bindings:
             info = ActionInfo(screen = self.app.get_screen_by_root(evt.root),
                     x=evt.event_x,
-                    y=evt.event_y) # TODO: no additional info? :/
+                    y=evt.event_y,
+                    client=client) # TODO: no additional info? :/
             # ... call the action
             self.app.plugins['actions'].emit(self.bindings[stroke], info)
   

@@ -1513,28 +1513,6 @@ class xprotoExtension(ooxcb.Extension):
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 66, True, False), \
             ooxcb.VoidCookie())
 
-    def poly_rectangle_checked(self, drawable_, gc_, rectangles_len, rectangles_):
-        drawable = drawable_.get_internal()
-        gc = gc_.get_internal()
-        rectangles = rectangles_.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xxxxII", drawable, gc))
-        for elt in ooxcb.Iterator(rectangles, 4, "rectangles", True):
-            buf.write(pack("hhHH", *elt))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 67, True, True), \
-            ooxcb.VoidCookie())
-
-    def poly_rectangle(self, drawable_, gc_, rectangles_len, rectangles_):
-        drawable = drawable_.get_internal()
-        gc = gc_.get_internal()
-        rectangles = rectangles_.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xxxxII", drawable, gc))
-        for elt in ooxcb.Iterator(rectangles, 4, "rectangles", True):
-            buf.write(pack("hhHH", *elt))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 67, True, False), \
-            ooxcb.VoidCookie())
-
     def poly_arc_checked(self, drawable_, gc_, arcs_len, arcs_):
         drawable = drawable_.get_internal()
         gc = gc_.get_internal()
@@ -3381,6 +3359,12 @@ class Window(ooxcb.Resource):
         buf = StringIO.StringIO()
         buf.write(pack("xxxxIH", window, value_mask))
         buf.write(pack("xx"))
+        if value_mask & ConfigWindow.X:
+            buf.write(pack("i", value_list[0]))
+            del value_list[0]
+        if value_mask & ConfigWindow.Y:
+            buf.write(pack("i", value_list[0]))
+            del value_list[0]
         buf.write(array("I", value_list).tostring())
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 12, True, True), \
             ooxcb.VoidCookie())
@@ -3412,6 +3396,12 @@ class Window(ooxcb.Resource):
         buf = StringIO.StringIO()
         buf.write(pack("xxxxIH", window, value_mask))
         buf.write(pack("xx"))
+        if value_mask & ConfigWindow.X:
+            buf.write(pack("i", value_list[0]))
+            del value_list[0]
+        if value_mask & ConfigWindow.Y:
+            buf.write(pack("i", value_list[0]))
+            del value_list[0]
         buf.write(array("I", value_list).tostring())
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 12, True, False), \
             ooxcb.VoidCookie())
@@ -3998,6 +3988,26 @@ class GContext(ooxcb.Resource):
         buf = StringIO.StringIO()
         buf.write(pack("xxxxI", gc))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 60, True, False), \
+            ooxcb.VoidCookie())
+
+    def poly_rectangle_checked(self, drawable_, rectangles):
+        gc = self.get_internal()
+        drawable = drawable_.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xxxxII", drawable, gc))
+        for rect in rectangles:
+            buf.write(pack("hhHH", rect.x, rect.y, rect.width, rect.height))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 67, True, True), \
+            ooxcb.VoidCookie())
+
+    def poly_rectangle(self, drawable_, rectangles):
+        gc = self.get_internal()
+        drawable = drawable_.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xxxxII", drawable, gc))
+        for rect in rectangles:
+            buf.write(pack("hhHH", rect.x, rect.y, rect.width, rect.height))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 67, True, False), \
             ooxcb.VoidCookie())
 
     def image_text8_checked(self, drawable_, x, y, string):

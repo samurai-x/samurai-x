@@ -106,6 +106,16 @@ def make_seq_xizer(seq_in='value', seq_out='value', length_out='value_len'):
         code.append(template('$seq_out = $seq_in', seq_out=seq_out, seq_in=seq_in))
     return lambda code=code: code
 
+def make_rectangles_xizer(list_in='rectangles', list_out='rectangles', length_out='rectangles_length'):
+    code = []
+    code.append(template("$list_out = []", list_out=list_out))
+    code.append(template("for rect in $list_in:", list_in=list_in))
+    code.append(INDENT)
+    code.append(template("$list_out.extend([rect.x, rect.y, rect.width, rect.height])", list_out=list_out))
+    code.append(DEDENT)
+    code.append(template("$length_out = len($list_in)", length_out=length_out, list_in=list_in))
+    return lambda code=code: code
+
 def make_lazy_atom_xizer(name, conn='self.conn'):
     code = []
     code.append(template("if isinstance($name, basestring):", name=name))
@@ -166,8 +176,10 @@ def make_lazy_none_xizer(value, from_='None', to='XNone'):
 
     return lambda code=code: code
 
-XIZER_MAKERS = {'values': make_values_xizer,
+XIZER_MAKERS = {
+        'values': make_values_xizer,
         'seq': make_seq_xizer,
+        'rectangles': make_rectangles_xizer,
         'lazy_atom': make_lazy_atom_xizer,
         'lazy_none': make_lazy_none_xizer,
         }

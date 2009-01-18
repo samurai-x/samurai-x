@@ -2,6 +2,7 @@ import logging
 log = logging.getLogger(__name__)
 
 from samuraix.plugin import Plugin
+from samuraix.rect import Rect
 
 from ooxcb import xproto
 
@@ -39,9 +40,9 @@ class MoveHandler(ClientHandler):
     def on_motion_notify(self, evt):
         self.clear_preview()
         x, y = evt.root_x - self.offset_x, evt.root_y - self.offset_y
-#        self.gc.poly_rectangle(self.client.screen.root,
-#                                [samuraix.xcb.graphics.Rectangle(x, y, self.client.frame_geom.width, self.client.frame_geom.height)],
-#                                False)
+        self.gc.poly_rectangle(self.client.screen.root,
+                                [Rect(x, y, self.client.geom.width, self.client.geom.height)])
+        self.client.conn.flush()
         self._x = evt.root_x
         self._y = evt.root_y
         return True
@@ -60,9 +61,8 @@ class MoveHandler(ClientHandler):
         """ clear old preview if necessary """
         if self._x is not None:
             x, y = self._x - self.offset_x, self._y - self.offset_y
-#            self.gc.poly_rectangle(self.client.screen.root,
-#                                    [samuraix.xcb.graphics.Rectangle(x, y, self.client.frame_geom.width, self.client.frame_geom.height)],
-#                                    False)
+            self.gc.poly_rectangle(self.client.screen.root,
+                                    [Rect(x, y, self.client.geom.width, self.client.geom.height)])
 
 class ResizeHandler(ClientHandler):
     def __init__(self, client, x, y):
@@ -76,12 +76,12 @@ class ResizeHandler(ClientHandler):
 
     def on_motion_notify(self, evt):
         self.clear_preview()
-        geom = self.client.geom # TODO: I'm sure that's wrong.
+        geom = self.client.geom # TODO: I'm sure that's wrong. -- is it?
         w = evt.root_x - geom.x
         h = evt.root_y - geom.y
-#        self.gc.poly_rectangle(self.client.screen.root,
-#                                [samuraix.xcb.graphics.Rectangle(geom.x, geom.y, w, h)],
-#                                False)
+        self.gc.poly_rectangle(self.client.screen.root,
+                                [Rect(geom.x, geom.y, w, h)])
+        self.client.conn.flush()
         self._w = w
         self._h = h
         return True
@@ -97,7 +97,7 @@ class ResizeHandler(ClientHandler):
 
         self.client.screen.root.remove_handlers(self)
         self.client.conn.core.ungrab_pointer()
-        # put the mouse back where it was 
+        # put the mouse back where it was # TODO: necessary?
 #        self.client.frame.warp_pointer(self.offset_x, self.offset_y)
         self.client.conn.flush()
 
@@ -106,15 +106,13 @@ class ResizeHandler(ClientHandler):
     def clear_preview(self):
         """ clear old preview if necessary """
         if self._w:
-            pass
-#            self.gc.poly_rectangle(
-#                    self.client.screen.root,
-#                    [samuraix.xcb.graphics.Rectangle(
-#                        self.client.frame_geom.x, self.client.frame_geom.y, 
-#                        self._w, self._h
-#                    )],
-#                    False
-#            )
+            self.gc.poly_rectangle(
+                    self.client.screen.root,
+                    [Rect(
+                        self.client.geom.x, self.client.geom.y, 
+                        self._w, self._h
+                    )]
+            )
 
 class SXMoveResize(Plugin):
     key = 'moveresize'
@@ -126,16 +124,16 @@ class SXMoveResize(Plugin):
         app.plugins['actions'].register('moveresize.resize', self.action_resize)
 
     def action_move(self, info):
-        client = info['screen'].focused_client
+        client = info.get('client', info['screen'].focused_client)
         if client is not None:
             client.screen.root.push_handlers(
-                    MoveHandler(client, 0, 0)
+                    MoveHandler(client, info.get('x', 0), info.get('y', 0))
                 )
 
     def action_resize(self, info):
-        client = info['screen'].focused_client
+        client = info.get('client', info['screen'].focused_client)
         if client is not None:
             client.screen.root.push_handlers(
-                    ResizeHandler(client, 0, 0)
+                    ResizeHandler(client, info.get('x', 0), info.get('y', 0))
                 )
 

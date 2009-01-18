@@ -119,6 +119,20 @@ Requests:
             - "buf = StringIO.StringIO()"
             - 'buf.write(pack("xxxxIH", window, value_mask))'
             - 'buf.write(pack("xx"))' # NOTE: The pad has to be after the value mask, but xcbgen seems to put it after the value list. So, that's just a workaround.
+
+            # Well, another workaround. The xproto spec says x and y are signed ints.
+            # Here we would have an array of unsigned ints.
+            # Handcraft needed!
+            - 'if value_mask & ConfigWindow.X:'
+            - !indent
+            - 'buf.write(pack("i", value_list[0]))'
+            - 'del value_list[0]'
+            - !dedent
+            - 'if value_mask & ConfigWindow.Y:'
+            - !indent
+            - 'buf.write(pack("i", value_list[0]))'
+            - 'del value_list[0]'
+            - !dedent
             - 'buf.write(array("I", value_list).tostring())'
 
         arguments: ["**values"]
@@ -190,6 +204,19 @@ Requests:
         precode: [!xizer "String"]
         arguments: ["drawable_", "x", "y", "string"]
     
+    PolyRectangle:
+        subject: gc
+        arguments: ["drawable_", "rectangles"]
+        initcode:
+            - "gc = self.get_internal()"
+            - "drawable = drawable_.get_internal()"
+            - "buf = StringIO.StringIO()"
+            - 'buf.write(pack("xxxxII", drawable, gc))'
+            - "for rect in rectangles:"
+            - !indent
+            - 'buf.write(pack("hhHH", rect.x, rect.y, rect.width, rect.height))'
+            - !dedent
+
     FreeGC:
         subject: gc
         name: free

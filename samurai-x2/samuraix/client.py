@@ -67,7 +67,11 @@ class Client(SXObject):
         self.window.map()
         self.conn.flush()
 
-    def on_configure_notify(self, evt):
+    def init(self):
+        """ called after actor is set. That's not so nice. """
+        self.actor.push_handlers(on_configure_notify=self.actor_on_configure_notify)
+
+    def actor_on_configure_notify(self, evt):
         """
             Event handler: update the geometry
         """
