@@ -133,6 +133,7 @@ class Screen(SXObject):
         logging.debug('screen %s is now managing %s' % (self, client))
         client.push_handlers(on_removed=lambda foo: self.update_client_list,
                              on_focus=self.update_active_window)
+        client.push_handlers(on_removed=self.on_client_removed)
         self.clients.add(client)
 
         # If we have no focused client yet, use the newly managed client.
@@ -159,7 +160,23 @@ class Screen(SXObject):
             samurai-x won't manage it if it's
             restarted.
         """
+        log.info('Unmanaging %s ...' % client)
+        if self.focused_client is client:
+            new_client = None
+            try:
+                new_client = self.clients[0] # ... TODO?
+            except IndexError:
+                pass
+
+        self.clients.remove(client)
         client.actor.map()
+        self.dispatch_event('on_unmanage_client', self, client)
+
+    def on_client_removed(self, client):
+        """
+            if a client's window is removed, unmanage the client.
+        """
+        self.unmanage(client)
 
     def unmanage_all(self):
         map(self.unmanage, self.clients)
@@ -237,3 +254,4 @@ class Screen(SXObject):
 #        self.root.set_property('_NET_SUPPORTED', atoms, 32, 'ATOM')
 
 Screen.register_event_type('on_new_client')
+Screen.register_event_type('on_unmanage_client')

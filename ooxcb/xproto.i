@@ -188,6 +188,10 @@ Requests:
         subject: gc
         precode: [!xizer "String"]
         arguments: ["drawable_", "x", "y", "string"]
+    
+    FreeGC:
+        subject: gc
+        name: free
 
 Classes:
     Window:

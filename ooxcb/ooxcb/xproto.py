@@ -1411,20 +1411,6 @@ class xprotoExtension(ooxcb.Extension):
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 59, True, False), \
             ooxcb.VoidCookie())
 
-    def free_g_c_checked(self, gc_):
-        gc = gc_.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xxxxI", gc))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 60, True, True), \
-            ooxcb.VoidCookie())
-
-    def free_g_c(self, gc_):
-        gc = gc_.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xxxxI", gc))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 60, True, False), \
-            ooxcb.VoidCookie())
-
     def copy_area_checked(self, src_drawable_, dst_drawable_, gc_, src_x, src_y, dst_x, dst_y, width, height):
         src_drawable = src_drawable_.get_internal()
         dst_drawable = dst_drawable_.get_internal()
@@ -4003,6 +3989,20 @@ class FocusInEvent(ooxcb.Event):
 class GContext(ooxcb.Resource):
     def __init__(self, conn, xid):
         ooxcb.Resource.__init__(self, conn, xid)
+
+    def free_checked(self):
+        gc = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xxxxI", gc))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 60, True, True), \
+            ooxcb.VoidCookie())
+
+    def free(self):
+        gc = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xxxxI", gc))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 60, True, False), \
+            ooxcb.VoidCookie())
 
     def image_text8_checked(self, drawable_, x, y, string):
         string_len = len(string)

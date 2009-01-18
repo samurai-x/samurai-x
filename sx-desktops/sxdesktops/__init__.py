@@ -69,6 +69,15 @@ class ScreenData(EventDispatcher):
         #...attach_data_to(client, data)
         self.active_desktop.clients.append(client) 
 
+    def on_unmanage_client(self, screen, client):
+        for desktop in self.desktops:
+            try:
+                desktop.clients.remove(client)
+            except IndexError:
+                pass
+            else:
+                break # a client is only on one desktop
+
     def set_active_desktop(self, desktop):
         #assert desktop in self.desktops # let's trust the user
         prev = self.active_desktop
@@ -111,9 +120,12 @@ class ScreenData(EventDispatcher):
             idx = 0
         else:
             idx = clients.index(self.screen.focused_client)
-        try:
-            client = clients[cycle_indices(idx, offset, len(clients))]
-        except IndexError:
+        if clients:
+            try:
+                client = clients[cycle_indices(idx, offset, len(clients))]
+            except IndexError:
+                client = None
+        else:
             client = None
         self.screen.focus(client)
 

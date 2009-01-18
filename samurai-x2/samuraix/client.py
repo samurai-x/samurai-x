@@ -46,7 +46,7 @@ class Client(SXObject):
         SXObject.__init__(self)
 
         self.conn = window.conn
-        self.geom = Rect.from_class(geometry)
+        self.geom = Rect.from_object(geometry)
         
         self.screen = screen
         self.window = window
@@ -81,7 +81,7 @@ class Client(SXObject):
             values = self.window.get_property('WM_NORMAL_HINTS', 'WM_SIZE_HINTS').reply().value
             hints = SizeHints.from_values(values)
         if geom is None:
-            geom = Rect.from_class(self.geom)
+            geom = self.geom.copy()
         
         log.debug('client=%s size hints=%s', self, hints)
         if (hints.valid and geom.width > 1): # that one is a hack. TODO

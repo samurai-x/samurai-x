@@ -37,8 +37,11 @@ class Rect(object):
     def __str__(self):
         return "<Rect %s %s %s %s>" % (self.x, self.y, self.width, self.height)
 
+    def to_dict(self):
+        return {'x':self.x, 'y':self.y, 'width':self.width, 'height':self.height}
+
     @classmethod
-    def from_class(cls, struct):
+    def from_object(cls, struct):
         return cls(struct.x, struct.y, struct.width, struct.height)
 
     @classmethod
