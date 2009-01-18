@@ -164,8 +164,8 @@ class Screen(SXObject):
         if self.focused_client is client:
             new_client = None
             try:
-                new_client = self.clients[0] # ... TODO?
-            except IndexError:
+                new_client = iter(self.clients).next() # TODO: expensive?
+            except StopIteration:
                 pass
 
         self.clients.remove(client)
@@ -179,7 +179,8 @@ class Screen(SXObject):
         self.unmanage(client)
 
     def unmanage_all(self):
-        map(self.unmanage, self.clients)
+        while self.clients:
+            self.unmanage(iter(self.clients).next()) # TODO: expensive?
 
     def update_client_list(self):
         # re-set _NET_CLIENT_LIST

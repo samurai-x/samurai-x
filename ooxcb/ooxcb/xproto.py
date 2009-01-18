@@ -466,7 +466,7 @@ class DestroyNotifyEvent(ooxcb.Event):
         _unpacked = unpack_ex("xxxxII", self, count)
         self.event = conn.get_from_cache_fallback(_unpacked[0], Window)
         self.window = conn.get_from_cache_fallback(_unpacked[1], Window)
-        self.event_target = self.window
+        self.event_target = self.event
 
 class QueryKeymapReply(ooxcb.Reply):
     def __init__(self, conn, parent):
@@ -601,7 +601,7 @@ class UnmapNotifyEvent(ooxcb.Event):
         self.event = conn.get_from_cache_fallback(_unpacked[0], Window)
         self.window = conn.get_from_cache_fallback(_unpacked[1], Window)
         self.from_configure = _unpacked[2]
-        self.event_target = self.window
+        self.event_target = self.event
 
 class Setupfailed(ooxcb.Struct):
     def __init__(self, conn, parent, offset):
@@ -3148,7 +3148,7 @@ class MapNotifyEvent(ooxcb.Event):
         self.event = conn.get_from_cache_fallback(_unpacked[0], Window)
         self.window = conn.get_from_cache_fallback(_unpacked[1], Window)
         self.override_redirect = _unpacked[2]
-        self.event_target = self.window
+        self.event_target = self.event
 
 class GetAtomNameReply(ooxcb.Reply):
     def __init__(self, conn, parent):
@@ -4181,7 +4181,7 @@ class NotifyMode(object):
 
 class PropertyNotifyEvent(ooxcb.Event):
     event_name = "on_property_notify"
-    event_target_class = ooxcb.Connection
+    event_target_class = "Window"
     def __init__(self, conn, parent):
         ooxcb.Event.__init__(self, conn, parent)
         count = 0
@@ -4190,7 +4190,7 @@ class PropertyNotifyEvent(ooxcb.Event):
         self.atom = Atom(conn, _unpacked[1])
         self.time = _unpacked[2]
         self.state = _unpacked[3]
-        self.event_target = self.conn
+        self.event_target = self.window
 
 class GetFontPathReply(ooxcb.Reply):
     def __init__(self, conn, parent):

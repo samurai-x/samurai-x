@@ -249,18 +249,18 @@ Events:
     CreateNotify:
         member: parent
     DestroyNotify:
-        member: window
+        member: event 
     MapNotify:
-        member: window
+        member: event 
     UnmapNotify:
-        member: window
+        member: event
     ConfigureRequest:
         member: parent # is that correct?? TODO: we should change that
     ConfigureNotify:
         member: window # correct??
     ReparentNotify:
         member: window # correct??
-    PropertyChange:
+    PropertyNotify:
         member: window
 
     # TODO: hundreds of events to be mapped.

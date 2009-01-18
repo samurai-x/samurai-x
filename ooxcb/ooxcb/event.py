@@ -22,5 +22,4 @@ class Event(Response):
         return type(conn, shim)
 
     def dispatch(self):
-        print 'Dispatching %s to %s ...' % (self.event_name, self.event_target)
         self.event_target.dispatch_event(self.event_name, self)

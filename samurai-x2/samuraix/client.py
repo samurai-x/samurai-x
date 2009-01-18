@@ -57,7 +57,6 @@ class Client(SXObject):
         self.window.change_attributes(
                 event_mask =
                     EventMask.StructureNotify |
-                    EventMask.SubstructureNotify |
                     EventMask.PropertyChange
         )
 
@@ -101,7 +100,8 @@ class Client(SXObject):
 
     def on_destroy_notify(self, evt):
         log.warning('Got destroy notify event, Client=%s' % (self))
-        self.remove()
+        if evt.window is self.window:
+            self.remove()
 
     def remove(self):
         try:
