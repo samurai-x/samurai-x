@@ -50,6 +50,8 @@ class Client(SXObject):
         
         self.screen = screen
         self.window = window
+        self.window.valid = True
+
         self.actor = window
         self.window.push_handlers(self)
         log.info('New client: Client=%s Window=%s Actor=%s' % (self, self.window, self.actor))
@@ -110,6 +112,7 @@ class Client(SXObject):
 
     def on_destroy_notify(self, evt):
         log.warning('Got destroy notify event, Client=%s' % (self))
+        self.window.valid = False
         if evt.window is self.window:
             self.remove()
 
