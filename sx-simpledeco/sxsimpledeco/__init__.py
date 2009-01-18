@@ -115,7 +115,6 @@ class ClientData(object):
             if a window changes a watched atom, redraw
             the title bar.
         """
-        print evt.atom, self.plugin.watched_atoms
         if evt.atom in self.plugin.watched_atoms:
             self.redraw()
 
@@ -137,7 +136,7 @@ class ClientData(object):
     def window_on_configure_notify(self, evt):
         """ if the window is configured, configure the actor, too """
         if self._window_configures == 0:
-            geom = self.client.geom.copy()
+            geom = Rect.from_object(evt) 
             compute_actor_geom(geom)
             self.client.actor.configure(**geom.to_dict())
             self.client.conn.flush()
