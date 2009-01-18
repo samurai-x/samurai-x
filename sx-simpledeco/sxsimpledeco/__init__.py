@@ -24,6 +24,16 @@ class ClientData(object):
 
         self._obsolete = False
         self._active = True
+        # This counter ensures that we don't run into
+        # an infinite loop. If the window is configured,
+        # we configure the actor. If the actor is configured,
+        # we configure the window --> much fun.
+        # Now, we increment the counter if we configure the
+        # window. The actor will only be configured if
+        # the counter equals 0. If it is greater than 0,
+        # it is simply decremented.
+        # Maybe that's not necessary, but it seems to be.
+        self._window_configures = 0
         
         self.gc = xproto.GContext.create(self.client.conn,
                 self.client.actor,
@@ -31,12 +41,16 @@ class ClientData(object):
                 background=screen.info.white_pixel
                 )
 
-        self.client.actor.push_handlers(on_configure_notify=self.actor_on_configure_notify,
+        self.client.actor.push_handlers(
+                on_configure_notify=self.actor_on_configure_notify,
                 on_expose=self.on_expose,
                 on_unmap_notify=self.on_unmap_notify,
                 on_map_notify=self.on_map_notify
                 )
-        self.client.window.push_handlers(on_property_notify=self.on_property_notify)
+        self.client.window.push_handlers(
+                on_property_notify=self.on_property_notify,
+                on_configure_notify=self.window_on_configure_notify
+                )
 
     def on_expose(self, evt):
         if (self._active and not self._obsolete):
@@ -66,7 +80,6 @@ class ClientData(object):
         self.client.actor.clear_area(0, 0, self.client.geom.width, self.client.geom.height)
 
         wm_name = self.client.window.get_property("WM_NAME", "STRING").reply().value.to_string()
-        print wm_name
         self.gc.image_text8(self.client.actor, 1, BAR_HEIGHT - 4, wm_name)
         self.client.conn.flush()
 
@@ -74,15 +87,19 @@ class ClientData(object):
         """ if the actor is configured, configure the window, too """
         geom = Rect(width=evt.width, height=evt.height)
         compute_window_geom(geom)
+        self._window_configures += 1
         self.client.window.configure(**geom.to_dict()) # TODO: is that efficient?
         self.client.conn.flush()
 
-#    def window_on_configure_notify(self, evt):
-#        """ if the window is configured, configure the actor, too """
-#        geom = self.client.geom.copy()
-#        compute_actor_geom(geom)
-#        self.client.actor.configure(**geom.to_dict())
-#        self.client.conn.flush()
+    def window_on_configure_notify(self, evt):
+        """ if the window is configured, configure the actor, too """
+        if self._window_configures == 0:
+            geom = self.client.geom.copy()
+            compute_actor_geom(geom)
+            self.client.actor.configure(**geom.to_dict())
+            self.client.conn.flush()
+        else:
+            self._window_configures -= 1
 
     def remove(self):
         """ the end. """
@@ -123,7 +140,7 @@ class SXDeco(Plugin):
                 client.geom.x,
                 client.geom.y,
                 client.geom.width,
-                client.geom.height,
+                client.geom.height + BAR_HEIGHT,
                 override_redirect=True,
                 back_pixel=screen.info.white_pixel,
                 event_mask=

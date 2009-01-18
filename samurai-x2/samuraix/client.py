@@ -67,6 +67,12 @@ class Client(SXObject):
         self.window.map()
         self.conn.flush()
 
+    def on_configure_notify(self, evt):
+        """
+            Event handler: update the geometry
+        """
+        self.geom = Rect.from_object(evt)
+
     def apply_normal_hints(self, hints=None, geom=None):
         """
             apply the WM_NORMAL_HINTS (TODO: complete)
