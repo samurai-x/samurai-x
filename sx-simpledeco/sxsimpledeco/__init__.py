@@ -115,6 +115,7 @@ class ClientData(object):
             if a window changes a watched atom, redraw
             the title bar.
         """
+        print evt.atom, self.plugin.watched_atoms
         if evt.atom in self.plugin.watched_atoms:
             self.redraw()
 

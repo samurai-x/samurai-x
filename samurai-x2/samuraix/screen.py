@@ -111,8 +111,8 @@ class Screen(SXObject):
         if client is not None:
             client.remove()
 
-    def on_property_change(self, evt):
-        log.debug('property change: %s' % repr(evt.atom.name))
+#    def on_property_notify(self, evt):
+#        log.debug('property change: %s' % repr(evt.atom.name))
 
     def manage(self, window):
         """ 

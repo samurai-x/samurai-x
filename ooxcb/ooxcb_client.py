@@ -43,7 +43,8 @@ CARDINAL_TYPES = {'CARD8':  'B', 'uint8_t': 'B',
 #                   'void': 'B',
                    'float': 'f',
                    'double' : 'd'}
-MODIFIERS = {'resource': 'conn.get_from_cache_fallback(%%s, %s)'}
+MODIFIERS = {'resource': 'conn.get_from_cache_fallback(%%s, %s)',
+        'ATOM': 'conn.atoms.get_by_id(%s)'}
 
 py = Codegen()
 

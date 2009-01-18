@@ -367,7 +367,7 @@ class SelectionClearEvent(ooxcb.Event):
         _unpacked = unpack_ex("xxxxIII", self, count)
         self.time = _unpacked[0]
         self.owner = conn.get_from_cache_fallback(_unpacked[1], Window)
-        self.selection = Atom(conn, _unpacked[2])
+        self.selection = conn.atoms.get_by_id(_unpacked[2])
         self.event_target = self.conn
 
 class GX(object):
@@ -2651,7 +2651,7 @@ class GetPropertyReply(ooxcb.Reply):
         count = 0
         _unpacked = unpack_ex("xBxxxxxxIIIxxxxxxxxxxxx", self, count)
         self.format = _unpacked[0]
-        self.type = Atom(conn, _unpacked[1])
+        self.type = conn.atoms.get_by_id(_unpacked[1])
         self.bytes_after = _unpacked[2]
         self.value_len = _unpacked[3]
         count += 32
@@ -2728,7 +2728,7 @@ class ClientMessageEvent(ooxcb.Event):
         _unpacked = unpack_ex("xBxxII", self, count)
         self.format = _unpacked[0]
         self.window = conn.get_from_cache_fallback(_unpacked[1], Window)
-        self.type = Atom(conn, _unpacked[2])
+        self.type = conn.atoms.get_by_id(_unpacked[2])
         count += 12
         self.data = ClientMessageData(self, count, 60)
         self.event_target = self.window
@@ -3035,7 +3035,7 @@ class InternAtomReply(ooxcb.Reply):
         ooxcb.Reply.__init__(self, conn, parent)
         count = 0
         _unpacked = unpack_ex("xxxxxxxxI", self, count)
-        self.atom = Atom(conn, _unpacked[0])
+        self.atom = conn.atoms.get_by_id(_unpacked[0])
 
 class KeyPressEvent(ooxcb.Event):
     event_name = "on_key_press"
@@ -3142,7 +3142,7 @@ class Fontprop(ooxcb.Struct):
         ooxcb.Struct.__init__(self, conn, parent, offset, size)
         count = 0
         _unpacked = unpack_ex("II", self, count)
-        self.name = Atom(conn, _unpacked[0])
+        self.name = conn.atoms.get_by_id(_unpacked[0])
         self.value = _unpacked[1]
         ooxcb._resize_obj(self, count)
 
@@ -3912,9 +3912,9 @@ class SelectionRequestEvent(ooxcb.Event):
         self.time = _unpacked[0]
         self.owner = conn.get_from_cache_fallback(_unpacked[1], Window)
         self.requestor = conn.get_from_cache_fallback(_unpacked[2], Window)
-        self.selection = Atom(conn, _unpacked[3])
-        self.target = Atom(conn, _unpacked[4])
-        self.property = Atom(conn, _unpacked[5])
+        self.selection = conn.atoms.get_by_id(_unpacked[3])
+        self.target = conn.atoms.get_by_id(_unpacked[4])
+        self.property = conn.atoms.get_by_id(_unpacked[5])
         self.event_target = self.conn
 
 class BadWindow(ooxcb.ProtocolException):
@@ -4143,9 +4143,9 @@ class SelectionNotifyEvent(ooxcb.Event):
         _unpacked = unpack_ex("xxxxIIIII", self, count)
         self.time = _unpacked[0]
         self.requestor = conn.get_from_cache_fallback(_unpacked[1], Window)
-        self.selection = Atom(conn, _unpacked[2])
-        self.target = Atom(conn, _unpacked[3])
-        self.property = Atom(conn, _unpacked[4])
+        self.selection = conn.atoms.get_by_id(_unpacked[2])
+        self.target = conn.atoms.get_by_id(_unpacked[3])
+        self.property = conn.atoms.get_by_id(_unpacked[4])
         self.event_target = self.conn
 
 class PolyShape(object):
@@ -4193,7 +4193,7 @@ class PropertyNotifyEvent(ooxcb.Event):
         count = 0
         _unpacked = unpack_ex("xxxxIIIBxxx", self, count)
         self.window = conn.get_from_cache_fallback(_unpacked[0], Window)
-        self.atom = Atom(conn, _unpacked[1])
+        self.atom = conn.atoms.get_by_id(_unpacked[1])
         self.time = _unpacked[2]
         self.state = _unpacked[3]
         self.event_target = self.window
