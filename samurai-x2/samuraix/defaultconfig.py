@@ -33,8 +33,10 @@ config = {
             'Meta+p': 'desktops.cycle offset=-1',
             'Meta+c': 'desktops.cycle_clients',
             'META+X': 'spawn cmdline="xterm -bg \'#cc0000\'"',
-            'meta+m': 'moveresize.move',
-            'meta+r': 'moveresize.resize',
             'Meta+Q': 'quit',
+        },
+    'decoration.bindings': {
+            '1': 'moveresize.move',
+            '3': 'moveresize.resize',
         }
 }

@@ -2831,7 +2831,7 @@ class ButtonReleaseEvent(ooxcb.Event):
         ooxcb.Event.__init__(self, conn, parent)
         count = 0
         _unpacked = unpack_ex("xBxxIIIIhhhhHBx", self, count)
-        self.detail = Button(conn, _unpacked[0])
+        self.detail = _unpacked[0]
         self.time = _unpacked[1]
         self.root = conn.get_from_cache_fallback(_unpacked[2], Window)
         self.event = conn.get_from_cache_fallback(_unpacked[3], Window)
@@ -2877,7 +2877,7 @@ class ButtonPressEvent(ooxcb.Event):
         ooxcb.Event.__init__(self, conn, parent)
         count = 0
         _unpacked = unpack_ex("xBxxIIIIhhhhHBx", self, count)
-        self.detail = Button(conn, _unpacked[0])
+        self.detail = _unpacked[0]
         self.time = _unpacked[1]
         self.root = conn.get_from_cache_fallback(_unpacked[2], Window)
         self.event = conn.get_from_cache_fallback(_unpacked[3], Window)
@@ -3911,10 +3911,6 @@ class GetGeometryReply(ooxcb.Reply):
         self.width = _unpacked[4]
         self.height = _unpacked[5]
         self.border_width = _unpacked[6]
-
-class Button(ooxcb.Resource):
-    def __init__(self, conn, xid):
-        ooxcb.Resource.__init__(self, conn, xid)
 
 class SelectionRequestEvent(ooxcb.Event):
     event_name = "on_selection_request"

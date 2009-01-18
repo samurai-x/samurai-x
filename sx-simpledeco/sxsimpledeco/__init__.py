@@ -5,7 +5,45 @@ from samuraix.plugin import Plugin
 from samuraix.rect import Rect
 from ooxcb import xproto
 
+from sxbind import MODIFIERS # Oh no, we depend on sxbind! TODO? (maybe move into samuraix.contrib or something like that?)
+from sxactions import ActionInfo
+
 BAR_HEIGHT = 20
+
+def parse_buttonstroke(s):
+    """
+        Return (modifiers, button id), extracted from the string `s`.
+
+        It has to contain several modifiers and a button index,
+        joined together with a '+':
+
+        CTRL+1
+        MOD4+2
+
+        1 is the left mouse button,
+        2 the middle,
+        3 the right button.
+    """
+    modmask, button = 0, 0
+
+    parts = s.split('+') 
+    modifiers = parts[:-1]
+    buttonpart = parts[-1]
+    
+    # create modmask
+    for mod in modifiers:
+        try:
+            modmask |= MODIFIERS[mod.lower()]
+        except KeyError:
+            log.error('Unknown modifier: "%s"' % mod)
+
+    # get button
+    try:
+        button = int(buttonpart)
+    except ValueError:
+        log.error('Invalid button: "%s"' % buttonpart)
+
+    return modmask, button
 
 def compute_window_geom(geom):
     """ convert the 'frame geom' to the 'window geom' """
@@ -45,7 +83,8 @@ class ClientData(object):
                 on_configure_notify=self.actor_on_configure_notify,
                 on_expose=self.on_expose,
                 on_unmap_notify=self.on_unmap_notify,
-                on_map_notify=self.on_map_notify
+                on_map_notify=self.on_map_notify,
+                on_button_press=self.on_button_press,
                 )
         self.client.window.push_handlers(
                 on_property_notify=self.on_property_notify,
@@ -67,6 +106,9 @@ class ClientData(object):
             self._active = True
             self.client.actor.map()
             self.client.conn.flush()
+
+    def on_button_press(self, evt):
+        self.plugin.emit_action(evt)
 
     def on_property_notify(self, evt):
         """
@@ -115,10 +157,15 @@ class SXDeco(Plugin):
     def __init__(self, app):
         self.app = app
         app.push_handlers(self)
+        self.bindings = {}
 
         self.watched_atoms = [self.app.conn.atoms[name] for name in
                 ["WM_NAME"]
                 ]
+
+    def on_load_config(self, config):
+        for stroke, action in config.get('decoration.bindings', {}).iteritems():
+            self.bindings[parse_buttonstroke(stroke)] = action
 
     def on_ready(self, app):
         for screen in app.screens:
@@ -146,7 +193,8 @@ class SXDeco(Plugin):
                 event_mask=
                     xproto.EventMask.Exposure | 
                     xproto.EventMask.StructureNotify | 
-                    xproto.EventMask.SubstructureNotify,
+                    xproto.EventMask.SubstructureNotify |
+                    xproto.EventMask.ButtonPress,
                 )
         client.window.reparent(client.actor, 0, BAR_HEIGHT)
 
@@ -154,3 +202,12 @@ class SXDeco(Plugin):
         client.actor.map()
         log.debug('created client actor %s', client)
 
+    def emit_action(self, evt):
+        stroke = (evt.state, evt.detail)
+        if stroke in self.bindings:
+            info = ActionInfo(screen = self.app.get_screen_by_root(evt.root),
+                    x=evt.event_x,
+                    y=evt.event_y) # TODO: no additional info? :/
+            # ... call the action
+            self.app.plugins['actions'].emit(self.bindings[stroke], info)
+  

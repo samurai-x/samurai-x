@@ -10,6 +10,7 @@ Ignored:
     - KEYCODE
     - KEYSYM
     - TIMESTAMP
+    - BUTTON
 
 Xizers:
     CW:
