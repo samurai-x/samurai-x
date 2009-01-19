@@ -37,13 +37,17 @@ def cycle_indices(current, offset, length):
     return ((current or length) + offset) % length
 
 class Desktop(EventDispatcher):
-    def __init__(self, plugin, screen, name):
+    def __init__(self, plugin, screen, name, layouter):
         EventDispatcher.__init__(self)
 
         self.plugin = plugin
         self.screen = screen
         self.name = name
+        self.layouter = layouter
         self.clients = [] # uh. maybe weak references are a good idea.
+
+    def register(self, info):
+        self.layouter.register_desktop(self, info)
 
     def __repr__(self):
         return '<Desktop "%s">' % self.name
@@ -55,7 +59,7 @@ class Desktop(EventDispatcher):
     def remove_client(self, client):
         try:
             self.clients.remove(client)
-        except IndexError:
+        except ValueError:
             return False
         else:
             self.dispatch_event('on_unmanage_client', self, client)
@@ -150,24 +154,49 @@ class ClientData(object):
         self.client = client
         self.desktop = desktop
 
+class Layouter(object):
+    def register_desktop(self, desktop, info):
+        raise NotImplementedError()
+
+class FloatingLayouter(Layouter):
+    """ just do nothing. no layout is floating layout. """
+    def register_desktop(self, desktop, info):
+        pass
+
 class SXDesktops(Plugin):
     # atm, every screen has the same amount of desktops
     key = 'desktops'
 
     def __init__(self, app):
         self.app = app
+        self.config = {}
+        self.layouters = {
+                'floating': FloatingLayouter()
+                }
+
         app.push_handlers(self)
         app.plugins['actions'].register('desktops.cycle', self.action_cycle)
         app.plugins['actions'].register('desktops.cycle_clients', self.action_cycle_clients)
         app.plugins['actions'].register('desktops.goto', self.action_goto)
 
     def on_load_config(self, config):
-        self.names = config.get('desktops.names', ['one desktop'])
-        self.create_desktops(self.app.screens, self.names)
+        #self.names = config.get('desktops.names', ['one desktop'])
+        self.config = config.get('desktops.desktops', {})
 
-    def create_desktops(self, screens, names):
+    def on_ready(self, app):
+        self.create_desktops(app.screens, self.config)
+
+    def register_layouter(self, name, layouter):
+        self.layouters[name] = layouter
+
+    def create_desktops(self, screens, config):
         for screen in screens:
-            desktops = [Desktop(self, screen, name) for name in self.names]
+            # TODO: every screen has the same desktops?
+            desktops = []
+            for name, info in self.config:
+                desktop = Desktop(self, screen, name, self.layouters[info.get('layout', 'floating')])
+                desktop.register(info)
+                desktops.append(desktop)
             self.attach_data_to(screen, ScreenData(screen, desktops))
 
     def action_cycle(self, info):

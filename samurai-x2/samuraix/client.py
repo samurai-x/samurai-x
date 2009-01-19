@@ -126,9 +126,6 @@ class Client(SXObject):
         except (ValueError, KeyError), e:
             log.warning(e)
         log.info('Removed me=%s! clients=%s' % (self, self.all_clients))
-        if self.screen.focused_client is self:
-            self.screen.focused_client = None
-
         self.dispatch_event('on_removed', self)
 
     def ban(self):

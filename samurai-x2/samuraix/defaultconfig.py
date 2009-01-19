@@ -27,7 +27,10 @@ config = {
     'core.plugin_paths': ['~/.samuraix/plugins'],
     'core.plugins': ['sxactions', 'sxdesktops', 'sxbind', 'sxsimpledeco', 'sxmoveresize', 'sxtiling'],
 
-    'desktops.names': ['one', 'another', 'desktop'],
+    'desktops.desktops': 
+        [('one', {'layout': 'tiling'}),
+         ('two', {'layout': 'floating'})]
+    ,
     'bind.keys': {
             'Meta+n': 'desktops.cycle offset=1',
             'Meta+p': 'desktops.cycle offset=-1',

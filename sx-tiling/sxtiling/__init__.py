@@ -1,26 +1,19 @@
 import logging
 log = logging.getLogger(__name__)
 
+from samuraix.client import Client
 from samuraix.plugin import Plugin
 from samuraix.rect import Rect
 
-class SXTiling(Plugin):
-    key = 'tiling'
-    # requires a desktops plugin ...
-
-    def __init__(self, app):
-        self.app = app
-
-        self.app.push_handlers(self)
-
-    def on_ready(self, app):
-        self.screen = self.app.screens[0]
+class TilingDesktop(object):
+    def __init__(self, plugin, desktop):
+        self.plugin = plugin
+        self.screen = desktop.screen
         self.screen.root.push_handlers(
                 on_configure_request=self.on_configure_request,
         )
 
-        self.screendata = self.screen.data['desktops']
-        self.desktop = self.screendata.desktops[0]
+        self.desktop = desktop
         self.desktop.push_handlers(
                 on_new_client=self.on_new_client,
                 on_unmanage_client=self.on_unmanage_client,
@@ -59,17 +52,38 @@ class SXTiling(Plugin):
                             width=geom.width // 2,
                             height=uheight - 1)
                     cnt += 1
-            self.app.conn.flush()
+            self.plugin.app.conn.flush()
 
     def on_focus(self, client):
         self.compute_all()
 
     def on_configure_request(self, evt):
-        # Hah, we ignore it! *evil laugh*
-        self.compute_all()
-        return True
+        if Client.get_by_window(evt.window) in self.desktop.clients:
+            self.compute_all()
+            return True
 
     def on_configure_notify(self, evt):
-        self.compute_all()
-        return True
+        if Client.get_by_window(evt.window) in self.desktop.clients:
+            self.compute_all()
+            return True
 
+class SXTiling(Plugin):
+    key = 'tiling'
+    # requires a desktops plugin ...
+
+    def __init__(self, app):
+        Plugin.__init__(self)
+
+        self.app = app
+        self.desktops = []
+
+        self.app.push_handlers(self)
+
+        self.app.plugins['desktops'].register_layouter('tiling', self)
+
+    def on_load_config(self, config):
+        self.desktops = []
+
+    def register_desktop(self, desktop, info):
+        # no additional information needed ... yet.
+        self.desktops.append(TilingDesktop(self, desktop))

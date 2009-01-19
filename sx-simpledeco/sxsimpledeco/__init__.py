@@ -199,7 +199,10 @@ class SXDeco(Plugin):
                 event_mask=
                     xproto.EventMask.Exposure | 
                     xproto.EventMask.StructureNotify | 
-                    xproto.EventMask.SubstructureNotify |
+                    # Child.StructureNotify and Parent.SubstructureNotify
+                    # seem to block each other. That's not what we want.
+                    # I commented this out, and it seems to work.
+#                    xproto.EventMask.SubstructureNotify |
                     xproto.EventMask.ButtonPress,
                 )
         client.window.reparent(client.actor, 0, BAR_HEIGHT)
