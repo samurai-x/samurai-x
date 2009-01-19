@@ -22,6 +22,7 @@ class ClientHandler(object):
         )
 
         client.screen.root.grab_pointer(MOUSE_MASK, cursor_=cursor) # TODO: cursor_ is UGLY!
+        client.screen.focus(client)
         client.conn.flush()
 
     def on_motion_notify(self, evt):

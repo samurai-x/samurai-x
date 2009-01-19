@@ -36,8 +36,10 @@ def cycle_indices(current, offset, length):
     """
     return ((current or length) + offset) % length
 
-class Desktop(object):
+class Desktop(EventDispatcher):
     def __init__(self, plugin, screen, name):
+        EventDispatcher.__init__(self)
+
         self.plugin = plugin
         self.screen = screen
         self.name = name
@@ -45,6 +47,22 @@ class Desktop(object):
 
     def __repr__(self):
         return '<Desktop "%s">' % self.name
+
+    def add_client(self, client):
+        self.clients.append(client)
+        self.dispatch_event('on_new_client', self, client)
+
+    def remove_client(self, client):
+        try:
+            self.clients.remove(client)
+        except IndexError:
+            return False
+        else:
+            self.dispatch_event('on_unmanage_client', self, client)
+            return True
+
+Desktop.register_event_type('on_new_client')
+Desktop.register_event_type('on_unmanage_client')
 
 class ScreenData(EventDispatcher):
     def __init__(self, screen, desktops):
@@ -62,20 +80,16 @@ class ScreenData(EventDispatcher):
             scan the screen for already existing clients which are not
             catched by the `on_new_client` event handler
         """
-        map(self.active_desktop.clients.append, self.screen.clients)
+        map(self.active_desktop.add_client, self.screen.clients)
 
     def on_new_client(self, screen, client):
         #data = ClientData(self.active_desktop, client)
         #...attach_data_to(client, data)
-        self.active_desktop.clients.append(client) 
+        self.active_desktop.add_client(client) 
 
     def on_unmanage_client(self, screen, client):
         for desktop in self.desktops:
-            try:
-                desktop.clients.remove(client)
-            except IndexError:
-                pass
-            else:
+            if desktop.remove_client(client):    
                 break # a client is only on one desktop
 
     def set_active_desktop(self, desktop):

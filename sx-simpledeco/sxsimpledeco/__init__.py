@@ -82,13 +82,13 @@ class ClientData(object):
         self.client.actor.push_handlers(
                 on_configure_notify=self.actor_on_configure_notify,
                 on_expose=self.on_expose,
-                on_unmap_notify=self.on_unmap_notify,
-                on_map_notify=self.on_map_notify,
                 on_button_press=self.on_button_press,
                 )
         self.client.window.push_handlers(
                 on_property_notify=self.on_property_notify,
-                on_configure_notify=self.window_on_configure_notify
+                on_configure_notify=self.window_on_configure_notify,
+                on_unmap_notify=self.on_unmap_notify,
+                on_map_notify=self.on_map_notify,
                 )
 
     def on_expose(self, evt):
@@ -127,11 +127,12 @@ class ClientData(object):
 
     def actor_on_configure_notify(self, evt):
         """ if the actor is configured, configure the window, too """
-        geom = Rect(width=evt.width, height=evt.height)
-        compute_window_geom(geom)
-        self._window_configures += 1
-        self.client.window.configure(**geom.to_dict()) # TODO: is that efficient?
-        self.client.conn.flush()
+        if not self._obsolete:
+            geom = Rect(width=evt.width, height=evt.height)
+            compute_window_geom(geom)
+            self._window_configures += 1
+            self.client.window.configure(**geom.to_dict()) # TODO: is that efficient?
+            self.client.conn.flush()
 
     def window_on_configure_notify(self, evt):
         """ if the window is configured, configure the actor, too """

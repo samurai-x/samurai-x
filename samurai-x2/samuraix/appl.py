@@ -124,7 +124,7 @@ class App(SXObject):
                     if ev is None:
                         break
                     try:
-                        print 'Dispatching %s!' % ev.event_name
+                        log.debug('Dispatching %s!' % ev.event_name)
                         ev.dispatch()
                     except Exception, e:
                         log.exception(e)

@@ -36,6 +36,26 @@ from .client import Client
 from .rect import Rect
 from .base import SXObject
 
+def configure_request_to_dict(evt):
+    cnf = {}
+    mask = evt.value_mask
+    # TODO: get rid of that boilerplate code
+    if mask & xproto.ConfigWindow.X:
+        cnf['x'] = evt.x
+    if mask & xproto.ConfigWindow.Y:
+        cnf['y'] = evt.y
+    if mask & xproto.ConfigWindow.Width:
+        cnf['width'] = evt.width
+    if mask & xproto.ConfigWindow.Height:
+        cnf['height'] = evt.height
+    if mask & xproto.ConfigWindow.BorderWidth:
+        cnf['border_width'] = evt.border_width
+    if mask & xproto.ConfigWindow.Sibling:
+        cnf['sibling'] = evt.sibling # does that work?
+    if mask & xproto.ConfigWindow.StackMode:
+        cnf['stack_mode'] = evt.stack_mode
+    return cnf
+
 class Screen(SXObject):
     client_class = Client
 
@@ -64,7 +84,7 @@ class Screen(SXObject):
         self.set_supported_hints()
 
     def get_geometry(self):
-        return Rect.from_dict(self.root.get_geometry())
+        return Rect.from_object(self.root.get_geometry().reply())
 
     def on_configure_request(self, evt):
         """
@@ -73,23 +93,7 @@ class Screen(SXObject):
             window that isn't managed yet, but sends a configure
             request. This configure request would be lost.
         """
-        cnf = {}
-        mask = evt.value_mask
-        # TODO: get rid of that boilerplate code
-        if mask & xproto.ConfigWindow.X:
-            cnf['x'] = evt.x
-        if mask & xproto.ConfigWindow.Y:
-            cnf['y'] = evt.y
-        if mask & xproto.ConfigWindow.Width:
-            cnf['width'] = evt.width
-        if mask & xproto.ConfigWindow.Height:
-            cnf['height'] = evt.height
-        if mask & xproto.ConfigWindow.BorderWidth:
-            cnf['border_width'] = evt.border_width
-        if mask & xproto.ConfigWindow.Sibling:
-            cnf['sibling'] = evt.sibling # does that work?
-        if mask & xproto.ConfigWindow.StackMode:
-            cnf['stack_mode'] = evt.stack_mode
+        cnf = configure_request_to_dict(evt)
         if cnf:
             evt.window.configure_checked(**cnf).check()
         else:
@@ -128,13 +132,13 @@ class Screen(SXObject):
             return False
 
         client = self.client_class(self, window, attributes, geom)
-        
+        self.clients.add(client)
+
         self.dispatch_event('on_new_client', self, client)
         logging.debug('screen %s is now managing %s' % (self, client))
         client.push_handlers(on_removed=lambda foo: self.update_client_list,
                              on_focus=self.update_active_window)
         client.push_handlers(on_removed=self.on_client_removed)
-        self.clients.add(client)
 
         client.init()
 

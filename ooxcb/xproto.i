@@ -199,6 +199,7 @@ Requests:
             time: 0 # TODO: CurrentTime
         
     # GContext objects
+    #
     ImageText8:
         subject: gc
         precode: [!xizer "String"]
@@ -220,6 +221,20 @@ Requests:
     FreeGC:
         subject: gc
         name: free
+
+    # Font objects
+    
+    OpenFont:
+        precode: [!xizer "Name"]
+
+    CloseFont:
+        name: close
+
+    # Cursor objects
+    
+    # TODO: wrap create_cursor
+
+    # no need to hack CreateGlyphCursor ...
 
 Classes:
     Window:
@@ -247,6 +262,28 @@ Classes:
                     'conn.add_to_cache(cid, gc)',
                     'return gc'
                 ]
+
+    Font:
+        - classmethod:
+            name: open
+            arguments: ["conn", "name"]
+            code: 
+                - "fid = conn.generate_id()"
+                - "font = cls(conn, fid)"
+                - "conn.core.open_font_checked(font, name).check()"
+                - "conn.add_to_cache(fid, font)"
+                - "return font"
+
+    Cursor:
+        - classmethod:
+            name: create_glyph
+            arguments: ["conn", "source_font", "mask_font", "source_char", "mask_char", "fore_red", "fore_green", "fore_blue", "back_red", "back_green", "back_blue"]
+            code: 
+                - "cid = conn.generate_id()"
+                - "cursor = cls(conn, cid)"
+                - "conn.core.create_glyph_cursor_checked(cid, source_font, mask_font, source_char, mask_char, fore_red, fore_green, fore_blue, back_red, back_green, back_blue).check()"
+                - "conn.add_to_cache(cid, cursor)"
+                - "return cursor"
 
 Events:
     KeyPress:

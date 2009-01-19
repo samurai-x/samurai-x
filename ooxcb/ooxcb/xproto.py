@@ -517,6 +517,14 @@ class Font(ooxcb.Resource):
     def __init__(self, conn, xid):
         ooxcb.Resource.__init__(self, conn, xid)
 
+    @classmethod
+    def open(cls, conn, name):
+        fid = conn.generate_id()
+        font = cls(conn, fid)
+        conn.core.open_font_checked(font, name).check()
+        conn.add_to_cache(fid, font)
+        return font
+
 class QueryKeymapCookie(ooxcb.Cookie):
     pass
 
@@ -1164,6 +1172,7 @@ class xprotoExtension(ooxcb.Extension):
             QueryKeymapReply)
 
     def open_font_checked(self, fid_, name_len, name):
+        name_len = len(name)
         fid = fid_.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("xxxxIHxx", fid, name_len))
@@ -1172,6 +1181,7 @@ class xprotoExtension(ooxcb.Extension):
             ooxcb.VoidCookie())
 
     def open_font(self, fid_, name_len, name):
+        name_len = len(name)
         fid = fid_.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("xxxxIHxx", fid, name_len))
@@ -1179,14 +1189,14 @@ class xprotoExtension(ooxcb.Extension):
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 45, True, False), \
             ooxcb.VoidCookie())
 
-    def close_font_checked(self, font_):
+    def close_checked(self, font_):
         font = font_.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("xxxxI", font))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 46, True, True), \
             ooxcb.VoidCookie())
 
-    def close_font(self, font_):
+    def close(self, font_):
         font = font_.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("xxxxI", font))
@@ -2414,6 +2424,14 @@ class BadFont(ooxcb.ProtocolException):
 class Cursor(ooxcb.Resource):
     def __init__(self, conn, xid):
         ooxcb.Resource.__init__(self, conn, xid)
+
+    @classmethod
+    def create_glyph(cls, conn, source_font, mask_font, source_char, mask_char, fore_red, fore_green, fore_blue, back_red, back_green, back_blue):
+        cid = conn.generate_id()
+        cursor = cls(conn, cid)
+        conn.core.create_glyph_cursor_checked(cid, source_font, mask_font, source_char, mask_char, fore_red, fore_green, fore_blue, back_red, back_green, back_blue).check()
+        conn.add_to_cache(cid, cursor)
+        return cursor
 
 class Place(object):
     OnTop = 0

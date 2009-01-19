@@ -1,3 +1,6 @@
+import logging
+log = logging.getLogger(__name__)
+
 import subprocess
 
 from samuraix.plugin import Plugin
@@ -95,6 +98,7 @@ class SXActions(Plugin):
         self.actions = {
                 'spawn': self.action_spawn,
                 'quit': self.action_quit,
+                'log': self.action_log,
                 } # TODO: dotted names?
 
     def action_spawn(self, info):
@@ -113,6 +117,16 @@ class SXActions(Plugin):
             quit samurai-x.
         """
         self.app.stop()
+
+    def action_log(self, info):
+        """
+            print something to the log
+
+            Parameters:
+                `message`: str
+                    (optional)
+        """
+        log.debug(info.get('message', 'Debug message ...'))
 
     def register(self, ident, action):
         """

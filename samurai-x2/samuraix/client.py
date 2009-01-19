@@ -69,6 +69,9 @@ class Client(SXObject):
         self.window.map()
         self.conn.flush()
 
+    def is_focused(self):
+        return self.screen.focused_client is self
+
     def init(self):
         """ called after actor is set. That's not so nice. """
         self.actor.push_handlers(on_configure_notify=self.actor_on_configure_notify)
