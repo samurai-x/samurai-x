@@ -20,6 +20,14 @@ class Connection(EventDispatcher):
         self.errors = {}
         self.extcache = {}
         self._setup = None
+        # The following option is only for debugging,
+        # and it should be removed in a release.
+        # If synchronous_check is True, all events
+        # will be sended as checked (regardless if
+        # x() or x_checked() is called) and each requests
+        # will be checked automatically.
+        # ... AND THAT'S SLOW!
+        self.synchronous_check = False
 
         self.keysyms = Keysyms(self)
 

@@ -11,6 +11,10 @@ class Extension(object):
         self.first_error = 0
         
     def send_request(self, request, cookie, reply_cls=None):
+        # TODO: remove that...
+        if (self.conn.synchronous_check and request.is_void):
+            request.is_checked = True
+
         xcb_req = libxcb.xcb_protocol_request_t()
         xcb_req.count = 2
         xcb_req.ext = ctypes.pointer(self.key.key) if self.key is not None else None # TODO?
@@ -36,5 +40,8 @@ class Extension(object):
         cookie.request = request
         cookie.reply_cls = reply_cls
         cookie.cookie.sequence = seq
-
+        
+        # TODO: remove that...
+        if (self.conn.synchronous_check and request.is_void):
+            cookie.check()
         return cookie
