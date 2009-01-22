@@ -113,10 +113,8 @@ class Screen(SXObject):
         client = Client.get_by_window(evt.window)
         log.debug('Root window got destroy notify event for window %s client %s' % (evt.window, client))
         if client is not None:
+            client.window.valid = False # TODO: shouldn't be here.
             client.remove()
-
-#    def on_property_notify(self, evt):
-#        log.debug('property change: %s' % repr(evt.atom.name))
 
     def manage(self, window):
         """ 
@@ -167,16 +165,22 @@ class Screen(SXObject):
             restarted.
         """
         log.info('Unmanaging %s ...' % client)
+        self.clients.remove(client)
+        client.actor.map()
+        self.dispatch_event('on_unmanage_client', self, client)
+
+    def on_unmanage_client(self, screen, client):
+        """
+            default handler: if the focused client is
+            unmanaged, a random other client is focused.
+            You May Override This.
+        """
         if self.focused_client is client:
             new_client = None
             try:
                 new_client = iter(self.clients).next() # TODO: expensive?
             except StopIteration:
                 pass
-
-        self.clients.remove(client)
-        client.actor.map()
-        self.dispatch_event('on_unmanage_client', self, client)
 
     def on_client_removed(self, client):
         """
@@ -209,6 +213,10 @@ class Screen(SXObject):
             focus the client `client`.
             It may be None => No focus.
         """
+        if client:
+            log.debug('Screen. I am focusing %s %s %s' % (client, client.window, client.actor))
+        else:
+            log.debug('Screen. I am focusing nothing.')
         if self.focused_client is not None:
             self.focused_client.blur()
         self.focused_client = client

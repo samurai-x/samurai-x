@@ -79,6 +79,10 @@ class ClientData(object):
                 background=screen.info.white_pixel
                 )
 
+        self.client.push_handlers(
+                on_focus=self.on_focus,
+                )
+
         self.client.actor.push_handlers(
                 on_configure_notify=self.actor_on_configure_notify,
                 on_expose=self.on_expose,
@@ -90,6 +94,14 @@ class ClientData(object):
                 on_unmap_notify=self.on_unmap_notify,
                 on_map_notify=self.on_map_notify,
                 )
+
+    def on_focus(self, client):
+        if (self._active and not self._obsolete):
+            # Seems like we are getting strange errors if we
+            # redraw here. Fortunately it isn't really
+            # necessary. However, TODO: find out why.
+            #self.redraw()
+            pass
 
     def on_expose(self, evt):
         if (self._active and not self._obsolete):
@@ -115,12 +127,12 @@ class ClientData(object):
             if a window changes a watched atom, redraw
             the title bar.
         """
-        if evt.atom in self.plugin.watched_atoms:
+        if (evt.atom in self.plugin.watched_atoms and not self._obsolete):
             self.redraw()
 
     def redraw(self):
+        log.debug('Redrawing, active=%s, obsolete=%s' % (self._active, self._obsolete))
         self.client.actor.clear_area(0, 0, self.client.geom.width, self.client.geom.height)
-
         wm_name = self.client.window.get_property("WM_NAME", "STRING").reply().value.to_string()
         self.gc.image_text8(self.client.actor, 1, BAR_HEIGHT - 4, wm_name)
         self.client.conn.flush()

@@ -43,6 +43,7 @@ class App(SXObject):
 
     def init(self):
         self.conn = ooxcb.connect()
+        self.conn.synchronous_check = True # HAR HAR HAR, SO EVIL
 
         self.conn.push_handlers(self)
         self.running = False

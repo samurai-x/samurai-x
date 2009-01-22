@@ -36,6 +36,10 @@ class TilingDesktop(object):
 
     def compute_all(self):
         if self.desktop.clients:
+            if self.screen.focused_client is None:
+                # We always need a focused client.
+                self.screen.focus(self.desktop.clients.current())
+                return
             geom = self.geom
             cnt = 0
             uheight = geom.height // (max(len(self.desktop.clients) - 1, 1)) # one is focused ;)

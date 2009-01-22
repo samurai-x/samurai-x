@@ -114,9 +114,9 @@ class Client(SXObject):
         self.conn.flush()
 
     def on_destroy_notify(self, evt):
-        log.warning('Got destroy notify event, Client=%s' % (self))
-        self.window.valid = False
+        log.warning('Got destroy notify event, Client=%s Window=%s' % (self, evt.window))
         if evt.window is self.window:
+            self.window.valid = False
             self.remove()
 
     def remove(self):

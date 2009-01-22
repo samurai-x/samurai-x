@@ -36,6 +36,32 @@ def cycle_indices(current, offset, length):
     """
     return ((current or length) + offset) % length
 
+class FocusStack(list):
+    def move_to_top(self, client):
+        if self.current() is client:
+            return 
+        try:
+            self.remove(client)
+            self.append(client)
+        except IndexError:
+            log.warn('cant move client %s to top! not in list!' % client)
+
+    def prev(self):
+        c = self.pop(-1)
+        self.insert(0, c)
+        return self.current()
+
+    def next(self):
+        c = self.pop(0)
+        self.append(c)
+        return self.current()
+
+    def current(self):
+        try:
+            return self[-1]
+        except IndexError:
+            return None
+
 class Desktop(EventDispatcher):
     def __init__(self, plugin, screen, name, layouter):
         EventDispatcher.__init__(self)
@@ -44,7 +70,7 @@ class Desktop(EventDispatcher):
         self.screen = screen
         self.name = name
         self.layouter = layouter
-        self.clients = [] # uh. maybe weak references are a good idea.
+        self.clients = FocusStack() # uh. maybe weak references are a good idea.
 
     def register(self, info):
         self.layouter.register_desktop(self, info)
@@ -52,9 +78,15 @@ class Desktop(EventDispatcher):
     def __repr__(self):
         return '<Desktop "%s">' % self.name
 
+    def on_focus(self, client):
+        """ a client was focused: move it to top of the focus stack """
+        self.clients.move_to_top(client)
+
     def add_client(self, client):
         self.clients.append(client)
         self.dispatch_event('on_new_client', self, client)
+
+        client.push_handlers(on_focus=self.on_focus)
 
     def remove_client(self, client):
         try:
@@ -62,6 +94,7 @@ class Desktop(EventDispatcher):
         except ValueError:
             return False
         else:
+            client.remove_handlers(on_focus=self.on_focus)
             self.dispatch_event('on_unmanage_client', self, client)
             return True
 
@@ -90,11 +123,17 @@ class ScreenData(EventDispatcher):
         #data = ClientData(self.active_desktop, client)
         #...attach_data_to(client, data)
         self.active_desktop.add_client(client) 
+        # TODO: focus it?
 
     def on_unmanage_client(self, screen, client):
         for desktop in self.desktops:
             if desktop.remove_client(client):    
                 break # a client is only on one desktop
+        else:
+            log.error('Could not unmanage client %s' % client)
+            return
+        # display the next one ...
+        #self.screen.focus(self.active_desktop.clients.current())
 
     def set_active_desktop(self, desktop):
         #assert desktop in self.desktops # let's trust the user
@@ -107,10 +146,7 @@ class ScreenData(EventDispatcher):
         self.update_clients(prev)
         # focus any client on the new desktop,
         # we don't want an off screen focus.
-        try:
-            self.screen.focus(self.active_desktop.clients[0])
-        except IndexError:
-            self.screen.focus(None)
+        self.screen.focus(self.active_desktop.clients.current())
 
     def set_active_desktop_idx(self, idx):
         prev = self.active_desktop
