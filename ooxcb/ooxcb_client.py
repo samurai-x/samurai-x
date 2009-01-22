@@ -764,8 +764,12 @@ def add_custom_member(cls, mtype, minfo):
         cls.add_member(meth)
         _handle_method(meth)
 
+    def _set_base():
+        cls.base = minfo
+
     types = {'method': _add_method,
         'classmethod': _add_classmethod,
+        'base': _set_base,
         }
     return types[mtype]()
 

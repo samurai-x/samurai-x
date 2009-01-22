@@ -238,6 +238,7 @@ Requests:
 
 Classes:
     Window:
+        - base: Drawable
         - classmethod:
             name: create
             arguments: ["conn", "parent", "depth", "visual", "x=0", "y=0", "width=640", "height=480", "border_width=0", "_class=WindowClass.InputOutput", "**values"]
