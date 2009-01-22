@@ -3164,7 +3164,7 @@ class Fontprop(ooxcb.Struct):
         self.value = _unpacked[1]
         ooxcb._resize_obj(self, count)
 
-class Window(Drawable):
+class Window(ooxcb.Resource):
     def __init__(self, conn, xid):
         ooxcb.Resource.__init__(self, conn, xid)
 
