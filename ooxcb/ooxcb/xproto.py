@@ -2748,7 +2748,7 @@ class ClientMessageEvent(ooxcb.Event):
         self.window = conn.get_from_cache_fallback(_unpacked[1], Window)
         self.type = conn.atoms.get_by_id(_unpacked[2])
         count += 12
-        self.data = ClientMessageData(self, count, 60)
+        self.data = ClientMessageData(conn, self, count, 60)
         self.event_target = self.window
 
 class Host(ooxcb.Struct):
@@ -2781,11 +2781,11 @@ class ListFontsWithInfoReply(ooxcb.Reply):
         _unpacked = unpack_ex("xBxxxxxx", self, count)
         self.name_len = _unpacked[0]
         count += 8
-        self.min_bounds = CHARINFO(self, count, 12)
+        self.min_bounds = CHARINFO(conn, self, count, 12)
         count += 12
         count += 4
         count += ooxcb.type_pad(12, count)
-        self.max_bounds = CHARINFO(self, count, 12)
+        self.max_bounds = CHARINFO(conn, self, count, 12)
         count += 12
         _unpacked = unpack_ex("xxxxHHHHBBBBhhI", self, count)
         self.min_char_or_byte2 = _unpacked[0]
@@ -3743,11 +3743,11 @@ class QueryFontReply(ooxcb.Reply):
         ooxcb.Reply.__init__(self, conn, parent)
         count = 0
         count += 8
-        self.min_bounds = CHARINFO(self, count, 12)
+        self.min_bounds = CHARINFO(conn, self, count, 12)
         count += 12
         count += 4
         count += ooxcb.type_pad(12, count)
-        self.max_bounds = CHARINFO(self, count, 12)
+        self.max_bounds = CHARINFO(conn, self, count, 12)
         count += 12
         _unpacked = unpack_ex("xxxxHHHHBBBBhhI", self, count)
         self.min_char_or_byte2 = _unpacked[0]

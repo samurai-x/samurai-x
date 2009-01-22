@@ -22,6 +22,8 @@ class AtomDict(dict):
 
     def get_by_id(self, aid):
         from .xproto import Atom # TODO: uuuuuuuugly
+        if aid == 0:
+            return None # TODO: That's basically AnyProperty ... better solution?
         try:
             return self._by_id[aid]
         except KeyError:

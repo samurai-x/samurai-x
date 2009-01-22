@@ -337,11 +337,11 @@ def py_complex(self, name):
             code.append('self.%s = %s' % (field.field_name, lcode))
             code.append('count += len(self.%s.buf())' % prefix_if_needed(field.field_name))
         elif field.type.is_container and field.type.fixed_size():
-            code.append('self.%s = %s(self, count, %s)' % (prefix_if_needed(field.field_name), 
+            code.append('self.%s = %s(conn, self, count, %s)' % (prefix_if_needed(field.field_name), 
                     field.py_type, field.type.size))
             code.append('count += %s' % field.type.size)
         else:
-            code.append('self.%s = %s(self, count)' % (prefix_if_needed(field.field_name), 
+            code.append('self.%s = %s(conn, self, count)' % (prefix_if_needed(field.field_name), 
                 field.py_type))
             code.append('count += len(self.%s)', prefix_if_needed(field.field_name))
 

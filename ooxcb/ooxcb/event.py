@@ -11,7 +11,7 @@ class Event(Response):
 
     @classmethod
     def create(cls, conn, event):
-        opcode = event.contents.response_type
+        opcode = event.contents.response_type & ~0x80 # strip 'send event' bit
 
         type = cls
 
