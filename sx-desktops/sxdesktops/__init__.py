@@ -63,7 +63,7 @@ class FocusStack(list):
             return None
 
 class Desktop(EventDispatcher):
-    def __init__(self, plugin, screen, name, layouter):
+    def __init__(self, plugin, screen, name, layouter, idx):
         EventDispatcher.__init__(self)
 
         self.plugin = plugin
@@ -71,6 +71,7 @@ class Desktop(EventDispatcher):
         self.name = name
         self.layouter = layouter
         self.clients = FocusStack() # uh. maybe weak references are a good idea.
+        self.idx = idx
 
     def register(self, info):
         self.layouter.register_desktop(self, info)
@@ -87,6 +88,11 @@ class Desktop(EventDispatcher):
         self.dispatch_event('on_new_client', self, client)
 
         client.push_handlers(on_focus=self.on_focus)
+        client.window.change_property(
+                '_NET_WM_DESKTOP',
+                'CARDINAL',
+                32,
+                [self.idx])
 
     def remove_client(self, client):
         try:
@@ -112,7 +118,19 @@ class ScreenData(EventDispatcher):
         self.update_hints()
 
         self.screen.push_handlers(self)
+        self.install_handlers()
         self.scan()
+
+    def msg_current_desktop(self, evt):
+        """
+            handler for the _NET_CURRENT_DESKTOP client message
+        """
+        self.set_active_desktop_idx(evt.data.data32[0])
+
+    def install_handlers(self):
+        self.screen.client_message_handlers.register_handler(
+                self.screen.conn.atoms['_NET_CURRENT_DESKTOP'],
+                self.msg_current_desktop)
 
     def scan(self):
         """
@@ -180,18 +198,7 @@ class ScreenData(EventDispatcher):
 
     def cycle_clients(self, offset=+1):
         clients = self.active_desktop.clients
-        if self.screen.focused_client is None:
-            idx = 0
-        else:
-            idx = clients.index(self.screen.focused_client)
-        if clients:
-            try:
-                client = clients[cycle_indices(idx, offset, len(clients))]
-            except IndexError:
-                client = None
-        else:
-            client = None
-        self.screen.focus(client)
+        self.screen.focus(clients.next()) # TODO: respect offset
 
 ScreenData.register_event_type('on_change_desktop')
 
@@ -239,8 +246,8 @@ class SXDesktops(Plugin):
         for screen in screens:
             # TODO: every screen has the same desktops?
             desktops = []
-            for name, info in self.config:
-                desktop = Desktop(self, screen, name, self.layouters[info.get('layout', 'floating')])
+            for idx, (name, info) in enumerate(self.config):
+                desktop = Desktop(self, screen, name, self.layouters[info.get('layout', 'floating')], idx)
                 desktop.register(info)
                 desktops.append(desktop)
             self.attach_data_to(screen, ScreenData(screen, desktops))

@@ -286,6 +286,20 @@ Classes:
                 - "conn.add_to_cache(cid, cursor)"
                 - "return cursor"
 
+    # some additional enums
+
+    # Enum for WM_STATE state values
+    WMState:
+        - attribute:
+            name: Withdrawn
+            value: 0
+        - attribute:
+            name: Normal
+            value: 1
+        - attribute:
+            name: Iconic
+            value: 3
+
 Events:
     KeyPress:
         member: event

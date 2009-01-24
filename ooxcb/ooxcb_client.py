@@ -780,11 +780,16 @@ def add_custom_member(cls, mtype, minfo):
         cls.add_member(meth)
         _handle_method(meth)
 
+    def _add_attribute():
+        cls.new_attribute(minfo['name'], str(minfo['value']))
+
     def _set_base():
         cls.base = minfo
 
-    types = {'method': _add_method,
+    types = {
+        'method': _add_method,
         'classmethod': _add_classmethod,
+        'attribute': _add_attribute,
         'base': _set_base,
         }
     return types[mtype]()

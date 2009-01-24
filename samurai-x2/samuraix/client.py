@@ -33,6 +33,7 @@ from ooxcb.sizehints import SizeHints
 
 from .rect import Rect
 from .base import SXObject
+from .util import ClientMessageHandlers
 
 class Client(SXObject):
     all_clients = []
@@ -47,6 +48,7 @@ class Client(SXObject):
 
         self.conn = window.conn
         self.geom = Rect.from_object(geometry)
+        self.client_message_handlers = ClientMessageHandlers()
         self.net_wm_state = set() # a set of Atom instances, values for _NET_WM_STATE
         self.net_wm_states = dict((name, self.conn.atoms[name]) for name in (
             '_NET_WM_STATE_MODAL', '_NET_WM_STATE_STICKY',
@@ -85,21 +87,26 @@ class Client(SXObject):
         """ called after actor is set. That's not so nice. """
         self.actor.push_handlers(on_configure_notify=self.actor_on_configure_notify)
 
+    def msg_active_window(self, evt):
+        """
+            Handler for the _NET_ACTIVE_WINDOW client message.
+
+            If it is called on an unmanaged window, it will not
+            be handled - that's what we want.
+        """
+        self.screen.focus(self)
+
     def process_netwm_client_message(self, evt):
         """
             process an EWMH / NETWM client message event.
         """
-        def handle_net_wm_state():
-            pass
+        return self.client_message_handlers.handle(evt)
 
-        handlers = {
-                self.conn.atoms['_NET_WM_STATE']: handle_net_wm_state,
-                }
-        try:
-            return handlers[evt.type]()
-        except KeyError:
-            log.error('There is no handler for the %s client message yet.' %
-                    (evt.type.get_name().name.to_string()))
+    def install_handlers(self):
+        self.client_message_handlers.register_handler(
+                self.conn.atoms['_NET_ACTIVE_WINDOW'],
+                self.msg_active_window
+                )
 
     def on_property_notify(self, evt):
         log.debug('Got property notify event: %s changed in %s.' % 
@@ -162,16 +169,33 @@ class Client(SXObject):
         log.info('Removed me=%s! clients=%s' % (self, self.all_clients))
         self.dispatch_event('on_removed', self)
 
-    def ban(self):
+    def ban(self, withdrawn=True):
         """
-            Unmap the actor window.
+            Unmap the actor window and set WM_STATE.
+
+            :Parameters:
+                `withdrawn`: bool
+                    If True, the WM_STATE is set to withdrawn
+                    If False, it's Iconic.
         """
         # TODO: respect sticky?
         log.debug('banning %s' % self)
         self.actor.unmap()
         self.conn.flush()
-        #self.actor.unmap()
-        # TODO: set window state
+
+        state = xproto.WMState.Withdrawn if withdrawn else xproto.WMState.Iconic
+        self.window.change_property(
+                'WM_STATE',
+                'CARDINAL',
+                32,
+                [state, 0]) # TODO: icon window?
+        self.conn.flush()
+
+    def iconize(self):
+        """
+            same as `self.ban(False)`
+        """
+        self.ban(False)
 
     def unban(self):
         """
@@ -182,7 +206,12 @@ class Client(SXObject):
         self.actor.map()
         self.conn.flush()
         #self.actor.map()
-        # TODO: set window state
+        self.window.change_property(
+                'WM_STATE',
+                'CARDINAL',
+                32,
+                [xproto.WMState.Normal, 0]) # TODO: icon window?
+        self.conn.flush()
 
     def focus(self):
         """

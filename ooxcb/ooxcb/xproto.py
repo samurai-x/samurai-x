@@ -687,6 +687,11 @@ class GrabMode(object):
 class GetKeyboardControlCookie(ooxcb.Cookie):
     pass
 
+class WMState(object):
+    Withdrawn = 0
+    Normal = 1
+    Iconic = 3
+
 class ColormapAlloc(object):
     _None = 0
     All = 1

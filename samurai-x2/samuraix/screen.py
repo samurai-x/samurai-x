@@ -35,6 +35,7 @@ from ooxcb.xproto import EventMask
 from .client import Client
 from .rect import Rect
 from .base import SXObject
+from .util import ClientMessageHandlers
 
 def configure_request_to_dict(evt):
     cnf = {}
@@ -65,7 +66,8 @@ class Screen(SXObject):
         self.app = app
         self.conn = app.conn
 
-        self.clients = set() 
+        self.clients = set()
+        self.client_message_handlers = ClientMessageHandlers()
         self.focused_client = None
 
         self.info = app.conn.get_setup().roots[num]
@@ -112,6 +114,12 @@ class Screen(SXObject):
         win.change_property('_NET_SUPPORTING_WM_CHECK', 'WINDOW', 32, [win.get_internal()])
         win.change_property('_NET_WM_NAME', 'UTF8_STRING', 8, map(ord, 'samurai-x')) # TODO: nicer conversion
         return win
+
+    def process_netwm_client_message(self, evt):
+        return self.client_message_handlers.handle(evt)
+
+    def on_client_message(self, evt):
+        self.process_netwm_client_message(evt)
 
     def on_configure_request(self, evt):
         """
