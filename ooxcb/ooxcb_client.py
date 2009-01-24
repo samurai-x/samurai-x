@@ -29,7 +29,6 @@ yaml.add_constructor('!indent', construct_indent)
 yaml.add_constructor('!dedent', construct_dedent)
 yaml.add_constructor('!xizer', construct_xizer)
 
-
 _pyname_except_re = re.compile('^Bad') # regular expression for Exceptions
 CARDINAL_TYPES = {'CARD8':  'B', 'uint8_t': 'B',
                    'CARD16': 'H','uint16_t': 'H',
@@ -39,7 +38,7 @@ CARDINAL_TYPES = {'CARD8':  'B', 'uint8_t': 'B',
                    'INT32':  'i', 'int32_t': 'i',
                    'BYTE': 'B',
                    'BOOL': 'B',
-                   'char': 'b',
+                   'char': 'B', # a char is a STRING8 is a LISTOFCARD8. (?)
 #                   'void': 'B',
                    'float': 'f',
                    'double' : 'd'}
@@ -255,7 +254,6 @@ def setup_type(self, name, postfix=''):
             
             if field.type.is_list:
                 setup_type(field.type.member, field.field_type)
-                
                 field.py_listtype = get_wrapped(strip_ns(field.type.member.name))
                 if field.type.member.is_simple:
                     field.py_listtype = "'" + field.type.member.py_format_str + "'"
@@ -327,13 +325,30 @@ def py_complex(self, name):
         need_alignment = True
 
         if field.type.is_list:
-            lcode = ('ooxcb.List(conn, self, count, %s, %s, %d)' % \
-                    (get_expr(field.type.expr), 
-                        field.py_listtype, 
-                        field.py_listsize))
-            if field.py_type in INTERFACE.get('ResourceClasses'):
-                # is a resource. wrap them.
-                lcode = '[%s for w in %s]' % (get_modifier(field) % 'w', lcode)
+            if field.type.member.py_type == 'void':
+                # It is a void list. The problem about void lists is:
+                # we don't exactly know if it's 8, 16 or 32 bit per item.
+                # Fortunately, there seems to be an complex type
+                # attribute called `self.format` present which has the 
+                # value 8, 16 or 32. So, we'll use this value
+                # to get the type of the list members.
+                # That should work for the GetPropertyReply in xproto,
+                # but it might not work for other stuff. TODO? It's not nice.
+                #
+                # If `self.format` is 0 (happens for GetPropertyReply
+                # if we try to access a non-existent property), 
+                # we use "B" (which is an unsigned byte) as a fallback.
+
+                lcode = ('ooxcb.List(conn, self, count, %s, SIZES.get(self.format, "B"), self.format // 8)' % \
+                        (get_expr(field.type.expr)))
+            else:
+                lcode = ('ooxcb.List(conn, self, count, %s, %s, %d)' % \
+                        (get_expr(field.type.expr), 
+                            field.py_listtype, 
+                            field.py_listsize))
+                if field.py_type in INTERFACE.get('ResourceClasses'):
+                    # is a resource. wrap them.
+                    lcode = '[%s for w in %s]' % (get_modifier(field) % 'w', lcode)
             code.append('self.%s = %s' % (field.field_name, lcode))
             code.append('count += len(self.%s.buf())' % prefix_if_needed(field.field_name))
         elif field.type.is_container and field.type.fixed_size():
@@ -365,6 +380,7 @@ def py_open(self):
     py('# auto generated. yay.') \
       ('import ooxcb') \
       ('from ooxcb.resource import XNone') \
+      ('from ooxcb.types import SIZES') \
       ('try:').indent() \
                 ('import cStringIO as StringIO') \
                 .dedent() \
