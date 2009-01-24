@@ -109,6 +109,8 @@ class ScreenData(EventDispatcher):
         self.desktops = desktops
         self.active_desktop = desktops[0]
         self.active_desktop_idx = 0
+        self.update_hints()
+
         self.screen.push_handlers(self)
         self.scan()
 
@@ -139,11 +141,19 @@ class ScreenData(EventDispatcher):
         #assert desktop in self.desktops # let's trust the user
         prev = self.active_desktop
         self.active_desktop = desktop
-        self.active_desktop_idx = self.desktops.index(0)
+        self.active_desktop_idx = self.desktops.index(desktop)
         self.dispatch_event('on_change_desktop', self, prev)
+
+    def update_hints(self):
+        """
+            Update _NET_CURRENT_DESKTOP.
+        """
+        self.screen.root.change_property('_NET_CURRENT_DESKTOP', 'CARDINAL', 32, [self.active_desktop_idx])
+        self.screen.conn.flush() 
 
     def on_change_desktop(self, fles, prev):
         self.update_clients(prev)
+        self.update_hints()
         # focus any client on the new desktop,
         # we don't want an off screen focus.
         self.screen.focus(self.active_desktop.clients.current())
@@ -234,6 +244,19 @@ class SXDesktops(Plugin):
                 desktop.register(info)
                 desktops.append(desktop)
             self.attach_data_to(screen, ScreenData(screen, desktops))
+
+            screen.root.change_property('_NET_NUMBER_OF_DESKTOPS', 'CARDINAL', 32, [len(desktops)])
+            
+            # We don't support large desktops here. But that could be added by a plugin.
+            root_geom = screen.get_geometry()
+            screen.root.change_property('_NET_DESKTOP_GEOMETRY', 'CARDINAL', 32, 
+                    [root_geom.width, root_geom.height])
+            screen.root.change_property('_NET_DESKTOP_VIEWPORT', 'CARDINAL', 32, [0, 0])
+            screen.root.change_property('_NET_DESKTOP_NAMES', 'UTF8_STRING', 8, # TODO: is it 8?
+                    list(map(ord, '\x00'.join(desktop.name for desktop in desktops)))+[0] # TODO: not nice
+            )
+
+            # TODO: support _NET_WORKAREA, maybe _NET_SHOWING_DESKTOP?
 
     def action_cycle(self, info):
         """

@@ -47,7 +47,16 @@ class Client(SXObject):
 
         self.conn = window.conn
         self.geom = Rect.from_object(geometry)
-        
+        self.net_wm_state = set() # a set of Atom instances, values for _NET_WM_STATE
+        self.net_wm_states = dict((name, self.conn.atoms[name]) for name in (
+            '_NET_WM_STATE_MODAL', '_NET_WM_STATE_STICKY',
+            '_NET_WM_STATE_MAXIMIZED_VERT', '_NET_WM_STATE_MAXIMIZED_HORZ',
+            '_NET_WM_STATE_SHADED', '_NET_WM_STATE_SKIP_TASKBAR',
+            '_NET_WM_STATE_SKIP_PAGER', '_NET_WM_STATE_HIDDEN',
+            '_NET_WM_STATE_FULLSCREEN', '_NET_WM_STATE_ABOVE',
+            '_NET_WM_STATE_BELOW', '_NET_WM_STATE_DEMANDS_ATTENTION'
+            ))
+
         self.screen = screen
         self.window = window
         self.window.valid = True
@@ -75,6 +84,31 @@ class Client(SXObject):
     def init(self):
         """ called after actor is set. That's not so nice. """
         self.actor.push_handlers(on_configure_notify=self.actor_on_configure_notify)
+
+    def process_netwm_client_message(self, evt):
+        """
+            process an EWMH / NETWM client message event.
+        """
+        def handle_net_wm_state():
+            pass
+
+        handlers = {
+                self.conn.atoms['_NET_WM_STATE']: handle_net_wm_state,
+                }
+        try:
+            return handlers[evt.type]()
+        except KeyError:
+            log.error('There is no handler for the %s client message yet.' %
+                    (evt.type.get_name().name.to_string()))
+
+    def on_property_notify(self, evt):
+        log.debug('Got property notify event: %s changed in %s.' % 
+                (evt.atom.get_name().reply().name.to_string(), evt.window))
+
+    def on_client_message(self, evt):
+        log.debug('Got client message event: %s, data32: %s' % 
+                (evt.type.get_name().reply().name.to_string(), evt.data.data32))
+        self.process_netwm_client_message(evt)
 
     def actor_on_configure_notify(self, evt):
         """
@@ -110,7 +144,7 @@ class Client(SXObject):
             to use width and height from `geom`.
         """
         log.debug('Resizing: %s' % geom)
-        self.actor.configure_checked(width=geom.width, height=geom.height).check()
+        self.window.configure_checked(width=geom.width, height=geom.height).check()
         self.conn.flush()
 
     def on_destroy_notify(self, evt):

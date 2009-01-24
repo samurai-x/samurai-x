@@ -63,7 +63,8 @@ class Screen(SXObject):
         SXObject.__init__(self)
 
         self.app = app
-        
+        self.conn = app.conn
+
         self.clients = set() 
         self.focused_client = None
 
@@ -83,8 +84,34 @@ class Screen(SXObject):
 
         self.set_supported_hints()
 
+        self.check_window = self.create_check_window()
+
     def get_geometry(self):
         return Rect.from_object(self.root.get_geometry().reply())
+
+    def create_check_window(self):
+        """
+            The 'check window' is the window required by the
+            _NET_SUPPORTING_WM_CHECK hint, specified in the 
+            netwm standard. It only has a _NET_WM_NAME property,
+            set to 'samurai-x2'. It's override-redirected and
+            invisible.
+            This also sets the _NET_SUPPORTING_WM_CHECK hint.
+        """
+        win = xproto.Window.create(self.conn, 
+                self.root, 
+                self.info.root_depth,
+                self.info.root_visual,
+                0,
+                0,
+                1,
+                1,
+                0,
+                override_redirect=True)
+        self.root.change_property('_NET_SUPPORTING_WM_CHECK', 'WINDOW', 32, [win.get_internal()])
+        win.change_property('_NET_SUPPORTING_WM_CHECK', 'WINDOW', 32, [win.get_internal()])
+        win.change_property('_NET_WM_NAME', 'UTF8_STRING', 8, map(ord, 'samurai-x')) # TODO: nicer conversion
+        return win
 
     def on_configure_request(self, evt):
         """
@@ -106,7 +133,9 @@ class Screen(SXObject):
         if client is None:
             # not created yet
             # NB we still not might manage this window - check manage()
-            self.manage(evt.window)
+            if not self.manage(evt.window): # it is not managed. but map it anyway.
+                evt.window.map()
+                self.conn.flush()
 
     def on_destroy_notify(self, evt):
         win = evt.window
@@ -121,6 +150,20 @@ class Screen(SXObject):
             manage a new window - this may *not* result in a window being managed 
             if it is unsuitable 
         """
+        # check _NET_WM_STATE
+#        state = [xproto.Atom(self.conn, a) for a in window.get_property('_NET_WM_STATE', 'ATOM').reply().value]
+#        if self.conn.atoms['_NET_WM_STATE_SKIP_PAGER'] in state: # are we a pager?
+#            log.debug('%s not managing %s - _NET_WM_SKIP_PAGER is set', self, window)
+#            return
+        # check window type
+        window_type = map(self.conn.atoms.get_by_id,
+                window.get_property('_NET_WM_WINDOW_TYPE', 'ATOM').reply().value)
+        log.info('YO FUKKING WINDOW TYPE IZ %s %s' % (str(window_type), str(self.conn.atoms['_NET_WM_WINDOW_TYPE_DOCK'])))
+        if self.conn.atoms['_NET_WM_WINDOW_TYPE_DOCK'] in window_type:
+            log.debug('%s not managing %s - is a dock.' % (self, window))
+            # TODO: ignore other types, too?
+            return
+
         attributes = window.get_attributes().reply()
         geom = window.get_geometry().reply()
 
@@ -134,8 +177,6 @@ class Screen(SXObject):
 
         self.dispatch_event('on_new_client', self, client)
         logging.debug('screen %s is now managing %s' % (self, client))
-        client.push_handlers(on_removed=lambda foo: self.update_client_list,
-                             on_focus=self.update_active_window)
         client.push_handlers(on_removed=self.on_client_removed)
 
         client.init()
@@ -165,6 +206,7 @@ class Screen(SXObject):
             restarted.
         """
         log.info('Unmanaging %s ...' % client)
+        self.update_client_list()
         self.clients.remove(client)
         client.actor.map()
         self.dispatch_event('on_unmanage_client', self, client)
@@ -200,13 +242,14 @@ class Screen(SXObject):
                 [c.window.get_internal() for c in self.client_class.all_clients])
         # TODO: calling get_internal() is not that nice. we'll have to change that.
 
-    def update_active_window(self, client):
+    def update_active_window(self):
         """
             Update _NET_ACTIVE_WINDOW;
             self.focused_client is the new focused client
         """
         if self.focused_client is not None:
-            self.root.change_property('_NET_ACTIVE_WINDOW', 'WINDOW', 32, [self.focused_client.window.get_internal()])
+            self.root.change_property('_NET_ACTIVE_WINDOW', 'WINDOW', 32, 
+                    [self.focused_client.window.get_internal()])
 
     def focus(self, client):
         """
@@ -220,6 +263,8 @@ class Screen(SXObject):
         if self.focused_client is not None:
             self.focused_client.blur()
         self.focused_client = client
+        # set the hint
+        self.update_active_window()
         if client is not None:
             client.focus()
 
@@ -240,33 +285,37 @@ class Screen(SXObject):
             self.manage(child)
 
     def set_supported_hints(self):
-        pass
+        atoms = self.conn.atoms
 
-#        connection = self.root.connection # TODO?
-#        atoms = [
-#            connection.atoms['_NET_SUPPORTED'],
-#            connection.atoms['_NET_CLIENT_LIST'],
-#            connection.atoms['_NET_NUMBER_OF_DESKTOPS'],
-#            connection.atoms['_NET_CURRENT_DESKTOP'],
-#            connection.atoms['_NET_DESKTOP_NAMES'],
-#            connection.atoms['_NET_ACTIVE_WINDOW'],
-#            connection.atoms['_NET_CLOSE_WINDOW'],
-#
-#            connection.atoms['_NET_WM_NAME'],
-#            connection.atoms['_NET_WM_ICON_NAME'],
-#            connection.atoms['_NET_WM_WINDOW_TYPE'],
-#            connection.atoms['_NET_WM_WINDOW_TYPE_NORMAL'],
-#            connection.atoms['_NET_WM_WINDOW_TYPE_DOCK'],
-#            connection.atoms['_NET_WM_WINDOW_TYPE_SPLASH'],
-#            connection.atoms['_NET_WM_WINDOW_TYPE_DIALOG'],
-#            connection.atoms['_NET_WM_STATE'],
-#            connection.atoms['_NET_WM_STATE_STICKY'],
-#            connection.atoms['_NET_WM_STATE_SKIP_TASKBAR'],
-#            connection.atoms['_NET_WM_STATE_FULLSCREEN'],
-#
-#            connection.atoms['UTF8_STRING'],
-#        ]
-#        self.root.set_property('_NET_SUPPORTED', atoms, 32, 'ATOM')
+        supported = [
+            atoms['_NET_SUPPORTED'],
+            atoms['_NET_CLIENT_LIST'],
+            atoms['_NET_NUMBER_OF_DESKTOPS'], # by sx-desktops
+            atoms['_NET_CURRENT_DESKTOP'],
+            atoms['_NET_DESKTOP_NAMES'],
+            atoms['_NET_ACTIVE_WINDOW'],
+            atoms['_NET_CLOSE_WINDOW'],
+
+            atoms['_NET_WM_NAME'],
+            atoms['_NET_WM_ICON_NAME'],
+            atoms['_NET_WM_WINDOW_TYPE'],
+            atoms['_NET_WM_WINDOW_TYPE_NORMAL'],
+            atoms['_NET_WM_WINDOW_TYPE_DOCK'],
+            atoms['_NET_WM_WINDOW_TYPE_SPLASH'],
+            atoms['_NET_WM_WINDOW_TYPE_DIALOG'],
+            atoms['_NET_WM_STATE'],
+            atoms['_NET_WM_STATE_STICKY'],
+            atoms['_NET_WM_STATE_SKIP_TASKBAR'],
+            atoms['_NET_WM_STATE_FULLSCREEN'],
+
+            atoms['UTF8_STRING'],
+        ]
+        # We are not using the reparenting-to-a-fakeroot technique 
+        # described in the netwm standard,
+        # so we don't need to set _NET_VIRTUAL_ROOTS.
+        # TODO: ... do we need to set _NET_DESKTOP_LAYOUT? Are we a pager?
+        self.root.change_property('_NET_SUPPORTED', 'ATOM', 32, 
+                [s.get_internal() for s in supported]) # TODO: nicer conversion
 
 Screen.register_event_type('on_new_client')
 Screen.register_event_type('on_unmanage_client')

@@ -7,8 +7,8 @@ BUILDERS = {'b': POINTER(ctypes.c_byte),
         'H': POINTER(ctypes.c_ushort),
         'i': POINTER(ctypes.c_int),
         'I': POINTER(ctypes.c_uint),
-        'L': POINTER(ctypes.c_longlong),
-        'K': POINTER(ctypes.c_ulonglong),
+        'L': POINTER(ctypes.c_long), # correct? it's long long in xpyb's list.c
+        'K': POINTER(ctypes.c_ulong), # correct?
         'f': POINTER(ctypes.c_float),
         'd': POINTER(ctypes.c_double)
         }

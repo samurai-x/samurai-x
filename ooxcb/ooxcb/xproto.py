@@ -7,7 +7,7 @@ except ImportError:
     import StringIO
 from struct import pack, unpack_from, calcsize
 from array import array
-from ooxcb.types import make_void_array
+from ooxcb.types import make_void_array, SIZES
 
 def unpack_ex(fmt, protobj, offset=0):
     s = protobj.get_slice(calcsize(fmt), offset)
@@ -827,7 +827,7 @@ class xprotoExtension(ooxcb.Extension):
         name_len = len(name)
         buf = StringIO.StringIO()
         buf.write(pack("xBxxHxx", only_if_exists, name_len))
-        buf.write(array("b", name).tostring())
+        buf.write(array("B", name).tostring())
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 16, False, True), \
             InternAtomCookie(),
             InternAtomReply)
@@ -2673,7 +2673,7 @@ class GetPropertyReply(ooxcb.Reply):
         self.bytes_after = _unpacked[2]
         self.value_len = _unpacked[3]
         count += 32
-        self.value = ooxcb.List(conn, self, count, self.value_len, 'B', 1)
+        self.value = ooxcb.List(conn, self, count, self.value_len, SIZES.get(self.format, 'B'), self.format // 8)
 
 class LookupColorReply(ooxcb.Reply):
     def __init__(self, conn, parent):
