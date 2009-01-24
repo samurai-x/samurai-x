@@ -158,7 +158,6 @@ class Screen(SXObject):
         # check window type
         window_type = map(self.conn.atoms.get_by_id,
                 window.get_property('_NET_WM_WINDOW_TYPE', 'ATOM').reply().value)
-        log.info('YO FUKKING WINDOW TYPE IZ %s %s' % (str(window_type), str(self.conn.atoms['_NET_WM_WINDOW_TYPE_DOCK'])))
         if self.conn.atoms['_NET_WM_WINDOW_TYPE_DOCK'] in window_type:
             log.debug('%s not managing %s - is a dock.' % (self, window))
             # TODO: ignore other types, too?
