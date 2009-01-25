@@ -49,6 +49,8 @@ class Client(SXObject):
         self.conn = window.conn
         self.geom = Rect.from_object(geometry)
         self.client_message_handlers = ClientMessageHandlers()
+        self.install_handlers()
+
         self.net_wm_state = set() # a set of Atom instances, values for _NET_WM_STATE
         self.net_wm_states = dict((name, self.conn.atoms[name]) for name in (
             '_NET_WM_STATE_MODAL', '_NET_WM_STATE_STICKY',
@@ -96,6 +98,17 @@ class Client(SXObject):
         """
         self.screen.focus(self)
 
+    def msg_change_state(self, evt):
+        """
+            handler for WM_CHANGE_STATE.
+
+            This will iconify(?) me.
+        """
+        if evt.data.data32[0] == xproto.WMState.Iconic:
+            self.iconify()
+        else:
+            log.warning('Unhandled WM_CHANGE_STATE: data: %s' % str(evt.data.data32))
+
     def process_netwm_client_message(self, evt):
         """
             process an EWMH / NETWM client message event.
@@ -106,6 +119,10 @@ class Client(SXObject):
         self.client_message_handlers.register_handler(
                 self.conn.atoms['_NET_ACTIVE_WINDOW'],
                 self.msg_active_window
+                )
+        self.client_message_handlers.register_handler(
+                self.conn.atoms['WM_CHANGE_STATE'],
+                self.msg_change_state
                 )
 
     def on_property_notify(self, evt):
@@ -166,6 +183,9 @@ class Client(SXObject):
             del self.window_2_client_map[self.window]
         except (ValueError, KeyError), e:
             log.warning(e)
+        if self.window.valid:
+            # We don't want to receive any further events.
+            self.window.change_attributes(event_mask=0)
         log.info('Removed me=%s! clients=%s' % (self, self.all_clients))
         self.dispatch_event('on_removed', self)
 
@@ -191,7 +211,7 @@ class Client(SXObject):
                 [state, 0]) # TODO: icon window?
         self.conn.flush()
 
-    def iconize(self):
+    def iconify(self):
         """
             same as `self.ban(False)`
         """
