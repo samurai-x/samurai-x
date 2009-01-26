@@ -109,7 +109,6 @@ class Rgb(ooxcb.Struct):
         self.red = _unpacked[0]
         self.green = _unpacked[1]
         self.blue = _unpacked[2]
-        ooxcb._resize_obj(self, count)
 
 class QueryTreeCookie(ooxcb.Cookie):
     pass
@@ -238,7 +237,6 @@ class Coloritem(ooxcb.Struct):
         self.green = _unpacked[2]
         self.blue = _unpacked[3]
         self.flags = _unpacked[4]
-        ooxcb._resize_obj(self, count)
 
 class BadAccess(ooxcb.ProtocolException):
     pass
@@ -262,6 +260,7 @@ class Setupauthenticate(ooxcb.Struct):
         count += 8
         self.reason = ooxcb.List(conn, self, count, (self.length * 4), 'B', 1)
         count += len(self.reason.buf())
+        ooxcb._resize_obj(self, count)
 
 class GetScreenSaverReply(ooxcb.Reply):
     def __init__(self, conn, parent):
@@ -353,6 +352,7 @@ class Setup(ooxcb.Struct):
         count += ooxcb.type_pad(4, count)
         self.roots = ooxcb.List(conn, self, count, self.roots_len, Screen, -1)
         count += len(self.roots.buf())
+        ooxcb._resize_obj(self, count)
 
 class WindowClass(object):
     CopyFromParent = 0
@@ -506,7 +506,6 @@ class Arc(ooxcb.Struct):
         self.height = _unpacked[3]
         self.angle1 = _unpacked[4]
         self.angle2 = _unpacked[5]
-        ooxcb._resize_obj(self, count)
 
 class Kill(object):
     AllTemporary = 0
@@ -625,6 +624,7 @@ class Setupfailed(ooxcb.Struct):
         count += 8
         self.reason = ooxcb.List(conn, self, count, self.reason_len, 'B', 1)
         count += len(self.reason.buf())
+        ooxcb._resize_obj(self, count)
 
 class IDChoiceError(ooxcb.Error):
     def __init__(self, conn, parent):
@@ -731,6 +731,7 @@ class Setuprequest(ooxcb.Struct):
         count += ooxcb.type_pad(1, count)
         self.authorization_protocol_data = ooxcb.List(conn, self, count, self.authorization_protocol_data_len, 'B', 1)
         count += len(self.authorization_protocol_data.buf())
+        ooxcb._resize_obj(self, count)
 
 class Visibility(object):
     Unobscured = 0
@@ -2414,7 +2415,6 @@ class Visualtype(ooxcb.Struct):
         self.red_mask = _unpacked[4]
         self.green_mask = _unpacked[5]
         self.blue_mask = _unpacked[6]
-        ooxcb._resize_obj(self, count)
 
 class ArcMode(object):
     Chord = 0
@@ -2486,7 +2486,6 @@ class Point(ooxcb.Struct):
         _unpacked = unpack_ex("hh", self, count)
         self.x = _unpacked[0]
         self.y = _unpacked[1]
-        ooxcb._resize_obj(self, count)
 
 class BadColormap(ooxcb.ProtocolException):
     pass
@@ -2660,7 +2659,6 @@ class Rectangle(ooxcb.Struct):
         self.y = _unpacked[1]
         self.width = _unpacked[2]
         self.height = _unpacked[3]
-        ooxcb._resize_obj(self, count)
 
 class ImageOrder(object):
     LSBFirst = 0
@@ -2727,6 +2725,7 @@ class Screen(ooxcb.Struct):
         count += 40
         self.allowed_depths = ooxcb.List(conn, self, count, self.allowed_depths_len, Depth, -1)
         count += len(self.allowed_depths.buf())
+        ooxcb._resize_obj(self, count)
 
 class ReparentNotifyEvent(ooxcb.Event):
     event_name = "on_reparent_notify"
@@ -2767,6 +2766,7 @@ class Host(ooxcb.Struct):
         count += 4
         self.address = ooxcb.List(conn, self, count, self.address_len, 'B', 1)
         count += len(self.address.buf())
+        ooxcb._resize_obj(self, count)
 
 class Char2b(ooxcb.Struct):
     def __init__(self, conn, parent, offset, size):
@@ -2775,7 +2775,6 @@ class Char2b(ooxcb.Struct):
         _unpacked = unpack_ex("BB", self, count)
         self.byte1 = _unpacked[0]
         self.byte2 = _unpacked[1]
-        ooxcb._resize_obj(self, count)
 
 class InternAtomCookie(ooxcb.Cookie):
     pass
@@ -2867,7 +2866,6 @@ class Charinfo(ooxcb.Struct):
         self.ascent = _unpacked[3]
         self.descent = _unpacked[4]
         self.attributes = _unpacked[5]
-        ooxcb._resize_obj(self, count)
 
 class BadLength(ooxcb.ProtocolException):
     pass
@@ -2943,6 +2941,7 @@ class Str(ooxcb.Struct):
         count += 1
         self.name = ooxcb.List(conn, self, count, self.name_len, 'B', 1)
         count += len(self.name.buf())
+        ooxcb._resize_obj(self, count)
 
 class AllocColorPlanesReply(ooxcb.Reply):
     def __init__(self, conn, parent):
@@ -3168,7 +3167,6 @@ class Fontprop(ooxcb.Struct):
         _unpacked = unpack_ex("II", self, count)
         self.name = conn.atoms.get_by_id(_unpacked[0])
         self.value = _unpacked[1]
-        ooxcb._resize_obj(self, count)
 
 class Window(ooxcb.Resource):
     def __init__(self, conn, xid):
@@ -3662,7 +3660,6 @@ class Timecoord(ooxcb.Struct):
         self.time = _unpacked[0]
         self.x = _unpacked[1]
         self.y = _unpacked[2]
-        ooxcb._resize_obj(self, count)
 
 class LineStyle(object):
     Solid = 0
@@ -3717,7 +3714,6 @@ class Format(ooxcb.Struct):
         self.depth = _unpacked[0]
         self.bits_per_pixel = _unpacked[1]
         self.scanline_pad = _unpacked[2]
-        ooxcb._resize_obj(self, count)
 
 class ColormapNotifyEvent(ooxcb.Event):
     event_name = "on_colormap_notify"
@@ -3882,7 +3878,6 @@ class Segment(ooxcb.Struct):
         self.y1 = _unpacked[1]
         self.x2 = _unpacked[2]
         self.y2 = _unpacked[3]
-        ooxcb._resize_obj(self, count)
 
 class ValueError(ooxcb.Error):
     def __init__(self, conn, parent):
@@ -3959,6 +3954,7 @@ class Depth(ooxcb.Struct):
         count += 8
         self.visuals = ooxcb.List(conn, self, count, self.visuals_len, Visualtype, 24)
         count += len(self.visuals.buf())
+        ooxcb._resize_obj(self, count)
 
 class ListExtensionsCookie(ooxcb.Cookie):
     pass

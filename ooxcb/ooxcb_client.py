@@ -452,7 +452,7 @@ def py_struct(self, oldname):
    
     init.code += py_complex(self, name)
 
-    if self.fixed_size():
+    if not self.fixed_size():
         init.code.append('ooxcb._resize_obj(self, count)')
 
     ALL[strip_ns(name)] = cls
