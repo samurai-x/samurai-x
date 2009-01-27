@@ -11,6 +11,7 @@ Ignored:
     - KEYSYM
     - TIMESTAMP
     - BUTTON
+    - VISUALID
 
 Xizers:
     CW:
@@ -66,7 +67,6 @@ Xizers:
         value: confine_to_
 
 ClassAliases:
-    VISUALID: VisualID
     GCONTEXT: GContext
 
 Requests:

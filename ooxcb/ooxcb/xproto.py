@@ -127,7 +127,7 @@ class GetWindowAttributesReply(ooxcb.Reply):
         count = 0
         _unpacked = unpack_ex("xBxxxxxxIHBBIIBBBBIIIHxx", self, count)
         self.backing_store = _unpacked[0]
-        self.visual = VisualID(conn, _unpacked[1])
+        self.visual = _unpacked[1]
         self._class = _unpacked[2]
         self.bit_gravity = _unpacked[3]
         self.win_gravity = _unpacked[4]
@@ -740,20 +740,18 @@ class Visibility(object):
 
 class xprotoExtension(ooxcb.Extension):
     header = "xproto"
-    def create_window_checked(self, depth, wid_, parent_, x, y, width, height, border_width, _class, visual_, value_mask, value_list):
+    def create_window_checked(self, depth, wid_, parent_, x, y, width, height, border_width, _class, visual, value_mask, value_list):
         wid = wid_.get_internal()
         parent = parent_.get_internal()
-        visual = visual_.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("xBxxIIhhHHHHII", depth, wid, parent, x, y, width, height, border_width, _class, visual, value_mask))
         buf.write(array("I", value_list).tostring())
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 1, True, True), \
             ooxcb.VoidCookie())
 
-    def create_window(self, depth, wid_, parent_, x, y, width, height, border_width, _class, visual_, value_mask, value_list):
+    def create_window(self, depth, wid_, parent_, x, y, width, height, border_width, _class, visual, value_mask, value_list):
         wid = wid_.get_internal()
         parent = parent_.get_internal()
-        visual = visual_.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("xBxxIIhhHHHHII", depth, wid, parent, x, y, width, height, border_width, _class, visual, value_mask))
         buf.write(array("I", value_list).tostring())
@@ -1710,19 +1708,17 @@ class xprotoExtension(ooxcb.Extension):
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 77, True, False), \
             ooxcb.VoidCookie())
 
-    def create_colormap_checked(self, alloc, mid_, window_, visual_):
+    def create_colormap_checked(self, alloc, mid_, window_, visual):
         mid = mid_.get_internal()
         window = window_.get_internal()
-        visual = visual_.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("xBxxIII", alloc, mid, window, visual))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 78, True, True), \
             ooxcb.VoidCookie())
 
-    def create_colormap(self, alloc, mid_, window_, visual_):
+    def create_colormap(self, alloc, mid_, window_, visual):
         mid = mid_.get_internal()
         window = window_.get_internal()
-        visual = visual_.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("xBxxIII", alloc, mid, window, visual))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 78, True, False), \
@@ -2408,7 +2404,7 @@ class Visualtype(ooxcb.Struct):
         ooxcb.Struct.__init__(self, conn, parent, offset, size)
         count = 0
         _unpacked = unpack_ex("IBBHIIIxxxx", self, count)
-        self.visual_id = VisualID(conn, _unpacked[0])
+        self.visual_id = _unpacked[0]
         self._class = _unpacked[1]
         self.bits_per_rgb_value = _unpacked[2]
         self.colormap_entries = _unpacked[3]
@@ -2697,7 +2693,7 @@ class GetImageReply(ooxcb.Reply):
         count = 0
         _unpacked = unpack_ex("xBxxxxxxIxxxxxxxxxxxxxxxxxxxx", self, count)
         self.depth = _unpacked[0]
-        self.visual = VisualID(conn, _unpacked[1])
+        self.visual = _unpacked[1]
         count += 32
         self.data = ooxcb.List(conn, self, count, (self.length * 4), 'B', 1)
 
@@ -2717,7 +2713,7 @@ class Screen(ooxcb.Struct):
         self.height_in_millimeters = _unpacked[8]
         self.min_installed_maps = _unpacked[9]
         self.max_installed_maps = _unpacked[10]
-        self.root_visual = VisualID(conn, _unpacked[11])
+        self.root_visual = _unpacked[11]
         self.backing_stores = _unpacked[12]
         self.save_unders = _unpacked[13]
         self.root_depth = _unpacked[14]
@@ -3112,10 +3108,6 @@ class LeaveNotifyEvent(ooxcb.Event):
         self.mode = _unpacked[10]
         self.same_screen_focus = _unpacked[11]
         self.event_target = self.event
-
-class VisualID(ooxcb.Resource):
-    def __init__(self, conn, xid):
-        ooxcb.Resource.__init__(self, conn, xid)
 
 class QueryColorsCookie(ooxcb.Cookie):
     pass
