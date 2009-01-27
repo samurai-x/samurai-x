@@ -589,9 +589,6 @@ def request_helper(self, name, void, regular):
         if field.visible:
             # The field should appear as a call parameter
             f = prefix_if_needed(field.field_name)
-            if field.py_type in WRAPPERS:
-                f += '_' # postfix it with a 'oh look at me i am not xized yet' _.
-
             if f in defaults: # interface provides with a default value
                 f += '=' + str(defaults[f])
                 optional_param_fields.append(f)
@@ -614,7 +611,7 @@ def request_helper(self, name, void, regular):
         # Check if we have to append some `.get_internal()` somewhere
         for field in self.fields:
             if field.py_type in WRAPPERS and field is not subject_field:
-                meth.code.append('%s = %s_.get_internal()' %  (field.field_name, field.field_name))
+                meth.code.append('%s = %s.get_internal()' %  (field.field_name, field.field_name))
             if field is subject_field:
                 meth.code.append('%s = self.get_internal()' % field.field_name)
 

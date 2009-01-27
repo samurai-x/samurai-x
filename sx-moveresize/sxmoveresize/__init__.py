@@ -21,7 +21,7 @@ class ClientHandler(object):
                 subwindow_mode=xproto.SubwindowMode.IncludeInferiors,
         )
 
-        client.screen.root.grab_pointer(MOUSE_MASK, cursor_=cursor) # TODO: cursor_ is UGLY!
+        client.screen.root.grab_pointer(MOUSE_MASK, cursor=cursor)
         client.screen.focus(client)
         client.conn.flush()
 
