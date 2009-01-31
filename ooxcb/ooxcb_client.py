@@ -287,12 +287,20 @@ def get_expr(expr):
         return lenexp
 
 def py_complex(self, name, cls):
+    m_init = cls.get_member_by_name('__init__')
+    init_code = m_init.code
+
     m_read = cls.new_method('read')
     m_read.arguments.append('stream')
     read_code = m_read.code
+    
+    m_build = cls.new_method('build')
+    m_build.arguments.append('stream')
+    build_code = m_build.code
 
     def _add_fields(fields):
         read_code.append('_unpacked = unpack_from_stream("%s", stream, count)' % fmt)
+        build_fields = []
         for idx, field in enumerate(fields):
             # try if we can get a modifier
             modifier = get_modifier(field)
@@ -301,6 +309,13 @@ def py_complex(self, name, cls):
                 fieldname=prefix_if_needed(field.field_name),
                 value=value
             ))
+            
+            if modifier != '%s':
+                build_fields.append('self.%s.get_internal()' % prefix_if_needed(field.field_name))
+            else:
+                build_fields.append('self.%s' % prefix_if_needed(field.field_name))
+        build_code.append('stream.write(pack("%s", %s))' %
+                (fmt, ', '.join(build_fields)))
 
     need_alignment = False
 
@@ -309,6 +324,7 @@ def py_complex(self, name, cls):
     # seems to be needed by some replys, e.g. GetKeyboardMappingReply,
     # to access `self.length`.    
     read_code.extend(['self._address = stream.address', 'count = 0'])
+    build_code.append('count = 0')
     struct = Struct()
     for field in self.fields:
         if field.auto:
@@ -316,6 +332,8 @@ def py_complex(self, name, cls):
             continue
         if field.type.is_simple:
             struct.push_format(field)
+            # add a simple default value (needs to be changed by the user, of course)
+            init_code.append('self.%s = None' % (prefix_if_needed(field.field_name)))
             continue
         if field.type.is_pad:
             struct.push_pad(field.type.nmemb)
@@ -325,9 +343,11 @@ def py_complex(self, name, cls):
             _add_fields(fields)
         if size > 0:
             read_code.append(template('count += $size', size=size))
-
+            build_code.append(template('count += $size', size=size))
         if need_alignment:
             read_code.append('count += ooxcb.type_pad(%d, count)' % align_size(field))
+            # need to add pad for `build`?
+#            build_code.append(r'stream.write("\0" * ooxcb.type_pad(%d, count)' % align_size(field))
         need_alignment = True
 
         if field.type.is_list:
@@ -355,16 +375,31 @@ def py_complex(self, name, cls):
                 if field.py_type in INTERFACE.get('ResourceClasses'):
                     # is a resource. wrap them.
                     lread_code = '[%s for w in %s]' % (get_modifier(field) % 'w', lread_code)
-            read_code.append('self.%s = %s' % (field.field_name, lread_code))
+            read_code.append('self.%s = %s' % (prefix_if_needed(field.field_name), lread_code))
             read_code.append('count += self.%s.size' % prefix_if_needed(field.field_name))
+
+            # TODO: add the lazy length property setter ...
+            # e.g. `self.cmaps_length` is set to `len(self.colormaps)`.
+            # The problem is: the field type expr isn't always a simple
+            # expression, it also can be "(self.keycodes_per_modifier * 5)" -
+            # how should we solve that?
+            build_code.append('build_list(stream, self.%s, %s)' % (
+                prefix_if_needed(field.field_name), field.py_listtype))
+
+            init_code.append('self.%s = []' % (prefix_if_needed(field.field_name)))
         elif field.type.is_container and field.type.fixed_size():
             read_code.append('self.%s = %s.create_from_stream(self.conn, stream)' % (prefix_if_needed(field.field_name), 
                     field.py_type))            
             read_code.append('count += %s' % field.type.size)
+
+            build_code.append('self.%s.build(stream)' % prefix_if_needed(field.field_name))
+            init_code.append('self.%s = None' % (prefix_if_needed(field.field_name)))
         else:
             read_code.append('self.%s = %s.create_from_stream(self.conn, stream)' % (prefix_if_needed(field.field_name), 
                     field.py_type))
             read_code.append('count += self.%s.size', prefix_if_needed(field.field_name))
+            build_code.append('self.%s.build(stream)' % prefix_if_needed(field.field_name))
+            init_code.append('self.%s = None' % (prefix_if_needed(field.field_name)))
 
     fields, size, fmt = struct.flush()
     if fields:
@@ -377,8 +412,6 @@ def py_complex(self, name, cls):
         if self.fields:
             read_code.pop()
     
-    return read_code
-
 def py_open(self):
     global NAMESPACE
     NAMESPACE = self.namespace
@@ -387,6 +420,7 @@ def py_open(self):
       ('import ooxcb') \
       ('from ooxcb.resource import XNone') \
       ('from ooxcb.types import SIZES') \
+      ('from ooxcb.builder import build_list') \
       ('try:').indent() \
                 ('import cStringIO as StringIO') \
                 .dedent() \
@@ -475,7 +509,7 @@ def py_union(self, name):
     cls.base = 'ooxcb.Union'
 
     init = cls.new_method('__init__')
-
+    
     if self.fixed_size():
         init.arguments += ['conn']
         init.code.append('ooxcb.Union.__init__(self, conn)')
@@ -486,15 +520,31 @@ def py_union(self, name):
     read = cls.new_method('read')
     read.arguments.append('stream')
 
+    build = cls.new_method('build')
+    build.arguments.append('stream')
+
     read.code.append('count = 0')
     read.code.append('root = stream.tell()')
+    
+    kw = 'if' # the first iteration has an if!
     for field in self.fields:
+        # TODO: is it possible to have wrapped objects in unions? if yes, what to do?
+        # TODO: we should check against None. What if we send the int 0 in an union?
+        build.code.append('%s self.%s:' % (kw, prefix_if_needed(field.field_name)))
+        build.code.append(INDENT)
         if field.type.is_simple:
-            read.code.append('self.%s = unpack_ex("%s", self)' % \
+            read.code.append('self.%s = unpack_from_stream("%s", stream)' % \
                     (prefix_if_needed(field.field_name), 
                     field.type.py_format_str))
             read.code.append('count = max(count, %s)', field.type.size)
             read.code.append('stream.seek(root)')
+
+            build.code.append(
+                    'stream.write(pack("%s", %s))' % (field.py_format_str, prefix_if_needed(field.field_name))
+                    )
+            
+            # add a simple default value.
+            init.code.append('self.%s = None' % (prefix_if_needed(field.field_name)))
         elif field.type.is_list:
             read.code.append('self.%s = ooxcb.List(self.conn, stream, 0, %s, %s, %s)' % \
                     (prefix_if_needed(field.field_name), 
@@ -503,16 +553,37 @@ def py_union(self, name):
                     field.py_listsize))
             read.code.append('count = max(count, self.%s.size)' % prefix_if_needed(field.field_name))
             read.code.append('stream.seek(root)')
+
+            build.code.append(
+                    'build_list(stream, self.%s, %s)' %
+                    (prefix_if_needed(field.field_name), field.py_listtype)
+                    )
+            init.code.append('self.%s = []' % (prefix_if_needed(field.field_name)))
         elif field.type.is_container and field.type.fixed_size():
             read.code.append('self.%s = %s.create_from_stream(self.conn, stream)' % (prefix_if_needed(field.field_name),
                     field.py_type, 
                     field.type.size))
             read.code.append('count = max(count, %s)' % field.type.size)
             read.code.append('stream.seek(root)')
+
+            build.code.append('self.%s.build(stream)' % prefix_if_needed(field.field_name))
+            init.code.append('self.%s = None' % (prefix_if_needed(field.field_name)))
         else:
             read.code.append('self.%s = %s.create_from_stream(self.conn, stream)' % (prefix_if_needed(field.field_name), field.py_type))
             read.code.append('count = max(count, self.%s.size)' % prefix_if_needed(field.field_name))
             read.code.append('stream.seek(root)')
+
+            build.code.append('self.%s.build(stream)' % prefix_if_needed(field.field_name))
+            init.code.append('self.%s = None' % (prefix_if_needed(field.field_name)))
+
+        kw = 'elif' # all further iterations have an elif.
+        build.code.append(DEDENT)
+
+    build.code.extend(['else:',
+        INDENT,
+            'raise ooxcb.XcbConnection("No value set in the union!")',
+        DEDENT
+        ])
 
     if not self.fixed_size():
         read.code.append('ooxcb._resize_obj(self, count)')
