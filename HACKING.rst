@@ -1,16 +1,10 @@
 Hacking on samurai-x
 ====================
 
-Installing plugins
-------------------
+Creating a development environment
+----------------------------------
 
-The most convenient way to install and develop plugins:
-
-::
-    
-    mkdir -p ~/.samuraix/plugins
-    cd plugin-dir/
-    PYTHONPATH=~/.samuraix/plugins python setup.py develop -d ~/.samuraix/plugins
-
-Don't forget to load the plugin in the defaultconfig.py or ~/.samuraix/config!
+You can use the `create-environment.py` script to create your
+own development environment. Call `./create-environment.py` for
+more information.
 
