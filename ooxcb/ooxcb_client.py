@@ -42,8 +42,8 @@ CARDINAL_TYPES = {'CARD8':  'B', 'uint8_t': 'B',
 #                   'void': 'B',
                    'float': 'f',
                    'double' : 'd'}
-MODIFIERS = {'resource': 'conn.get_from_cache_fallback(%%s, %s)',
-        'ATOM': 'conn.atoms.get_by_id(%s)'}
+MODIFIERS = {'resource': 'self.conn.get_from_cache_fallback(%%s, %s)',
+        'ATOM': 'self.conn.atoms.get_by_id(%s)'}
 
 py = Codegen()
 
@@ -279,7 +279,6 @@ def get_expr(expr):
     Otherwise, uses the value of the length field.
     '''
     lenexp = get_length_field(expr)
-
     if expr.op != None:
         return '(' + get_expr(expr.lhs) + ' ' + expr.op + ' ' + get_expr(expr.rhs) + ')'
     elif expr.bitfield:
@@ -287,22 +286,29 @@ def get_expr(expr):
     else:
         return lenexp
 
-def py_complex(self, name):
-    code = []
-    
+def py_complex(self, name, cls):
+    m_read = cls.new_method('read')
+    m_read.arguments.append('stream')
+    read_code = m_read.code
+
     def _add_fields(fields):
-        code.append('_unpacked = unpack_ex("%s", self, count)' % fmt)
+        read_code.append('_unpacked = unpack_from_stream("%s", stream, count)' % fmt)
         for idx, field in enumerate(fields):
             # try if we can get a modifier
             modifier = get_modifier(field)
             value = modifier % ('_unpacked[%d]' % idx)
-            code.append(template('self.$fieldname = $value', 
+            read_code.append(template('self.$fieldname = $value', 
                 fieldname=prefix_if_needed(field.field_name),
                 value=value
             ))
 
     need_alignment = False
-    code.append('count = 0')
+
+    # because of that address storing, we'll only be able to read
+    # from a MemStream. That's sad. But the address of the struct
+    # seems to be needed by some replys, e.g. GetKeyboardMappingReply,
+    # to access `self.length`.    
+    read_code.extend(['self._address = stream.address', 'count = 0'])
     struct = Struct()
     for field in self.fields:
         if field.auto:
@@ -318,10 +324,10 @@ def py_complex(self, name):
         if fields:
             _add_fields(fields)
         if size > 0:
-            code.append(template('count += $size', size=size))
+            read_code.append(template('count += $size', size=size))
 
         if need_alignment:
-            code.append('count += ooxcb.type_pad(%d, count)' % align_size(field))
+            read_code.append('count += ooxcb.type_pad(%d, count)' % align_size(field))
         need_alignment = True
 
         if field.type.is_list:
@@ -339,39 +345,39 @@ def py_complex(self, name):
                 # if we try to access a non-existent property), 
                 # we use "B" (which is an unsigned byte) as a fallback.
 
-                lcode = ('ooxcb.List(conn, self, count, %s, SIZES.get(self.format, "B"), self.format // 8)' % \
+                lread_code = ('ooxcb.List(self.conn, stream, count, %s, SIZES.get(self.format, "B"), self.format // 8)' % \
                         (get_expr(field.type.expr)))
             else:
-                lcode = ('ooxcb.List(conn, self, count, %s, %s, %d)' % \
+                lread_code = ('ooxcb.List(self.conn, stream, count, %s, %s, %d)' % \
                         (get_expr(field.type.expr), 
                             field.py_listtype, 
                             field.py_listsize))
                 if field.py_type in INTERFACE.get('ResourceClasses'):
                     # is a resource. wrap them.
-                    lcode = '[%s for w in %s]' % (get_modifier(field) % 'w', lcode)
-            code.append('self.%s = %s' % (field.field_name, lcode))
-            code.append('count += len(self.%s.buf())' % prefix_if_needed(field.field_name))
+                    lread_code = '[%s for w in %s]' % (get_modifier(field) % 'w', lread_code)
+            read_code.append('self.%s = %s' % (field.field_name, lread_code))
+            read_code.append('count += self.%s.size' % prefix_if_needed(field.field_name))
         elif field.type.is_container and field.type.fixed_size():
-            code.append('self.%s = %s(conn, self, count, %s)' % (prefix_if_needed(field.field_name), 
-                    field.py_type, field.type.size))
-            code.append('count += %s' % field.type.size)
+            read_code.append('self.%s = %s.create_from_stream(self.conn, stream)' % (prefix_if_needed(field.field_name), 
+                    field.py_type))            
+            read_code.append('count += %s' % field.type.size)
         else:
-            code.append('self.%s = %s(conn, self, count)' % (prefix_if_needed(field.field_name), 
-                field.py_type))
-            code.append('count += len(self.%s)', prefix_if_needed(field.field_name))
+            read_code.append('self.%s = %s.create_from_stream(self.conn, stream)' % (prefix_if_needed(field.field_name), 
+                    field.py_type))
+            read_code.append('count += self.%s.size', prefix_if_needed(field.field_name))
 
     fields, size, fmt = struct.flush()
     if fields:
         if need_alignment:
-            code.append('count += ooxcb.type_pad(4, count)')
+            read_code.append('count += ooxcb.type_pad(4, count)')
         _add_fields(fields)
-        code.append('count += %d' % size)
+        read_code.append('count += %d' % size)
 
     if self.fixed_size() or self.is_reply:
         if self.fields:
-            code.pop()
+            read_code.pop()
     
-    return code
+    return read_code
 
 def py_open(self):
     global NAMESPACE
@@ -387,17 +393,18 @@ def py_open(self):
       ('except ImportError:').indent() \
                 ('import StringIO') \
                 .dedent() \
-      ('from struct import pack, unpack_from, calcsize') \
+      ('from struct import pack, unpack, calcsize') \
       ('from array import array')
     
     if 'ImportCode' in INTERFACE:
         py(INTERFACE['ImportCode'])
 
     py() \
-      ('def unpack_ex(fmt, protobj, offset=0):') \
+      ('def unpack_from_stream(fmt, stream, offset=0):') \
       .indent() \
-                ('s = protobj.get_slice(calcsize(fmt), offset)') \
-                ('return unpack_from(fmt, s, 0)') \
+                ('stream.seek(offset, 1)') \
+                ('s = stream.read(calcsize(fmt))') \
+                ('return unpack(fmt, s)') \
                 .dedent() \
       ()
 
@@ -444,16 +451,16 @@ def py_struct(self, oldname):
     init = cls.new_method('__init__')
 
     if self.fixed_size():
-        init.arguments += ['conn', 'parent', 'offset', 'size']
-        init.code.append('ooxcb.Struct.__init__(self, conn, parent, offset, size)')
+        init.arguments += ['conn']
+        init.code.append('ooxcb.Struct.__init__(self, conn)')
     else:
-        init.arguments += ['conn', 'parent', 'offset']
-        init.code.append('ooxcb.Struct.__init__(self, conn, parent, offset)')
+        init.arguments += ['conn']
+        init.code.append('ooxcb.Struct.__init__(self, conn)')
    
-    init.code += py_complex(self, name)
+    py_complex(self, name, cls)
 
     if not self.fixed_size():
-        init.code.append('ooxcb._resize_obj(self, count)')
+        cls.get_member_by_name('read').code.append('ooxcb._resize_obj(self, count)')
 
     ALL[strip_ns(name)] = cls
     WRAPPERS[strip_ns(oldname)] = cls
@@ -470,37 +477,45 @@ def py_union(self, name):
     init = cls.new_method('__init__')
 
     if self.fixed_size():
-        init.arguments += ['conn', 'parent', 'offset', 'size']
-        init.code.append('ooxcb.Union.__init__(self, conn, parent, offset, size)')
+        init.arguments += ['conn']
+        init.code.append('ooxcb.Union.__init__(self, conn)')
     else:
-        init.arguments += ['conn', 'parent', 'offset']
-        init.code.append('ooxcb.Union.__init__(self, conn, parent, offset)')
+        init.arguments += ['conn']
+        init.code.append('ooxcb.Union.__init__(self, conn)')
 
-    init.code.append('count = 0')
+    read = cls.new_method('read')
+    read.arguments.append('stream')
+
+    read.code.append('count = 0')
+    read.code.append('root = stream.tell()')
     for field in self.fields:
         if field.type.is_simple:
-            init.code.append('self.%s = unpack_ex("%s", self)' % \
+            read.code.append('self.%s = unpack_ex("%s", self)' % \
                     (prefix_if_needed(field.field_name), 
                     field.type.py_format_str))
-            init.code.append('count = max(count, %s)', field.type.size)
+            read.code.append('count = max(count, %s)', field.type.size)
+            read.code.append('stream.seek(root)')
         elif field.type.is_list:
-            init.code.append('self.%s = ooxcb.List(conn, self, 0, %s, %s, %s)' % \
+            read.code.append('self.%s = ooxcb.List(self.conn, stream, 0, %s, %s, %s)' % \
                     (prefix_if_needed(field.field_name), 
                     get_expr(field.type.expr), 
                     field.py_listtype, 
                     field.py_listsize))
-            init.code.append('count = max(count, len(self.%s.buf()))' % prefix_if_needed(field.field_name))
+            read.code.append('count = max(count, self.%s.size)' % prefix_if_needed(field.field_name))
+            read.code.append('stream.seek(root)')
         elif field.type.is_container and field.type.fixed_size():
-            init.code.append('self.%s = %s(self, 0, %s)' % (prefix_if_needed(field.field_name),
+            read.code.append('self.%s = %s.create_from_stream(self.conn, stream)' % (prefix_if_needed(field.field_name),
                     field.py_type, 
                     field.type.size))
-            init.code.append('count = max(count, %s)' % field.type.size)
+            read.code.append('count = max(count, %s)' % field.type.size)
+            read.code.append('stream.seek(root)')
         else:
-            init.code.append('self.%s = %s(self, 0)' % (prefix_if_needed(field.field_name), field.py_type))
-            init.code.append('count = max(count, len(self.%s))' % prefix_if_needed(field.field_name))
+            read.code.append('self.%s = %s.create_from_stream(self.conn, stream)' % (prefix_if_needed(field.field_name), field.py_type))
+            read.code.append('count = max(count, self.%s.size)' % prefix_if_needed(field.field_name))
+            read.code.append('stream.seek(root)')
 
     if not self.fixed_size():
-        init.code.append('ooxcb._resize_obj(self, count)')
+        read.code.append('ooxcb._resize_obj(self, count)')
 
     ALL[cls.name] = cls
     WRAPPERS[strip_ns(name)] = cls
@@ -708,9 +723,9 @@ def py_reply(self, name):
     cls = PyClass(self.py_reply_name)
     cls.base = 'ooxcb.Reply'
     init = cls.new_method('__init__')
-    init.arguments.extend(['conn', 'parent'])
-    init.code.append('ooxcb.Reply.__init__(self, conn, parent)')
-    init.code.extend(py_complex(self, name))
+    init.arguments.extend(['conn'])
+    init.code.append('ooxcb.Reply.__init__(self, conn)')
+    py_complex(self, name, cls)
     
     ALL[cls.name] = cls # TODO: to WRAPPERS, too?
 
@@ -720,11 +735,11 @@ def py_error(self, name):
     struct = PyClass(self.py_error_name)
     struct.base = 'ooxcb.Error'
     init = struct.new_method('__init__')
-    init.arguments.extend(['conn', 'parent'])
-    init.code.append('ooxcb.Error.__init__(self, conn, parent)')
+    init.arguments.extend(['conn'])
+    init.code.append('ooxcb.Error.__init__(self, conn)')
     ALL[self.py_error_name] = WRAPPERS[self.py_error_name] = struct
 
-    init.code.extend(py_complex(self, name))
+    py_complex(self, name, struct)
 
     # Exception definition
     exc = PyClass(self.py_except_name)
@@ -752,13 +767,13 @@ def py_event(self, name):
     struct.new_attribute('event_target_class', clsname)
 
     init = struct.new_method('__init__')
-    init.arguments.extend(['conn', 'parent'])
-    init.code.append('ooxcb.Event.__init__(self, conn, parent)')
+    init.arguments.extend(['conn'])
+    init.code.append('ooxcb.Event.__init__(self, conn)')
     ALL[self.py_event_name] = WRAPPERS[self.py_event_name] = struct
 
-    init.code.extend(py_complex(self, name))
+    py_complex(self, name, struct)
 
-    init.code.append('self.event_target = self.%s' % membername)
+    struct.get_member_by_name('read').code.append('self.event_target = self.%s' % membername)
 
     # Opcode define
     EVENTS[self.opcodes[name]] = self.py_event_name

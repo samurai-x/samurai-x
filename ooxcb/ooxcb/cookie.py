@@ -31,7 +31,5 @@ class Cookie(object):
         Error.set(self.conn, error)
         if not data:
             raise IOError("I/O error on X server connection.")
-        shim = util.MemBuffer(data)
-
-        return self.reply_cls(self.conn, shim)
+        return self.reply_cls.create_from_address(self.conn, data)
 

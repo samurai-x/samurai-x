@@ -7,6 +7,7 @@ class Request(Protobj):
         self.is_void = void
         self.is_checked = checked
 
-        Protobj.__init__(self, conn, buffer)
-        self._buf = buffer
+        Protobj.__init__(self, conn)
 
+        self.buffer = buffer
+        self.size = len(buffer)

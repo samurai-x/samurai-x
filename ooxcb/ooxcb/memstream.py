@@ -48,21 +48,23 @@ class MemoryInputStream(object):
             Currently you can not use whence=2.
             The stream has no end.
         """
-        new_offset = 0
         if whence == 0: 
             # from the start position of the stream
-            new_offset = offset
+            self._ptr = self._root + offset
+            return offset
         elif whence == 1:
             # from the current position of the stream
-            current_offset = self._ptr - self._root
-            new_offset = current_offset + offset
+            self._ptr += offset
+            return self._ptr - self._root
         elif whence == 2:
+            # from the end of the stream ... impossible, sorry.
             raise NotImplementedError('The memory stream has no end!')
         else:
             raise NotImplementedError('Unknown whence: %d' % whence)
-        # Set the new ptr
-        self._ptr = self._root + new_offset
-        return new_offset
+
+    @property
+    def address(self):
+        return self._root
 
     def seekable(self):
         return True

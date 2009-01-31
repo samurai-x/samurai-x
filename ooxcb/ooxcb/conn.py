@@ -1,7 +1,6 @@
 import ctypes
 
 from . import libxcb
-from .util import MemBuffer
 from .event import Event
 from .eventsys import EventDispatcher
 from .error import Error
@@ -106,9 +105,9 @@ class Connection(EventDispatcher):
         self.check_conn()
         if self._setup is None:
             s = libxcb.xcb_get_setup(self.conn)
-            shim = MemBuffer(ctypes.addressof(s.contents)) 
+            addr = ctypes.addressof(s.contents)
             from . import SETUP
-            self._setup = SETUP(self, shim, 0)
+            self._setup = SETUP.create_from_address(self, addr)
 
         return self._setup
 

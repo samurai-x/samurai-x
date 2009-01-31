@@ -21,7 +21,7 @@ class Extension(object):
         xcb_req.opcode = request.opcode
         xcb_req.isvoid = request.is_void
     
-        s = request.get_string()
+        s = request.buffer
         data = ctypes.cast(ctypes.create_string_buffer(s, len(s)), ctypes.c_void_p)
         
         xcb_parts = (libxcb.iovec * 2)()

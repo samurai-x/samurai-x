@@ -10,6 +10,12 @@ class PyClass(CodegenBase):
 
     def add_member(self, member):
         self.members.append(member)
+    
+    def get_member_by_name(self, name):
+        for member in self.members:
+            if member.name == name:
+                return member
+        raise KeyError(name)
 
     def new_method(self, name):
         ret = PyMethod(name)

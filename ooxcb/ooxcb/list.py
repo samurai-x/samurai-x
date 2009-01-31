@@ -20,33 +20,28 @@ def slice_ptr(ptr, offset):
     return ptr.__class__.from_address(ctypes.addressof(ptr) + offset)
 
 class List(list):
-    def __init__(self, conn, parent, offset, length, type, size=-1):
-        
-        # construct it
-        #datalen = len(data) 
-        
-        #assert not (size > 0 and length * size + offset > data), \
-        #        "Protocol object buffer too short." # TODO: 'expected ?, got ?' ...
+    def __init__(self, conn, stream, offset, length, type, size=-1):
         self.conn = conn
         cur = offset
         for i in xrange(length):
+            # TODO: I don't think that call is necessary. If there are problems,
+            # try to comment in this call ;-)
+            #stream.seek(cur)
             if isinstance(type, str):
-                obj = build_value(type, length, parent.get_slice(size, cur))
+                obj = build_value(type, length, stream.read(size))
                 cur += size
             elif size > 0:
-                obj = type(conn, parent, cur, size)
+                obj = type(conn)
+                obj.read(stream)
                 cur += size
             else:
-                obj = type(conn, parent, cur) # ... is a sequence
-                datalen = len(obj)
+                obj = type(conn) # ... is a sequence
+                obj.read(stream)
+                datalen = obj.size
                 cur += datalen
             self.append(obj)
-        
-        self._buf = parent.get_subobject(offset)
-        self._buf.size = cur - offset
-    
-    def buf(self):
-        return self._buf # c compatibility ...
+
+        self.size = cur - offset
 
     def to_string(self):
         """

@@ -1,14 +1,15 @@
 import ctypes
 
-from .response import Response
 from .libxcb import xcb_generic_reply_t
+from .response import Response
+from .util import cached_property
 
 class Reply(Response):
-    @property
-    def _casted(self):
-        return ctypes.cast(self.address, ctypes.POINTER(xcb_generic_reply_t)).contents
+    @cached_property
+    def _struct(self):
+        return xcb_generic_reply_t.from_address(self._address)
 
     @property
     def length(self):
-        return self._casted.length
+        return self._struct.length
 

@@ -1,16 +1,27 @@
-import ctypes
-from .util import MemBuffer
+from .memstream import MemoryInputStream
 
-class Protobj(MemBuffer):
-    def __init__(self, conn, parent, offset=0, size=0):
+class Protobj(object):
+    def __init__(self, conn):
         self.conn = conn
-        if isinstance(parent, basestring):
-            self._buf = ctypes.create_string_buffer(parent, len(parent))
-            address = ctypes.cast(self._buf, ctypes.c_void_p).value + offset
-            size = len(parent) - offset
-        elif isinstance(parent, MemBuffer):
-            address = parent.address + offset
-        else:
-            raise Exception("what for an instance?? %s" % repr(parent))
 
-        MemBuffer.__init__(self, address, size)
+    def read(self, stream):
+        raise NotImplementedError()
+
+    def read_from_address(self, address):
+        """
+            parse the memory at `address`
+        """
+        return self.read(MemoryInputStream(address))
+
+    @classmethod
+    def create_from_address(cls, conn, address):
+        self = cls(conn)
+        self.read_from_address(address)
+        return self
+
+    @classmethod
+    def create_from_stream(cls, conn, stream):
+        self = cls(conn)
+        self.read(stream)
+        return self
+
