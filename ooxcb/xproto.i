@@ -52,19 +52,19 @@ Xizers:
 
     PropertyName:
         type: lazy_atom
-        name: property_
+        name: property
 
     PropertyType:
         type: lazy_atom
-        name: type_
+        name: type
 
     CursorNone:
         type: lazy_none
-        value: cursor_
+        value: cursor
 
     ConfineToNone:
         type: lazy_none
-        value: confine_to_
+        value: confine_to
 
 ClassAliases:
     GCONTEXT: GContext
@@ -91,10 +91,10 @@ Requests:
 
     ChangeProperty:
         subject: window
-        arguments: ["property_", "type_", "format", "data", "mode=PropMode.Replace"]
+        arguments: ["property", "type", "format", "data", "mode=PropMode.Replace"]
         initcode: [!xizer "Data", !xizer "PropertyName", !xizer "PropertyType",
         "buf = StringIO.StringIO()",
-        'buf.write(pack("xBxxIIIBxxxI", mode, self.get_internal(), property_.get_internal(), type_.get_internal(), format, data_len))',
+        'buf.write(pack("xBxxIIIBxxxI", mode, self.get_internal(), property.get_internal(), type.get_internal(), format, data_len))',
         'buf.write(make_void_array(data, format))']
 
     MapWindow:
@@ -186,8 +186,8 @@ Requests:
             pointer_mode: GrabMode.Async
             keyboard_mode: GrabMode.Async
             time: 0 # TODO: CurrentTime
-            confine_to_: 'None'
-            cursor_: 'None'
+            confine_to: 'None'
+            cursor: 'None'
         precode: 
             - !xizer "ConfineToNone"
             - !xizer "CursorNone"
@@ -203,14 +203,14 @@ Requests:
     ImageText8:
         subject: gc
         precode: [!xizer "String"]
-        arguments: ["drawable_", "x", "y", "string"]
+        arguments: ["drawable", "x", "y", "string"]
     
     PolyRectangle:
         subject: gc
-        arguments: ["drawable_", "rectangles"]
+        arguments: ["drawable", "rectangles"]
         initcode:
             - "gc = self.get_internal()"
-            - "drawable = drawable_.get_internal()"
+            - "drawable = drawable.get_internal()"
             - "buf = StringIO.StringIO()"
             - 'buf.write(pack("xxxxII", drawable, gc))'
             - "for rect in rectangles:"
