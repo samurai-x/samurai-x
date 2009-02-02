@@ -68,6 +68,7 @@ class MoveHandler(ClientHandler):
 class ResizeHandler(ClientHandler):
     def __init__(self, client, x, y):
         ClientHandler.__init__(self, client, x, y) # TODO: cursor
+        log.info('Now resizing %s' % client)
 
 #        geom = self.client.geom
 #        client.frame.warp_pointer(geom.width, geom.height)

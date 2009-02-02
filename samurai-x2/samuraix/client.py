@@ -82,6 +82,9 @@ class Client(SXObject):
         self.window.map()
         self.conn.flush()
 
+    def __repr__(self):
+        return '<Client at 0x%x for %s>' % (id(self), repr(self.window))
+
     def is_focused(self):
         return self.screen.focused_client is self
 
@@ -183,9 +186,6 @@ class Client(SXObject):
             del self.window_2_client_map[self.window]
         except (ValueError, KeyError), e:
             log.warning(e)
-        if self.window.valid:
-            # We don't want to receive any further events.
-            self.window.change_attributes(event_mask=0)
         log.info('Removed me=%s! clients=%s' % (self, self.all_clients))
         self.dispatch_event('on_removed', self)
 
@@ -224,8 +224,6 @@ class Client(SXObject):
         # TODO: respect sticky?
         log.debug('unbanning %s' % self)
         self.actor.map()
-        self.conn.flush()
-        #self.actor.map()
         self.window.change_property(
                 'WM_STATE',
                 'CARDINAL',

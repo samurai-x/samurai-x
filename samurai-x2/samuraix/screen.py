@@ -28,7 +28,6 @@ log = logging.getLogger(__name__)
 
 import os.path
 
-import pkg_resources
 from ooxcb import xproto
 from ooxcb.xproto import EventMask
 
@@ -207,15 +206,17 @@ class Screen(SXObject):
     def unmanage(self, client):
         """
             Unmanage the client `client`.
-            That means: map it. If we don't map it,
-            it is unmapped. If it is unmapped, 
-            samurai-x won't manage it if it's
-            restarted.
+            That means: unban it. If we don't unban it, it is unmapped.
+            If it is unmapped, samurai-x won't manage it if it's restarted.
         """
         log.info('Unmanaging %s ...' % client)
+        if client.window.valid:
+            # We don't want to receive any further events.
+            client.window.change_attributes(event_mask=0)
+        if client.window.valid:
+            client.unban()
         self.update_client_list()
         self.clients.remove(client)
-        client.actor.map()
         self.dispatch_event('on_unmanage_client', self, client)
 
     def on_unmanage_client(self, screen, client):
