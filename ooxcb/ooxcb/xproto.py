@@ -545,7 +545,7 @@ class ConfigureNotifyEvent(ooxcb.Event):
         self.height = _unpacked[6]
         self.border_width = _unpacked[7]
         self.override_redirect = _unpacked[8]
-        self.event_target = self.window
+        self.event_target = self.event
 
     def build(self, stream):
         count = 0

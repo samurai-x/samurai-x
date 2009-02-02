@@ -94,6 +94,10 @@ class ClientData(object):
                 on_unmap_notify=self.on_unmap_notify,
                 on_map_notify=self.on_map_notify,
                 )
+        # TODO: dirty. something's wrong with substructure and structure notify.
+        self.client.screen.root.push_handlers(
+                on_configure_notify=self.screen_on_configure_notify
+                )
 
     def on_focus(self, client):
         if (self._active and not self._obsolete):
@@ -112,6 +116,13 @@ class ClientData(object):
             self._active = False
             self.client.actor.unmap()
             self.client.conn.flush()
+
+    def screen_on_configure_notify(self, evt):
+        if not self._obsolete:
+            if evt.window is self.client.window:
+                return self.window_on_configure_notify(evt)
+            elif evt.window is self.client.actor:
+                return self.actor_on_configure_notify(evt)
 
     def on_map_notify(self, evt):
         if not self._obsolete:
@@ -148,6 +159,7 @@ class ClientData(object):
 
     def window_on_configure_notify(self, evt):
         """ if the window is configured, configure the actor, too """
+        log.debug('%s got window configure notify event, configure counter=%d' % (self, self._window_configures))
         if self._window_configures == 0:
             geom = Rect.from_object(evt) 
             compute_actor_geom(geom)

@@ -177,17 +177,24 @@ class Client(SXObject):
     def on_destroy_notify(self, evt):
         log.warning('Got destroy notify event, Client=%s Window=%s' % (self, evt.window))
         if evt.window is self.window:
-            self.window.valid = False
             self.remove()
 
     def remove(self):
+        log.info('Removed me=%s! clients=%s' % (self, self.all_clients))
+        self.window.valid = False
+        self.dispatch_event('on_removed', self)
+
+    def unmanage(self):
+        """ called by the screen """
+        if self.window.valid:
+            # We don't want to receive any further events.
+            self.window.change_attributes(event_mask=0)
+            self.unban()
         try:
             self.all_clients.remove(self)
             del self.window_2_client_map[self.window]
         except (ValueError, KeyError), e:
             log.warning(e)
-        log.info('Removed me=%s! clients=%s' % (self, self.all_clients))
-        self.dispatch_event('on_removed', self)
 
     def ban(self, withdrawn=True):
         """

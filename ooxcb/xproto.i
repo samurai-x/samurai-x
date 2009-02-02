@@ -337,7 +337,7 @@ Events:
     ConfigureRequest:
         member: parent # is that correct?? TODO: we should change that
     ConfigureNotify:
-        member: window # correct??
+        member: event # correct??
     ReparentNotify:
         member: window # correct??
     PropertyNotify:

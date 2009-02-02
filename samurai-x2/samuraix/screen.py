@@ -210,11 +210,7 @@ class Screen(SXObject):
             If it is unmapped, samurai-x won't manage it if it's restarted.
         """
         log.info('Unmanaging %s ...' % client)
-        if client.window.valid:
-            # We don't want to receive any further events.
-            client.window.change_attributes(event_mask=0)
-        if client.window.valid:
-            client.unban()
+        client.unmanage()
         self.update_client_list()
         self.clients.remove(client)
         self.dispatch_event('on_unmanage_client', self, client)
