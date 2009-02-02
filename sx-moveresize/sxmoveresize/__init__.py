@@ -94,9 +94,13 @@ class ResizeHandler(ClientHandler):
         geom = self.client.geom.copy()
         geom.width, geom.height = self._w, self._h
         if geom.width:
-            self.client.resize(geom)
-        #configure(width=w, height=h)
-
+            # we cannot use self.client.resize here, because
+            # that resizes the window. we want to resize the
+            # actor. That's not really optimal. TODO?
+            self.client.actor.configure(
+                    width=geom.width,
+                    height=geom.height
+                    )
         self.client.screen.root.remove_handlers(self)
         self.client.conn.core.ungrab_pointer()
         # put the mouse back where it was # TODO: necessary?
