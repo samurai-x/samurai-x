@@ -183,7 +183,7 @@ class Client(SXObject):
         log.info('Removed me=%s! clients=%s' % (self, self.all_clients))
         self.window.valid = False
         self.dispatch_event('on_removed', self)
-
+        
     def unmanage(self):
         """ called by the screen """
         if self.window.valid:
@@ -195,6 +195,7 @@ class Client(SXObject):
             del self.window_2_client_map[self.window]
         except (ValueError, KeyError), e:
             log.warning(e)
+        self.window.remove_handlers(self)
 
     def ban(self, withdrawn=True):
         """
