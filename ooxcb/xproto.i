@@ -15,7 +15,7 @@ Ignored:
 
 Xizers:
     CW:
-        type: values 
+        type: values
         enum_name: CW
         values_dict_name: values
         xize:
@@ -44,11 +44,23 @@ Xizers:
         length_out: string_len
         seq_out: string
 
+    Pattern:
+        type: seq
+        seq_in: pattern
+        length_out: pattern_len
+        seq_out: pattern
+
     Data:
         type: seq
         seq_in: data
         length_out: data_len
         seq_out: data
+
+    FontQtyPaths:
+        type: seq
+        seq_in: path
+        length_out: font_qty
+        seq_out: path
 
     PropertyName:
         type: lazy_atom
@@ -58,6 +70,10 @@ Xizers:
         type: lazy_atom
         name: type
 
+    Selection:
+        type: lazy_atom
+        name: selection
+
     CursorNone:
         type: lazy_none
         value: cursor
@@ -66,19 +82,89 @@ Xizers:
         type: lazy_none
         value: confine_to
 
+    OwnerNone:
+        type: lazy_none
+        value: owner
+
+    PropertyNone:
+        type: lazy_none
+        value: property
+
+    SrcWindowNone:
+        type: lazy_none
+        value: src_w
+
+    DestWindowNone:
+        type: lazy_none
+        value: dest_w
+
 ClassAliases:
     GCONTEXT: GContext
 
 Requests:
     # xproto objects
     InternAtom:
-        arguments: ["name", "only_if_exists"]
+        arguments: ["name", "only_if_exists=False"]
         precode: [!xizer "Name"]
+
+    AllowEvents:
+        defaults:
+            time: 0 # CurrentTime
+
+    WarpPointer:
+        # That's not a method of a window, because it is not clear
+        # if src_w or dest_w is the subject.
+        precode:
+            - !xizer "SrcWindowNone"
+            - !xizer "DestWindowNone"
+
+    ListFonts:
+        arguments: ["max_names", "pattern"]
+        precode:
+            - !xizer "Pattern"
+
+    ListFontsWithInfo:
+        arguments: ["max_names", "pattern"]
+        precode:
+            - !xizer "Pattern"
+
+    SetFontPath:
+        # `font_qty` seems to be `path_len`, and `path_len`
+        # is unused. WTF o_O
+        arguments: ["path"]
+        # TODO: No idea how what format `path` has. It doesn't seem to be
+        # len(s1) + s1 + \x00 + len(s2) + s2 + \x00 ... :/
+#        initcode:
+#            - !xizer "FontQtyPaths"
+#            - 'buf = StringIO.StringIO()'
+#            - 'buf.write(pack("xxxxH", font_qty))'
+#            - 'for item in path:'
+#            - !indent
+#            - 'buf.write(pack("H", len(item)) + array("B", item).tostring() + "\x00")'
+#            - !dedent
 
     # Atom objects
     GetAtomName:
         subject: atom
         name: get_name
+
+    # TODO: should the selection stuff really be in the Atom objects?
+    SetSelectionOwner:
+        subject: selection
+        precode: [!xizer "OwnerNone"]
+        defaults:
+            owner: None
+            time: 0 # CurrentTime
+
+    GetSelectionOwner:
+        subject: selection
+
+    ConvertSelection:
+        subject: selection
+        precode: [!xizer "PropertyNone"]
+        defaults:
+            property: None
+            time: 0 # CurrentTime
 
     # Window objects
     GetProperty:
@@ -103,17 +189,17 @@ Requests:
 
     SetInputFocus:
         subject: focus
-        defaults: 
+        defaults:
             revert_to: 1 # TODO: well, 1 is InputFocus.PointerRoot, but Python gets angry if InputFocus isn't defined before set_input_focus, so that's a workaround.
             time: 0 # TODO: CurrentTime?
-    
+
     UnmapWindow:
         subject: window
         name: unmap
 
     ConfigureWindow:
         subject: window
-        initcode: 
+        initcode:
             - !xizer "ConfigWindow"
             - "window = self.get_internal()"
             - "buf = StringIO.StringIO()"
@@ -152,7 +238,29 @@ Requests:
         subject: window
         name: destroy
 
+    DestroySubwindows:
+        subject: window
+
+    ChangeSaveSet:
+        subject: window
+
+    MapSubwindows:
+        subject: window
+
+    UnmapSubwindows:
+        subject: window
+
+    CirculateWindow:
+        subject: window
+
     QueryTree:
+        subject: window
+
+    DeleteProperty:
+        subject: window
+        precode: [!xizer "PropertyName"]
+
+    ListProperties:
         subject: window
 
     GetGeometry:
@@ -188,23 +296,41 @@ Requests:
             time: 0 # TODO: CurrentTime
             confine_to: 'None'
             cursor: 'None'
-        precode: 
+        precode:
             - !xizer "ConfineToNone"
             - !xizer "CursorNone"
 
         # TODO: (!!!) confine_to can be None. Maybe with a xizer? -- is XNone the cool solution?
-    
+
     UngrabPointer:
         defaults:
             time: 0 # TODO: CurrentTime
-        
+
+    SendEvent:
+        subject: destination # TODO: add PointerWindow and InputFocus!
+        arguments: ["event_mask", "event", "propagate=False"]
+        # hardcoded because of `event`.
+        initcode:
+            - "destination = self.get_internal()"
+            - "buf = StringIO.StringIO()"
+            - 'buf.write(pack("xBxxII", propagate, destination, event_mask))'
+            - "event.build(buf)"
+
+    QueryPointer:
+        subject: window
+
+    GetMotionEvents:
+        subject: window
+
+    TranslateCoordinates:
+        subject: src_window
+
     # GContext objects
-    #
     ImageText8:
         subject: gc
         precode: [!xizer "String"]
         arguments: ["drawable", "x", "y", "string"]
-    
+
     PolyRectangle:
         subject: gc
         arguments: ["drawable", "rectangles"]
@@ -223,22 +349,32 @@ Requests:
         name: free
 
     # Font objects
-    
     OpenFont:
+        arguments: ["fid", "name"]
         precode: [!xizer "Name"]
 
     CloseFont:
         name: close
+        subject: font
+
+    QueryFont:
+        name: query
+        subject: font
+        # TODO: that can also be a GContext method.
+
+    QueryTextExtends:
+        subject: font
+        arguments: ["string"]
 
     # Cursor objects
-    
+
     # TODO: wrap create_cursor
 
     # no need to hack CreateGlyphCursor ...
 
 Classes:
     Window:
-#        - base: Drawable # TODO: fix the class 'order'? 
+#        - base: Drawable # TODO: fix the class 'order'?
         - classmethod:
             name: create
             arguments: ["conn", "parent", "depth", "visual", "x=0", "y=0", "width=640", "height=480", "border_width=0", "_class=WindowClass.InputOutput", "**values"]
@@ -246,11 +382,11 @@ Classes:
                     'wid = conn.generate_id()',
                     'win = cls(conn, wid)',
                     !xizer "CW" ,
-                    'conn.core.create_window_checked(depth, win, parent, x, y, width, height, border_width, _class, visual, value_mask, value_list).check()', 
+                    'conn.core.create_window_checked(depth, win, parent, x, y, width, height, border_width, _class, visual, value_mask, value_list).check()',
                     'conn.add_to_cache(wid, win)',
                     'return win'
                 ]
-    
+
     GContext:
         - classmethod:
             name: create
@@ -259,7 +395,7 @@ Classes:
                     'cid = conn.generate_id()',
                     'gc = cls(conn, cid)',
                     !xizer "GC" ,
-                    'conn.core.create_g_c_checked(gc, drawable, value_mask, value_list).check()', 
+                    'conn.core.create_g_c_checked(gc, drawable, value_mask, value_list).check()',
                     'conn.add_to_cache(cid, gc)',
                     'return gc'
                 ]
@@ -268,7 +404,7 @@ Classes:
         - classmethod:
             name: open
             arguments: ["conn", "name"]
-            code: 
+            code:
                 - "fid = conn.generate_id()"
                 - "font = cls(conn, fid)"
                 - "conn.core.open_font_checked(font, name).check()"
@@ -279,7 +415,7 @@ Classes:
         - classmethod:
             name: create_glyph
             arguments: ["conn", "source_font", "mask_font", "source_char", "mask_char", "fore_red", "fore_green", "fore_blue", "back_red", "back_green", "back_blue"]
-            code: 
+            code:
                 - "cid = conn.generate_id()"
                 - "cursor = cls(conn, cid)"
                 - "conn.core.create_glyph_cursor_checked(cid, source_font, mask_font, source_char, mask_char, fore_red, fore_green, fore_blue, back_red, back_green, back_blue).check()"
@@ -299,6 +435,15 @@ Classes:
         - attribute:
             name: Iconic
             value: 3
+
+    # nice __str__ and __repr__ for the `Str` struct
+    Str:
+        - method:
+            name: __str__
+            code: ["return self.name.to_string()"]
+        - method:
+            name: __repr__
+            code: ["return repr(self.name.to_string())"]
 
 Events:
     KeyPress:
@@ -329,9 +474,9 @@ Events:
     CreateNotify:
         member: parent
     DestroyNotify:
-        member: event 
+        member: event
     MapNotify:
-        member: event 
+        member: event
     UnmapNotify:
         member: event
     ConfigureRequest:

@@ -512,6 +512,22 @@ class Fontable(ooxcb.Resource):
     def __init__(self, conn, xid):
         ooxcb.Resource.__init__(self, conn, xid)
 
+    def query(self):
+        font = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xxxxI", font))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 47, False, True), \
+            QueryFontCookie(),
+            QueryFontReply)
+
+    def query_unchecked(self):
+        font = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xxxxI", font))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 47, False, False), \
+            QueryFontCookie(),
+            QueryFontReply)
+
 class QueryShapeOf(object):
     LargestCursor = 0
     FastestTile = 1
@@ -875,6 +891,20 @@ class QueryFontCookie(ooxcb.Cookie):
 class Font(ooxcb.Resource):
     def __init__(self, conn, xid):
         ooxcb.Resource.__init__(self, conn, xid)
+
+    def close_checked(self):
+        font = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xxxxI", font))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 46, True, True), \
+            ooxcb.VoidCookie())
+
+    def close(self):
+        font = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xxxxI", font))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 46, True, False), \
+            ooxcb.VoidCookie())
 
     @classmethod
     def open(cls, conn, name):
@@ -1274,77 +1304,7 @@ class xprotoExtension(ooxcb.Extension):
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 1, True, False), \
             ooxcb.VoidCookie())
 
-    def destroy_subwindows_checked(self, window):
-        window = window.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xxxxI", window))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 5, True, True), \
-            ooxcb.VoidCookie())
-
-    def destroy_subwindows(self, window):
-        window = window.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xxxxI", window))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 5, True, False), \
-            ooxcb.VoidCookie())
-
-    def change_save_set_checked(self, mode, window):
-        window = window.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xBxxI", mode, window))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 6, True, True), \
-            ooxcb.VoidCookie())
-
-    def change_save_set(self, mode, window):
-        window = window.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xBxxI", mode, window))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 6, True, False), \
-            ooxcb.VoidCookie())
-
-    def map_subwindows_checked(self, window):
-        window = window.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xxxxI", window))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 9, True, True), \
-            ooxcb.VoidCookie())
-
-    def map_subwindows(self, window):
-        window = window.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xxxxI", window))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 9, True, False), \
-            ooxcb.VoidCookie())
-
-    def unmap_subwindows_checked(self, window):
-        window = window.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xxxxI", window))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 11, True, True), \
-            ooxcb.VoidCookie())
-
-    def unmap_subwindows(self, window):
-        window = window.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xxxxI", window))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 11, True, False), \
-            ooxcb.VoidCookie())
-
-    def circulate_window_checked(self, direction, window):
-        window = window.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xBxxI", direction, window))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 13, True, True), \
-            ooxcb.VoidCookie())
-
-    def circulate_window(self, direction, window):
-        window = window.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xBxxI", direction, window))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 13, True, False), \
-            ooxcb.VoidCookie())
-
-    def intern_atom(self, name, only_if_exists):
+    def intern_atom(self, name, only_if_exists=False):
         name_len = len(name)
         buf = StringIO.StringIO()
         buf.write(pack("xBxxHxx", only_if_exists, name_len))
@@ -1353,7 +1313,7 @@ class xprotoExtension(ooxcb.Extension):
             InternAtomCookie(),
             InternAtomReply)
 
-    def intern_atom_unchecked(self, name, only_if_exists):
+    def intern_atom_unchecked(self, name, only_if_exists=False):
         name_len = len(name)
         buf = StringIO.StringIO()
         buf.write(pack("xBxxHxx", only_if_exists, name_len))
@@ -1361,106 +1321,6 @@ class xprotoExtension(ooxcb.Extension):
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 16, False, False), \
             InternAtomCookie(),
             InternAtomReply)
-
-    def delete_property_checked(self, window, property):
-        window = window.get_internal()
-        property = property.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xxxxII", window, property))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 19, True, True), \
-            ooxcb.VoidCookie())
-
-    def delete_property(self, window, property):
-        window = window.get_internal()
-        property = property.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xxxxII", window, property))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 19, True, False), \
-            ooxcb.VoidCookie())
-
-    def list_properties(self, window):
-        window = window.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xxxxI", window))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 21, False, True), \
-            ListPropertiesCookie(),
-            ListPropertiesReply)
-
-    def list_properties_unchecked(self, window):
-        window = window.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xxxxI", window))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 21, False, False), \
-            ListPropertiesCookie(),
-            ListPropertiesReply)
-
-    def set_selection_owner_checked(self, owner, selection, time):
-        owner = owner.get_internal()
-        selection = selection.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xxxxIII", owner, selection, time))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 22, True, True), \
-            ooxcb.VoidCookie())
-
-    def set_selection_owner(self, owner, selection, time):
-        owner = owner.get_internal()
-        selection = selection.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xxxxIII", owner, selection, time))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 22, True, False), \
-            ooxcb.VoidCookie())
-
-    def get_selection_owner(self, selection):
-        selection = selection.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xxxxI", selection))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 23, False, True), \
-            GetSelectionOwnerCookie(),
-            GetSelectionOwnerReply)
-
-    def get_selection_owner_unchecked(self, selection):
-        selection = selection.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xxxxI", selection))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 23, False, False), \
-            GetSelectionOwnerCookie(),
-            GetSelectionOwnerReply)
-
-    def convert_selection_checked(self, requestor, selection, target, property, time):
-        requestor = requestor.get_internal()
-        selection = selection.get_internal()
-        target = target.get_internal()
-        property = property.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xxxxIIIII", requestor, selection, target, property, time))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 24, True, True), \
-            ooxcb.VoidCookie())
-
-    def convert_selection(self, requestor, selection, target, property, time):
-        requestor = requestor.get_internal()
-        selection = selection.get_internal()
-        target = target.get_internal()
-        property = property.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xxxxIIIII", requestor, selection, target, property, time))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 24, True, False), \
-            ooxcb.VoidCookie())
-
-    def send_event_checked(self, propagate, destination, event_mask, event):
-        destination = destination.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xBxxII", propagate, destination, event_mask))
-        buf.write(array("B", event).tostring())
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 25, True, True), \
-            ooxcb.VoidCookie())
-
-    def send_event(self, propagate, destination, event_mask, event):
-        destination = destination.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xBxxII", propagate, destination, event_mask))
-        buf.write(array("B", event).tostring())
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 25, True, False), \
-            ooxcb.VoidCookie())
 
     def ungrab_pointer_checked(self, time=0):
         buf = StringIO.StringIO()
@@ -1562,13 +1422,13 @@ class xprotoExtension(ooxcb.Extension):
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 34, True, False), \
             ooxcb.VoidCookie())
 
-    def allow_events_checked(self, mode, time):
+    def allow_events_checked(self, mode, time=0):
         buf = StringIO.StringIO()
         buf.write(pack("xBxxI", mode, time))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 35, True, True), \
             ooxcb.VoidCookie())
 
-    def allow_events(self, mode, time):
+    def allow_events(self, mode, time=0):
         buf = StringIO.StringIO()
         buf.write(pack("xBxxI", mode, time))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 35, True, False), \
@@ -1598,57 +1458,11 @@ class xprotoExtension(ooxcb.Extension):
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 37, True, False), \
             ooxcb.VoidCookie())
 
-    def query_pointer(self, window):
-        window = window.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xxxxI", window))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 38, False, True), \
-            QueryPointerCookie(),
-            QueryPointerReply)
-
-    def query_pointer_unchecked(self, window):
-        window = window.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xxxxI", window))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 38, False, False), \
-            QueryPointerCookie(),
-            QueryPointerReply)
-
-    def get_motion_events(self, window, start, stop):
-        window = window.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xxxxIII", window, start, stop))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 39, False, True), \
-            GetMotionEventsCookie(),
-            GetMotionEventsReply)
-
-    def get_motion_events_unchecked(self, window, start, stop):
-        window = window.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xxxxIII", window, start, stop))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 39, False, False), \
-            GetMotionEventsCookie(),
-            GetMotionEventsReply)
-
-    def translate_coordinates(self, src_window, dst_window, src_x, src_y):
-        src_window = src_window.get_internal()
-        dst_window = dst_window.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xxxxIIhh", src_window, dst_window, src_x, src_y))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 40, False, True), \
-            TranslateCoordinatesCookie(),
-            TranslateCoordinatesReply)
-
-    def translate_coordinates_unchecked(self, src_window, dst_window, src_x, src_y):
-        src_window = src_window.get_internal()
-        dst_window = dst_window.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xxxxIIhh", src_window, dst_window, src_x, src_y))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 40, False, False), \
-            TranslateCoordinatesCookie(),
-            TranslateCoordinatesReply)
-
     def warp_pointer_checked(self, src_window, dst_window, src_x, src_y, src_width, src_height, dst_x, dst_y):
+        if src_w is None:
+            src_w = XNone
+        if dest_w is None:
+            dest_w = XNone
         src_window = src_window.get_internal()
         dst_window = dst_window.get_internal()
         buf = StringIO.StringIO()
@@ -1657,6 +1471,10 @@ class xprotoExtension(ooxcb.Extension):
             ooxcb.VoidCookie())
 
     def warp_pointer(self, src_window, dst_window, src_x, src_y, src_width, src_height, dst_x, dst_y):
+        if src_w is None:
+            src_w = XNone
+        if dest_w is None:
+            dest_w = XNone
         src_window = src_window.get_internal()
         dst_window = dst_window.get_internal()
         buf = StringIO.StringIO()
@@ -1692,7 +1510,7 @@ class xprotoExtension(ooxcb.Extension):
             QueryKeymapCookie(),
             QueryKeymapReply)
 
-    def open_font_checked(self, fid, name_len, name):
+    def open_font_checked(self, fid, name):
         name_len = len(name)
         fid = fid.get_internal()
         buf = StringIO.StringIO()
@@ -1701,7 +1519,7 @@ class xprotoExtension(ooxcb.Extension):
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 45, True, True), \
             ooxcb.VoidCookie())
 
-    def open_font(self, fid, name_len, name):
+    def open_font(self, fid, name):
         name_len = len(name)
         fid = fid.get_internal()
         buf = StringIO.StringIO()
@@ -1709,36 +1527,6 @@ class xprotoExtension(ooxcb.Extension):
         buf.write(array("B", name).tostring())
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 45, True, False), \
             ooxcb.VoidCookie())
-
-    def close_checked(self, font):
-        font = font.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xxxxI", font))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 46, True, True), \
-            ooxcb.VoidCookie())
-
-    def close(self, font):
-        font = font.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xxxxI", font))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 46, True, False), \
-            ooxcb.VoidCookie())
-
-    def query_font(self, font):
-        font = font.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xxxxI", font))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 47, False, True), \
-            QueryFontCookie(),
-            QueryFontReply)
-
-    def query_font_unchecked(self, font):
-        font = font.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xxxxI", font))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 47, False, False), \
-            QueryFontCookie(),
-            QueryFontReply)
 
     def query_text_extents(self, font, string_len, string):
         font = font.get_internal()
@@ -1766,7 +1554,8 @@ class xprotoExtension(ooxcb.Extension):
             QueryTextExtentsCookie(),
             QueryTextExtentsReply)
 
-    def list_fonts(self, max_names, pattern_len, pattern):
+    def list_fonts(self, max_names, pattern):
+        pattern_len = len(pattern)
         buf = StringIO.StringIO()
         buf.write(pack("xxxxHH", max_names, pattern_len))
         buf.write(array("B", pattern).tostring())
@@ -1774,7 +1563,8 @@ class xprotoExtension(ooxcb.Extension):
             ListFontsCookie(),
             ListFontsReply)
 
-    def list_fonts_unchecked(self, max_names, pattern_len, pattern):
+    def list_fonts_unchecked(self, max_names, pattern):
+        pattern_len = len(pattern)
         buf = StringIO.StringIO()
         buf.write(pack("xxxxHH", max_names, pattern_len))
         buf.write(array("B", pattern).tostring())
@@ -1782,7 +1572,8 @@ class xprotoExtension(ooxcb.Extension):
             ListFontsCookie(),
             ListFontsReply)
 
-    def list_fonts_with_info(self, max_names, pattern_len, pattern):
+    def list_fonts_with_info(self, max_names, pattern):
+        pattern_len = len(pattern)
         buf = StringIO.StringIO()
         buf.write(pack("xxxxHH", max_names, pattern_len))
         buf.write(array("B", pattern).tostring())
@@ -1790,7 +1581,8 @@ class xprotoExtension(ooxcb.Extension):
             ListFontsWithInfoCookie(),
             ListFontsWithInfoReply)
 
-    def list_fonts_with_info_unchecked(self, max_names, pattern_len, pattern):
+    def list_fonts_with_info_unchecked(self, max_names, pattern):
+        pattern_len = len(pattern)
         buf = StringIO.StringIO()
         buf.write(pack("xxxxHH", max_names, pattern_len))
         buf.write(array("B", pattern).tostring())
@@ -1798,14 +1590,14 @@ class xprotoExtension(ooxcb.Extension):
             ListFontsWithInfoCookie(),
             ListFontsWithInfoReply)
 
-    def set_font_path_checked(self, font_qty, path_len, path):
+    def set_font_path_checked(self, path):
         buf = StringIO.StringIO()
         buf.write(pack("xxxxH", font_qty))
         buf.write(array("B", path).tostring())
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 51, True, True), \
             ooxcb.VoidCookie())
 
-    def set_font_path(self, font_qty, path_len, path):
+    def set_font_path(self, path):
         buf = StringIO.StringIO()
         buf.write(pack("xxxxH", font_qty))
         buf.write(array("B", path).tostring())
@@ -3832,6 +3624,12 @@ class Str(ooxcb.Struct):
         count += 1
         build_list(stream, self.name, 'B')
 
+    def __str__(self):
+        return self.name.to_string()
+
+    def __repr__(self):
+        return repr(self.name.to_string())
+
 class AllocColorPlanesReply(ooxcb.Reply):
     def __init__(self, conn):
         ooxcb.Reply.__init__(self, conn)
@@ -4336,6 +4134,34 @@ class Window(ooxcb.Resource):
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 4, True, False), \
             ooxcb.VoidCookie())
 
+    def destroy_subwindows_checked(self):
+        window = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xxxxI", window))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 5, True, True), \
+            ooxcb.VoidCookie())
+
+    def destroy_subwindows(self):
+        window = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xxxxI", window))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 5, True, False), \
+            ooxcb.VoidCookie())
+
+    def change_save_set_checked(self, mode):
+        window = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xBxxI", mode, window))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 6, True, True), \
+            ooxcb.VoidCookie())
+
+    def change_save_set(self, mode):
+        window = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xBxxI", mode, window))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 6, True, False), \
+            ooxcb.VoidCookie())
+
     def reparent_checked(self, parent, x=0, y=0):
         window = self.get_internal()
         parent = parent.get_internal()
@@ -4366,6 +4192,20 @@ class Window(ooxcb.Resource):
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 8, True, False), \
             ooxcb.VoidCookie())
 
+    def map_subwindows_checked(self):
+        window = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xxxxI", window))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 9, True, True), \
+            ooxcb.VoidCookie())
+
+    def map_subwindows(self):
+        window = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xxxxI", window))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 9, True, False), \
+            ooxcb.VoidCookie())
+
     def unmap_checked(self):
         window = self.get_internal()
         buf = StringIO.StringIO()
@@ -4378,6 +4218,20 @@ class Window(ooxcb.Resource):
         buf = StringIO.StringIO()
         buf.write(pack("xxxxI", window))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 10, True, False), \
+            ooxcb.VoidCookie())
+
+    def unmap_subwindows_checked(self):
+        window = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xxxxI", window))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 11, True, True), \
+            ooxcb.VoidCookie())
+
+    def unmap_subwindows(self):
+        window = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xxxxI", window))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 11, True, False), \
             ooxcb.VoidCookie())
 
     def configure_checked(self, **values):
@@ -4454,6 +4308,20 @@ class Window(ooxcb.Resource):
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 12, True, False), \
             ooxcb.VoidCookie())
 
+    def circulate_window_checked(self, direction):
+        window = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xBxxI", direction, window))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 13, True, True), \
+            ooxcb.VoidCookie())
+
+    def circulate_window(self, direction):
+        window = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xBxxI", direction, window))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 13, True, False), \
+            ooxcb.VoidCookie())
+
     def get_geometry(self):
         drawable = self.get_internal()
         buf = StringIO.StringIO()
@@ -4510,6 +4378,26 @@ class Window(ooxcb.Resource):
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 18, True, False), \
             ooxcb.VoidCookie())
 
+    def delete_property_checked(self, property):
+        if isinstance(property, basestring):
+            property = self.conn.atoms[property]
+        window = self.get_internal()
+        property = property.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xxxxII", window, property))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 19, True, True), \
+            ooxcb.VoidCookie())
+
+    def delete_property(self, property):
+        if isinstance(property, basestring):
+            property = self.conn.atoms[property]
+        window = self.get_internal()
+        property = property.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xxxxII", window, property))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 19, True, False), \
+            ooxcb.VoidCookie())
+
     def get_property(self, property, type, delete=False, long_offset=0, long_length=2**32-1):
         if isinstance(property, basestring):
             property = self.conn.atoms[property]
@@ -4537,6 +4425,38 @@ class Window(ooxcb.Resource):
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 20, False, False), \
             GetPropertyCookie(),
             GetPropertyReply)
+
+    def list_properties(self):
+        window = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xxxxI", window))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 21, False, True), \
+            ListPropertiesCookie(),
+            ListPropertiesReply)
+
+    def list_properties_unchecked(self):
+        window = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xxxxI", window))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 21, False, False), \
+            ListPropertiesCookie(),
+            ListPropertiesReply)
+
+    def send_event_checked(self, event_mask, event, propagate=False):
+        destination = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xBxxII", propagate, destination, event_mask))
+        event.build(buf)
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 25, True, True), \
+            ooxcb.VoidCookie())
+
+    def send_event(self, event_mask, event, propagate=False):
+        destination = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xBxxII", propagate, destination, event_mask))
+        event.build(buf)
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 25, True, False), \
+            ooxcb.VoidCookie())
 
     def grab_pointer(self, event_mask, owner_events=True, pointer_mode=GrabMode.Async, keyboard_mode=GrabMode.Async, confine_to=None, cursor=None, time=0):
         if confine_to is None:
@@ -4579,6 +4499,56 @@ class Window(ooxcb.Resource):
         buf.write(pack("xBxxIHBBBxxx", owner_events, grab_window, modifiers, key, pointer_mode, keyboard_mode))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 33, True, False), \
             ooxcb.VoidCookie())
+
+    def query_pointer(self):
+        window = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xxxxI", window))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 38, False, True), \
+            QueryPointerCookie(),
+            QueryPointerReply)
+
+    def query_pointer_unchecked(self):
+        window = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xxxxI", window))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 38, False, False), \
+            QueryPointerCookie(),
+            QueryPointerReply)
+
+    def get_motion_events(self, start, stop):
+        window = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xxxxIII", window, start, stop))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 39, False, True), \
+            GetMotionEventsCookie(),
+            GetMotionEventsReply)
+
+    def get_motion_events_unchecked(self, start, stop):
+        window = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xxxxIII", window, start, stop))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 39, False, False), \
+            GetMotionEventsCookie(),
+            GetMotionEventsReply)
+
+    def translate_coordinates(self, dst_window, src_x, src_y):
+        src_window = self.get_internal()
+        dst_window = dst_window.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xxxxIIhh", src_window, dst_window, src_x, src_y))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 40, False, True), \
+            TranslateCoordinatesCookie(),
+            TranslateCoordinatesReply)
+
+    def translate_coordinates_unchecked(self, dst_window, src_x, src_y):
+        src_window = self.get_internal()
+        dst_window = dst_window.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xxxxIIhh", src_window, dst_window, src_x, src_y))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 40, False, False), \
+            TranslateCoordinatesCookie(),
+            TranslateCoordinatesReply)
 
     def set_input_focus_checked(self, revert_to=1, time=0):
         focus = self.get_internal()
@@ -5030,6 +5000,66 @@ class Atom(ooxcb.Resource):
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 17, False, False), \
             GetAtomNameCookie(),
             GetAtomNameReply)
+
+    def set_selection_owner_checked(self, owner=None, time=0):
+        if owner is None:
+            owner = XNone
+        owner = owner.get_internal()
+        selection = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xxxxIII", owner, selection, time))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 22, True, True), \
+            ooxcb.VoidCookie())
+
+    def set_selection_owner(self, owner=None, time=0):
+        if owner is None:
+            owner = XNone
+        owner = owner.get_internal()
+        selection = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xxxxIII", owner, selection, time))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 22, True, False), \
+            ooxcb.VoidCookie())
+
+    def get_selection_owner(self):
+        selection = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xxxxI", selection))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 23, False, True), \
+            GetSelectionOwnerCookie(),
+            GetSelectionOwnerReply)
+
+    def get_selection_owner_unchecked(self):
+        selection = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xxxxI", selection))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 23, False, False), \
+            GetSelectionOwnerCookie(),
+            GetSelectionOwnerReply)
+
+    def convert_selection_checked(self, requestor, target, property=None, time=0):
+        if property is None:
+            property = XNone
+        requestor = requestor.get_internal()
+        selection = self.get_internal()
+        target = target.get_internal()
+        property = property.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xxxxIIIII", requestor, selection, target, property, time))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 24, True, True), \
+            ooxcb.VoidCookie())
+
+    def convert_selection(self, requestor, target, property=None, time=0):
+        if property is None:
+            property = XNone
+        requestor = requestor.get_internal()
+        selection = self.get_internal()
+        target = target.get_internal()
+        property = property.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xxxxIIIII", requestor, selection, target, property, time))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 24, True, False), \
+            ooxcb.VoidCookie())
 
 class ScreenSaver(object):
     Reset = 0
