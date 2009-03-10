@@ -47,6 +47,7 @@ class Client(SXObject):
         SXObject.__init__(self)
 
         self.conn = window.conn
+        self.app = screen.app
         self.geom = Rect.from_object(geometry)
         self.client_message_handlers = ClientMessageHandlers()
         self.install_handlers()

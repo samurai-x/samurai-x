@@ -33,7 +33,7 @@ class ClientHandler(object):
 
 class MoveHandler(ClientHandler):
     def __init__(self, client, x, y):
-        ClientHandler.__init__(self, client, x, y) # TODO: cursor
+        ClientHandler.__init__(self, client, x, y, client.app.cursors['Move'])
         log.info('Now moving %s' % client)
         self._x = None
         self._y = None
@@ -67,7 +67,7 @@ class MoveHandler(ClientHandler):
 
 class ResizeHandler(ClientHandler):
     def __init__(self, client, x, y):
-        ClientHandler.__init__(self, client, x, y) # TODO: cursor
+        ClientHandler.__init__(self, client, x, y, client.app.cursors['Resize'])
         log.info('Now resizing %s' % client)
 
 #        geom = self.client.geom
