@@ -1,4 +1,4 @@
-# Copyright (c) 2008, samurai-x.org
+# Copyright (c) 2008-2009, samurai-x.org
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -147,6 +147,5 @@ class SizeHints(object):
             geom.width -= (geom.width - self.base_width) % self.width_inc
         if self.height_inc:
             geom.height -= (geom.height - self.base_height) % self.height_inc
-
 
 

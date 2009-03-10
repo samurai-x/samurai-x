@@ -1,4 +1,4 @@
-# Copyright (c) 2008, samurai-x.org
+# Copyright (c) 2008-2009, samurai-x.org
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -2005,4 +2005,3 @@ XK_braille_dots_345678 = 0x10028fc # /* U+28fc BRAILLE PATTERN DOTS-345678 */
 XK_braille_dots_1345678 = 0x10028fd # /* U+28fd BRAILLE PATTERN DOTS-1345678 */
 XK_braille_dots_2345678 = 0x10028fe # /* U+28fe BRAILLE PATTERN DOTS-2345678 */
 XK_braille_dots_12345678 = 0x10028ff # /* U+28ff BRAILLE PATTERN DOTS-12345678 */
-

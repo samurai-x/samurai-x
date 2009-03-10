@@ -1,4 +1,4 @@
-# Copyright (c) 2008, samurai-x.org
+# Copyright (c) 2008-2009, samurai-x.org
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -67,4 +67,3 @@ class PluginLoader(dict):
             else:
                 cls = ep.load()
                 self[cls.key] = cls(self.app)
-

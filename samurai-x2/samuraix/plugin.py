@@ -1,4 +1,4 @@
-# Copyright (c) 2008, samurai-x.org
+# Copyright (c) 2008-2009, samurai-x.org
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -31,4 +31,3 @@ class Plugin(object):
 
     def get_data(self, obj):
         return obj.data[self.key]
-

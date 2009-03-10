@@ -1,4 +1,4 @@
-# Copyright (c) 2008, samurai-x.org
+# Copyright (c) 2008-2009, samurai-x.org
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -227,4 +227,3 @@ class DrawContext(object):
         cairo.cairo_destroy(ic)
         # Restore. We're finished.
         cairo.cairo_restore(self.cr)
-

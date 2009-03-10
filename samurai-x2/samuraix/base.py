@@ -1,4 +1,4 @@
-# Copyright (c) 2008, samurai-x.org
+# Copyright (c) 2008-2009, samurai-x.org
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -32,4 +32,3 @@ class SXObject(EventDispatcher):
 
     def attach_data(self, key, data):
         self.data[key] = data
-
