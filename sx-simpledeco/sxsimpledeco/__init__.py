@@ -254,7 +254,6 @@ class SXDeco(Plugin):
 #                    xproto.EventMask.SubstructureNotify |
                     xproto.EventMask.ButtonPress,
                 )
-        log.debug('actor done: %s %s' % (client, client.actor))
         client.window.reparent(client.actor, 0, BAR_HEIGHT)
         
         data = ClientData(self, screen, client)

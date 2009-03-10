@@ -91,7 +91,6 @@ class Client(SXObject):
 
     def init(self):
         """ called after actor is set. That's not so nice. """
-        print 'init', self
         self.actor.push_handlers(on_configure_notify=self.actor_on_configure_notify)
 
 
