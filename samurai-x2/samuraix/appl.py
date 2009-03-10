@@ -60,11 +60,6 @@ class App(SXObject):
         for i in range(setup.roots_len):
             scr = Screen(self, i)
             self.dispatch_event('on_new_screen', self, scr)
-            
-            try:
-                scr.scan()
-            except Exception, e:
-                log.exception(e)
             self.screens.append(scr)
 
         signal.signal(signal.SIGINT, self.stop)
@@ -73,6 +68,12 @@ class App(SXObject):
 
         self.reload_config()
         self.dispatch_event('on_ready', self)
+
+        # scan the screens after everything is done. plugin's event handlers will
+        # be called then.
+        # I hope that has no side effects for existing plugins :)
+        for screen in self.screens:
+            screen.scan()
 
     def reload_config(self):
         from samuraix import config # TODO?

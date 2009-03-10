@@ -91,7 +91,9 @@ class Client(SXObject):
 
     def init(self):
         """ called after actor is set. That's not so nice. """
+        print 'init', self
         self.actor.push_handlers(on_configure_notify=self.actor_on_configure_notify)
+
 
     def msg_active_window(self, evt):
         """
@@ -142,7 +144,13 @@ class Client(SXObject):
         """
             Event handler: update the geometry
         """
-        self.geom = Rect.from_object(evt)
+        self.update_geom(Rect.from_object(evt))
+
+    def update_geom(self, geom):
+        """
+            `geom` is the new geometry of the actor(!) window.
+        """
+        self.geom = geom
 
     def apply_normal_hints(self, hints=None, geom=None):
         """

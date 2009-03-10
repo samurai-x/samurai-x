@@ -181,12 +181,12 @@ class Screen(SXObject):
             return False
 
         client = self.client_class(self, window, attributes, geom)
+        logging.debug('screen %s is now managing %s' % (self, client))
         self.clients.add(client)
 
         self.dispatch_event('on_new_client', self, client)
-        logging.debug('screen %s is now managing %s' % (self, client))
         client.push_handlers(on_removed=self.on_client_removed)
-
+        
         client.init()
 
         # If we have no focused client yet, use the newly managed client.
