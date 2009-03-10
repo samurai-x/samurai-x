@@ -2762,7 +2762,7 @@ class Cursor(ooxcb.Resource):
     def create_glyph(cls, conn, source_font, mask_font, source_char, mask_char, fore_red, fore_green, fore_blue, back_red, back_green, back_blue):
         cid = conn.generate_id()
         cursor = cls(conn, cid)
-        conn.core.create_glyph_cursor_checked(cid, source_font, mask_font, source_char, mask_char, fore_red, fore_green, fore_blue, back_red, back_green, back_blue).check()
+        conn.core.create_glyph_cursor_checked(cursor, source_font, mask_font, source_char, mask_char, fore_red, fore_green, fore_blue, back_red, back_green, back_blue).check()
         conn.add_to_cache(cid, cursor)
         return cursor
 
@@ -4042,7 +4042,7 @@ class Window(ooxcb.Resource):
             value_list.append(values["colormap"])
         if "cursor" in values:
             value_mask |= 16384
-            value_list.append(values["cursor"])
+            value_list.append(values["cursor"].get_internal())
         window = self.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("xxxxII", window, value_mask))
@@ -4096,7 +4096,7 @@ class Window(ooxcb.Resource):
             value_list.append(values["colormap"])
         if "cursor" in values:
             value_mask |= 16384
-            value_list.append(values["cursor"])
+            value_list.append(values["cursor"].get_internal())
         window = self.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("xxxxII", window, value_mask))
@@ -4627,7 +4627,7 @@ class Window(ooxcb.Resource):
             value_list.append(values["colormap"])
         if "cursor" in values:
             value_mask |= 16384
-            value_list.append(values["cursor"])
+            value_list.append(values["cursor"].get_internal())
         conn.core.create_window_checked(depth, win, parent, x, y, width, height, border_width, _class, visual, value_mask, value_list).check()
         conn.add_to_cache(wid, win)
         return win

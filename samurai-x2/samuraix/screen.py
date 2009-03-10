@@ -78,7 +78,9 @@ class Screen(SXObject):
                 EventMask.SubstructureNotify |
                 EventMask.StructureNotify |
                 EventMask.Exposure |
-                EventMask.PropertyChange
+                EventMask.PropertyChange,
+            cursor=
+                app.cursors['Normal']
         )
 
         self.root.push_handlers(self)

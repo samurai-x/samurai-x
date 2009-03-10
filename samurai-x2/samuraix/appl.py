@@ -30,6 +30,7 @@ import signal
 from select import select
 
 import ooxcb
+import ooxcb.cursors
 
 from .screen import Screen
 from .pluginsys import PluginLoader
@@ -44,6 +45,7 @@ class App(SXObject):
     def init(self):
         self.conn = ooxcb.connect()
         self.conn.synchronous_check = True # HAR HAR HAR, SO EVIL
+        self.cursors = ooxcb.cursors.Cursors(self.conn)
 
         self.conn.push_handlers(self)
         self.running = False

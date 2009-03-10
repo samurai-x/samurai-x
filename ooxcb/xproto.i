@@ -20,6 +20,7 @@ Xizers:
         values_dict_name: values
         xize:
             - back_pixmap
+            - cursor
 
     GC:
         type: values
@@ -418,7 +419,7 @@ Classes:
             code:
                 - "cid = conn.generate_id()"
                 - "cursor = cls(conn, cid)"
-                - "conn.core.create_glyph_cursor_checked(cid, source_font, mask_font, source_char, mask_char, fore_red, fore_green, fore_blue, back_red, back_green, back_blue).check()"
+                - "conn.core.create_glyph_cursor_checked(cursor, source_font, mask_font, source_char, mask_char, fore_red, fore_green, fore_blue, back_red, back_green, back_blue).check()"
                 - "conn.add_to_cache(cid, cursor)"
                 - "return cursor"
 
