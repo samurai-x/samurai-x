@@ -28,7 +28,7 @@ config = {
     'core.plugins': ['sxactions', 'sxdesktops', 'sxbind', 'sxsimpledeco', 'sxmoveresize', 'sxtiling'],
 
     'desktops.desktops': 
-        [('one', {'layout': 'tiling'}),
+        [('one', {'layout': 'floating'}),
          ('two', {'layout': 'floating'})]
     ,
     'bind.keys': {
