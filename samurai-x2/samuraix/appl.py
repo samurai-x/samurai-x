@@ -79,8 +79,9 @@ class App(SXObject):
 
             :todo: turn out the synchronous check (that slows down everything a bit)
             :todo: allow the user to specify the X connection string. Maybe he wants
-            to connect to a foreign display without changing the DISPLAY environment
-            variable?
+                    to connect to a foreign display without changing the DISPLAY environment
+                    variable?
+
         """
         self.conn = ooxcb.connect()
         self.conn.synchronous_check = True # HAR HAR HAR, SO EVIL
@@ -123,7 +124,7 @@ class App(SXObject):
             realize that :)
 
             :todo: `config` is not really re-loaded yet. That should really be
-            fixed.
+                    fixed.
         """
         from samuraix import config # TODO?
         self.dispatch_event('on_load_config', config)
@@ -132,7 +133,7 @@ class App(SXObject):
         """
             Stop samurai-x. Call `unmanage_all` on each screen and
             set `self.running` to False.
-            This method takes no arguments. *args is just here that
+            This method takes no arguments. \*args is just here that
             we can use `stop` directly as signal handler.
         """
         log.info('Unmanaging all remaining clients ...')
