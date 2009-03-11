@@ -147,7 +147,7 @@ class App(SXObject):
         """
             Start the mainloop. It uses `select` to poll the file descriptor for
             events and dispatches them.
-            All exceptions are cought and logged, so samurai-x won't crash.
+            All exceptions are caught and logged, so samurai-x won't crash.
             If `self.running` is False for some reason, samurai-x will disconnect
             and stop.
         """
