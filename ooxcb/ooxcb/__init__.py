@@ -40,7 +40,7 @@ EXT_ERRORS = {}
 
 def parse_auth(authstr):
     """
-        Parse the X11 authentication string `authstr` and return
+        Parse the X11 authentication string *authstr* and return
         a new `libxcb.xcb_auth_info` instance.
     """
     name, data = authstr.split(':')
@@ -57,16 +57,16 @@ def connect(display='', fd=None, auth_string=None, cls=Connection):
 
         The X display to connect to can be specified ...
 
-         * by `display`, an X display string.
-           If `display` is an empty string, the DISPLAY environment
+         * by *display*, an X display string.
+           If *display* is an empty string, the DISPLAY environment
            variable will be used.
-         * by `fd`, an open unix file descriptor.
-           `auth_string` is not relevant here.
+         * by *fd*, an open unix file descriptor.
+           *auth_string* is not relevant here.
 
-        `cls` can be used to customize the connection class.
+        *cls* can be used to customize the connection class.
         There has to be an X core protocol module loaded, otherwise an
-        `XcbException` is raised.
-        `connect` returns a ready to use instance of `cls`.
+        :class:`XcbException` is raised.
+        :func:`connect` returns a ready to use instance of *cls*.
     """
     auth = None
 
@@ -99,7 +99,7 @@ def connect(display='', fd=None, auth_string=None, cls=Connection):
 def popcount(i):
     """
         just a wrapper for the libxcb `xcb_popcount` function that determines
-        the number of asserted bits in `i`.
+        the number of asserted bits in *i*.
     """
     return libxcb.xcb_popcount(i)
 

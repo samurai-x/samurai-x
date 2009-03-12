@@ -903,7 +903,7 @@ def make_xizers():
 def generate_docs():
     gen = Codegen()
     mod = 'ooxcb.%s' % MODNAME
-    heading = '%s api documentation' % MODNAME
+    heading = mod
     gen(heading)
     gen('=' * len(heading))()
     gen('.. module:: %s' % mod)()

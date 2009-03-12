@@ -33,39 +33,56 @@ from .atoms import AtomDict
 from .keysyms import Keysyms
 
 class Connection(EventDispatcher):
+    """
+        The ooxcb connection class is the main point of ooxcb. It is
+        similar to libX11's `Display`.
+
+        The Connection class is an event dispatcher, so you can register
+        for events.
+
+        The Connection instance has a `core` attribute that is the core
+        extension instance, and it also sets the `xproto` attribute for
+        the xproto extension.
+
+        :todo: describe events
+    """
     def __init__(self, core):
+        """
+            :param core: The core extension class.
+        """
         EventDispatcher.__init__(self)
 
         self.core = core(self)
         setattr(self, core.header, self.core)
 
+        # opaque libxcb connection
         self.conn = None
         self.events = {}
         self.errors = {}
         self.extcache = {}
         self._setup = None
-        # The following option is only for debugging,
-        # and it should be removed in a release.
-        # If synchronous_check is True, all events
-        # will be sended as checked (regardless if
-        # x() or x_checked() is called) and each requests
-        # will be checked automatically.
-        # ... AND THAT'S SLOW!
+        # check all events synchronously? for debugging.
         self.synchronous_check = False
-
+        # helper
         self.keysyms = Keysyms(self)
-
-        self._cache = {}
+        # helper
         self.atoms = AtomDict(self)
-        
+        # the X object cache. {X ID: Object, ...}
+        self._cache = {}
+
     def setup(self):
+        """
+            loads the core events, the core errors and sets them up.
+
+            :note: Internally called by :func:`ooxcb.connect`.
+        """
         import ooxcb
         # load core ...
         ext = self.core
         events = ooxcb.CORE_EVENTS
         errors = ooxcb.CORE_ERRORS
         self.setup_helper(ext, events, errors)
-       
+
         for key, events in ooxcb.EXT_EVENTS.iteritems():
             errors = ooxcb.EXT_ERRORS[key]
             ext = self.load_ext(key)
@@ -74,6 +91,12 @@ class Connection(EventDispatcher):
                 self.setup_helper(ext, events, errors)
 
     def setup_helper(self, ext, events, errors):
+        """
+            gets all events and errors from *ext* and registers
+            them.
+
+            :note: Internal method.
+        """
         for num, type in events.iteritems():
             opcode = ext.first_event + num
             self.events[opcode] = type
@@ -85,6 +108,11 @@ class Connection(EventDispatcher):
             self.errors[opcode] = type
 
     def load_ext(self, key):
+        """
+            load an extension.
+
+            :note: internally called
+        """
         import ooxcb
         if key in self.extcache:
             return self.extcache[key]
@@ -96,37 +124,53 @@ class Connection(EventDispatcher):
             ext.major_opcode = reply.major_opcode
             ext.first_event = reply.first_event
             ext.first_error = reply.first_error
-            
+
             self.extcache[key] = ext
             setattr(self, cls.header, ext)
 
             return ext
-    
-    def __call__(self, key):
-        self.check_conn()
-        ext = self.load_ext(key)
-        return ext 
 
     def check_conn(self):
+        """
+            checks *self.conn* and raises an `AssertionError` if it's None.
+
+            :todo: Raise something else.
+        """
         assert self.conn is not None, "Invalid Connection"
 
     def has_error(self):
+        """
+            returns True if the connection has encountered an error.
+        """
         self.check_conn()
         return bool(libxcb.xcb_connection_has_error(self.conn))
 
     def get_file_descriptor(self):
+        """
+            get the unix file descriptor.
+        """
         self.check_conn()
         return libxcb.xcb_get_file_descriptor(self.conn)
-    
+
     def get_maximum_request_length(self):
+        """
+            return the connection's maxmimum request length.
+        """
         self.check_conn()
         return libxcb.xcb_connection_get_maximum_request_length(self.conn)
 
     def prefetch_maximum_request_length(self):
+        """
+            prefetches the maximum request length without blocking.
+        """
         self.check_conn()
         libxcb.xcb_prefetch_maximum_request_length(self.conn)
-    
+
     def get_setup(self):
+        """
+            get the connection's setup and return it.
+            The setup instance is cached.
+        """
         self.check_conn()
         if self._setup is None:
             s = libxcb.xcb_get_setup(self.conn)
@@ -137,46 +181,74 @@ class Connection(EventDispatcher):
         return self._setup
 
     def generate_id(self):
+        """
+            generates a new X ID and return it.
+        """
         self.check_conn()
         xid = libxcb.xcb_generate_id(self.conn)
         # TODO: error checking ...
         return xid
 
     def wait_for_event(self):
+        """
+            waits for an event (blocking) and returns it.
+
+            If an connection IO error encountered, it raises an `IOError`.
+            This can also raise Xcb protocol errors.
+        """
         data = libxcb.xcb_wait_for_event(self.conn)
         if not data:
             raise IOError("I/O error on X server connection.")
         if data.contents.response_type == 0:
-            Error.set(self, ctypes.cast(data, ctypes.POINTER(libxcb.xcb_generic_error_t)))
+            Error.set(self, ctypes.cast(data,
+                ctypes.POINTER(libxcb.xcb_generic_error_t)))
             return
         return Event.create(self, data)
 
     def poll_for_event(self):
+        """
+            polls for an event (non-blocking) and returns it.
+            If there was no event, None is returned.
+
+            :see: *wait_for_event*
+        """
         data = libxcb.xcb_poll_for_event(self.conn)
         if not data:
-            return None 
+            return None
 
         if data.contents.response_type == 0:
-            Error.set(self, ctypes.cast(data, ctypes.POINTER(libxcb.xcb_generic_error_t)))
+            Error.set(self, ctypes.cast(data,
+                ctypes.POINTER(libxcb.xcb_generic_error_t)))
             return
         return Event.create(self, data)
-       
+
     def flush(self):
+        """
+            flushes the connection. All cached requests are sent.
+        """
         self.check_conn()
         libxcb.xcb_flush(self.conn)
 
     def disconnect(self):
+        """
+            disconnect from the X server gracefully and set
+            *self.conn* to None.
+        """
         if self.conn:
             libxcb.xcb_disconnect(self.conn)
             self.conn = None
 
     def add_to_cache(self, xid, obj):
+        """
+            add the X object *obj* with the X ID *xid*
+            to the internal X object cache.
+        """
         self._cache[xid] = obj
 
     def get_from_cache_fallback(self, xid, cls):
         """
-            If there is a resource using the xid `xid` in the cache,
-            return it. If not, instantiate `cls`, add to cache
+            If there is a resource using the xid *xid* in the cache,
+            return it. If not, instantiate *cls*, add to cache
             and return the newly created object.
         """
         if xid in self._cache:
@@ -184,3 +256,4 @@ class Connection(EventDispatcher):
         else:
             self._cache[xid] = ret = cls(self, xid)
             return ret
+

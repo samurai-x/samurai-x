@@ -1,5 +1,5 @@
-The ooxcb module
-================
+ooxcb
+=====
 
 .. automodule:: ooxcb
     :members:

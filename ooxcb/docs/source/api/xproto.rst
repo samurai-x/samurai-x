@@ -1,5 +1,5 @@
-xproto api documentation
-========================
+ooxcb.xproto
+============
 
 .. module:: ooxcb.xproto
 

@@ -10,7 +10,7 @@ root = setup.roots[0].root
 depth = setup.roots[0].root_depth
 visual = setup.roots[0].root_visual
 
-win = Window.create(conn, root, depth, visual, back_pixel=setup.roots[0].white_pixel, 
+win = Window.create(conn, root, depth, visual, back_pixel=setup.roots[0].white_pixel,
         event_mask=EventMask.Exposure | EventMask.ButtonPress)
 win.configure(width=100)
 win.map()
