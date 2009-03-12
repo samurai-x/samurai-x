@@ -31,8 +31,11 @@ class AtomDict(dict):
 
             dic = AtomDict(my_connection)
             print dic['WM_CLASS'] # Yay, it is lazily loaded!
+            aid = dic['WM_CLASS'].get_internal()
+            # ... and vice-versa:
+            assert dic.get_by_id(aid) == dic['WM_CLASS']
 
-        You should not modify that manually.
+        You should not modify the dictionary manually.
 
     """
     def __init__(self, conn, *boo, **far):
@@ -46,6 +49,16 @@ class AtomDict(dict):
         return value
 
     def get_by_id(self, aid):
+        """
+            return an atom instance for the ID *aid*.
+
+            That is not part of the connection's XID cache because atom ids
+            do not seem to be part of the XID space; they have their own
+            space.
+
+            :todo: currently, this depends on :mod:`ooxcb.xproto`. That's
+                   not really consistent.
+        """
         from .xproto import Atom # TODO: uuuuuuuugly
         if aid == 0:
             return None # TODO: That's basically AnyProperty ... better solution?

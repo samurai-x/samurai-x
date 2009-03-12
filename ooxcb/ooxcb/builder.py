@@ -27,6 +27,15 @@ from struct import pack
 from .protobj import Protobj
 
 def build_list(stream, list_, type):
+    """
+        writes a *list_* of objects of the elementar
+        data type *type* (where *type* is a :mod:`struct`-compatible
+        type char) to *stream*.
+
+        For each item, this checks if the item is a
+        :class:`ooxcb.protobj.Protobj`. If it is, the object's `build` method
+        is called.
+    """
     for item in list_:
         if isinstance(item, Protobj):
             item.build(stream)
