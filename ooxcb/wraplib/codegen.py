@@ -47,4 +47,10 @@ class CodegenBase(object):
             returns a list of lines
         """
         raise NotImplementedError()
-    
+
+    def generate_docs(self):
+        """
+            returns a list of lines
+        """
+        raise NotImplementedError()
+

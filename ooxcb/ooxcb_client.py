@@ -314,6 +314,7 @@ def py_complex(self, name, cls):
                 build_fields.append('self.%s.get_internal()' % prefix_if_needed(field.field_name))
             else:
                 build_fields.append('self.%s' % prefix_if_needed(field.field_name))
+            cls.add_instance_attribute(prefix_if_needed(field.field_name), '') # TODO: description
         build_code.append('stream.write(pack("%s", %s))' %
                 (fmt, ', '.join(build_fields)))
 
@@ -334,6 +335,7 @@ def py_complex(self, name, cls):
             struct.push_format(field)
             # add a simple default value (needs to be changed by the user, of course)
             init_code.append('self.%s = None' % (prefix_if_needed(field.field_name)))
+            cls.add_instance_attribute(prefix_if_needed(field.field_name), '') # TODO: description
             continue
         if field.type.is_pad:
             struct.push_pad(field.type.nmemb)
@@ -376,6 +378,7 @@ def py_complex(self, name, cls):
                     # is a resource. wrap them.
                     lread_code = '[%s for w in %s]' % (get_modifier(field) % 'w', lread_code)
             read_code.append('self.%s = %s' % (prefix_if_needed(field.field_name), lread_code))
+            cls.add_instance_attribute(prefix_if_needed(field.field_name), '') # TODO: description
             read_code.append('count += self.%s.size' % prefix_if_needed(field.field_name))
 
             # TODO: add the lazy length property setter ...
@@ -391,6 +394,7 @@ def py_complex(self, name, cls):
             read_code.append('self.%s = %s.create_from_stream(self.conn, stream)' % (prefix_if_needed(field.field_name),
                     field.py_type))
             read_code.append('count += %s' % field.type.size)
+            cls.add_instance_attribute(prefix_if_needed(field.field_name), '') # TODO: description
 
             build_code.append('self.%s.build(stream)' % prefix_if_needed(field.field_name))
             init_code.append('self.%s = None' % (prefix_if_needed(field.field_name)))
@@ -398,6 +402,7 @@ def py_complex(self, name, cls):
             read_code.append('self.%s = %s.create_from_stream(self.conn, stream)' % (prefix_if_needed(field.field_name),
                     field.py_type))
             read_code.append('count += self.%s.size', prefix_if_needed(field.field_name))
+            cls.add_instance_attribute(prefix_if_needed(field.field_name), '') # TODO: description
             build_code.append('self.%s.build(stream)' % prefix_if_needed(field.field_name))
             init_code.append('self.%s = None' % (prefix_if_needed(field.field_name)))
 
@@ -895,6 +900,18 @@ def make_xizers():
         del info['type']
         XIZERS[name] = XIZER_MAKERS[typ](**info)
 
+def generate_docs():
+    gen = Codegen()
+    mod = 'ooxcb.%s' % MODNAME
+    heading = '%s api documentation' % MODNAME
+    gen(heading)
+    gen('=' * len(heading))()
+    gen('.. module:: %s' % mod)()
+    for name, obj in ALL.iteritems():
+        gen(obj.generate_docs())
+    with open('%s.rst' % MODNAME, 'w') as f:
+        f.write(gen.buf)
+
 def generate_all():
     for item in ALL.itervalues():
         map(py, item.generate_code())
@@ -979,4 +996,6 @@ module.generate()
 make_xizers()
 process_custom_classes(get_custom_classes())
 generate_all()
+generate_docs()
 print py.buf
+
