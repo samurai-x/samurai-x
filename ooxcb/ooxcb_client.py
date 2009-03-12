@@ -80,7 +80,7 @@ def get_field_by_name(fields, name):
         if prefix_if_needed(field.field_name) == name:
             return field
     raise KeyError('No field named "%s" found!' % name)
-    
+
 def get_wrapped(name):
     if name in WRAPPERS:
         return WRAPPERS[name].name
@@ -125,7 +125,7 @@ def make_lazy_atom_xizer(name, conn='self.conn'):
     return lambda code=code: code
 
 def make_values_xizer(enum_name, values_dict_name, mask_out='value_mask', list_out='value_list', xize=[]):
-    """ 
+    """
         make a simple values xizer code list and return it.
         A values xizer takes all values from the values dict
         and stores it in a values list and a values mask.
@@ -164,8 +164,8 @@ def make_values_xizer(enum_name, values_dict_name, mask_out='value_mask', list_o
             suffix=suffix
             ))
         code.append(DEDENT)
-    
-    return lambda code=code: code 
+
+    return lambda code=code: code
 
 def make_lazy_none_xizer(value, from_='None', to='XNone'):
     code = ['if %s is %s:' % (value, from_),
@@ -251,7 +251,7 @@ def setup_type(self, name, postfix=''):
             elif self.py_format_len >= 0:
                 self.py_format_str += field.type.py_format_str
                 self.py_format_len += field.type.py_format_len
-            
+
             if field.type.is_list:
                 setup_type(field.type.member, field.field_type)
                 field.py_listtype = get_wrapped(strip_ns(field.type.member.name))
@@ -293,7 +293,7 @@ def py_complex(self, name, cls):
     m_read = cls.new_method('read')
     m_read.arguments.append('stream')
     read_code = m_read.code
-    
+
     m_build = cls.new_method('build')
     m_build.arguments.append('stream')
     build_code = m_build.code
@@ -305,11 +305,11 @@ def py_complex(self, name, cls):
             # try if we can get a modifier
             modifier = get_modifier(field)
             value = modifier % ('_unpacked[%d]' % idx)
-            read_code.append(template('self.$fieldname = $value', 
+            read_code.append(template('self.$fieldname = $value',
                 fieldname=prefix_if_needed(field.field_name),
                 value=value
             ))
-            
+
             if modifier != '%s':
                 build_fields.append('self.%s.get_internal()' % prefix_if_needed(field.field_name))
             else:
@@ -322,7 +322,7 @@ def py_complex(self, name, cls):
     # because of that address storing, we'll only be able to read
     # from a MemStream. That's sad. But the address of the struct
     # seems to be needed by some replys, e.g. GetKeyboardMappingReply,
-    # to access `self.length`.    
+    # to access `self.length`.
     read_code.extend(['self._address = stream.address', 'count = 0'])
     build_code.append('count = 0')
     struct = Struct()
@@ -355,22 +355,22 @@ def py_complex(self, name, cls):
                 # It is a void list. The problem about void lists is:
                 # we don't exactly know if it's 8, 16 or 32 bit per item.
                 # Fortunately, there seems to be an complex type
-                # attribute called `self.format` present which has the 
+                # attribute called `self.format` present which has the
                 # value 8, 16 or 32. So, we'll use this value
                 # to get the type of the list members.
                 # That should work for the GetPropertyReply in xproto,
                 # but it might not work for other stuff. TODO? It's not nice.
                 #
                 # If `self.format` is 0 (happens for GetPropertyReply
-                # if we try to access a non-existent property), 
+                # if we try to access a non-existent property),
                 # we use "B" (which is an unsigned byte) as a fallback.
 
                 lread_code = ('ooxcb.List(self.conn, stream, count, %s, SIZES.get(self.format, "B"), self.format // 8)' % \
                         (get_expr(field.type.expr)))
             else:
                 lread_code = ('ooxcb.List(self.conn, stream, count, %s, %s, %d)' % \
-                        (get_expr(field.type.expr), 
-                            field.py_listtype, 
+                        (get_expr(field.type.expr),
+                            field.py_listtype,
                             field.py_listsize))
                 if field.py_type in INTERFACE.get('ResourceClasses'):
                     # is a resource. wrap them.
@@ -388,14 +388,14 @@ def py_complex(self, name, cls):
 
             init_code.append('self.%s = []' % (prefix_if_needed(field.field_name)))
         elif field.type.is_container and field.type.fixed_size():
-            read_code.append('self.%s = %s.create_from_stream(self.conn, stream)' % (prefix_if_needed(field.field_name), 
-                    field.py_type))            
+            read_code.append('self.%s = %s.create_from_stream(self.conn, stream)' % (prefix_if_needed(field.field_name),
+                    field.py_type))
             read_code.append('count += %s' % field.type.size)
 
             build_code.append('self.%s.build(stream)' % prefix_if_needed(field.field_name))
             init_code.append('self.%s = None' % (prefix_if_needed(field.field_name)))
         else:
-            read_code.append('self.%s = %s.create_from_stream(self.conn, stream)' % (prefix_if_needed(field.field_name), 
+            read_code.append('self.%s = %s.create_from_stream(self.conn, stream)' % (prefix_if_needed(field.field_name),
                     field.py_type))
             read_code.append('count += self.%s.size', prefix_if_needed(field.field_name))
             build_code.append('self.%s.build(stream)' % prefix_if_needed(field.field_name))
@@ -411,7 +411,7 @@ def py_complex(self, name, cls):
     if self.fixed_size() or self.is_reply:
         if self.fields:
             read_code.pop()
-    
+
 def py_open(self):
     global NAMESPACE
     NAMESPACE = self.namespace
@@ -429,7 +429,7 @@ def py_open(self):
                 .dedent() \
       ('from struct import pack, unpack, calcsize') \
       ('from array import array')
-    
+
     if 'ImportCode' in INTERFACE:
         py(INTERFACE['ImportCode'])
 
@@ -449,11 +449,11 @@ def py_enum(self, name):
     '''
     Exported function that handles enum declarations.
     '''
-    cls = PyClass(strip_ns(name)) 
+    cls = PyClass(strip_ns(name))
 
     count = 0
 
-    for (enam, evalue) in self.values: 
+    for (enam, evalue) in self.values:
         cls.new_attribute(prefix_if_needed(enam), evalue if evalue != '' else count)
         count += 1
 
@@ -490,7 +490,7 @@ def py_struct(self, oldname):
     else:
         init.arguments += ['conn']
         init.code.append('ooxcb.Struct.__init__(self, conn)')
-   
+
     py_complex(self, name, cls)
 
     if not self.fixed_size():
@@ -509,7 +509,7 @@ def py_union(self, name):
     cls.base = 'ooxcb.Union'
 
     init = cls.new_method('__init__')
-    
+
     if self.fixed_size():
         init.arguments += ['conn']
         init.code.append('ooxcb.Union.__init__(self, conn)')
@@ -525,7 +525,7 @@ def py_union(self, name):
 
     read.code.append('count = 0')
     read.code.append('root = stream.tell()')
-    
+
     kw = 'if' # the first iteration has an if!
     for field in self.fields:
         # TODO: is it possible to have wrapped objects in unions? if yes, what to do?
@@ -534,7 +534,7 @@ def py_union(self, name):
         build.code.append(INDENT)
         if field.type.is_simple:
             read.code.append('self.%s = unpack_from_stream("%s", stream)' % \
-                    (prefix_if_needed(field.field_name), 
+                    (prefix_if_needed(field.field_name),
                     field.type.py_format_str))
             read.code.append('count = max(count, %s)', field.type.size)
             read.code.append('stream.seek(root)')
@@ -542,14 +542,14 @@ def py_union(self, name):
             build.code.append(
                     'stream.write(pack("%s", %s))' % (field.py_format_str, prefix_if_needed(field.field_name))
                     )
-            
+
             # add a simple default value.
             init.code.append('self.%s = None' % (prefix_if_needed(field.field_name)))
         elif field.type.is_list:
             read.code.append('self.%s = ooxcb.List(self.conn, stream, 0, %s, %s, %s)' % \
-                    (prefix_if_needed(field.field_name), 
-                    get_expr(field.type.expr), 
-                    field.py_listtype, 
+                    (prefix_if_needed(field.field_name),
+                    get_expr(field.type.expr),
+                    field.py_listtype,
                     field.py_listsize))
             read.code.append('count = max(count, self.%s.size)' % prefix_if_needed(field.field_name))
             read.code.append('stream.seek(root)')
@@ -561,7 +561,7 @@ def py_union(self, name):
             init.code.append('self.%s = []' % (prefix_if_needed(field.field_name)))
         elif field.type.is_container and field.type.fixed_size():
             read.code.append('self.%s = %s.create_from_stream(self.conn, stream)' % (prefix_if_needed(field.field_name),
-                    field.py_type, 
+                    field.py_type,
                     field.type.size))
             read.code.append('count = max(count, %s)' % field.type.size)
             read.code.append('stream.seek(root)')
@@ -663,7 +663,7 @@ def request_helper(self, name, void, regular):
         else:
             cls = ALL[clsname]
     cls.add_member(meth)
-    
+
     for field in self.fields:
         if field.wire:
             wire_fields.append(field)
@@ -687,7 +687,7 @@ def request_helper(self, name, void, regular):
 
     meth.arguments.extend(param_fields)
     meth.arguments.extend(optional_param_fields)
-    
+
     if 'precode' in reqinfo:
         meth.code.extend(reqinfo['precode'])
 
@@ -702,7 +702,7 @@ def request_helper(self, name, void, regular):
                 meth.code.append('%s = self.get_internal()' % field.field_name)
 
         meth.code.append('buf = StringIO.StringIO()')
-        
+
         struct = Struct()
         for field in wire_fields:
             if field.auto:
@@ -730,20 +730,20 @@ def request_helper(self, name, void, regular):
                 meth.code.append('buf.write(pack("%sx"))' % field.type.nmemb)
             elif field.type.is_container:
                 meth.code.append('for elt in ooxcb.Iterator(%s, %d, "%s", False):' % \
-                        (prefix_if_needed(field.field_name), 
-                            field.type.py_format_len, 
+                        (prefix_if_needed(field.field_name),
+                            field.type.py_format_len,
                             prefix_if_needed(field.field_name)))
                 meth.code.append(INDENT)
                 meth.code.append('buf.write(pack("%s", *elt))' % field.type.py_format_str)
                 meth.code.append(DEDENT)
             elif field.type.is_list and field.type.member.is_simple:
                 meth.code.append('buf.write(array("%s", %s).tostring())' % \
-                        (field.type.member.py_format_str, 
+                        (field.type.member.py_format_str,
                         prefix_if_needed(field.field_name)))
             else:
                 meth.code.append('for elt in ooxcb.Iterator(%s, %d, "%s", True):' % \
-                    (prefix_if_needed(field.field_name), 
-                        field.type.member.py_format_len, 
+                    (prefix_if_needed(field.field_name),
+                        field.type.member.py_format_len,
                         prefix_if_needed(field.field_name)))
                 meth.code.append(INDENT)
                 meth.code.append('buf.write(pack("%s", *elt))' % field.type.member.py_format_str)
@@ -761,7 +761,7 @@ def request_helper(self, name, void, regular):
     if not void:
         meth.code.append('%s)' % self.py_reply_name)
     meth.code.append(DEDENT)
-   
+
 def py_request(self, name):
     '''
     Exported function that handles request declarations.
@@ -797,7 +797,7 @@ def py_reply(self, name):
     init.arguments.extend(['conn'])
     init.code.append('ooxcb.Reply.__init__(self, conn)')
     py_complex(self, name, cls)
-    
+
     ALL[cls.name] = cls # TODO: to WRAPPERS, too?
 
 def py_error(self, name):
