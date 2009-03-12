@@ -47,13 +47,13 @@ def parse_auth(authstr):
     auth.data = data
     return auth
      
-def connect(display='', fd=None, auth_string=None):
+def connect(display='', fd=None, auth_string=None, cls=Connection):
     auth = None
 
     if CORE is None:
         raise exception.XcbException("No core protocol object has been set.  Did you import xcb.xproto?")
 
-    conn = Connection(CORE)
+    conn = cls(CORE)
     if auth_string is not None:
         auth = parse_auth(auth_string)
 
