@@ -57,7 +57,7 @@ class App(SXObject):
         self.conn = None
         self.cursors = None
         self.running = False
-        self.screens = None
+        self.screens = []
         self.plugins = None
 
     def init(self):
