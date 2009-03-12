@@ -25,7 +25,7 @@
 
 from .xproto import Font, Cursor
 
-# See http://tronche.com/gui/x/xlib/appendix/b/ for values 
+# See http://tronche.com/gui/x/xlib/appendix/b/ for values
 XUTIL_CURSOR_FLEUR = 52
 XUTIL_CURSOR_LEFT_PTR = 68
 XUTIL_CURSOR_SIZING = 120
@@ -77,7 +77,7 @@ class Cursors(dict):
             XC_bottom_left_corner
 
         Example:
-        
+
         ::
 
             cursors = Cursors(my_connection)
@@ -85,14 +85,18 @@ class Cursors(dict):
 
     """
     def __init__(self, connection):
-        self.connection = connection    
-        self.font = Font.open(self.connection, "cursor") 
+        self.connection = connection
+        self.font = Font.open(self.connection, "cursor")
 
         for name, cursor_font in CURSORS:
             self._load_cursor(name, cursor_font)
 
     def _load_cursor(self, name, cursor_font):
-        self[name] = Cursor.create_glyph(self.connection, 
+        """
+            load the cursor named *name* from the font object
+            *cursor_font*, and add it to the dictionary.
+        """
+        self[name] = Cursor.create_glyph(self.connection,
                 self.font, self.font,
                 cursor_font, cursor_font + 1,
                 0, 0, 0,

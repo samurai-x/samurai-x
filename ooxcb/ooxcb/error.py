@@ -30,14 +30,28 @@ from .response import Response
 from .util import MemBuffer
 
 class Error(Response):
+    """
+        An error is a special kind of response that is used when an
+        error occured. It will be "packed into" a Python exception
+        in :meth:`Error.set`.
+    """
     @classmethod
     def set(cls, conn, err):
+        """
+            raise the right exception for the
+            :class:`ooxcb.libxcb.xcb_generic_error_t` struct *err*
+            if it is an error.
+
+            :param err: a ctypes pointer to a
+                        :class:`ooxcb.libxcb.xcb_generic_error_t`.
+        """
         if err:
             e = err.contents
+            # get the opcode and the corresponding error type / exception class
             opcode = e.error_code
             type, exception = conn.errors[opcode]
             address = ctypes.addressof(e)
-        
+
             inst = type.create_from_address(conn, address)
             raise exception(conn, inst)
 

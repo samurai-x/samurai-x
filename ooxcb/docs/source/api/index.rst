@@ -8,5 +8,8 @@ ooxcb api documentation
     builder.rst
     connection.rst
     constant.rst
+    cookie.rst
+    cursors.rst
+    error.rst
     xproto.rst
 

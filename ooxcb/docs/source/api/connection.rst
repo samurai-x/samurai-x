@@ -1,6 +1,9 @@
 ooxcb.conn
 ==========
 
+.. automodule:: ooxcb.conn
+    :members:
+
 .. autoclass:: ooxcb.Connection
     :members:
     
