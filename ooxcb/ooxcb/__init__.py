@@ -31,7 +31,7 @@ from ooxcb.constant import *
 SETUP = None
 
 CORE = None
-CORE_EVENTS = {} 
+CORE_EVENTS = {}
 CORE_ERRORS = {}
 
 EXTDICT = {}
@@ -39,6 +39,10 @@ EXT_EVENTS = {}
 EXT_ERRORS = {}
 
 def parse_auth(authstr):
+    """
+        Parse the X11 authentication string `authstr` and return
+        a new `libxcb.xcb_auth_info` instance.
+    """
     name, data = authstr.split(':')
     auth = libxcb.xcb_auth_info()
     auth.namelen = len(name)
@@ -46,12 +50,31 @@ def parse_auth(authstr):
     auth.datalen = len(data)
     auth.data = data
     return auth
-     
+
 def connect(display='', fd=None, auth_string=None, cls=Connection):
+    """
+        establishes a connection to a X display.
+
+        The X display to connect to can be specified ...
+
+         * by `display`, an X display string.
+           If `display` is an empty string, the DISPLAY environment
+           variable will be used.
+         * by `fd`, an open unix file descriptor.
+           `auth_string` is not relevant here.
+
+        `cls` can be used to customize the connection class.
+        There has to be an X core protocol module loaded, otherwise an
+        `XcbException` is raised.
+        `connect` returns a ready to use instance of `cls`.
+    """
     auth = None
 
     if CORE is None:
-        raise exception.XcbException("No core protocol object has been set.  Did you import xcb.xproto?")
+        raise exception.XcbException(
+                "No core protocol object has been set. "
+                "Did you import xcb.xproto?"
+                )
 
     conn = cls(CORE)
     if auth_string is not None:
@@ -61,7 +84,9 @@ def connect(display='', fd=None, auth_string=None, cls=Connection):
         conn.conn = libxcb.xcb_connect_to_fd(fd, ctypes.byref(auth))
     elif auth is not None:
         pref_screen = ctypes.c_int()
-        conn.conn = libxcb.xcb_connect_to_display_with_auth_info(display, ctypes.byref(auth), ctypes.byref(pref_screen))
+        conn.conn = libxcb.xcb_connect_to_display_with_auth_info(
+                display, ctypes.byref(auth), ctypes.byref(pref_screen)
+        )
         conn.pref_screen = pref_screen.value
     else:
         pref_screen = ctypes.c_int()
@@ -72,28 +97,44 @@ def connect(display='', fd=None, auth_string=None, cls=Connection):
     return conn
 
 def popcount(i):
+    """
+        just a wrapper for the libxcb `xcb_popcount` function that determines
+        the number of asserted bits in `i`.
+    """
     return libxcb.xcb_popcount(i)
 
 def type_pad(t, i):
+    """
+        calculates the needed type pad. Mostly for internal use.
+    """
     return -i & (3 if t > 4 else t - 1)
 
 def _add_core(value, setup, events, errors):
+    """
+        called by the core protocol module. Do not call it yourself
+        and do not use two core modules :)
+    """
     global CORE, CORE_EVENTS, CORE_ERRORS, SETUP # eeeeeevil
     # TODO: I skipped the error checking blah blah
     if CORE is not None:
-        print "module core not none oh noez!"
-        return None
+        raise XcbException("There is already a core module loaded (%s)" % CORE)
     CORE = value
     CORE_EVENTS = events
     CORE_ERRORS = errors
     SETUP = setup
 
 def _add_ext(key, value, events, errors):
+    """
+        called by X extension modules. Do not call it yourself.
+    """
     EXTDICT[key] = value
     EXT_EVENTS[key] = events
     EXT_ERRORS[key] = errors
 
 def _resize_obj(obj, size):
+    """
+        sets `obj.size = size`.
+    """
     obj.size = size
 
 from ooxcb.list import *
@@ -110,5 +151,3 @@ from ooxcb.reply import *
 from ooxcb.ext import *
 from ooxcb.extkey import *
 from ooxcb.resource import *
-
-__all__ = [ 'xproto', 'bigreq', 'xc_misc' ]

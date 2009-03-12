@@ -11,6 +11,7 @@ Contents:
     :maxdepth: 2
 
     introduction.rst
+    getting-started.rst
     api/index.rst
 
 Indices and tables
