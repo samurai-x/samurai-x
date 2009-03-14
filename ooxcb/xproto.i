@@ -451,6 +451,14 @@ Classes:
         - method:
             name: pythonize_lazy
             code: ["return self.name.to_string()"]
+        - classmethod:
+            name: create_lazy
+            arguments: ["conn", "string"]
+            code:
+                - "struct = Str(conn)"
+                - "struct.name = string"
+                - "struct.name_len = len(string)"
+                - "return struct"
 
 Events:
     KeyPress:

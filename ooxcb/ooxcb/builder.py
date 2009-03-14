@@ -26,7 +26,7 @@
 from struct import pack
 from .protobj import Protobj
 
-def build_list(stream, list_, type):
+def build_list(conn, stream, list_, type):
     """
         writes a *list_* of objects of the elementar
         data type *type* (where *type* is a :mod:`struct`-compatible
@@ -37,6 +37,8 @@ def build_list(stream, list_, type):
         is called.
     """
     for item in list_:
+        if type.create_lazy:
+            item = type.create_lazy(conn, item)
         if isinstance(item, Protobj):
             item.build(stream)
         else:

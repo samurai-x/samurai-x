@@ -386,7 +386,7 @@ def py_complex(self, name, cls):
             # The problem is: the field type expr isn't always a simple
             # expression, it also can be "(self.keycodes_per_modifier * 5)" -
             # how should we solve that?
-            build_code.append('build_list(stream, self.%s, %s)' % (
+            build_code.append('build_list(self.conn, stream, self.%s, %s)' % (
                 prefix_if_needed(field.field_name), field.py_listtype))
 
             init_code.append('self.%s = []' % (prefix_if_needed(field.field_name)))
@@ -560,7 +560,7 @@ def py_union(self, name):
             read.code.append('stream.seek(root)')
 
             build.code.append(
-                    'build_list(stream, self.%s, %s)' %
+                    'build_list(self.conn, stream, self.%s, %s)' %
                     (prefix_if_needed(field.field_name), field.py_listtype)
                     )
             init.code.append('self.%s = []' % (prefix_if_needed(field.field_name)))

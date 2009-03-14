@@ -2448,6 +2448,9 @@ ooxcb.xproto
     .. method:: pythonize_lazy(self)
 
 
+    .. classmethod:: create_lazy(cls, conn, string)
+
+
     .. attribute:: name_len
 
     .. attribute:: name

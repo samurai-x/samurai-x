@@ -110,11 +110,11 @@ class ClientMessageData(ooxcb.Union):
 
     def build(self, stream):
         if self.data8:
-            build_list(stream, self.data8, 'B')
+            build_list(self.conn, stream, self.data8, 'B')
         elif self.data16:
-            build_list(stream, self.data16, 'H')
+            build_list(self.conn, stream, self.data16, 'H')
         elif self.data32:
-            build_list(stream, self.data32, 'I')
+            build_list(self.conn, stream, self.data32, 'I')
         else:
             raise ooxcb.XcbConnection("No value set in the union!")
 
@@ -161,7 +161,7 @@ class QueryTreeReply(ooxcb.Reply):
         count = 0
         stream.write(pack("xxxxxxxxIIHxxxxxxxxxxxxxx", self.root.get_internal(), self.parent.get_internal(), self.children_len))
         count += 32
-        build_list(stream, self.children, 'I')
+        build_list(self.conn, stream, self.children, 'I')
 
 class ListInstalledColormapsReply(ooxcb.Reply):
     def __init__(self, conn):
@@ -181,7 +181,7 @@ class ListInstalledColormapsReply(ooxcb.Reply):
         count = 0
         stream.write(pack("xxxxxxxxHxxxxxxxxxxxxxxxxxxxxxx", self.cmaps_len))
         count += 32
-        build_list(stream, self.cmaps, 'I')
+        build_list(self.conn, stream, self.cmaps, 'I')
 
 class Rgb(ooxcb.Struct):
     def __init__(self, conn):
@@ -454,7 +454,7 @@ class Setupauthenticate(ooxcb.Struct):
         count = 0
         stream.write(pack("BxxxxxH", self.status, self.length))
         count += 8
-        build_list(stream, self.reason, 'B')
+        build_list(self.conn, stream, self.reason, 'B')
 
 class GetScreenSaverReply(ooxcb.Reply):
     def __init__(self, conn):
@@ -629,9 +629,9 @@ class Setup(ooxcb.Struct):
         count = 0
         stream.write(pack("BxHHHIIIIHHBBBBBBBBxxxx", self.status, self.protocol_major_version, self.protocol_minor_version, self.length, self.release_number, self.resource_id_base, self.resource_id_mask, self.motion_buffer_size, self.vendor_len, self.maximum_request_length, self.roots_len, self.pixmap_formats_len, self.image_byte_order, self.bitmap_format_bit_order, self.bitmap_format_scanline_unit, self.bitmap_format_scanline_pad, self.min_keycode, self.max_keycode))
         count += 40
-        build_list(stream, self.vendor, 'B')
-        build_list(stream, self.pixmap_formats, Format)
-        build_list(stream, self.roots, Screen)
+        build_list(self.conn, stream, self.vendor, 'B')
+        build_list(self.conn, stream, self.pixmap_formats, Format)
+        build_list(self.conn, stream, self.roots, Screen)
 
 class WindowClass(object):
     CopyFromParent = 0
@@ -749,7 +749,7 @@ class ListHostsReply(ooxcb.Reply):
         count = 0
         stream.write(pack("xBxxxxxxHxxxxxxxxxxxxxxxxxxxxxx", self.mode, self.hosts_len))
         count += 32
-        build_list(stream, self.hosts, Host)
+        build_list(self.conn, stream, self.hosts, Host)
 
 class GetModifierMappingReply(ooxcb.Reply):
     def __init__(self, conn):
@@ -769,7 +769,7 @@ class GetModifierMappingReply(ooxcb.Reply):
         count = 0
         stream.write(pack("xBxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", self.keycodes_per_modifier))
         count += 32
-        build_list(stream, self.keycodes, 'B')
+        build_list(self.conn, stream, self.keycodes, 'B')
 
 class GetPointerMappingReply(ooxcb.Reply):
     def __init__(self, conn):
@@ -789,7 +789,7 @@ class GetPointerMappingReply(ooxcb.Reply):
         count = 0
         stream.write(pack("xBxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", self.map_len))
         count += 32
-        build_list(stream, self.map, 'B')
+        build_list(self.conn, stream, self.map, 'B')
 
 class DestroyNotifyEvent(ooxcb.Event):
     event_name = "on_destroy_notify"
@@ -825,7 +825,7 @@ class QueryKeymapReply(ooxcb.Reply):
     def build(self, stream):
         count = 0
         count += 8
-        build_list(stream, self.keys, 'B')
+        build_list(self.conn, stream, self.keys, 'B')
 
 class AllocColorReply(ooxcb.Reply):
     def __init__(self, conn):
@@ -1002,7 +1002,7 @@ class ListPropertiesReply(ooxcb.Reply):
         count = 0
         stream.write(pack("xxxxxxxxHxxxxxxxxxxxxxxxxxxxxxx", self.atoms_len))
         count += 32
-        build_list(stream, self.atoms, 'I')
+        build_list(self.conn, stream, self.atoms, 'I')
 
 class ListExtensionsReply(ooxcb.Reply):
     def __init__(self, conn):
@@ -1022,7 +1022,7 @@ class ListExtensionsReply(ooxcb.Reply):
         count = 0
         stream.write(pack("xBxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", self.names_len))
         count += 32
-        build_list(stream, self.names, Str)
+        build_list(self.conn, stream, self.names, Str)
 
 class CapStyle(object):
     NotLast = 0
@@ -1102,7 +1102,7 @@ class Setupfailed(ooxcb.Struct):
         count = 0
         stream.write(pack("BBHHH", self.status, self.reason_len, self.protocol_major_version, self.protocol_minor_version, self.length))
         count += 8
-        build_list(stream, self.reason, 'B')
+        build_list(self.conn, stream, self.reason, 'B')
 
 class IDChoiceError(ooxcb.Error):
     def __init__(self, conn):
@@ -1147,8 +1147,8 @@ class AllocColorCellsReply(ooxcb.Reply):
         count = 0
         stream.write(pack("xxxxxxxxHHxxxxxxxxxxxxxxxxxxxx", self.pixels_len, self.masks_len))
         count += 32
-        build_list(stream, self.pixels, 'I')
-        build_list(stream, self.masks, 'I')
+        build_list(self.conn, stream, self.pixels, 'I')
+        build_list(self.conn, stream, self.masks, 'I')
 
 class ConfigureRequestEvent(ooxcb.Event):
     event_name = "on_configure_request"
@@ -1276,8 +1276,8 @@ class Setuprequest(ooxcb.Struct):
         count = 0
         stream.write(pack("BxHHHHxx", self.byte_order, self.protocol_major_version, self.protocol_minor_version, self.authorization_protocol_name_len, self.authorization_protocol_data_len))
         count += 12
-        build_list(stream, self.authorization_protocol_name, 'B')
-        build_list(stream, self.authorization_protocol_data, 'B')
+        build_list(self.conn, stream, self.authorization_protocol_name, 'B')
+        build_list(self.conn, stream, self.authorization_protocol_data, 'B')
 
 class Visibility(object):
     Unobscured = 0
@@ -2677,7 +2677,7 @@ class KeymapNotifyEvent(ooxcb.Event):
     def build(self, stream):
         count = 0
         count += 1
-        build_list(stream, self.keys, 'B')
+        build_list(self.conn, stream, self.keys, 'B')
 
 class BadIDChoice(ooxcb.ProtocolException):
     pass
@@ -3138,7 +3138,7 @@ class GetPropertyReply(ooxcb.Reply):
         count = 0
         stream.write(pack("xBxxxxxxIIIxxxxxxxxxxxx", self.format, self.type.get_internal(), self.bytes_after, self.value_len))
         count += 32
-        build_list(stream, self.value, 'B')
+        build_list(self.conn, stream, self.value, 'B')
 
 class LookupColorReply(ooxcb.Reply):
     def __init__(self, conn):
@@ -3185,7 +3185,7 @@ class GetImageReply(ooxcb.Reply):
         count = 0
         stream.write(pack("xBxxxxxxIxxxxxxxxxxxxxxxxxxxx", self.depth, self.visual))
         count += 32
-        build_list(stream, self.data, 'B')
+        build_list(self.conn, stream, self.data, 'B')
 
 class Screen(ooxcb.Struct):
     def __init__(self, conn):
@@ -3237,7 +3237,7 @@ class Screen(ooxcb.Struct):
         count = 0
         stream.write(pack("IIIIIHHHHHHIBBBB", self.root.get_internal(), self.default_colormap.get_internal(), self.white_pixel, self.black_pixel, self.current_input_masks, self.width_in_pixels, self.height_in_pixels, self.width_in_millimeters, self.height_in_millimeters, self.min_installed_maps, self.max_installed_maps, self.root_visual, self.backing_stores, self.save_unders, self.root_depth, self.allowed_depths_len))
         count += 40
-        build_list(stream, self.allowed_depths, Depth)
+        build_list(self.conn, stream, self.allowed_depths, Depth)
 
 class ReparentNotifyEvent(ooxcb.Event):
     event_name = "on_reparent_notify"
@@ -3316,7 +3316,7 @@ class Host(ooxcb.Struct):
         count = 0
         stream.write(pack("BxH", self.family, self.address_len))
         count += 4
-        build_list(stream, self.address, 'B')
+        build_list(self.conn, stream, self.address, 'B')
 
 class Char2b(ooxcb.Struct):
     def __init__(self, conn):
@@ -3398,8 +3398,8 @@ class ListFontsWithInfoReply(ooxcb.Reply):
         self.max_bounds.build(stream)
         stream.write(pack("xxxxHHHHBBBBhhI", self.min_char_or_byte2, self.max_char_or_byte2, self.default_char, self.properties_len, self.draw_direction, self.min_byte1, self.max_byte1, self.all_chars_exist, self.font_ascent, self.font_descent, self.replies_hint))
         count += 24
-        build_list(stream, self.properties, Fontprop)
-        build_list(stream, self.name, 'B')
+        build_list(self.conn, stream, self.properties, Fontprop)
+        build_list(self.conn, stream, self.name, 'B')
 
 class QueryTextExtentsReply(ooxcb.Reply):
     def __init__(self, conn):
@@ -3572,7 +3572,7 @@ class GetKeyboardControlReply(ooxcb.Reply):
         count = 0
         stream.write(pack("xBxxxxxxIBBHHxx", self.global_auto_repeat, self.led_mask, self.key_click_percent, self.bell_percent, self.bell_pitch, self.bell_duration))
         count += 20
-        build_list(stream, self.auto_repeats, 'B')
+        build_list(self.conn, stream, self.auto_repeats, 'B')
 
 class GetPointerControlCookie(ooxcb.Cookie):
     pass
@@ -3622,7 +3622,7 @@ class Str(ooxcb.Struct):
         count = 0
         stream.write(pack("B", self.name_len))
         count += 1
-        build_list(stream, self.name, 'B')
+        build_list(self.conn, stream, self.name, 'B')
 
     def __str__(self):
         return self.name.to_string()
@@ -3632,6 +3632,13 @@ class Str(ooxcb.Struct):
 
     def pythonize_lazy(self):
         return self.name.to_string()
+
+    @classmethod
+    def create_lazy(cls, conn, string):
+        struct = Str(conn)
+        struct.name = string
+        struct.name_len = len(string)
+        return struct
 
 class AllocColorPlanesReply(ooxcb.Reply):
     def __init__(self, conn):
@@ -3657,7 +3664,7 @@ class AllocColorPlanesReply(ooxcb.Reply):
         count = 0
         stream.write(pack("xxxxxxxxHxxIIIxxxxxxxx", self.pixels_len, self.red_mask, self.green_mask, self.blue_mask))
         count += 32
-        build_list(stream, self.pixels, 'I')
+        build_list(self.conn, stream, self.pixels, 'I')
 
 class CirculateNotifyEvent(ooxcb.Event):
     event_name = "on_circulate_notify"
@@ -3732,7 +3739,7 @@ class GetMotionEventsReply(ooxcb.Reply):
         count = 0
         stream.write(pack("xxxxxxxxIxxxxxxxxxxxxxxxxxxxx", self.events_len))
         count += 32
-        build_list(stream, self.events, Timecoord)
+        build_list(self.conn, stream, self.events, Timecoord)
 
 class ListFontsReply(ooxcb.Reply):
     def __init__(self, conn):
@@ -3752,7 +3759,7 @@ class ListFontsReply(ooxcb.Reply):
         count = 0
         stream.write(pack("xxxxxxxxHxxxxxxxxxxxxxxxxxxxxxx", self.names_len))
         count += 32
-        build_list(stream, self.names, Str)
+        build_list(self.conn, stream, self.names, Str)
 
 class Family(object):
     Internet = 0
@@ -3976,7 +3983,7 @@ class GetAtomNameReply(ooxcb.Reply):
         count = 0
         stream.write(pack("xxxxxxxxHxxxxxxxxxxxxxxxxxxxxxx", self.name_len))
         count += 32
-        build_list(stream, self.name, 'B')
+        build_list(self.conn, stream, self.name, 'B')
 
 class Fontprop(ooxcb.Struct):
     def __init__(self, conn):
@@ -4864,8 +4871,8 @@ class QueryFontReply(ooxcb.Reply):
         self.max_bounds.build(stream)
         stream.write(pack("xxxxHHHHBBBBhhI", self.min_char_or_byte2, self.max_char_or_byte2, self.default_char, self.properties_len, self.draw_direction, self.min_byte1, self.max_byte1, self.all_chars_exist, self.font_ascent, self.font_descent, self.char_infos_len))
         count += 24
-        build_list(stream, self.properties, Fontprop)
-        build_list(stream, self.char_infos, Charinfo)
+        build_list(self.conn, stream, self.properties, Fontprop)
+        build_list(self.conn, stream, self.char_infos, Charinfo)
 
 class CreateNotifyEvent(ooxcb.Event):
     event_name = "on_create_notify"
@@ -4944,7 +4951,7 @@ class QueryColorsReply(ooxcb.Reply):
         count = 0
         stream.write(pack("xxxxxxxxHxxxxxxxxxxxxxxxxxxxxxx", self.colors_len))
         count += 32
-        build_list(stream, self.colors, Rgb)
+        build_list(self.conn, stream, self.colors, Rgb)
 
 class MotionNotifyEvent(ooxcb.Event):
     event_name = "on_motion_notify"
@@ -5252,7 +5259,7 @@ class Depth(ooxcb.Struct):
         count = 0
         stream.write(pack("BxHxxxx", self.depth, self.visuals_len))
         count += 8
-        build_list(stream, self.visuals, Visualtype)
+        build_list(self.conn, stream, self.visuals, Visualtype)
 
 class ListExtensionsCookie(ooxcb.Cookie):
     pass
@@ -5620,7 +5627,7 @@ class GetFontPathReply(ooxcb.Reply):
         count = 0
         stream.write(pack("xxxxxxxxHxxxxxxxxxxxxxxxxxxxxxx", self.path_len))
         count += 32
-        build_list(stream, self.path, Str)
+        build_list(self.conn, stream, self.path, Str)
 
 class GetKeyboardMappingReply(ooxcb.Reply):
     def __init__(self, conn):
@@ -5640,7 +5647,7 @@ class GetKeyboardMappingReply(ooxcb.Reply):
         count = 0
         stream.write(pack("xBxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", self.keysyms_per_keycode))
         count += 32
-        build_list(stream, self.keysyms, 'I')
+        build_list(self.conn, stream, self.keysyms, 'I')
 
 _events = {
     24: GravityNotifyEvent,
