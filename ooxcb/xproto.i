@@ -438,13 +438,19 @@ Classes:
             value: 3
 
     # nice __str__ and __repr__ for the `Str` struct
+    # and a `pythonize_lazy` method so that users don't have to
+    # mess around with `Str` structs. They will just get a
+    # Python string instead. Is that cool? (y/n)
     Str:
         - method:
             name: __str__
             code: ["return self.name.to_string()"]
         - method:
             name: __repr__
-            code: ["return repr(self.name.to_string())"]
+            code: ["return '<ooxcb.xproto.Str %s>' % repr(self.name.to_string())"]
+        - method:
+            name: pythonize_lazy
+            code: ["return self.name.to_string()"]
 
 Events:
     KeyPress:

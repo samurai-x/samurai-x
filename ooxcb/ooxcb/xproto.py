@@ -3628,7 +3628,10 @@ class Str(ooxcb.Struct):
         return self.name.to_string()
 
     def __repr__(self):
-        return repr(self.name.to_string())
+        return '<ooxcb.xproto.Str %s>' % repr(self.name.to_string())
+
+    def pythonize_lazy(self):
+        return self.name.to_string()
 
 class AllocColorPlanesReply(ooxcb.Reply):
     def __init__(self, conn):

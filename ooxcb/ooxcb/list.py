@@ -64,6 +64,10 @@ class List(list):
                 obj.read(stream)
                 datalen = obj.size
                 cur += datalen
+                # If the type has a `pythonize_lazy` method defined, call it.
+                if type.pythonize_lazy:
+                    obj = obj.pythonize_lazy()
+
             self.append(obj)
 
         self.size = cur - offset

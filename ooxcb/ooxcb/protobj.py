@@ -26,6 +26,8 @@
 from .memstream import MemoryInputStream
 
 class Protobj(object):
+    pythonize_lazy = None
+
     def __init__(self, conn):
         self.conn = conn
 

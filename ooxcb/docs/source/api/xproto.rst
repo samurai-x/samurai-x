@@ -2445,6 +2445,9 @@ ooxcb.xproto
     .. method:: __repr__(self)
 
 
+    .. method:: pythonize_lazy(self)
+
+
     .. attribute:: name_len
 
     .. attribute:: name
