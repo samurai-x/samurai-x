@@ -25,7 +25,8 @@
 
 class AtomDict(dict):
     """
-        A dictionary which is able to lazily load an atom:
+        A dictionary which is able to lazily load an atom
+        and that contains all predefined atoms from :module:`ooxcb.constant`.
 
         ::
 
@@ -42,6 +43,28 @@ class AtomDict(dict):
         dict.__init__(self, *boo, **far)
         self.conn = conn
         self._by_id = {}
+        self._add_predefined()
+
+    def _add_predefined(self):
+        """
+            add the predefined atoms from :module:`ooxcb.constant`.
+        """
+        # TODO: uglyuglyuglyuglyuglyUGLY
+        from . import constant
+        from .xproto import Atom # TODO:
+        for name in dir(constant):
+            if name.startswith('XA_'):
+                key = name[len('XA_'):]
+                value = getattr(constant, name)
+                atom = Atom(self.conn, value)
+                self.add_atom(key, atom)
+
+    def add_atom(self, name, atom):
+        """
+            add the atom *atom* with the name *name* to the cache.
+        """
+        self[name] = atom
+        self._by_id[atom.get_internal()] = atom
 
     def __missing__(self, key):
         self[key] = value = self.conn.core.intern_atom(key, False).reply().atom
