@@ -3140,6 +3140,11 @@ class GetPropertyReply(ooxcb.Reply):
         count += 32
         build_list(self.conn, stream, self.value, 'B')
 
+    @property
+    def exists(self):
+        ''' is True if the queried property exists. (If a property does not exist, self.type is 0.) '''
+        return self.type != 0
+
 class LookupColorReply(ooxcb.Reply):
     def __init__(self, conn):
         ooxcb.Reply.__init__(self, conn)

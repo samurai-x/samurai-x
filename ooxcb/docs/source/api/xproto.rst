@@ -2050,6 +2050,9 @@ ooxcb.xproto
     .. method:: __init__(self, conn)
 
 
+    .. method:: exists(self)
+
+
     .. attribute:: bytes_after
 
     .. attribute:: value_len

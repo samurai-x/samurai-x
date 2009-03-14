@@ -858,6 +858,7 @@ def add_custom_member(cls, mtype, minfo):
     def _handle_method(meth):
         meth.code.extend(minfo['code'])
         meth.arguments.extend(minfo.get('arguments', []))
+        meth.decorators.extend(minfo.get('decorators', []))
 
     def _add_method():
         meth = cls.new_method(minfo['name'])

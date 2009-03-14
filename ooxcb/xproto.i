@@ -423,6 +423,12 @@ Classes:
                 - "conn.add_to_cache(cid, cursor)"
                 - "return cursor"
 
+    GetPropertyReply:
+        - method:
+            name: exists
+            decorators: ["property"]
+            code: ["''' is True if the queried property exists. (If a property does not exist, self.type is 0.) '''", "return self.type != 0"]
+
     # some additional enums
 
     # Enum for WM_STATE state values
