@@ -3142,8 +3142,8 @@ class GetPropertyReply(ooxcb.Reply):
 
     @property
     def exists(self):
-        ''' is True if the queried property exists. (If a property does not exist, self.type is 0.) '''
-        return self.type != 0
+        ''' is True if the queried property exists. (If a property does not exist, self.format is 0.) '''
+        return self.format != 0
 
 class LookupColorReply(ooxcb.Reply):
     def __init__(self, conn):

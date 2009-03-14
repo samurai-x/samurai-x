@@ -427,7 +427,7 @@ Classes:
         - method:
             name: exists
             decorators: ["property"]
-            code: ["''' is True if the queried property exists. (If a property does not exist, self.type is 0.) '''", "return self.type != 0"]
+            code: ["''' is True if the queried property exists. (If a property does not exist, self.format is 0.) '''", "return self.format != 0"]
 
     # some additional enums
 
