@@ -22,16 +22,23 @@
 # ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+"""
+    This module defines some special Xcb exception classes.
+"""
 
 class XcbException(Exception):
-    pass
-
-class ConnectException(XcbException):
-    pass
-
-class ExtensionException(XcbException):
+    """
+        The basic exception class, suitable for many errors :)
+    """
     pass
 
 class ProtocolException(XcbException):
+    """
+        X extension modules define error subclasses of *ProtocolException*.
+        An *ProtocolExtension* subclass instance is raised if there was 
+        an error in the X11 protocol, e.g. unsuitable values.
+        Examples are :class:`ooxcb.xproto.BadWindow` or
+        :class:`ooxcb.xproto.BadLength`.
+    """
     pass
 

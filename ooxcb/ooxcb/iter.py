@@ -36,12 +36,6 @@ class Iterator(object):
         self.is_list = bool(is_list)
         
     def __iter__(self):
-#        print 'MOO', repr(self.list)
-#        for l in self.list:
-#            print 'RERPRPR', repr(l)
-#            if isinstance(l, list):
-#                l = flatten(l)
-#            yield l
         if len(self.list) == 0:
             return iter([])
         else:

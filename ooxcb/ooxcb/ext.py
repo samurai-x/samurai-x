@@ -28,7 +28,18 @@ import ctypes
 from . import libxcb
 
 class Extension(object):
+    """
+        A wrapper for an X11 extension.
+        This class provides with a :meth:`Extension.send_request`
+        method. You will most likely do not have to use this
+        class directly.
+    """
     def __init__(self, conn, key=None):
+        """
+            :type conn: :class:`ooxcb.conn.Connection`
+            :param key: The corresponding :class:`ooxcb.extkey.ExtensionKey`
+                        instance (optional)
+        """
         self.key = key
         self.conn = conn
         self.major_opcode = 0
@@ -36,6 +47,15 @@ class Extension(object):
         self.first_error = 0
 
     def send_request(self, request, cookie, reply_cls=None):
+        """
+            sends *request* to the X server. Then it provides
+            *cookie* with the needed attributes and returns it.
+            *reply_cls* is the optional reply class which will
+            also be redirected to *cookie*.
+            If :attr:`ooxcb.conn.Connection.synchronous_check`
+            is True, this will also force every request to be
+            checked and check it immediately after sending.
+        """
         # TODO: remove that...
         if (self.conn.synchronous_check and request.is_void):
             request.is_checked = True

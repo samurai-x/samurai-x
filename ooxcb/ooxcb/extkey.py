@@ -26,6 +26,10 @@
 from . import libxcb
 
 class ExtensionKey(object):
+    """
+        just a wrapper class for :class:`libxcb.xcb_extension_t`.
+        :todo: explain what an extension key is
+    """
     def __init__(self, name):
         self.key = libxcb.xcb_extension_t()
         self.key.name = name

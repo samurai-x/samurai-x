@@ -11,5 +11,9 @@ ooxcb api documentation
     cookie.rst
     cursors.rst
     error.rst
+    eventsys.rst
+    exception.rst
+    ext.rst
+    extkey.rst
     xproto.rst
 
