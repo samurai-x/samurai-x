@@ -180,7 +180,7 @@ class Screen(SXObject):
             log.debug('%s not managing %s override_redirect is set', self, window)
             return False
 
-        client = self.client_class(self, window, attributes, geom)
+        client = self.client_class(self, window, geom)
         logging.debug('screen %s is now managing %s' % (self, client))
         self.clients.add(client)
 

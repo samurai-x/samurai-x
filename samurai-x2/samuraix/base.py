@@ -26,9 +26,33 @@
 from ooxcb.eventsys import EventDispatcher
 
 class SXObject(EventDispatcher):
+    """
+        *SXObject* is the base class for all important
+        samurai-x2 classes. It is an event dispatcher
+        (samurai-x2 uses the event system of ooxcb which
+        is the event system of pyglet), but it also has
+        a convenient method for plugins.
+
+        .. attribute:: data
+
+            A dictionary connecting keys to data.
+    """
     def __init__(self):
         EventDispatcher.__init__(self)
         self.data = {} # key: data
 
     def attach_data(self, key, data):
+        """
+            Attaches the object *data* to *self*,
+            identified by the key *key*. You can access
+            the attached data using :attr:`SXObject.data`.
+
+            That's a convenient method for plugins.
+            They can easily attach any value to any
+            samurai-x2 object.
+
+            However, plugins shouldn't use
+            :meth:`SXObject.attach_data` directly. Use
+            :meth:`Plugin.attach_data_to`.
+        """
         self.data[key] = data

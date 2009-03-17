@@ -189,4 +189,7 @@ latex_documents = [
 
 
 # Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {'http://docs.python.org/dev': None}
+intersphinx_mapping = {
+        'http://docs.python.org/dev': None,
+        'http://docs.samurai-x.org/ooxcb': None # makes it possible to link to ooxcb objects
+        }

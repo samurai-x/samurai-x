@@ -36,14 +36,50 @@ from .base import SXObject
 from .util import ClientMessageHandlers
 
 class Client(SXObject):
+    """
+        A client is managing an X top-level window. samurai-x2 has the concept
+        of windows and actors.
+
+        :todo: explain / link to explanation
+
+        .. data:: all_clients
+
+            A list of all available :class:`Client` instances.
+
+        .. data:: window_2_client_map
+
+            A :class:`weakref.WeakValueDictionary` mapping
+            :class:`ooxcb.xproto.Window` objects to :class:`Client`
+            instances.
+
+    """
     all_clients = []
     window_2_client_map = weakref.WeakValueDictionary()
-    
+
     @classmethod
     def get_by_window(cls, window):
+        """
+            returns the :class:`Client` instance for the given *window*
+            or None if there is no client managing *window*.
+        """
         return cls.window_2_client_map.get(window)
 
-    def __init__(self, screen, window, wa, geometry):
+    def __init__(self, screen, window, geometry):
+        """
+            :Parameters:
+                `screen` : :class:`samuraix.screen.Screen`
+                    The samurai-x2 screen the client belongs
+                    to
+                `window` : :class:`ooxcb.xproto.Window`
+                    The foreign top-level window the client
+                    will manage
+                `geometry`:
+                    An object having `x`, `y`, `width` and
+                    `height` members describing *window*'s
+                    geometry. That's mostly because we don't
+                    want to send more X requests out than
+                    we have to.
+        """
         SXObject.__init__(self)
 
         self.conn = window.conn
@@ -69,7 +105,7 @@ class Client(SXObject):
         self.actor = window
         self.window.push_handlers(self)
         log.info('New client: Client=%s Window=%s Actor=%s' % (self, self.window, self.actor))
-        
+
         self.window.change_attributes(
                 event_mask =
                     EventMask.StructureNotify |
@@ -87,12 +123,19 @@ class Client(SXObject):
         return '<Client at 0x%x for %s>' % (id(self), repr(self.window))
 
     def is_focused(self):
+        """
+            returns True if self is its screen's focused client
+        """
         return self.screen.focused_client is self
 
     def init(self):
-        """ called after actor is set. That's not so nice. """
+        """
+            Initialize the actor.
+            Called internally by :meth:`samuraix.screen.manage`
+            after *self.actor* is set.
+            That's not so nice.
+        """
         self.actor.push_handlers(on_configure_notify=self.actor_on_configure_notify)
-
 
     def msg_active_window(self, evt):
         """
@@ -121,6 +164,11 @@ class Client(SXObject):
         return self.client_message_handlers.handle(evt)
 
     def install_handlers(self):
+        """
+            Install all client message handlers.
+
+            :note: called internally
+        """
         self.client_message_handlers.register_handler(
                 self.conn.atoms['_NET_ACTIVE_WINDOW'],
                 self.msg_active_window
@@ -131,23 +179,33 @@ class Client(SXObject):
                 )
 
     def on_property_notify(self, evt):
-        log.debug('Got property notify event: %s changed in %s.' % 
+        """
+            Event handler for :class:`ooxcb.xproto.PropertyNotifyEvent`,
+            just a debug printout at the moment
+        """
+        log.debug('Got property notify event: %s changed in %s.' %
                 (evt.atom.get_name().reply().name.to_string(), evt.window))
 
     def on_client_message(self, evt):
-        log.debug('Got client message event: %s, data32: %s' % 
+        """
+            Event handler for :class:`ooxcb.xproto.ClientMessageEvent`.
+            prints a debug message to the logs and calls
+            :meth:`process_netwm_client_message`.
+        """
+        log.debug('Got client message event: %s, data32: %s' %
                 (evt.type.get_name().reply().name.to_string(), evt.data.data32))
         self.process_netwm_client_message(evt)
 
     def actor_on_configure_notify(self, evt):
         """
-            Event handler: update the geometry
+            Event handler for :class:`ooxcb.xproto.ConfigureNotifyEvent`:
+            update the geometry
         """
         self.update_geom(Rect.from_object(evt))
 
     def update_geom(self, geom):
         """
-            `geom` is the new geometry of the actor(!) window.
+            *geom* is the new geometry of the actor(!) window.
         """
         self.geom = geom
 
@@ -165,7 +223,7 @@ class Client(SXObject):
             hints = SizeHints.from_values(values)
         if geom is None:
             geom = self.geom.copy()
-        
+
         log.debug('client=%s size hints=%s', self, hints)
         if (hints.valid and geom.width > 1): # that one is a hack. TODO
             hints.compute(geom)
@@ -176,24 +234,38 @@ class Client(SXObject):
     def resize(self, geom):
         """
             Configure the main window (not the actor)
-            to use width and height from `geom`.
+            to use width and height from *geom*.
         """
         log.debug('Resizing: %s' % geom)
         self.window.configure_checked(width=geom.width, height=geom.height).check()
         self.conn.flush()
 
     def on_destroy_notify(self, evt):
-        log.warning('Got destroy notify event, Client=%s Window=%s' % (self, evt.window))
+        """
+            Event handler for :class:`ooxcb.xproto.DestroyNotifyEvent`.
+            Prints a debug message and calls :meth:`remove` if the top-level
+            window was destroyed.
+        """
+        log.warning('Got destroy notify event, Client=%s Window=%s' % \
+                (self, evt.window))
         if evt.window is self.window:
             self.remove()
 
     def remove(self):
+        """
+            Called if the client lost its permission to exist. Sets
+            *self.window.valid* to False and dispatches the `on_removed`
+            event.
+        """
         log.info('Removed me=%s! clients=%s' % (self, self.all_clients))
         self.window.valid = False
         self.dispatch_event('on_removed', self)
-        
+
     def unmanage(self):
-        """ called by the screen """
+        """
+            Remove myself ...
+            called by the screen
+        """
         if self.window.valid:
             # We don't want to receive any further events.
             self.window.change_attributes(event_mask=0)
@@ -278,8 +350,9 @@ class Client(SXObject):
              * WM_NAME
 
             And WM_NAME is available.
+
             :note: WM_NAME's encoding is latin-1, _NET_WM_NAME and
-                   _NET_WM_VISIBLE_NAME are utf-8-encoded.
+                    _NET_WM_VISIBLE_NAME are utf-8-encoded.
         """
         # try _NET_WM_VISIBLE_NAME
         encoding = 'utf-8'

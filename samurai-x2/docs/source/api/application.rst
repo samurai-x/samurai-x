@@ -1,6 +1,6 @@
-Application
-===========
+samuraix.appl
+=============
 
-.. autoclass:: samuraix.appl.App
+.. automodule:: samuraix.appl
     :members:
 
