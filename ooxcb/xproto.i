@@ -26,7 +26,8 @@ Xizers:
         type: values
         enum_name: GC
         values_dict_name: values
-        xize: []
+        xize:
+            - font
 
     ConfigWindow:
         type: values
@@ -40,7 +41,13 @@ Xizers:
         seq_out: name
 
     String:
-        type: seq
+        type: string
+        seq_in: string
+        length_out: string_len
+        seq_out: string
+
+    UTF16:
+        type: utf16
         seq_in: string
         length_out: string_len
         seq_out: string
@@ -331,6 +338,12 @@ Requests:
         subject: gc
         precode: [!xizer "String"]
         arguments: ["drawable", "x", "y", "string"]
+    
+    ImageText16:
+        subject: gc
+        precode: ["string_len = len(string)"]
+        arguments: ["drawable", "x", "y", "string"]
+        do_not_xize: ["string"]
 
     PolyRectangle:
         subject: gc

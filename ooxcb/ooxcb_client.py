@@ -106,6 +106,33 @@ def make_seq_xizer(seq_in='value', seq_out='value', length_out='value_len'):
         code.append(template('$seq_out = $seq_in', seq_out=seq_out, seq_in=seq_in))
     return lambda code=code: code
 
+def make_utf16_xizer(seq_in='value', seq_out='value', length_out='value_len'):
+    code = []
+    code.append(template('if not isinstance($seq_in, unicode):', seq_in=seq_in))
+    code.extend([
+        INDENT,
+            template('raise XcbException("`$seq_in` has to be an unicode string")', seq_in=seq_in),
+        DEDENT
+        ])
+    code.append(template('$seq_out = $seq_in.encode("utf-16be")', seq_out=seq_out, seq_in=seq_in))
+    code.append(template('$length_out = len($seq_out) / 2 # should work', 
+        length_out=length_out, 
+        seq_out=seq_out))
+    return lambda code=code: code
+
+
+def make_string_xizer(seq_in='value', seq_out='value', length_out='value_len'):
+    code = []
+    code.append(template('if isinstance($seq_in, unicode):', seq_in=seq_in))
+    code.extend([
+        INDENT,
+            template('$seq_in = $seq_in.encode("utf-8")', seq_in=seq_in),
+        DEDENT
+        ])
+    code.append(template('$length_out = len($seq_in)', length_out=length_out, seq_in=seq_in))
+    code.append(template('$seq_out = map(ord, $seq_in)', seq_out=seq_out, seq_in=seq_in))
+    return lambda code=code: code
+
 def make_rectangles_xizer(list_in='rectangles', list_out='rectangles', length_out='rectangles_length'):
     code = []
     code.append(template("$list_out = []", list_out=list_out))
@@ -178,6 +205,8 @@ def make_lazy_none_xizer(value, from_='None', to='XNone'):
 
 XIZER_MAKERS = {
         'values': make_values_xizer,
+        'string': make_string_xizer,
+        'utf16': make_utf16_xizer,
         'seq': make_seq_xizer,
         'rectangles': make_rectangles_xizer,
         'lazy_atom': make_lazy_atom_xizer,
@@ -701,7 +730,9 @@ def request_helper(self, name, void, regular):
     else:
         # Check if we have to append some `.get_internal()` somewhere
         for field in self.fields:
-            if field.py_type in WRAPPERS and field is not subject_field:
+            if (field.py_type in WRAPPERS and 
+                    field is not subject_field and 
+                    field.field_name not in reqinfo.get('do_not_xize', [])):
                 meth.code.append('%s = %s.get_internal()' %  (field.field_name, field.field_name))
             if field is subject_field:
                 meth.code.append('%s = self.get_internal()' % field.field_name)
@@ -746,13 +777,19 @@ def request_helper(self, name, void, regular):
                         (field.type.member.py_format_str,
                         prefix_if_needed(field.field_name)))
             else:
-                meth.code.append('for elt in ooxcb.Iterator(%s, %d, "%s", True):' % \
-                    (prefix_if_needed(field.field_name),
-                        field.type.member.py_format_len,
-                        prefix_if_needed(field.field_name)))
-                meth.code.append(INDENT)
-                meth.code.append('buf.write(pack("%s", *elt))' % field.type.member.py_format_str)
-                meth.code.append(DEDENT)
+# TODO: should we really add that? hmmm ...
+                if field.field_type[-1] == 'CHAR2B':
+                    # we don't need a struct for CHAR2B. We'll just `.encode`.
+                    meth.code.append('buf.write(%s.encode("utf-16be"))' % \
+                            prefix_if_needed(field.field_name))
+                else:
+                    meth.code.append('for elt in ooxcb.Iterator(%s, %d, "%s", True):' % \
+                        (prefix_if_needed(field.field_name),
+                            field.type.member.py_format_len,
+                            prefix_if_needed(field.field_name)))
+                    meth.code.append(INDENT)
+                    meth.code.append('buf.write(pack("%s", *elt))' % field.type.member.py_format_str)
+                    meth.code.append(DEDENT)
 
         fields, size, format = struct.flush()
         if size > 0:

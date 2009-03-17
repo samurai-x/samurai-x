@@ -76,6 +76,13 @@ class List(list):
         """
             my value is a list of ordinal values; return
             the string.
-            :todo: use utf-8 (unichr)?
         """
         return ''.join(map(chr, self))
+
+    def to_utf8(self):
+        """
+            interpret the string as utf-8 and return a Python
+            unicode object.
+        """
+        return self.to_string().decode('utf-8')
+

@@ -267,6 +267,35 @@ class Client(SXObject):
         """
         self.dispatch_event('on_blur', self)
 
+    def get_window_title(self):
+        """
+            returns the window title you should use.
+            Since it respects the icccm and the netwm standard,
+            it will use:
+
+             * _NET_WM_VISIBLE_NAME if available. if not,
+             * _NET_WM_NAME if available. if not,
+             * WM_NAME
+
+            And WM_NAME is available.
+            :note: WM_NAME's encoding is latin-1, _NET_WM_NAME and
+                   _NET_WM_VISIBLE_NAME are utf-8-encoded.
+        """
+        # try _NET_WM_VISIBLE_NAME
+        encoding = 'utf-8'
+        reply = self.window.get_property(
+                '_NET_WM_VISIBLE_NAME', 'UTF8_STRING').reply()
+        if not reply.exists:
+            # try _NET_WM_NAME
+            reply = self.window.get_property(
+                    '_NET_WM_NAME', 'UTF8_STRING').reply()
+            if not reply.exists:
+                # use WM_NAME ( has ... to ... exist! )
+                reply = self.window.get_property(
+                        'WM_NAME', 'STRING').reply()
+                encoding = 'latin-1'
+        return reply.value.to_string().decode(encoding)
+
 Client.register_event_type('on_focus')
 Client.register_event_type('on_blur')
 Client.register_event_type('on_removed')

@@ -101,7 +101,7 @@ class ClientData(object):
         self.gc = xproto.GContext.create(self.client.conn,
                 self.client.actor,
                 foreground=screen.info.black_pixel,
-                background=screen.info.white_pixel
+                background=screen.info.white_pixel,
                 )
 
         self.client.push_handlers(
@@ -169,8 +169,8 @@ class ClientData(object):
     def redraw(self):
         log.debug('Redrawing, active=%s, obsolete=%s' % (self._active, self._obsolete))
         self.client.actor.clear_area(0, 0, self.client.geom.width, self.client.geom.height)
-        wm_name = self.client.window.get_property("WM_NAME", "STRING").reply().value.to_string()
-        self.gc.image_text8(self.client.actor, 1, BAR_HEIGHT - 4, wm_name)
+        wm_name = self.client.get_window_title() # <- TODO: is that too expensive?
+        self.gc.image_text16(self.client.actor, 1, BAR_HEIGHT - 4, wm_name)
         self.client.conn.flush()
 
     def actor_on_configure_notify(self, evt):
@@ -215,7 +215,7 @@ class SXDeco(Plugin):
         self.bindings = {}
 
         self.watched_atoms = [self.app.conn.atoms[name] for name in
-                ["WM_NAME"]
+                ["WM_NAME", "_NET_WM_NAME", "_NET_WM_VISIBLE_NAME"]
                 ]
 
     def on_load_config(self, config):

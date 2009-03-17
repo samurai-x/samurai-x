@@ -1319,12 +1319,6 @@ ooxcb.xproto
     .. method:: poly_text16(self, drawable, gc, x, y, items_len, items)
 
 
-    .. method:: image_text16_checked(self, string_len, drawable, gc, x, y, string)
-
-
-    .. method:: image_text16(self, string_len, drawable, gc, x, y, string)
-
-
     .. method:: create_colormap_checked(self, alloc, mid, window, visual)
 
 
@@ -3535,6 +3529,12 @@ ooxcb.xproto
 
 
     .. method:: image_text8(self, drawable, x, y, string)
+
+
+    .. method:: image_text16_checked(self, drawable, x, y, string)
+
+
+    .. method:: image_text16(self, drawable, x, y, string)
 
 
     .. classmethod:: create(cls, conn, drawable, **values)

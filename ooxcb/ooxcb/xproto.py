@@ -1535,8 +1535,7 @@ class xprotoExtension(ooxcb.Extension):
         buf.write(pack("x", ))
         buf.write(pack("B", (self.string_len & 1)))
         buf.write(pack("xxI", font))
-        for elt in ooxcb.Iterator(string, 2, "string", True):
-            buf.write(pack("BB", *elt))
+        buf.write(string.encode("utf-16be"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 48, False, True), \
             QueryTextExtentsCookie(),
             QueryTextExtentsReply)
@@ -1548,8 +1547,7 @@ class xprotoExtension(ooxcb.Extension):
         buf.write(pack("x", ))
         buf.write(pack("B", (self.string_len & 1)))
         buf.write(pack("xxI", font))
-        for elt in ooxcb.Iterator(string, 2, "string", True):
-            buf.write(pack("BB", *elt))
+        buf.write(string.encode("utf-16be"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 48, False, False), \
             QueryTextExtentsCookie(),
             QueryTextExtentsReply)
@@ -1992,28 +1990,6 @@ class xprotoExtension(ooxcb.Extension):
         buf.write(pack("xxxxIIhh", drawable, gc, x, y))
         buf.write(array("B", items).tostring())
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 75, True, False), \
-            ooxcb.VoidCookie())
-
-    def image_text16_checked(self, string_len, drawable, gc, x, y, string):
-        drawable = drawable.get_internal()
-        gc = gc.get_internal()
-        string = string.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xBxxIIhh", string_len, drawable, gc, x, y))
-        for elt in ooxcb.Iterator(string, 2, "string", True):
-            buf.write(pack("BB", *elt))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 77, True, True), \
-            ooxcb.VoidCookie())
-
-    def image_text16(self, string_len, drawable, gc, x, y, string):
-        drawable = drawable.get_internal()
-        gc = gc.get_internal()
-        string = string.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xBxxIIhh", string_len, drawable, gc, x, y))
-        for elt in ooxcb.Iterator(string, 2, "string", True):
-            buf.write(pack("BB", *elt))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 77, True, False), \
             ooxcb.VoidCookie())
 
     def create_colormap_checked(self, alloc, mid, window, visual):
@@ -5361,7 +5337,10 @@ class GContext(ooxcb.Resource):
             ooxcb.VoidCookie())
 
     def image_text8_checked(self, drawable, x, y, string):
+        if isinstance(string, unicode):
+            string = string.encode("utf-8")
         string_len = len(string)
+        string = map(ord, string)
         drawable = drawable.get_internal()
         gc = self.get_internal()
         buf = StringIO.StringIO()
@@ -5371,13 +5350,36 @@ class GContext(ooxcb.Resource):
             ooxcb.VoidCookie())
 
     def image_text8(self, drawable, x, y, string):
+        if isinstance(string, unicode):
+            string = string.encode("utf-8")
         string_len = len(string)
+        string = map(ord, string)
         drawable = drawable.get_internal()
         gc = self.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("xBxxIIhh", string_len, drawable, gc, x, y))
         buf.write(array("B", string).tostring())
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 76, True, False), \
+            ooxcb.VoidCookie())
+
+    def image_text16_checked(self, drawable, x, y, string):
+        string_len = len(string)
+        drawable = drawable.get_internal()
+        gc = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xBxxIIhh", string_len, drawable, gc, x, y))
+        buf.write(string.encode("utf-16be"))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 77, True, True), \
+            ooxcb.VoidCookie())
+
+    def image_text16(self, drawable, x, y, string):
+        string_len = len(string)
+        drawable = drawable.get_internal()
+        gc = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xBxxIIhh", string_len, drawable, gc, x, y))
+        buf.write(string.encode("utf-16be"))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 77, True, False), \
             ooxcb.VoidCookie())
 
     @classmethod
@@ -5429,7 +5431,7 @@ class GContext(ooxcb.Resource):
             value_list.append(values["tile_stipple_origin_y"])
         if "font" in values:
             value_mask |= 16384
-            value_list.append(values["font"])
+            value_list.append(values["font"].get_internal())
         if "subwindow_mode" in values:
             value_mask |= 32768
             value_list.append(values["subwindow_mode"])
