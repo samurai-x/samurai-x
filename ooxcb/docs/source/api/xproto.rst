@@ -408,6 +408,12 @@ ooxcb.xproto
     .. method:: query_unchecked(self)
 
 
+    .. method:: query_text_extents(self, str)
+
+
+    .. method:: query_text_extents_unchecked(self, str)
+
+
 .. class:: QueryShapeOf
 
     .. data:: LargestCursor
@@ -1167,12 +1173,6 @@ ooxcb.xproto
 
 
     .. method:: open_font(self, fid, name)
-
-
-    .. method:: query_text_extents(self, font, string_len, string)
-
-
-    .. method:: query_text_extents_unchecked(self, font, string_len, string)
 
 
     .. method:: list_fonts(self, max_names, pattern)

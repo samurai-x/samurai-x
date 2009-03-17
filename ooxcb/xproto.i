@@ -340,6 +340,7 @@ Requests:
         arguments: ["drawable", "x", "y", "string"]
     
     ImageText16:
+        # CHAR2B xizer is there ...
         subject: gc
         precode: ["string_len = len(string)"]
         arguments: ["drawable", "x", "y", "string"]
@@ -376,9 +377,11 @@ Requests:
         subject: font
         # TODO: that can also be a GContext method.
 
-    QueryTextExtends:
+    QueryTextExtents:
         subject: font
-        arguments: ["string"]
+        precode: ["string_len = len(str)"]
+        arguments: ["str"]
+        do_not_xize: ["str"]
 
     # Cursor objects
 

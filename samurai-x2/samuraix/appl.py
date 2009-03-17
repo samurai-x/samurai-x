@@ -77,10 +77,11 @@ class App(SXObject):
              * It dispatches 'on_ready'
              * It calls `scan` on each Screen to make it scan for children.
 
-            :todo: turn out the synchronous check (that slows down everything a bit)
-            :todo: allow the user to specify the X connection string. Maybe he wants
-                    to connect to a foreign display without changing the DISPLAY environment
-                    variable?
+            :todo: turn out the synchronous check (that slows down everything a
+                   bit)
+            :todo: allow the user to specify the X connection string. Maybe he
+                   wants to connect to a foreign display without changing the
+                   DISPLAY environment variable?
 
         """
         self.conn = ooxcb.connect()
@@ -109,8 +110,8 @@ class App(SXObject):
         self.reload_config()
         self.dispatch_event('on_ready', self)
 
-        # scan the screens after everything is done. plugin's event handlers will
-        # be called then.
+        # scan the screens after everything is done.
+        # plugin's event handlers will be called then.
         # I hope that has no side effects for existing plugins :)
         for screen in self.screens:
             screen.scan()
@@ -133,7 +134,7 @@ class App(SXObject):
         """
             Stop samurai-x. Call `unmanage_all` on each screen and
             set `self.running` to False.
-            This method takes no arguments. \*args is just here that
+            This method takes no arguments. *\*args* is just here that
             we can use `stop` directly as signal handler.
         """
         log.info('Unmanaging all remaining clients ...')
@@ -145,11 +146,11 @@ class App(SXObject):
 
     def run(self):
         """
-            Start the mainloop. It uses `select` to poll the file descriptor for
-            events and dispatches them.
+            Start the mainloop. It uses `select` to poll the file descriptor
+            for events and dispatches them.
             All exceptions are caught and logged, so samurai-x won't crash.
-            If `self.running` is False for some reason, samurai-x will disconnect
-            and stop.
+            If `self.running` is False for some reason, samurai-x will
+            disconnect and stop.
         """
         self.running = True
 
@@ -202,7 +203,7 @@ class App(SXObject):
     def get_screen_by_root(self, root):
         """
             return the `Screen` instance for the given
-            root window or None if there is no screen found.
+            root window *root* or None if there is no screen found.
         """
         for screen in self.screens:
             # windows are cached, so we can use identity comparison
@@ -212,10 +213,11 @@ class App(SXObject):
 
     def on_property_notify(self, ev):
         """
-            Event handler for the property notify event. That just writes a message
-            to the log for now.
+            Event handler for the property notify event.
+            That just writes a message to the log for now.
         """
-        log.info('Got a property notify event ... %s' % ev.atom.get_name().reply().name.to_string())
+        log.info('Got a property notify event ... %s' % \
+                ev.atom.get_name().reply().name.to_string())
 
 App.register_event_type('on_load_config')
 App.register_event_type('on_new_screen')

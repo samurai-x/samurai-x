@@ -528,6 +528,32 @@ class Fontable(ooxcb.Resource):
             QueryFontCookie(),
             QueryFontReply)
 
+    def query_text_extents(self, str):
+        string_len = len(str)
+        font = self.get_internal()
+        string = string.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("x", ))
+        buf.write(pack("B", (self.string_len & 1)))
+        buf.write(pack("xxI", font))
+        buf.write(string.encode("utf-16be"))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 48, False, True), \
+            QueryTextExtentsCookie(),
+            QueryTextExtentsReply)
+
+    def query_text_extents_unchecked(self, str):
+        string_len = len(str)
+        font = self.get_internal()
+        string = string.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("x", ))
+        buf.write(pack("B", (self.string_len & 1)))
+        buf.write(pack("xxI", font))
+        buf.write(string.encode("utf-16be"))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 48, False, False), \
+            QueryTextExtentsCookie(),
+            QueryTextExtentsReply)
+
 class QueryShapeOf(object):
     LargestCursor = 0
     FastestTile = 1
@@ -1527,30 +1553,6 @@ class xprotoExtension(ooxcb.Extension):
         buf.write(array("B", name).tostring())
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 45, True, False), \
             ooxcb.VoidCookie())
-
-    def query_text_extents(self, font, string_len, string):
-        font = font.get_internal()
-        string = string.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("x", ))
-        buf.write(pack("B", (self.string_len & 1)))
-        buf.write(pack("xxI", font))
-        buf.write(string.encode("utf-16be"))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 48, False, True), \
-            QueryTextExtentsCookie(),
-            QueryTextExtentsReply)
-
-    def query_text_extents_unchecked(self, font, string_len, string):
-        font = font.get_internal()
-        string = string.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("x", ))
-        buf.write(pack("B", (self.string_len & 1)))
-        buf.write(pack("xxI", font))
-        buf.write(string.encode("utf-16be"))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 48, False, False), \
-            QueryTextExtentsCookie(),
-            QueryTextExtentsReply)
 
     def list_fonts(self, max_names, pattern):
         pattern_len = len(pattern)
