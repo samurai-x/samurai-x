@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Copyright (c) 2008-2009, samurai-x.org
 # All rights reserved.
 #
@@ -23,32 +24,77 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+"""
+    This module is a direct C -> Python port of the keysyms module from
+    xcb-util which can be found here: http://cgit.freedesktop.org/xcb/util
+
+    xcb-keysyms license::
+
+        Copyright © 2008 Ian Osgood <iano@quirkster.com>
+        Copyright © 2008 Jamey Sharp <jamey@minilop.net>
+        Copyright © 2008 Josh Triplett <josh@freedesktop.org>
+        Copyright © 2008 Ulrich Eckhardt <doomster@knuut.de>
+
+        Permission is hereby granted, free of charge, to any person
+        obtaining a copy of this software and associated documentation
+        files (the "Software"), to deal in the Software without
+        restriction, including without limitation the rights to use, copy,
+        modify, merge, publish, distribute, sublicense, and/or sell copies
+        of the Software, and to permit persons to whom the Software is
+        furnished to do so, subject to the following conditions:
+
+        The above copyright notice and this permission notice shall be
+        included in all copies or substantial portions of the Software.
+
+        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+        EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+        MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+        NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY
+        CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+        CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+        WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+        Except as contained in this notice, the names of the authors or
+        their institutions shall not be used in advertising or otherwise to
+        promote the sale, use or other dealings in this Software without
+        prior written authorization from the authors.
+
+    .. data:: X_KEYS
+
+        list of X key names
+"""
+
 from . import keysymdef
 from .util import cached_property
 
 NO_SYMBOL = 0
 
 def convert_case(sym):
-    """ return lower, upper """
+    """
+        return (lower, upper) for internal use.
+
+        :note: direct port of
+               http://cgit.freedesktop.org/xcb/util/tree/keysyms/keysyms.c#n361
+    """
     lower = sym
     upper = sym
 
-#    switch(sym >> 8)
-#    {
     def latin1():
         if ((sym >= keysymdef.XK_A) and (sym <= keysymdef.XK_Z)):
             lower += (keysymdef.XK_a - keysymdef.XK_A)
         elif ((sym >= keysymdef.XK_a) and (sym <= keysymdef.XK_z)):
             upper -= (keysymdef.XK_a - keysymdef.XK_A)
-        elif ((sym >= keysymdef.XK_Agrave) and (sym <= keysymdef.XK_Odiaeresis)):
+        elif ((sym >= keysymdef.XK_Agrave)
+                and (sym <= keysymdef.XK_Odiaeresis)):
             lower += (keysymdef.XK_agrave - keysymdef.XK_Agrave)
-        elif ((sym >= keysymdef.XK_agrave) and (sym <= keysymdef.XK_odiaeresis)):
+        elif ((sym >= keysymdef.XK_agrave)
+                and (sym <= keysymdef.XK_odiaeresis)):
             upper -= (keysymdef.XK_agrave - keysymdef.XK_Agrave)
         elif ((sym >= keysymdef.XK_Ooblique) and (sym <= keysymdef.XK_Thorn)):
             lower += (keysymdef.XK_oslash - keysymdef.XK_Ooblique)
         elif ((sym >= keysymdef.XK_oslash) and (sym <= keysymdef.XK_thorn)):
             upper -= (keysymdef.XK_oslash - keysymdef.XK_Ooblique)
-        
+
     def latin2():
         # Assume the KeySym is a legal value (ignore discontinuities)
         if (sym == keysymdef.XK_Aogonek):
@@ -82,11 +128,13 @@ def convert_case(sym):
             upper -= (keysymdef.XK_hstroke - keysymdef.XK_Hstroke)
         elif (sym >= keysymdef.XK_gbreve and sym <= keysymdef.XK_jcircumflex):
             upper -= (keysymdef.XK_gbreve - keysymdef.XK_Gbreve)
-        elif (sym >= keysymdef.XK_Cabovedot and sym <= keysymdef.XK_Scircumflex):
+        elif (sym >= keysymdef.XK_Cabovedot
+                and sym <= keysymdef.XK_Scircumflex):
             lower += (keysymdef.XK_cabovedot - keysymdef.XK_Cabovedot)
-        elif (sym >= keysymdef.XK_cabovedot and sym <= keysymdef.XK_scircumflex):
+        elif (sym >= keysymdef.XK_cabovedot
+                and sym <= keysymdef.XK_scircumflex):
             upper -= (keysymdef.XK_cabovedot - keysymdef.XK_Cabovedot)
-        
+
     def latin4():
         # Assume the KeySym is a legal value (ignore discontinuities)
         if (sym >= keysymdef.XK_Rcedilla and sym <= keysymdef.XK_Tslash):
@@ -104,30 +152,41 @@ def convert_case(sym):
 
     def cyrillic():
         # Assume the KeySym is a legal value (ignore discontinuities)
-        if (sym >= keysymdef.XK_Serbian_DJE and sym <= keysymdef.XK_Serbian_DZE):
+        if (sym >= keysymdef.XK_Serbian_DJE
+                and sym <= keysymdef.XK_Serbian_DZE):
             lower -= (keysymdef.XK_Serbian_DJE - keysymdef.XK_Serbian_dje)
-        elif (sym >= keysymdef.XK_Serbian_dje and sym <= keysymdef.XK_Serbian_dze):
+        elif (sym >= keysymdef.XK_Serbian_dje
+                and sym <= keysymdef.XK_Serbian_dze):
             upper += (keysymdef.XK_Serbian_DJE - keysymdef.XK_Serbian_dje)
-        elif (sym >= keysymdef.XK_Cyrillic_YU and sym <= keysymdef.XK_Cyrillic_HARDSIGN):
+        elif (sym >= keysymdef.XK_Cyrillic_YU
+                and sym <= keysymdef.XK_Cyrillic_HARDSIGN):
             lower -= (keysymdef.XK_Cyrillic_YU - keysymdef.XK_Cyrillic_yu)
-        elif (sym >= keysymdef.XK_Cyrillic_yu and sym <= keysymdef.XK_Cyrillic_hardsign):
+        elif (sym >= keysymdef.XK_Cyrillic_yu
+                and sym <= keysymdef.XK_Cyrillic_hardsign):
             upper += (keysymdef.XK_Cyrillic_YU - keysymdef.XK_Cyrillic_yu)
-    
+
     def greek():
-        if (sym >= keysymdef.XK_Greek_ALPHAaccent and sym <= keysymdef.XK_Greek_OMEGAaccent):
-            lower += (keysymdef.XK_Greek_alphaaccent - keysymdef.XK_Greek_ALPHAaccent)
-        elif (sym >= keysymdef.XK_Greek_alphaaccent and sym <= keysymdef.XK_Greek_omegaaccent and
+        if (sym >= keysymdef.XK_Greek_ALPHAaccent
+                and sym <= keysymdef.XK_Greek_OMEGAaccent):
+            lower += (keysymdef.XK_Greek_alphaaccent -
+                    keysymdef.XK_Greek_ALPHAaccent)
+        elif (sym >= keysymdef.XK_Greek_alphaaccent
+                and sym <= keysymdef.XK_Greek_omegaaccent and
             sym != keysymdef.XK_Greek_iotaaccentdieresis and
             sym != keysymdef.XK_Greek_upsilonaccentdieresis):
-            upper -= (keysymdef.XK_Greek_alphaaccent - keysymdef.XK_Greek_ALPHAaccent)
-        elif (sym >= keysymdef.XK_Greek_ALPHA and sym <= keysymdef.XK_Greek_OMEGA):
+            upper -= (keysymdef.XK_Greek_alphaaccent -
+                    keysymdef.XK_Greek_ALPHAaccent)
+        elif (sym >= keysymdef.XK_Greek_ALPHA
+                and sym <= keysymdef.XK_Greek_OMEGA):
             lower += (keysymdef.XK_Greek_alpha - keysymdef.XK_Greek_ALPHA)
-        elif (sym >= keysymdef.XK_Greek_alpha and sym <= keysymdef.XK_Greek_omega and
+        elif (sym >= keysymdef.XK_Greek_alpha
+                and sym <= keysymdef.XK_Greek_omega and
                 sym != keysymdef.XK_Greek_finalsmallsigma):
             upper -= (keysymdef.XK_Greek_alpha - keysymdef.XK_Greek_ALPHA)
-        
-    def armenian(): 
-        if (sym >= keysymdef.XK_Armenian_AYB and sym <= keysymdef.XK_Armenian_fe):
+
+    def armenian():
+        if (sym >= keysymdef.XK_Armenian_AYB
+                and sym <= keysymdef.XK_Armenian_fe):
             lower = sym | 1
             upper = sym & ~1
 
@@ -144,16 +203,16 @@ def convert_case(sym):
         pass
     return lower, upper
 
-
 class Keysyms(object):
     """
         a simple helper for keycodes and keysyms.
-
-        :todo: wrap `xcb-keysmys` from xcb-util?
     """
     def __init__(self, conn):
+        """
+            :type conn: :class:`ooxcb.conn.Connection`
+        """
         self.conn = conn
-        
+
     @cached_property
     def _cookie(self):
         min_keycode = self.conn.get_setup().min_keycode
@@ -168,10 +227,10 @@ class Keysyms(object):
 
     def get_keycode(self, keysym):
         """
-            return the corresponding keycode for `keysym` or None.
+            return the corresponding keycode for *keysym* or None.
         """
         for j in xrange(self._reply.keysyms_per_keycode):
-            for keycode in xrange(self.conn.get_setup().min_keycode, 
+            for keycode in xrange(self.conn.get_setup().min_keycode,
                     self.conn.get_setup().max_keycode):
 
                 if self.get_keysym(keycode, j) == keysym:
@@ -179,6 +238,12 @@ class Keysyms(object):
         return None
 
     def get_keysym(self, keycode, col):
+        """
+            return the corresponding keysym for *keycode* in column
+            *col*.
+
+            :todo: no error checking for now :)
+        """
         keysyms = self._reply.keysyms
         min_keycode = self.conn.get_setup().min_keycode
         max_keycode = self.conn.get_setup().max_keycode
@@ -227,3 +292,4 @@ def keysym_to_str(keysym):
         return '-'
     # it must be a char, return it
     return chr(keysym & 0x7F)
+

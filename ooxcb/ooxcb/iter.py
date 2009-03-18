@@ -26,9 +26,22 @@
 from itertools import chain
 
 def flatten(l):
+    """
+        flatten the list *l*. Example:
+
+        ::
+
+            flatten([[1, 2], [3, 4, 5]]) # => [1, 2, 3, 4, 5]
+    """
     return list(chain.from_iterable(l))
 
 class Iterator(object):
+    """
+        just a flattening iterator. Only for the use in
+        :mod:`xproto`.
+
+        :todo: try to explain :)
+    """
     def __init__(self, list, groupsize, name, is_list):
         self.list = list
         self.groupsize = groupsize
