@@ -23,6 +23,10 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+"""
+    This module is responsible for loading plugins.
+"""
+
 import logging
 log = logging.getLogger(__name__)
 
@@ -32,30 +36,72 @@ import pkg_resources
 
 from samuraix import config
 
+class PluginError(Exception):
+    """
+        raised by :meth:`PluginLoader.require_key` if a
+        required plugin key couldn't be found.
+    """
+    pass
+
 class PluginLoader(dict):
+    """
+        A class loading all available plugins using setuptools entrypoints.
+        First, all paths in the 'core.plugin_paths' configuration option
+        are checked and all found setuptools distributions are added to the
+        working set. These distributions usually are Python eggs - so, it is
+        very easy to remove a plugin - you can just remove the egg from the
+        plugin path.
+        The plugin loader object is a dictionary subclass. You can access
+        plugins by their keys, for example:
+
+        ::
+
+            print self.app.plugins['desktops']
+
+        However, there is usually just one :class:`PluginLoader` per
+        samurai-x instance, and it's loaded by the application. Internally.
+    """
     def __init__(self, app):
+        """
+            :type app: :class:`samuraix.appl.App`
+        """
         self.app = app
 
     def setup(self):
+        """
+            add the available distributions to the pkg_resources working set
+            and load all plugins. That is called internally by the application.
+        """
         self.add_entries()
         self.load_all()
 
     def add_entries(self):
         """
-            add the plugin paths to the working set
+            iterate the plugin paths (the 'core.plugin_paths' option)
+            and add all found distributions to the working set.
         """
-        for path in map(os.path.expanduser, config.get('core.plugin_paths', [])):
+        for path in map(os.path.expanduser,
+                config.get('core.plugin_paths', [])):
             map(pkg_resources.working_set.add,
                     pkg_resources.find_distributions(path, False))
-   
+
     def require_key(self, key):
-        assert key in self, 'You have to install a plugin implementing the "%s" key!' % key
-        
+        """
+            Call this to check if there is a plugin providing with the
+            key *key*. If there is none, an :class:`PluginError` is raised.
+        """
+        if not key in self:
+            raise PluginError('You have to install a plugin '
+                              'implementing the "%s" key!' % key)
+
     def load_all(self):
         """
             load all plugins, warn if a plugin couldn't be loaded.
         """
+        # get the names of all required plugins
         names = config.get('core.plugins', [])
+        # get all available entrypoints and create a dictionary mapping
+        # an entrypoint's name to an entrypoint.
         entrypoints = list(pkg_resources.iter_entry_points('samuraix.plugin'))
         dct = dict((ep.name, ep) for ep in entrypoints)
 
@@ -67,3 +113,4 @@ class PluginLoader(dict):
             else:
                 cls = ep.load()
                 self[cls.key] = cls(self.app)
+

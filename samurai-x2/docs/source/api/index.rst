@@ -9,4 +9,6 @@ samurai-x2 api documentation
     defaultconfig.rst
     logformatter.rst
     main.rst
+    plugin.rst
+    pluginsys.rst
 

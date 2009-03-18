@@ -24,26 +24,51 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class Rect(object):
+    """
+        a simple rectangle class. It has four slots x, y, width and height and
+        can be created from or converted to other formats very easily.
+    """
     __slots__ = ['x', 'y', 'width', 'height']
+
     def __init__(self, x=0, y=0, width=100, height=100):
+        """
+            :type x, y, width, height: int
+        """
         self.x = x
         self.y = y
         self.width = width
         self.height = height
 
     def copy(self):
-        return Rect(self.x, self.y, self.width, self.height)   
+        """
+            return a new :class:`Rect` instance having the same values
+            as self.
+        """
+        return Rect(self.x, self.y, self.width, self.height)
 
     def __str__(self):
         return "<Rect %s %s %s %s>" % (self.x, self.y, self.width, self.height)
 
     def to_dict(self):
-        return {'x':self.x, 'y':self.y, 'width':self.width, 'height':self.height}
+        """
+            return a dictionary having the keys 'x', 'y', 'width' and 'height',
+            containing self's values.
+        """
+        return {'x': self.x, 'y': self.y,
+                'width': self.width, 'height': self.height}
 
     @classmethod
     def from_object(cls, struct):
+        """
+            Create a new :class:`Rect` instance from the object *struct* that
+            has four slots: x, y, width and height.
+        """
         return cls(struct.x, struct.y, struct.width, struct.height)
 
     @classmethod
     def from_dict(cls, dic):
+        """
+            Create a new :class:`Rect` instance from the dictionary *dic* that
+            has four keys: 'x' 'y', 'width' and 'height'.
+        """
         return cls(dic['x'], dic['y'], dic['width'], dic['height'])

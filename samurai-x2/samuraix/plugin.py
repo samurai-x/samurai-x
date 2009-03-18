@@ -24,10 +24,43 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class Plugin(object):
+    """
+        Base class for Plugins. You should derive your plugin
+        from it. Every plugin is required to have a key describing its
+        task. For example, the sx-simpledeco plugin has the
+        'decoration' key. There are just a few constant plugin
+        keys, so you are relatively free to use any key you like.
+        Reserved keys are 'desktops' (there has to be a desktops plugin
+        loaded, otherwise samurai-x2 will quit), ...
+
+        .. data:: key
+
+            The plugin key, usually a string
+
+        :todo: complete the list of reserved keys.
+    """
     key = NotImplemented
 
     def attach_data_to(self, obj, data):
+        """
+            Attaches *data* to the object *obj*, identified by
+            :data:`key`. That's just a shortcut for
+
+            ::
+
+                obj.attach_data(self.key, data)
+
+        """
         obj.attach_data(self.key, data)
 
     def get_data(self, obj):
+        """
+            Get the formerly attached data from *obj*, identified by
+            :data:`key`. That's just a shortcut for
+
+            ::
+
+                return obj.data[self.key]
+
+        """
         return obj.data[self.key]
