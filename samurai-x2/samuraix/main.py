@@ -23,6 +23,11 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+"""
+    :mod:`samuraix.main` provides with a setuptools entrypoint for the
+    `sx-wm` console script.
+"""
+
 import sys
 import os
 import traceback
@@ -33,6 +38,10 @@ from optparse import OptionParser
 SXWM_USAGE = '''sx-wm [options] '''
 
 class SamuraiLogger(logging.Logger):
+    """
+        The SamuraiLogger is a convenience :class:`logging.Logger` subclass
+        with additional functionalities to log exceptions nicer.
+    """
     def exception(self, exc):
         """
             Improved exception logger.
@@ -48,34 +57,39 @@ logging.setLoggerClass(SamuraiLogger)
 log = logging.getLogger(__name__)
 
 import samuraix
-
 from .logformatter import FDFormatter
 
-
 def configure_logging(file_level=logging.DEBUG, console_level=logging.DEBUG):
-    '''Set up the logging for the client.
+    """
+        Set up the logging for the client.
 
-    @param file_level: level of logging for files, defaults to logging.DEBUG
-    @param console_level: level of logging for the console, defaults to DEBUG
-    '''
+        :param file_level: level of logging for files
+        :param console_level: level of logging for the console
+    """
 
     console = logging.StreamHandler()
     console.setLevel(console_level)
-    formatter_class = FDFormatter
-    formatter = formatter_class('[%(asctime)s %(levelname)s %(name)s] %(message)s')
+    formatter = FDFormatter('[%(asctime)s %(levelname)s %(name)s] %(message)s')
     console.setFormatter(formatter)
     logging.getLogger('').addHandler(console)
     logging.root.setLevel(logging.DEBUG)
     logfile = 'lastrun.log'
     lastlog = logging.FileHandler(logfile, 'w')
     lastlog.setLevel(file_level)
-    formatter = logging.Formatter('[%(asctime)s %(levelname)s %(name)s %(lineno)d] %(message)s')
+    formatter = logging.Formatter(
+            '[%(asctime)s %(levelname)s %(name)s %(lineno)d] %(message)s')
     lastlog.setFormatter(formatter)
     logging.getLogger('').addHandler(lastlog)
 
     log.info('logging everything to %s' % logfile)
 
 def load_config(config=None):
+    """
+        Sets :attr:`samuraix.config` to the desired configuration dictionary.
+        If *config* is None, it will load :mod:`samuraix.defaultconfig`.
+        If *config* is callable, it will call it and use the return value 
+        instead.
+    """
     if config is None:
         from samuraix.defaultconfig import config
     if callable(config):
@@ -83,6 +97,19 @@ def load_config(config=None):
     samuraix.config = config
 
 def load_user_config(configfile):
+    """
+        Tries to execute the Python configuration script. Returns
+        its *config* member on success, None if there was an error
+        reading the config file (e.g. if the file does not exist)
+
+        :param configfile: The filename of the configuration script
+                           we should try to load.
+
+        :note: Yes, the configuration file is a Python script, yes,
+               it is executed and yes, that's unsafe. Let's trust
+               the user that he knows what he does.
+
+    """
     configfile = os.path.normpath(os.path.expanduser(configfile))
     log.info('reading config from %s...' % configfile)
     locals = {}
@@ -94,6 +121,10 @@ def load_user_config(configfile):
     return locals['config']
 
 def parse_options():
+    """
+        Parse the command line options and return them. The command-line
+        arguments are ignored, since we aren't accepting any.
+    """
     parser = OptionParser(SXWM_USAGE)
     parser.add_option('-c', '--config', dest='configfile', 
             help='use samuraix configuration from FILE (default: %default)', metavar='FILE',
@@ -108,6 +139,24 @@ def parse_options():
     return options
 
 def run(app_func=None):
+    """
+        Run samurai-x. That's also the setuptools entrypoint for the `sx-wm`
+        console script.
+
+        First, it parses the options. If the user specified `--default-config`,
+        it will just print the defaultconfig.py file and quit.
+        If not, it configures the logging and loads the configuration.
+        Then :attr:`samuraix.app` is set to an instance of *app_func*,
+        or, if *app_func* is None, to an instance of 
+        :class:`samuraix.appl.App`.
+        After that, :meth:`samuraix.appl.App.init` and 
+        :meth:`samuraix.appl.App.run` are called.
+
+        :param app_func: A callable returning an application instance and
+                         taking no arguments. If it is None,
+                         :class:`samuraix.appl.App` will be used as fallback.
+
+    """
     options = parse_options()
     if options.print_default_config: # just print samuraix.defaultconfig and quit.
         print pkg_resources.resource_string('samuraix', 'defaultconfig.py')

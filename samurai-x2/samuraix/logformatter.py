@@ -26,6 +26,11 @@
 import logging
 
 class FDFormatter(logging.Formatter):
+    """
+        :class:`FDFormatter` is a convenience subclass of
+        :class:`logging.Formatter` to make :mod:`logging`'s
+        console output colored :)
+    """
     error_colors = {
         logging.DEBUG: '\033[0;36m',
         logging.INFO: '\033[0;32m',

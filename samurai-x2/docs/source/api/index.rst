@@ -6,3 +6,7 @@ samurai-x2 api documentation
     application.rst
     base.rst
     client.rst
+    defaultconfig.rst
+    logformatter.rst
+    main.rst
+
