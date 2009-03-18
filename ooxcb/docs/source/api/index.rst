@@ -18,5 +18,9 @@ ooxcb api documentation
     iter.rst
     keysymdef.rst
     keysyms.rst
+    libxcb.rst
+    list.rst
+    memstream.rst
+    protobj.rst
     xproto.rst
 

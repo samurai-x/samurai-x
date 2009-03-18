@@ -31,6 +31,7 @@ class MemoryInputStream(object):
         interface which reads its data from a certain
         memory buffer. It is interpreted as an infinite
         array of 8-bit chars.
+        This stream is used for ooxcb protocol parsing.
     """
     def __init__(self, address):
         """
@@ -64,7 +65,7 @@ class MemoryInputStream(object):
 
     def readline(self, limit):
         raise NotImplementedError()
-    
+
     def readlines(self, hint):
         raise NotImplementedError()
 
@@ -73,7 +74,7 @@ class MemoryInputStream(object):
             Currently you can not use whence=2.
             The stream has no end.
         """
-        if whence == 0: 
+        if whence == 0:
             # from the start position of the stream
             self._ptr = self._root + offset
             return offset
@@ -98,7 +99,7 @@ class MemoryInputStream(object):
         return self._ptr - self._root
 
     def truncate(self):
-        """ 
+        """
             That's a no-op here. I can't think of anyone needing that
             for a memory buffer, really.
             However, it will raise a NotImplementedError. But we can

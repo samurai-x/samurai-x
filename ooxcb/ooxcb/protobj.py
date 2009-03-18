@@ -26,28 +26,62 @@
 from .memstream import MemoryInputStream
 
 class Protobj(object):
+    """
+        Base class for all protocol objects.
+
+        .. data:: create_lazy
+
+            None as default, but it can be a classmethod used
+            to create a Protobj instance lazily for convenience.
+
+            :see: :func:`ooxcb.builder.build_list`
+
+        .. data:: pythonize_lazy
+
+            None as default, but if it can be a method used to
+            pythonize a protocol object lazily if it's inside
+            a list.
+
+            :see: :class:`ooxcb.list.List`
+
+    """
+    create_lazy = None # TODO: does it have to be defined here?
     pythonize_lazy = None
 
     def __init__(self, conn):
         self.conn = conn
 
     def read(self, stream):
+        """
+            Placeholder for subclasses.
+            :param stream: an object providing a buffer interface. Read
+                           myself from that stream!
+        """
         raise NotImplementedError()
 
     def read_from_address(self, address):
         """
-            parse the memory at `address`
+            parse the memory at *address*
         """
         return self.read(MemoryInputStream(address))
 
     @classmethod
     def create_from_address(cls, conn, address):
+        """
+            :type conn: :class:`ooxcb.conn.Connection`
+            :param address: an int pointing to the data in the
+                            memory
+        """
         self = cls(conn)
         self.read_from_address(address)
         return self
 
     @classmethod
     def create_from_stream(cls, conn, stream):
+        """
+            :type conn: :class:`ooxcb.conn.Connection`
+            :param stream: a stream-like object to read from.
+        """
         self = cls(conn)
         self.read(stream)
         return self

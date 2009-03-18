@@ -26,7 +26,8 @@
 import ctypes
 from ctypes import POINTER
 
-BUILDERS = {'b': POINTER(ctypes.c_byte), 
+BUILDERS = {
+        'b': POINTER(ctypes.c_byte),
         'B': POINTER(ctypes.c_ubyte),
         'h': POINTER(ctypes.c_short),
         'H': POINTER(ctypes.c_ushort),
@@ -38,27 +39,74 @@ BUILDERS = {'b': POINTER(ctypes.c_byte),
         'd': POINTER(ctypes.c_double)
         }
 
-def build_value(s, size, data):
+def build_value(s, data):
+    """
+        returns a python value for a C data block.
+
+        :param s: The type identifier; mostly :mod:`struct`-compatible
+        :param data: A string containing the data.
+    """
     return ctypes.cast(data, BUILDERS[s[0]]).contents.value
 
-def slice_ptr(ptr, offset):
-    return ptr.__class__.from_address(ctypes.addressof(ptr) + offset)
-
 class List(list):
+    """
+        :class:`List` is a :class:`list` subclass that reads its
+        members from a memory stream. It also provides with
+        methods to convert this data to more useful values.
+    """
     def __init__(self, conn, stream, offset, length, type, size=-1):
+        """
+            :Parameters:
+                `conn`: :class:`ooxcb.conn.Connection`
+                `stream`: stream-like object
+                    The stream to read the list data from. That will
+                    most likely be a :class:`ooxcb.memstream.MemoryInputStream`
+                    but any other object offering a buffer interface
+                    is allowed.
+                `offset`: int
+                    This argument is just used to calculate the size of the
+                    list. At other places it is ignored, because the stream has
+                    a builtin position pointer.
+                `length`: int
+                    Count of items the list contains
+                `type`: a typestring or a class
+                    Information about the list type.
+                `size`: int
+                    The size of one item; not necessarily required.
+
+            There are three kinds of lists here:
+
+             * If *type* is a string (a typecode), the list contains *length*
+               elementar, homogenous items, each *size* bytes big.
+             * Otherwise, if *size* is > 0, *type* has to be a class that
+               is initiated for each element. Then, the `read` method is called
+               on the resulting object, with the stream as first element.
+               The object is required to read exactly *size* bytes.
+             * Otherwise, *type* is also required to be a class and is
+               instantiated, `read` is called, and then the `size` attribute
+               is read. That's for dynamic objects.
+               Now, if the type has a `pythonize_lazy` method defined, it
+               will be called on the object. That's a convenience method, ie
+               for strings. The user doesn't have to bother with
+               :class:`xproto.Str` instances, it is just converted to a Python
+               string lazily and on-the-fly.
+        """
         self.conn = conn
-        cur = offset
+        cur = 0
         for i in xrange(length):
-            # TODO: I don't think that call is necessary. If there are problems,
+            # TODO: I don't think that call is necessary. If there are problems
             # try to comment in this call ;-)
             #stream.seek(cur)
             if isinstance(type, str):
-                obj = build_value(type, length, stream.read(size))
+                obj = build_value(type, stream.read(size))
                 cur += size
             elif size > 0:
                 obj = type(conn)
                 obj.read(stream)
                 cur += size
+                # If the type has a `pythonize_lazy` method defined, call it.
+                if type.pythonize_lazy:
+                    obj = obj.pythonize_lazy()
             else:
                 obj = type(conn) # ... is a sequence
                 obj.read(stream)
@@ -81,8 +129,8 @@ class List(list):
 
     def to_utf8(self):
         """
-            interpret the string as utf-8 and return a Python
-            unicode object.
+            interpret the string returned by :meth:`to_string`
+            as utf-8 and return a Python unicode object.
         """
         return self.to_string().decode('utf-8')
 
