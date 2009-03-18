@@ -27,21 +27,32 @@ import logging
 log = logging.getLogger(__name__)
 
 class ClientMessageHandlers(object):
+    """
+        a little helper class for client message event handlers.
+        You just connect an atom to a handler function and
+        pass every :class:`ooxcb.xproto.ClientMessageEvent` to
+        :meth:`handle`, and you will get the events handled.
+    """
     def __init__(self):
         self._handlers = {}
 
     def register_handler(self, atom, func):
         """
-            `func` is a function taking one argument: the
-            client message event.
-            `atom` is the (cached!) atom object.
+            :param func: function taking one argument,
+                         the client message event.
+            :param atom: is the (cached!) atom object.
         """
         self._handlers[atom] = func
 
     def handle(self, evt):
+        """
+            call the matching handler function for *evt*
+            and return the result or print a warning to the log
+            if there is no matching handler.
+        """
         try:
             return self._handlers[evt.type](evt)
         except KeyError:
-            log.warning('No handler for the %s client message yet!' % 
+            log.warning('No handler for the %s client message yet!' % \
                     (evt.type.get_name().reply().name.to_string()))
-    
+

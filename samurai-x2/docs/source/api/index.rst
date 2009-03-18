@@ -11,4 +11,6 @@ samurai-x2 api documentation
     main.rst
     plugin.rst
     pluginsys.rst
-
+    rect.rst
+    screen.rst
+    util.rst
