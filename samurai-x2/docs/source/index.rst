@@ -10,6 +10,8 @@ Contents:
 .. toctree::
     :maxdepth: 2
 
+    intro.rst
+    client.rst
     api/index.rst
 
 Indices and tables

@@ -52,6 +52,15 @@ class Client(SXObject):
             :class:`ooxcb.xproto.Window` objects to :class:`Client`
             instances.
 
+        .. attribute:: actor
+
+            The actor window, as explained in the :ref:`client-concept`.
+
+        .. attribute:: window
+
+            The foreign top-level window, as explained in the
+            :ref:`client-concept`.
+
     """
     all_clients = []
     window_2_client_map = weakref.WeakValueDictionary()
