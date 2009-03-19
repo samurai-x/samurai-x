@@ -48,6 +48,8 @@ class Resource(EventDispatcher):
     """
     def __init__(self, conn, xid):
         self.conn = conn
+        assert (isinstance(xid, (int, long)), 
+                "You have specified an invalid X ID: %s" % xid)
         self.xid = xid
 
     def __repr__(self):
