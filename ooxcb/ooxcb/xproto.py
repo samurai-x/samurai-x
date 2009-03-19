@@ -4558,6 +4558,10 @@ class Window(ooxcb.Resource):
         conn.add_to_cache(wid, win)
         return win
 
+    @classmethod
+    def create_toplevel_on_screen(cls, conn, screen, *args, **kwargs):
+        return cls.create(conn, screen.root, screen.root_depth, screen.root_visual, *args, **kwargs)
+
 class CoordMode(object):
     Origin = 0
     Previous = 1

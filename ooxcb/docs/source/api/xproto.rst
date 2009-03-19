@@ -2970,6 +2970,9 @@ ooxcb.xproto
     .. classmethod:: create(cls, conn, parent, depth, visual, x=0, y=0, width=640, height=480, border_width=0, _class=WindowClass.InputOutput, **values)
 
 
+    .. classmethod:: create_toplevel_on_screen(cls, conn, screen, *args, **kwargs)
+
+
 .. class:: CoordMode
 
     .. data:: Origin

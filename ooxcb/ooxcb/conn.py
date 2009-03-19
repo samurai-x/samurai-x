@@ -24,6 +24,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import ctypes
+from contextlib import contextmanager
 
 from . import libxcb
 from .event import Event
@@ -69,6 +70,25 @@ class Connection(EventDispatcher):
         self.atoms = AtomDict(self)
         # the X object cache. {X ID: Object, ...}
         self._cache = {}
+
+    @contextmanager
+    def bunch(self):
+        """
+            Use this in a `with` statement.
+            Example:
+
+            ::
+
+                with conn.bunch():
+                    for window in windows:
+                        window.map()
+
+            When the `with` statement is left,
+            the connection will be flushed.
+
+        """
+        yield
+        self.flush()
 
     def do_initial_setup(self):
         """

@@ -471,6 +471,13 @@ Classes:
                     'return win'
                 ]
 
+        - classmethod:
+            name: create_toplevel_on_screen
+            arguments: ["conn", "screen", "*args", "**kwargs"]
+            code:
+                - "return cls.create(conn, screen.root, screen.root_depth, screen.root_visual, *args, **kwargs)"
+
+
     GContext:
         - base: Fontable
         - classmethod:
