@@ -5322,8 +5322,8 @@ class GContext(Fontable):
         drawable = drawable.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("xxxxII", drawable, gc))
-        for obj in rectangles:
-            obj.build(buf)
+        for rect in rectangles:
+            buf.write(pack("hhHH", rect.x, rect.y, rect.width, rect.height))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 67, True, True), \
             ooxcb.VoidCookie())
 
@@ -5332,8 +5332,8 @@ class GContext(Fontable):
         drawable = drawable.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("xxxxII", drawable, gc))
-        for obj in rectangles:
-            obj.build(buf)
+        for rect in rectangles:
+            buf.write(pack("hhHH", rect.x, rect.y, rect.width, rect.height))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 67, True, False), \
             ooxcb.VoidCookie())
 

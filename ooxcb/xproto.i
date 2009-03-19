@@ -380,7 +380,10 @@ Requests:
             - "drawable = drawable.get_internal()"
             - "buf = StringIO.StringIO()"
             - 'buf.write(pack("xxxxII", drawable, gc))'
-            - !xizer "RectanglesObjects"
+            - "for rect in rectangles:"
+            - !indent
+            - 'buf.write(pack("hhHH", rect.x, rect.y, rect.width, rect.height))'
+            - !dedent
 
     PolyPoint:
         subject: gc
