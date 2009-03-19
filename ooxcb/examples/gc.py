@@ -8,7 +8,7 @@ from ooxcb.xproto import *
 conn = ooxcb.connect()
 
 def main():
-    setup = conn.get_setup()
+    setup = conn.setup
     screen = setup.roots[0]
     root = setup.roots[0].root
     depth = setup.roots[0].root_depth

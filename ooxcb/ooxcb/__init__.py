@@ -93,7 +93,7 @@ def connect(display='', fd=None, auth_string=None, cls=Connection):
         conn.conn = libxcb.xcb_connect(display, ctypes.byref(pref_screen))
         conn.pref_screen = pref_screen.value
 
-    conn.setup()
+    conn.do_initial_setup()
     return conn
 
 def popcount(i):

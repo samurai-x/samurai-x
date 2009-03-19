@@ -70,7 +70,7 @@ class Connection(EventDispatcher):
         # the X object cache. {X ID: Object, ...}
         self._cache = {}
 
-    def setup(self):
+    def do_initial_setup(self):
         """
             loads the core events, the core errors and sets them up.
 
@@ -179,6 +179,8 @@ class Connection(EventDispatcher):
             self._setup = SETUP.create_from_address(self, addr)
 
         return self._setup
+
+    setup = property(get_setup)
 
     def generate_id(self):
         """
