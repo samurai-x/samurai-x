@@ -134,3 +134,21 @@ class List(list):
         """
         return self.to_string().decode('utf-8')
 
+    def to_resources(self, cls):
+        """
+            interpret the data as a homogenous list of X ids.
+            :param cls: The resource class to instantiate if the
+                        corresponding X id couldn't be found in
+                        the cache.
+            :returns: a list of *cls* instances
+        """
+        return [self.conn.get_from_cache_fallback(xid, cls)
+                for xid in self]
+
+    def to_windows(self):
+        """
+            I am a list of :class:`ooxcb.xproto.Window` Ids. Just
+            a shortcut for :meth:`to_resources`.
+        """
+        from .xproto import Window # TODO: imports in methods are not nice
+        return self.to_resources(Window)

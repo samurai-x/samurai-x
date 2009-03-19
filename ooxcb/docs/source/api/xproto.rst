@@ -2072,6 +2072,9 @@ ooxcb.xproto
     .. method:: __init__(self, conn)
 
 
+    .. method:: get_active_window(self)
+
+
     .. attribute:: min_installed_maps
 
     .. attribute:: max_installed_maps

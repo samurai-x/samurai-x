@@ -536,6 +536,12 @@ Classes:
                 - "rect.height = height"
                 - "return rect"
 
+    Screen:
+        - method:
+            name: get_active_window
+            code:
+                - "return self.root.get_property('_NET_ACTIVE_WINDOW', 'WINDOW').reply().value.to_windows()[0]"
+
     # some additional enums
 
     # Enum for WM_STATE state values

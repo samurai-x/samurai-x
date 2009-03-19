@@ -3152,6 +3152,9 @@ class Screen(ooxcb.Struct):
         count += 40
         build_list(self.conn, stream, self.allowed_depths, Depth)
 
+    def get_active_window(self):
+        return self.root.get_property('_NET_ACTIVE_WINDOW', 'WINDOW').reply().value.to_windows()[0]
+
 class ReparentNotifyEvent(ooxcb.Event):
     event_name = "on_reparent_notify"
     event_target_class = "Window"
