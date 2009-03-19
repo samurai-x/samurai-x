@@ -40,6 +40,32 @@ Xizers:
         length_out: name_len
         seq_out: name
 
+    Points:
+        type: seq
+        seq_in: points
+        length_out: points_len
+        seq_out: points
+
+    Segments:
+        type: seq
+        seq_in: segments
+        length_out: segments_len
+        seq_out: segments
+
+    RectanglesObjects:
+        type: objects
+        name: rectangles
+
+    ArcsObjects:
+        type: objects
+        name: arcs
+
+    Arcs:
+        type: seq
+        seq_in: arcs
+        length_out: arcs_length
+        seq_out: arcs
+
     String:
         type: string
         seq_in: string
@@ -338,7 +364,7 @@ Requests:
         subject: gc
         precode: [!xizer "String"]
         arguments: ["drawable", "x", "y", "string"]
-    
+
     ImageText16:
         # CHAR2B xizer is there ...
         subject: gc
@@ -354,10 +380,47 @@ Requests:
             - "drawable = drawable.get_internal()"
             - "buf = StringIO.StringIO()"
             - 'buf.write(pack("xxxxII", drawable, gc))'
-            - "for rect in rectangles:"
-            - !indent
-            - 'buf.write(pack("hhHH", rect.x, rect.y, rect.width, rect.height))'
-            - !dedent
+            - !xizer "RectanglesObjects"
+
+    PolyPoint:
+        subject: gc
+        arguments: ["drawable", "points", "coordinate_mode=0"] # CoordMode.Origin
+        precode:
+            - !xizer "Points"
+        do_not_xize:
+            - "points"
+        doc: ":param points: a list of tuples (x, y)\n:type coordinate_mode: :class:CoordMode"
+
+    PolySegment:
+        subject: gc
+        arguments: ["drawable", "segments"]
+        precode:
+            - !xizer "Segments"
+        do_not_xize:
+            - "segments"
+
+    PolyLine:
+        subject: gc
+        arguments: ["drawable", "points", "coordinate_mode=0"] # CoordMode.Origin
+        precode:
+            - !xizer "Points"
+        do_not_xize:
+            - "points"
+        doc: ":param points: a list of tuples (x, y)\n:type coordinate_mode: :class:CoordMode"
+
+    PolyArc:
+        subject: gc
+        arguments: ["drawable", "arcs"]
+        initcode:
+            - !xizer "Arcs"
+            - "drawable = drawable.get_internal()"
+            - "gc = self.get_internal()"
+            - "buf = StringIO.StringIO()"
+            - "buf.write(pack('xxxxII', drawable, gc))"
+            - !xizer "ArcsObjects"
+
+        do_not_xize: ["arcs"]
+        doc: ":type arcs: a list of :class:`Arc` instances"
 
     FreeGC:
         subject: gc
@@ -378,10 +441,11 @@ Requests:
         # TODO: that can also be a GContext method.
 
     QueryTextExtents:
+        # TODO: not working.
         subject: font
-        precode: ["string_len = len(str)"]
-        arguments: ["str"]
-        do_not_xize: ["str"]
+        precode: ["string_len = len(string)"]
+        arguments: ["string"]
+        do_not_xize: ["string"]
 
     # Cursor objects
 
@@ -405,6 +469,7 @@ Classes:
                 ]
 
     GContext:
+        - base: Fontable
         - classmethod:
             name: create
             arguments: ["conn", "drawable", "**values"]
@@ -444,6 +509,32 @@ Classes:
             name: exists
             decorators: ["property"]
             code: ["''' is True if the queried property exists. (If a property does not exist, self.format is 0.) '''", "return self.format != 0"]
+
+    Arc:
+        - classmethod:
+            name: create
+            arguments: ["conn", "x", "y", "width", "height", "angle1", "angle2"]
+            code:
+                - "arc = cls(conn)"
+                - "arc.x = x"
+                - "arc.y = y"
+                - "arc.width = width"
+                - "arc.height = height"
+                - "arc.angle1 = angle1"
+                - "arc.angle2 = angle2"
+                - "return arc"
+
+    Rectangle:
+        - classmethod:
+            name: create
+            arguments: ["conn", "x", "y", "width", "height"]
+            code:
+                - "rect = cls(conn)"
+                - "rect.x = x"
+                - "rect.y = y"
+                - "rect.width = width"
+                - "rect.height = height"
+                - "return rect"
 
     # some additional enums
 

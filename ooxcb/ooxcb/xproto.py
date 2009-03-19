@@ -528,10 +528,9 @@ class Fontable(ooxcb.Resource):
             QueryFontCookie(),
             QueryFontReply)
 
-    def query_text_extents(self, str):
-        string_len = len(str)
+    def query_text_extents(self, string):
+        string_len = len(string)
         font = self.get_internal()
-        string = string.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("x", ))
         buf.write(pack("B", (self.string_len & 1)))
@@ -541,10 +540,9 @@ class Fontable(ooxcb.Resource):
             QueryTextExtentsCookie(),
             QueryTextExtentsReply)
 
-    def query_text_extents_unchecked(self, str):
-        string_len = len(str)
+    def query_text_extents_unchecked(self, string):
+        string_len = len(string)
         font = self.get_internal()
-        string = string.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("x", ))
         buf.write(pack("B", (self.string_len & 1)))
@@ -907,6 +905,17 @@ class Arc(ooxcb.Struct):
     def build(self, stream):
         count = 0
         stream.write(pack("hhHHhh", self.x, self.y, self.width, self.height, self.angle1, self.angle2))
+
+    @classmethod
+    def create(cls, conn, x, y, width, height, angle1, angle2):
+        arc = cls(conn)
+        arc.x = x
+        arc.y = y
+        arc.width = width
+        arc.height = height
+        arc.angle1 = angle1
+        arc.angle2 = angle2
+        return arc
 
 class Kill(object):
     AllTemporary = 0
@@ -1768,94 +1777,6 @@ class xprotoExtension(ooxcb.Extension):
         buf = StringIO.StringIO()
         buf.write(pack("xxxxIIIhhhhHHI", src_drawable, dst_drawable, gc, src_x, src_y, dst_x, dst_y, width, height, bit_plane))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 63, True, False), \
-            ooxcb.VoidCookie())
-
-    def poly_point_checked(self, coordinate_mode, drawable, gc, points_len, points):
-        drawable = drawable.get_internal()
-        gc = gc.get_internal()
-        points = points.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xBxxII", coordinate_mode, drawable, gc))
-        for elt in ooxcb.Iterator(points, 2, "points", True):
-            buf.write(pack("hh", *elt))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 64, True, True), \
-            ooxcb.VoidCookie())
-
-    def poly_point(self, coordinate_mode, drawable, gc, points_len, points):
-        drawable = drawable.get_internal()
-        gc = gc.get_internal()
-        points = points.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xBxxII", coordinate_mode, drawable, gc))
-        for elt in ooxcb.Iterator(points, 2, "points", True):
-            buf.write(pack("hh", *elt))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 64, True, False), \
-            ooxcb.VoidCookie())
-
-    def poly_line_checked(self, coordinate_mode, drawable, gc, points_len, points):
-        drawable = drawable.get_internal()
-        gc = gc.get_internal()
-        points = points.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xBxxII", coordinate_mode, drawable, gc))
-        for elt in ooxcb.Iterator(points, 2, "points", True):
-            buf.write(pack("hh", *elt))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 65, True, True), \
-            ooxcb.VoidCookie())
-
-    def poly_line(self, coordinate_mode, drawable, gc, points_len, points):
-        drawable = drawable.get_internal()
-        gc = gc.get_internal()
-        points = points.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xBxxII", coordinate_mode, drawable, gc))
-        for elt in ooxcb.Iterator(points, 2, "points", True):
-            buf.write(pack("hh", *elt))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 65, True, False), \
-            ooxcb.VoidCookie())
-
-    def poly_segment_checked(self, drawable, gc, segments_len, segments):
-        drawable = drawable.get_internal()
-        gc = gc.get_internal()
-        segments = segments.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xxxxII", drawable, gc))
-        for elt in ooxcb.Iterator(segments, 4, "segments", True):
-            buf.write(pack("hhhh", *elt))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 66, True, True), \
-            ooxcb.VoidCookie())
-
-    def poly_segment(self, drawable, gc, segments_len, segments):
-        drawable = drawable.get_internal()
-        gc = gc.get_internal()
-        segments = segments.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xxxxII", drawable, gc))
-        for elt in ooxcb.Iterator(segments, 4, "segments", True):
-            buf.write(pack("hhhh", *elt))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 66, True, False), \
-            ooxcb.VoidCookie())
-
-    def poly_arc_checked(self, drawable, gc, arcs_len, arcs):
-        drawable = drawable.get_internal()
-        gc = gc.get_internal()
-        arcs = arcs.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xxxxII", drawable, gc))
-        for elt in ooxcb.Iterator(arcs, 6, "arcs", True):
-            buf.write(pack("hhHHhh", *elt))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 68, True, True), \
-            ooxcb.VoidCookie())
-
-    def poly_arc(self, drawable, gc, arcs_len, arcs):
-        drawable = drawable.get_internal()
-        gc = gc.get_internal()
-        arcs = arcs.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xxxxII", drawable, gc))
-        for elt in ooxcb.Iterator(arcs, 6, "arcs", True):
-            buf.write(pack("hhHHhh", *elt))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 68, True, False), \
             ooxcb.VoidCookie())
 
     def fill_poly_checked(self, drawable, gc, shape, coordinate_mode, points_len, points):
@@ -3084,6 +3005,15 @@ class Rectangle(ooxcb.Struct):
     def build(self, stream):
         count = 0
         stream.write(pack("hhHH", self.x, self.y, self.width, self.height))
+
+    @classmethod
+    def create(cls, conn, x, y, width, height):
+        rect = cls(conn)
+        rect.x = x
+        rect.y = y
+        rect.width = width
+        rect.height = height
+        return rect
 
 class ImageOrder(object):
     LSBFirst = 0
@@ -5300,7 +5230,7 @@ class FocusInEvent(ooxcb.Event):
         count = 0
         stream.write(pack("xBxxIBxxx", self.detail, self.event.get_internal(), self.mode))
 
-class GContext(ooxcb.Resource):
+class GContext(Fontable):
     def __init__(self, conn, xid):
         ooxcb.Resource.__init__(self, conn, xid)
 
@@ -5318,13 +5248,79 @@ class GContext(ooxcb.Resource):
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 60, True, False), \
             ooxcb.VoidCookie())
 
+    def poly_point_checked(self, drawable, points, coordinate_mode=0):
+        points_len = len(points)
+        drawable = drawable.get_internal()
+        gc = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xBxxII", coordinate_mode, drawable, gc))
+        for elt in ooxcb.Iterator(points, 2, "points", True):
+            buf.write(pack("hh", *elt))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 64, True, True), \
+            ooxcb.VoidCookie())
+
+    def poly_point(self, drawable, points, coordinate_mode=0):
+        points_len = len(points)
+        drawable = drawable.get_internal()
+        gc = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xBxxII", coordinate_mode, drawable, gc))
+        for elt in ooxcb.Iterator(points, 2, "points", True):
+            buf.write(pack("hh", *elt))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 64, True, False), \
+            ooxcb.VoidCookie())
+
+    def poly_line_checked(self, drawable, points, coordinate_mode=0):
+        points_len = len(points)
+        drawable = drawable.get_internal()
+        gc = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xBxxII", coordinate_mode, drawable, gc))
+        for elt in ooxcb.Iterator(points, 2, "points", True):
+            buf.write(pack("hh", *elt))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 65, True, True), \
+            ooxcb.VoidCookie())
+
+    def poly_line(self, drawable, points, coordinate_mode=0):
+        points_len = len(points)
+        drawable = drawable.get_internal()
+        gc = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xBxxII", coordinate_mode, drawable, gc))
+        for elt in ooxcb.Iterator(points, 2, "points", True):
+            buf.write(pack("hh", *elt))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 65, True, False), \
+            ooxcb.VoidCookie())
+
+    def poly_segment_checked(self, drawable, segments):
+        segments_len = len(segments)
+        drawable = drawable.get_internal()
+        gc = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xxxxII", drawable, gc))
+        for elt in ooxcb.Iterator(segments, 4, "segments", True):
+            buf.write(pack("hhhh", *elt))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 66, True, True), \
+            ooxcb.VoidCookie())
+
+    def poly_segment(self, drawable, segments):
+        segments_len = len(segments)
+        drawable = drawable.get_internal()
+        gc = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xxxxII", drawable, gc))
+        for elt in ooxcb.Iterator(segments, 4, "segments", True):
+            buf.write(pack("hhhh", *elt))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 66, True, False), \
+            ooxcb.VoidCookie())
+
     def poly_rectangle_checked(self, drawable, rectangles):
         gc = self.get_internal()
         drawable = drawable.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("xxxxII", drawable, gc))
-        for rect in rectangles:
-            buf.write(pack("hhHH", rect.x, rect.y, rect.width, rect.height))
+        for obj in rectangles:
+            obj.build(buf)
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 67, True, True), \
             ooxcb.VoidCookie())
 
@@ -5333,9 +5329,31 @@ class GContext(ooxcb.Resource):
         drawable = drawable.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("xxxxII", drawable, gc))
-        for rect in rectangles:
-            buf.write(pack("hhHH", rect.x, rect.y, rect.width, rect.height))
+        for obj in rectangles:
+            obj.build(buf)
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 67, True, False), \
+            ooxcb.VoidCookie())
+
+    def poly_arc_checked(self, drawable, arcs):
+        arcs_length = len(arcs)
+        drawable = drawable.get_internal()
+        gc = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack('xxxxII', drawable, gc))
+        for obj in arcs:
+            obj.build(buf)
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 68, True, True), \
+            ooxcb.VoidCookie())
+
+    def poly_arc(self, drawable, arcs):
+        arcs_length = len(arcs)
+        drawable = drawable.get_internal()
+        gc = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack('xxxxII', drawable, gc))
+        for obj in arcs:
+            obj.build(buf)
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 68, True, False), \
             ooxcb.VoidCookie())
 
     def image_text8_checked(self, drawable, x, y, string):

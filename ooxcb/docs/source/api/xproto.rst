@@ -408,10 +408,10 @@ ooxcb.xproto
     .. method:: query_unchecked(self)
 
 
-    .. method:: query_text_extents(self, str)
+    .. method:: query_text_extents(self, string)
 
 
-    .. method:: query_text_extents_unchecked(self, str)
+    .. method:: query_text_extents_unchecked(self, string)
 
 
 .. class:: QueryShapeOf
@@ -744,6 +744,9 @@ ooxcb.xproto
 .. class:: Arc
 
     .. method:: __init__(self, conn)
+
+
+    .. classmethod:: create(cls, conn, x, y, width, height, angle1, angle2)
 
 
     .. attribute:: height
@@ -1251,30 +1254,6 @@ ooxcb.xproto
 
 
     .. method:: copy_plane(self, src_drawable, dst_drawable, gc, src_x, src_y, dst_x, dst_y, width, height, bit_plane)
-
-
-    .. method:: poly_point_checked(self, coordinate_mode, drawable, gc, points_len, points)
-
-
-    .. method:: poly_point(self, coordinate_mode, drawable, gc, points_len, points)
-
-
-    .. method:: poly_line_checked(self, coordinate_mode, drawable, gc, points_len, points)
-
-
-    .. method:: poly_line(self, coordinate_mode, drawable, gc, points_len, points)
-
-
-    .. method:: poly_segment_checked(self, drawable, gc, segments_len, segments)
-
-
-    .. method:: poly_segment(self, drawable, gc, segments_len, segments)
-
-
-    .. method:: poly_arc_checked(self, drawable, gc, arcs_len, arcs)
-
-
-    .. method:: poly_arc(self, drawable, gc, arcs_len, arcs)
 
 
     .. method:: fill_poly_checked(self, drawable, gc, shape, coordinate_mode, points_len, points)
@@ -2019,6 +1998,9 @@ ooxcb.xproto
 .. class:: Rectangle
 
     .. method:: __init__(self, conn)
+
+
+    .. classmethod:: create(cls, conn, x, y, width, height)
 
 
     .. attribute:: y
@@ -3519,10 +3501,34 @@ ooxcb.xproto
     .. method:: free(self)
 
 
+    .. method:: poly_point_checked(self, drawable, points, coordinate_mode=0)
+
+
+    .. method:: poly_point(self, drawable, points, coordinate_mode=0)
+
+
+    .. method:: poly_line_checked(self, drawable, points, coordinate_mode=0)
+
+
+    .. method:: poly_line(self, drawable, points, coordinate_mode=0)
+
+
+    .. method:: poly_segment_checked(self, drawable, segments)
+
+
+    .. method:: poly_segment(self, drawable, segments)
+
+
     .. method:: poly_rectangle_checked(self, drawable, rectangles)
 
 
     .. method:: poly_rectangle(self, drawable, rectangles)
+
+
+    .. method:: poly_arc_checked(self, drawable, arcs)
+
+
+    .. method:: poly_arc(self, drawable, arcs)
 
 
     .. method:: image_text8_checked(self, drawable, x, y, string)

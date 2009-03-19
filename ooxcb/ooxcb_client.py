@@ -115,11 +115,17 @@ def make_utf16_xizer(seq_in='value', seq_out='value', length_out='value_len'):
         DEDENT
         ])
     code.append(template('$seq_out = $seq_in.encode("utf-16be")', seq_out=seq_out, seq_in=seq_in))
-    code.append(template('$length_out = len($seq_out) / 2 # should work', 
-        length_out=length_out, 
+    code.append(template('$length_out = len($seq_out) / 2 # should work',
+        length_out=length_out,
         seq_out=seq_out))
     return lambda code=code: code
 
+def make_objects_xizer(name, buf='buf'):
+    code = ['for obj in %s:' % name,
+            INDENT,
+                'obj.build(%s)' % buf,
+            DEDENT]
+    return lambda code=code: code
 
 def make_string_xizer(seq_in='value', seq_out='value', length_out='value_len'):
     code = []
@@ -208,6 +214,7 @@ XIZER_MAKERS = {
         'string': make_string_xizer,
         'utf16': make_utf16_xizer,
         'seq': make_seq_xizer,
+        'objects': make_objects_xizer,
         'rectangles': make_rectangles_xizer,
         'lazy_atom': make_lazy_atom_xizer,
         'lazy_none': make_lazy_none_xizer,
@@ -730,8 +737,8 @@ def request_helper(self, name, void, regular):
     else:
         # Check if we have to append some `.get_internal()` somewhere
         for field in self.fields:
-            if (field.py_type in WRAPPERS and 
-                    field is not subject_field and 
+            if (field.py_type in WRAPPERS and
+                    field is not subject_field and
                     field.field_name not in reqinfo.get('do_not_xize', [])):
                 meth.code.append('%s = %s.get_internal()' %  (field.field_name, field.field_name))
             if field is subject_field:
@@ -765,6 +772,7 @@ def request_helper(self, name, void, regular):
             elif field.type.is_pad:
                 meth.code.append('buf.write(pack("%sx"))' % field.type.nmemb)
             elif field.type.is_container:
+                # TODO: try to use the `build` member for classes.
                 meth.code.append('for elt in ooxcb.Iterator(%s, %d, "%s", False):' % \
                         (prefix_if_needed(field.field_name),
                             field.type.py_format_len,
