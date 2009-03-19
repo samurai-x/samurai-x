@@ -34,9 +34,9 @@ SIZES = {
 def make_void_array(data, format):
     """
         Return a packed representation of the data
-        `data`.
-        `format` is the count of bits to pack per value,
-        one of 8, 16, 32.
+        *data*.
+        :param format: the count of bits to pack per value,
+                       one of 8, 16, 32.
     """
     typecode = SIZES[format]
     arr = array(typecode, data)

@@ -26,5 +26,8 @@
 from .protobj import Protobj
 
 class Union(Protobj):
+    """
+        the baseclass for Unions. Nothing special.
+    """
     pass
 

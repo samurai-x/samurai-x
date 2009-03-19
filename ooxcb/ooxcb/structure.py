@@ -26,6 +26,9 @@
 from .protobj import Protobj
 
 class Struct(Protobj):
+    """
+        also just a subclass of :class:`protobj.Protobj`. Nothing special here.
+    """
     pass
 
 

@@ -26,5 +26,8 @@
 from .cookie import Cookie
 
 class VoidCookie(Cookie):
+    """
+        a void cookie class.
+    """
     pass
 

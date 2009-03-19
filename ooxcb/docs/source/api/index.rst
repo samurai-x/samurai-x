@@ -11,6 +11,7 @@ ooxcb api documentation
     cookie.rst
     cursors.rst
     error.rst
+    event.rst
     eventsys.rst
     exception.rst
     ext.rst
@@ -22,5 +23,15 @@ ooxcb api documentation
     list.rst
     memstream.rst
     protobj.rst
+    reply.rst
+    request.rst
+    resource.rst
+    response.rst
+    sizehints.rst
+    structure.rst
+    types.rst
+    union.rst
+    util.rst
+    void.rst
     xproto.rst
 

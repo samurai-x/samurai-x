@@ -27,7 +27,6 @@ import ctypes
 
 from .libxcb import xcb_generic_error_t
 from .response import Response
-from .util import MemBuffer
 
 class Error(Response):
     """

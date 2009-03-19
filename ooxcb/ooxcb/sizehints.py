@@ -37,17 +37,36 @@ P_BASESIZE = 1 << 8
 P_WINGRAVITY = 1 << 9
 
 class SizeHints(object):
-    properties = ('flags', 'x', 'y', 'width', 'height', 'min_width', \
+    """
+        :class:`SizeHints` is a convenience class for parsing the
+        `WM_NORMAL_HINTS` property (as defined in the icccm)
+
+        .. data:: properties
+
+            The tuple of allowed property values.
+            
+            :: 
+
+                ('flags', 'x', 'y', 'width', 'height', 'min_width', 
+                  'min_height', 'max_width', 'max_height', 'width_inc',
+                  'height_inc', 'min_aspect_num', 'min_aspect_den',
+                  'max_aspect_num', 'max_aspect_den', 'base_width', 
+                  'base_height', 'win_gravity')
+
+    """
+    properties = ('flags', 'x', 'y', 'width', 'height', 'min_width',
               'min_height', 'max_width', 'max_height', 'width_inc',
               'height_inc', 'min_aspect_num', 'min_aspect_den',
               'max_aspect_num', 'max_aspect_den', 'base_width', 'base_height',
               'win_gravity')
  
     def __init__(self, **kwargs):
+        """
+            :param \*\*kwargs: Provided information, keys from 
+                               :data:`SizeHints.properties`
+        """
         flags = kwargs['flags']
         valid = False
-
-        print 'HINTS', kwargs
 
         try:
             if flags & P_SIZE:
@@ -108,7 +127,8 @@ class SizeHints(object):
 
     def compute(self, geom):
         """
-            compute `geom`
+            compute *geom* in-place. If *self* is not valid,
+            nothing is changed.
         """
         if not self.valid:
             # don't compute if not valid
@@ -147,5 +167,4 @@ class SizeHints(object):
             geom.width -= (geom.width - self.base_width) % self.width_inc
         if self.height_inc:
             geom.height -= (geom.height - self.base_height) % self.height_inc
-
 

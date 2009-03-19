@@ -26,7 +26,7 @@
 class AtomDict(dict):
     """
         A dictionary which is able to lazily load an atom
-        and that contains all predefined atoms from :module:`ooxcb.constant`.
+        and that contains all predefined atoms from :mod:`ooxcb.constant`.
 
         ::
 

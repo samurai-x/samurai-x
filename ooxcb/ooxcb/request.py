@@ -26,6 +26,9 @@
 from .protobj import Protobj
 
 class Request(Protobj):
+    """
+        mostly just a value holder for :meth:`ooxcb.ext.Extension.send_request`
+    """
     def __init__(self, conn, buffer, opcode, void, checked):
         # TODO: check size??
         self.opcode = opcode

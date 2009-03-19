@@ -25,11 +25,48 @@
 
 import ctypes
 
-from .util import MemBuffer
 from .response import Response
 
 class Event(Response):
+    """
+        An event is a special kind of response.
+        And in ooxcb, it comes with a builtin ability to be dispatched.
+
+        For that purpose, every Event subclass has an `event_name` member.
+        That's the name of the event, e.g. 'on_configure_notify'. It is
+        'on_event' as fallback here, so if you stumble upon 'on_event'
+        somewhere, there is something wrong.
+
+        So, if you want to dispatch an event, just call :meth:`dispatch`.
+        A typical line in the main loop would then be:
+
+        ::
+
+            conn.wait_for_event().dispatch()
+
+        which will automatically dispatch every received event.
+
+        Every event will be dispatched to an appropriate target, e.g.
+        a :class:`ooxcb.xproto.ButtonPressEvent` will be dispatched
+        to the window the event happened in. The targets are defined
+        in the interface files. The fallback target is the connection.
+
+        If you want to know which event types a class receives, you can
+        access the *event_types* attribute that is a list of event names.
+
+        If you want to know the event target of an event, you can access
+        its *event_target* attribute.
+
+        Every event is sent with the event itself as the first and only
+        argument. So all ooxcb event handlers have the following signature:
+
+        ::
+
+            def on_blabla(evt)
+
+    """
     event_name = 'on_event'
+
     def __init__(self, conn):
         Response.__init__(self, conn)
         self.event_target = conn
@@ -47,4 +84,7 @@ class Event(Response):
         return type.create_from_address(conn, address)
 
     def dispatch(self):
-        self.event_target.dispatch_event(self.event_name, self)
+        """
+            dispatch *self* to my event target
+        """
+        return self.event_target.dispatch_event(self.event_name, self)

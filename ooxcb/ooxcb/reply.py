@@ -30,11 +30,17 @@ from .response import Response
 from .util import cached_property
 
 class Reply(Response):
+    """
+        a reply is a :class:`response.Response` subclass.
+    """
     @cached_property
     def _struct(self):
         return xcb_generic_reply_t.from_address(self._address)
 
     @property
     def length(self):
+        """
+            The reply length.
+        """
         return self._struct.length
 

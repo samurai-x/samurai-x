@@ -23,20 +23,50 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+"""
+    .. attribute:: XNone
+
+        A single instance that has an internal representation
+        of 0.
+
+"""
+
 from .eventsys import EventDispatcher
 
 class Resource(EventDispatcher):
+    """
+        A resource is nearly every object in the X world having
+        an X ID: Windows, Graphics Contexts, Fonts ...
+        Except atoms. Atoms are not part of the XID space, and
+        they have a separate cache.
+
+        Each resource has an *xid* attribute. It can also be accessed
+        by :meth:`get_internal`.
+
+        Resources are also :class:`ooxcb.eventsys.EventDispatcher`
+        subclasses.
+    """
     def __init__(self, conn, xid):
         self.conn = conn
         self.xid = xid
 
     def __repr__(self):
-        return '<%s XID=%d (0x%x)>' % (self.__class__.__name__, self.xid, id(self))
+        return '<%s XID=%d (0x%x)>' % (
+                self.__class__.__name__, self.xid, id(self)
+                )
 
     def get_internal(self):
+        """
+            The internal representation of a resource is its X id.
+            Return it.
+        """
         return self.xid
 
 class _XNone(object):
+    """
+        A class for *XNone*. That's something with 0 as an internal
+        representation and often used :)
+    """
     def __repr__(self):
         return '<XNone>'
 
