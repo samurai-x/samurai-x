@@ -12,7 +12,7 @@ from array import array
 from ooxcb.types import make_void_array
 
 def unpack_from_stream(fmt, stream, offset=0):
-    stream.seek(offset, 1)
+    assert offset == 0 # *offset* doesn't seem to be needed
     s = stream.read(calcsize(fmt))
     return unpack(fmt, s)
 
