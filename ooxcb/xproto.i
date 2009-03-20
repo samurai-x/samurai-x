@@ -493,6 +493,7 @@ Classes:
                 ]
 
     Font:
+        - base: Fontable
         - classmethod:
             name: open
             arguments: ["conn", "name"]

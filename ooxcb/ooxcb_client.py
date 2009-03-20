@@ -428,7 +428,7 @@ def py_complex(self, name, cls):
             init_code.append('self.%s = []' % (prefix_if_needed(field.field_name)))
         elif field.type.is_container and field.type.fixed_size():
             read_code.append('self.%s = %s.create_from_stream(self.conn, stream)' % (prefix_if_needed(field.field_name),
-                    field.py_type))
+                    get_wrapped(field.py_type)))
             read_code.append('count += %s' % field.type.size)
             cls.add_instance_attribute(prefix_if_needed(field.field_name), '') # TODO: description
 
@@ -436,7 +436,7 @@ def py_complex(self, name, cls):
             init_code.append('self.%s = None' % (prefix_if_needed(field.field_name)))
         else:
             read_code.append('self.%s = %s.create_from_stream(self.conn, stream)' % (prefix_if_needed(field.field_name),
-                    field.py_type))
+                    get_wrapped(field.py_type)))
             read_code.append('count += self.%s.size', prefix_if_needed(field.field_name))
             cls.add_instance_attribute(prefix_if_needed(field.field_name), '') # TODO: description
             build_code.append('self.%s.build(stream)' % prefix_if_needed(field.field_name))

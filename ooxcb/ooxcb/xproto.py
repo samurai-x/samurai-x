@@ -923,7 +923,7 @@ class Kill(object):
 class QueryFontCookie(ooxcb.Cookie):
     pass
 
-class Font(ooxcb.Resource):
+class Font(Fontable):
     def __init__(self, conn, xid):
         ooxcb.Resource.__init__(self, conn, xid)
 
@@ -3280,11 +3280,11 @@ class ListFontsWithInfoReply(ooxcb.Reply):
         _unpacked = unpack_from_stream("xBxxxxxx", stream, count)
         self.name_len = _unpacked[0]
         count += 8
-        self.min_bounds = CHARINFO.create_from_stream(self.conn, stream)
+        self.min_bounds = Charinfo.create_from_stream(self.conn, stream)
         count += 12
         count += 4
         count += ooxcb.type_pad(12, count)
-        self.max_bounds = CHARINFO.create_from_stream(self.conn, stream)
+        self.max_bounds = Charinfo.create_from_stream(self.conn, stream)
         count += 12
         _unpacked = unpack_from_stream("xxxxHHHHBBBBhhI", stream, count)
         self.min_char_or_byte2 = _unpacked[0]
@@ -4758,11 +4758,11 @@ class QueryFontReply(ooxcb.Reply):
         self._address = stream.address
         count = 0
         count += 8
-        self.min_bounds = CHARINFO.create_from_stream(self.conn, stream)
+        self.min_bounds = Charinfo.create_from_stream(self.conn, stream)
         count += 12
         count += 4
         count += ooxcb.type_pad(12, count)
-        self.max_bounds = CHARINFO.create_from_stream(self.conn, stream)
+        self.max_bounds = Charinfo.create_from_stream(self.conn, stream)
         count += 12
         _unpacked = unpack_from_stream("xxxxHHHHBBBBhhI", stream, count)
         self.min_char_or_byte2 = _unpacked[0]
