@@ -4,9 +4,10 @@ Introduction
 What is ooxcb?
 --------------
 
-ooxcb is a new Python binding to the X server, developed for the `samurai-x`_ window manager.
-xpyb uses a wrapper generator to create python modules out of the XML X protocol descriptions 
-of the `xcb`_ project. It aims to provide with an easy-to-use pure-python interface to the X server.
+ooxcb (the object oriented X C binding, yes, the C doesn't fit here) is a new Python binding
+to the X server, developed for the `samurai-x`_ window manager.
+xpyb uses a wrapper generator to create python modules out of the XML X protocol descriptions
+of the `xcb`_ project. It aims to provide with an easy-to-use object-oriented interface to the X server.
 
 Why?
 ----
@@ -17,7 +18,7 @@ of xpyb are in a C extension, and we wanted `samurai-x`_ to be pure-python. So w
 the whole C code of xpyb to Python, just using some functions of the libxcb API invoked by
 the ctypes module (you can get it `here <http://samurai-x.org/browser/xpyb-ctypes>`_, but beware:
 it's a bit unstable).
-Apart from that, xpyb-generated bindings are very close to the X protocol. For every extension, 
+Apart from that, xpyb-generated bindings are very close to the X protocol. For every extension,
 you have one class that has some methods for each request. On the one hand, xpyb is able to cover
 all the extensions supported by xcb-proto this way; on the other hand, the binding is not very
 comfortable to use. Because of that, we decided to write our own binding, based on the xpyb-ctypes code.
@@ -25,7 +26,7 @@ The xpyb wrapper generator uses so-called interface files that describe the desi
 a specific extension - so we can create an API that is more comfortable and easy-to-use.
 However, somebody has to write these interface files, and depending on the size and complexity of
 the extension, that's a time-intensive job. At the moment, only the most important parts of the
-xproto (the core) extension. You can see the current state of the interface file 
+xproto (the core) extension. You can see the current state of the interface file
 `here <http://samurai-x.org/browser/ooxcb/xproto.i>`_ (yes, it's YAML!).
 
 Additionally, ooxcb comes with a simple and powerful event dispatching system (stolen from `pyglet`_) -
@@ -45,16 +46,15 @@ Here's a minimal example that displays a white window and exits if a mouse butto
 
     conn = ooxcb.connect()
 
-    setup = conn.get_setup()
-    root = setup.roots[0].root
-    depth = setup.roots[0].root_depth
-    visual = setup.roots[0].root_visual
+    screen = conn.setup.roots[conn.pref_screen]
+    win = Window.create_toplevel_on_screen(conn, screen,
+            back_pixel=screen.white_pixel,
+            event_mask=EventMask.Exposure | EventMask.ButtonPress
+    )
 
-    win = Window.create(conn, root, depth, visual, back_pixel=setup.roots[0].white_pixel, 
-            event_mask=EventMask.Exposure | EventMask.ButtonPress)
-    win.configure(width=100)
-    win.map()
-    conn.flush()
+    with conn.bunch():
+        win.configure(width=100)
+        win.map()
 
     @win.event
     def on_button_press(evt):
@@ -75,7 +75,7 @@ Is it usable?
 
 As said above, much of the xproto extension is already wrapped, and ooxcb is relatively stable, so it
 should be possible to use it (we are already using it for samurai-x).
-If you stumble upon bugs or missing important functions, please report them on the 
+If you stumble upon bugs or missing important functions, please report them on the
 `bug tracker <http://samurai-x.org/newticket>`_.
 
 .. _xcb: http://xcb.freedesktop.org
