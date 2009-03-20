@@ -301,6 +301,48 @@ class Colormap(ooxcb.Resource):
     def __init__(self, conn, xid):
         ooxcb.Resource.__init__(self, conn, xid)
 
+    def alloc_color(self, red, green, blue):
+        cmap = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xxxxIHHHxx", cmap, red, green, blue))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 84, False, True), \
+            AllocColorCookie(),
+            AllocColorReply)
+
+    def alloc_color_unchecked(self, red, green, blue):
+        cmap = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xxxxIHHHxx", cmap, red, green, blue))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 84, False, False), \
+            AllocColorCookie(),
+            AllocColorReply)
+
+    def alloc_named_color(self, name):
+        name_len = len(name)
+        cmap = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xxxxIHxx", cmap, name_len))
+        buf.write(array("B", name).tostring())
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 85, False, True), \
+            AllocNamedColorCookie(),
+            AllocNamedColorReply)
+
+    def alloc_named_color_unchecked(self, name):
+        name_len = len(name)
+        cmap = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("xxxxIHxx", cmap, name_len))
+        buf.write(array("B", name).tostring())
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 85, False, False), \
+            AllocNamedColorCookie(),
+            AllocNamedColorReply)
+
+    def alloc_hex_color(self, color):
+        color = color.strip('#')
+        r, g, b = [65535 * int(v, base=16) // 255
+                   for v in (color[:2], color[2:4], color[4:])]
+        return self.alloc_color(r, g, b)
+
 class SetModifierMappingReply(ooxcb.Reply):
     def __init__(self, conn):
         ooxcb.Reply.__init__(self, conn)
@@ -2004,40 +2046,6 @@ class xprotoExtension(ooxcb.Extension):
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 83, False, False), \
             ListInstalledColormapsCookie(),
             ListInstalledColormapsReply)
-
-    def alloc_color(self, cmap, red, green, blue):
-        cmap = cmap.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xxxxIHHHxx", cmap, red, green, blue))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 84, False, True), \
-            AllocColorCookie(),
-            AllocColorReply)
-
-    def alloc_color_unchecked(self, cmap, red, green, blue):
-        cmap = cmap.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xxxxIHHHxx", cmap, red, green, blue))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 84, False, False), \
-            AllocColorCookie(),
-            AllocColorReply)
-
-    def alloc_named_color(self, cmap, name_len, name):
-        cmap = cmap.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xxxxIHxx", cmap, name_len))
-        buf.write(array("B", name).tostring())
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 85, False, True), \
-            AllocNamedColorCookie(),
-            AllocNamedColorReply)
-
-    def alloc_named_color_unchecked(self, cmap, name_len, name):
-        cmap = cmap.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("xxxxIHxx", cmap, name_len))
-        buf.write(array("B", name).tostring())
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 85, False, False), \
-            AllocNamedColorCookie(),
-            AllocNamedColorReply)
 
     def alloc_color_cells(self, contiguous, cmap, colors, planes):
         cmap = cmap.get_internal()

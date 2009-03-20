@@ -429,6 +429,17 @@ Requests:
         subject: gc
         name: free
 
+    # Colormap objects
+
+    AllocColor:
+        subject: cmap
+
+    AllocNamedColor:
+        subject: cmap
+        arguments: ["name"]
+        precode:
+            - !xizer "Name"
+
     # Font objects
     OpenFont:
         arguments: ["fid", "name"]
@@ -546,7 +557,16 @@ Classes:
                 - "rect.width = width"
                 - "rect.height = height"
                 - "return rect"
-
+    
+    Colormap:
+        - method:
+            name: alloc_hex_color
+            arguments: ["color"]
+            code:
+                - "color = color.strip('#')"
+                - "r, g, b = [65535 * int(v, base=16) // 255"
+                - "           for v in (color[:2], color[2:4], color[4:])]"
+                - "return self.alloc_color(r, g, b)"
     Screen:
         - method:
             name: get_active_window

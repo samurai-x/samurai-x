@@ -245,6 +245,21 @@ ooxcb.xproto
     .. method:: __init__(self, conn, xid)
 
 
+    .. method:: alloc_color(self, red, green, blue)
+
+
+    .. method:: alloc_color_unchecked(self, red, green, blue)
+
+
+    .. method:: alloc_named_color(self, name)
+
+
+    .. method:: alloc_named_color_unchecked(self, name)
+
+
+    .. method:: alloc_hex_color(self, color)
+
+
 .. class:: SetModifierMappingReply
 
     .. method:: __init__(self, conn)
@@ -1332,18 +1347,6 @@ ooxcb.xproto
 
 
     .. method:: list_installed_colormaps_unchecked(self, window)
-
-
-    .. method:: alloc_color(self, cmap, red, green, blue)
-
-
-    .. method:: alloc_color_unchecked(self, cmap, red, green, blue)
-
-
-    .. method:: alloc_named_color(self, cmap, name_len, name)
-
-
-    .. method:: alloc_named_color_unchecked(self, cmap, name_len, name)
 
 
     .. method:: alloc_color_cells(self, contiguous, cmap, colors, planes)
