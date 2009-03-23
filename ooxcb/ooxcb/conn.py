@@ -279,3 +279,21 @@ class Connection(EventDispatcher):
             self._cache[xid] = ret = cls(self, xid)
             return ret
 
+    def remove_from_cache(self, xid):
+        """
+            removes the object managing the X resource with the X id *xid*
+            from the cache. Will raise a KeyError if there is no such
+            resource in the cache.
+        """
+        del self._cache[xid]
+
+    def remove_from_cache_safe(self, xid):
+        """
+            same as :meth:`remove_from_cache`, but does not raise a KeyError.
+            Instead, it does nothing. It is safe.
+        """
+        try:
+            self.remove_from_cache(xid)
+        except KeyError:
+            pass
+
