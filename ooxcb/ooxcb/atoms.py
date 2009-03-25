@@ -79,6 +79,9 @@ class AtomDict(dict):
             do not seem to be part of the XID space; they have their own
             space.
 
+            For aid == 0, it will return None, but this may
+            change in the future.
+
             :todo: currently, this depends on :mod:`ooxcb.xproto`. That's
                    not really consistent.
         """

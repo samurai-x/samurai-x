@@ -28,12 +28,17 @@ log = logging.getLogger(__name__)
 import weakref
 
 from ooxcb import xproto
+from ooxcb.list import List
 from ooxcb.xproto import EventMask
 from ooxcb.sizehints import SizeHints
 
 from .rect import Rect
 from .base import SXObject
 from .util import ClientMessageHandlers
+
+NET_WM_STATE_REMOVE = 0
+NET_WM_STATE_ADD = 1
+NET_WM_STATE_TOGGLE = 2
 
 class Client(SXObject):
     """
@@ -97,16 +102,7 @@ class Client(SXObject):
         self.client_message_handlers = ClientMessageHandlers()
         self.install_handlers()
 
-        self.net_wm_state = set() # a set of Atom instances, values for _NET_WM_STATE
-        self.net_wm_states = dict((name, self.conn.atoms[name]) for name in (
-            '_NET_WM_STATE_MODAL', '_NET_WM_STATE_STICKY',
-            '_NET_WM_STATE_MAXIMIZED_VERT', '_NET_WM_STATE_MAXIMIZED_HORZ',
-            '_NET_WM_STATE_SHADED', '_NET_WM_STATE_SKIP_TASKBAR',
-            '_NET_WM_STATE_SKIP_PAGER', '_NET_WM_STATE_HIDDEN',
-            '_NET_WM_STATE_FULLSCREEN', '_NET_WM_STATE_ABOVE',
-            '_NET_WM_STATE_BELOW', '_NET_WM_STATE_DEMANDS_ATTENTION'
-            ))
-
+        self.state = set() # a set of Atom instances, values for _NET_WM_STATE
         self.screen = screen
         self.window = window
         self.window.valid = True
@@ -166,6 +162,70 @@ class Client(SXObject):
         else:
             log.warning('Unhandled WM_CHANGE_STATE: data: %s' % str(evt.data.data32))
 
+    def msg_wm_state(self, evt):
+        """
+            handler for _NET_WM_STATE.
+
+            That updates `self.state` and dispatches 
+            the 'on_handle_net_wm_state' event at least
+            one time (or two, if two atoms were specified)
+        """
+
+        data32 = evt.data.data32
+        # first bunch of data is the desired action.
+        # (one of the constants above)
+        action = data32[0]
+        # data32[1:2] are the atoms to change. There has to be
+        # specified at least one. The second one is optional.
+        first, second = None, None
+        first = self.conn.atoms.get_by_id(data32[1])
+        if data32[2]:
+            second = self.conn.atoms.get_by_id(data32[2])
+        # data32[3] is the source indication. Ignored for now.
+        source_indication = data32[3]
+        log.info('Got a _NET_WM_STATE client message.'
+                'Action=%d first=%s second=%s source ind.=%d',
+                action, first, second, source_indication)
+        # so modify self.state as wished.
+        if action == NET_WM_STATE_REMOVE:
+            self.state.remove(first)
+            if second is not None:
+                self.state.remove(second)
+        elif action == NET_WM_STATE_ADD:
+            self.state.add(first)
+            if second is not None:
+                self.state.add(second)
+        elif action == NET_WM_STATE_TOGGLE:
+            if first in self.state:
+                self.state.remove(first)
+            else:
+                self.state.add(first)
+            if second is not None:
+                if second in self.state:
+                    self.state.remove(second)
+                else:
+                    self.state.add(second)
+        # TODO: a funny 'else' ...?
+        self.update_net_wm_state()
+        self.dispatch_event('on_handle_net_wm_state',
+                first in self.state, first, source_indication)
+        if second is not None:
+            self.dispatch_event('on_handle_net_wm_state',
+                    second in self.state, second, source_indication)
+
+    def on_handle_net_wm_state(self, present, atom, source_indication):
+        """
+            Default event handler: handles _NET_WM_STATE_HIDDEN!
+        """
+        if atom == self.conn.atoms['_NET_WM_STATE_HIDDEN']:
+            if present:
+                self.ban()
+            else:
+                self.unban()
+        else:
+            log.warning('Cannot handle _NET_WM_STATE thingy %s :(',
+                    atom.get_name().reply().name.to_string())
+        
     def process_netwm_client_message(self, evt):
         """
             process an EWMH / NETWM client message event.
@@ -186,6 +246,20 @@ class Client(SXObject):
                 self.conn.atoms['WM_CHANGE_STATE'],
                 self.msg_change_state
                 )
+        self.client_message_handlers.register_handler(
+                self.conn.atoms['_NET_WM_STATE'],
+                self.msg_wm_state
+                )
+
+    def update_net_wm_state(self):
+        """
+            ensure that the window's `_NET_WM_STATE` property contains
+            the same atoms as *self.state*.
+        """
+        self.window.change_property('_NET_WM_STATE', 'ATOM', 32,
+                List.from_atoms(self.state)
+        )
+        self.conn.flush()
 
     def on_property_notify(self, evt):
         """
@@ -380,4 +454,5 @@ class Client(SXObject):
 
 Client.register_event_type('on_focus')
 Client.register_event_type('on_blur')
+Client.register_event_type('on_handle_net_wm_state')
 Client.register_event_type('on_removed')

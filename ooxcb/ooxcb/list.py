@@ -162,6 +162,17 @@ class List(list):
         return [res.get_internal() for res in resources]
 
     @staticmethod
+    def from_atoms(atoms):
+        """
+            returns an ordinary Python list that contains the atom ids
+            of the atoms in *atoms*.
+
+            :note: Actually that's the same as :meth:`from_resources`.
+                   But explicit is better than implicit ...
+        """
+        return [atom.get_internal() for atom in atoms]
+
+    @staticmethod
     def from_string(string):
         """
             returns a Python list containing the ordinal values of *string*'s

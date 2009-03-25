@@ -82,6 +82,15 @@ class Screen(SXObject):
         self.clients = set()
         self.client_message_handlers = ClientMessageHandlers()
         self.focused_client = None
+        # possible states for _NET_WM_STATE.
+        self.possible_states = dict((name, self.conn.atoms[name]) for name in (
+            '_NET_WM_STATE_MODAL', '_NET_WM_STATE_STICKY',
+            '_NET_WM_STATE_MAXIMIZED_VERT', '_NET_WM_STATE_MAXIMIZED_HORZ',
+            '_NET_WM_STATE_SHADED', '_NET_WM_STATE_SKIP_TASKBAR',
+            '_NET_WM_STATE_SKIP_PAGER', '_NET_WM_STATE_HIDDEN',
+            '_NET_WM_STATE_FULLSCREEN', '_NET_WM_STATE_ABOVE',
+            '_NET_WM_STATE_BELOW', '_NET_WM_STATE_DEMANDS_ATTENTION'
+            ))
 
         self.info = app.conn.get_setup().roots[num]
         self.root = self.info.root
