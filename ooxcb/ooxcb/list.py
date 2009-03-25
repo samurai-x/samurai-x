@@ -152,3 +152,29 @@ class List(list):
         """
         from .xproto import Window # TODO: imports in methods are not nice
         return self.to_resources(Window)
+
+    @staticmethod
+    def from_resources(resources):
+        """
+            returns an ordinary Python list that contains the X ids
+            of the resources in *resources*.
+        """
+        return [res.get_internal() for res in resources]
+
+    @staticmethod
+    def from_string(string):
+        """
+            returns a Python list containing the ordinal values of *string*'s
+            chars (should also for unicode objects)
+        """
+        return map(ord, string)
+
+    @staticmethod
+    def from_stringlist(stringlist):
+        """
+            returns a Python list containing the ordinal values of each string
+            in *stringlist*, all of them linked together by \x00 bytes and
+            with a trailing \x00 byte.
+        """
+        return map(ord, '\x00'.join(stringlist)) + [0]
+

@@ -27,11 +27,12 @@ import logging
 log = logging.getLogger(__name__)
 
 from samuraix.plugin import Plugin
+from ooxcb.list import List
 from ooxcb.eventsys import EventDispatcher
 
 def cycle_indices(current, offset, length):
     """
-        Return the index `current`, cycled 
+        Return the index `current`, cycled
         by `offset` indices.
     """
     return ((current or length) + offset) % length
@@ -39,7 +40,7 @@ def cycle_indices(current, offset, length):
 class FocusStack(list):
     def move_to_top(self, client):
         if self.current() is client:
-            return 
+            return
         try:
             self.remove(client)
             self.append(client)
@@ -70,7 +71,7 @@ class Desktop(EventDispatcher):
         self.screen = screen
         self.name = name
         self.layouter = layouter
-        self.clients = FocusStack() # uh. maybe weak references are a good idea.
+        self.clients = FocusStack() # maybe weak references are a good idea.
         self.idx = idx
 
     def register(self, info):
@@ -142,12 +143,12 @@ class ScreenData(EventDispatcher):
     def on_new_client(self, screen, client):
         #data = ClientData(self.active_desktop, client)
         #...attach_data_to(client, data)
-        self.active_desktop.add_client(client) 
+        self.active_desktop.add_client(client)
         # TODO: focus it?
 
     def on_unmanage_client(self, screen, client):
         for desktop in self.desktops:
-            if desktop.remove_client(client):    
+            if desktop.remove_client(client):
                 break # a client is only on one desktop
         else:
             log.error('Could not unmanage client %s' % client)
@@ -166,8 +167,9 @@ class ScreenData(EventDispatcher):
         """
             Update _NET_CURRENT_DESKTOP.
         """
-        self.screen.root.change_property('_NET_CURRENT_DESKTOP', 'CARDINAL', 32, [self.active_desktop_idx])
-        self.screen.conn.flush() 
+        self.screen.root.change_property('_NET_CURRENT_DESKTOP',
+                'CARDINAL', 32, [self.active_desktop_idx])
+        self.screen.conn.flush()
 
     def on_change_desktop(self, fles, prev):
         self.update_clients(prev)
@@ -186,7 +188,8 @@ class ScreenData(EventDispatcher):
         """
             ban and unban clients
         """
-        log.debug('... updating %s %s %s' % (previous_desktop, self.active_desktop, previous_desktop.clients))
+        log.debug('... updating %s %s %s' % (previous_desktop,
+            self.active_desktop, previous_desktop.clients))
         for client in previous_desktop.clients:
             client.ban()
 
@@ -194,7 +197,8 @@ class ScreenData(EventDispatcher):
             client.unban()
 
     def cycle_desktops(self, offset=+1):
-        self.set_active_desktop_idx(cycle_indices(self.active_desktop_idx, offset, len(self.desktops)))
+        self.set_active_desktop_idx(cycle_indices(self.active_desktop_idx,
+            offset, len(self.desktops)))
 
     def cycle_clients(self, offset=+1):
         clients = self.active_desktop.clients
@@ -229,7 +233,8 @@ class SXDesktops(Plugin):
 
         app.push_handlers(self)
         app.plugins['actions'].register('desktops.cycle', self.action_cycle)
-        app.plugins['actions'].register('desktops.cycle_clients', self.action_cycle_clients)
+        app.plugins['actions'].register('desktops.cycle_clients',
+                self.action_cycle_clients)
         app.plugins['actions'].register('desktops.goto', self.action_goto)
 
     def on_load_config(self, config):
@@ -247,20 +252,28 @@ class SXDesktops(Plugin):
             # TODO: every screen has the same desktops?
             desktops = []
             for idx, (name, info) in enumerate(self.config):
-                desktop = Desktop(self, screen, name, self.layouters[info.get('layout', 'floating')], idx)
+                desktop = Desktop(self, screen, name,
+                        self.layouters[info.get('layout', 'floating')], idx)
                 desktop.register(info)
                 desktops.append(desktop)
             self.attach_data_to(screen, ScreenData(screen, desktops))
 
-            screen.root.change_property('_NET_NUMBER_OF_DESKTOPS', 'CARDINAL', 32, [len(desktops)])
-            
-            # We don't support large desktops here. But that could be added by a plugin.
+            screen.root.change_property('_NET_NUMBER_OF_DESKTOPS', 'CARDINAL',
+                    32, [len(desktops)])
+
+            # We don't support large desktops here.
+            # But that could be added by a plugin.
             root_geom = screen.get_geometry()
-            screen.root.change_property('_NET_DESKTOP_GEOMETRY', 'CARDINAL', 32, 
+            screen.root.change_property('_NET_DESKTOP_GEOMETRY',
+                    'CARDINAL', 32,
                     [root_geom.width, root_geom.height])
-            screen.root.change_property('_NET_DESKTOP_VIEWPORT', 'CARDINAL', 32, [0, 0])
-            screen.root.change_property('_NET_DESKTOP_NAMES', 'UTF8_STRING', 8, # TODO: is it 8?
-                    list(map(ord, '\x00'.join(desktop.name for desktop in desktops)))+[0] # TODO: not nice
+            screen.root.change_property('_NET_DESKTOP_VIEWPORT',
+                    'CARDINAL', 32, [0, 0])
+            screen.root.change_property('_NET_DESKTOP_NAMES',
+                    'UTF8_STRING', 8,
+                    List.from_stringlist(
+                        (desktop.name for desktop in desktops)
+                    )
             )
 
             # TODO: support _NET_WORKAREA, maybe _NET_SHOWING_DESKTOP?
