@@ -25,7 +25,7 @@ However, it is a very simple cache. Assuming that two different objects will not
 X id if they are not identical, regardless if they have the same 'type', it is possible to use
 an X id -> Python object dictionary as a cache.
 
-The cache is explicit. In the samurai-x2 ctypes pyxcb binding, we had an implicit cache:
+In the samurai-x2 ctypes pyxcb binding, we had an implicit cache:
 
 ::
 
@@ -36,8 +36,8 @@ The cache is explicit. In the samurai-x2 ctypes pyxcb binding, we had an implici
 
 (that was done using some metaclass magic)
 
-However, as we all know, explicit is better than explicit, and because of that, the above
-code snippet will not produce identical objects `a` and `b`. You will have to manually
+However, as we all know, explicit is better than implicit, and because of that, the above
+code snippet will not produce identical objects `a` and `b` in ooxcb. You will have to manually
 invoke the cache:
 
 ::
