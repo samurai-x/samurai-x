@@ -19,7 +19,12 @@ class Struct(object):
         self.fields.append(field)
         self.size += field.type.size
 
+    def push_something(self, field, size, format):
+        self.fmt += format
+        self.fields.append(field)
+        self.size += size
+
     def push_pad(self, size):
         self.fmt += size * 'x'
         self.size += size
-        
+

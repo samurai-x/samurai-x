@@ -60,6 +60,8 @@ ooxcb.xproto
 
     .. attribute:: minor_opcode
 
+    .. attribute:: response_type
+
     .. attribute:: y
 
     .. attribute:: x
@@ -461,6 +463,8 @@ ooxcb.xproto
 
     .. attribute:: window
 
+    .. attribute:: response_type
+
     .. attribute:: y
 
     .. attribute:: x
@@ -541,6 +545,8 @@ ooxcb.xproto
     .. attribute:: owner
 
     .. attribute:: selection
+
+    .. attribute:: response_type
 
     .. attribute:: time
 
@@ -730,6 +736,8 @@ ooxcb.xproto
 
     .. attribute:: event
 
+    .. attribute:: response_type
+
 .. class:: QueryKeymapReply
 
     .. method:: __init__(self, conn)
@@ -818,6 +826,8 @@ ooxcb.xproto
 
     .. attribute:: window
 
+    .. attribute:: response_type
+
     .. attribute:: y
 
     .. attribute:: x
@@ -840,6 +850,8 @@ ooxcb.xproto
     .. attribute:: window
 
     .. attribute:: event
+
+    .. attribute:: response_type
 
 .. class:: GrabKeyboardReply
 
@@ -905,6 +917,8 @@ ooxcb.xproto
 
 
     .. attribute:: window
+
+    .. attribute:: response_type
 
     .. attribute:: event
 
@@ -973,6 +987,8 @@ ooxcb.xproto
     .. attribute:: sibling
 
     .. attribute:: window
+
+    .. attribute:: response_type
 
     .. attribute:: y
 
@@ -1580,6 +1596,8 @@ ooxcb.xproto
 
     .. attribute:: keys
 
+    .. attribute:: response_type
+
 .. class:: BadIDChoice
 
 .. class:: GetKeyboardMappingCookie
@@ -1769,6 +1787,8 @@ ooxcb.xproto
 
     .. attribute:: major_opcode
 
+    .. attribute:: response_type
+
 .. class:: BadPixmap
 
 .. class:: ColormapState
@@ -1882,6 +1902,8 @@ ooxcb.xproto
 
     .. attribute:: event
 
+    .. attribute:: response_type
+
 .. class:: MapRequestEvent
 
     .. data:: event_name
@@ -1894,6 +1916,8 @@ ooxcb.xproto
 
 
     .. attribute:: window
+
+    .. attribute:: response_type
 
     .. attribute:: parent
 
@@ -1967,6 +1991,8 @@ ooxcb.xproto
     .. attribute:: detail
 
     .. attribute:: state
+
+    .. attribute:: response_type
 
     .. attribute:: child
 
@@ -2129,6 +2155,8 @@ ooxcb.xproto
 
     .. attribute:: window
 
+    .. attribute:: response_type
+
     .. attribute:: y
 
     .. attribute:: x
@@ -2151,6 +2179,8 @@ ooxcb.xproto
     .. attribute:: window
 
     .. attribute:: type
+
+    .. attribute:: response_type
 
     .. attribute:: format
 
@@ -2253,6 +2283,8 @@ ooxcb.xproto
 
     .. attribute:: state
 
+    .. attribute:: response_type
+
     .. attribute:: child
 
     .. attribute:: event_x
@@ -2330,6 +2362,8 @@ ooxcb.xproto
     .. attribute:: detail
 
     .. attribute:: state
+
+    .. attribute:: response_type
 
     .. attribute:: child
 
@@ -2471,6 +2505,8 @@ ooxcb.xproto
     .. attribute:: place
 
     .. attribute:: event
+
+    .. attribute:: response_type
 
 .. class:: CW
 
@@ -2690,6 +2726,8 @@ ooxcb.xproto
 
     .. attribute:: state
 
+    .. attribute:: response_type
+
     .. attribute:: child
 
     .. attribute:: event_x
@@ -2752,6 +2790,8 @@ ooxcb.xproto
 
     .. attribute:: event
 
+    .. attribute:: response_type
+
 .. class:: QueryColorsCookie
 
 .. class:: AtomError
@@ -2786,6 +2826,8 @@ ooxcb.xproto
 
 
     .. attribute:: window
+
+    .. attribute:: response_type
 
     .. attribute:: event
 
@@ -3069,6 +3111,8 @@ ooxcb.xproto
 
     .. attribute:: state
 
+    .. attribute:: response_type
+
 .. class:: FocusOutEvent
 
     .. data:: event_name
@@ -3081,6 +3125,8 @@ ooxcb.xproto
 
 
     .. attribute:: mode
+
+    .. attribute:: response_type
 
     .. attribute:: detail
 
@@ -3120,6 +3166,8 @@ ooxcb.xproto
 
     .. attribute:: window
 
+    .. attribute:: response_type
+
     .. attribute:: colormap
 
     .. attribute:: state
@@ -3140,6 +3188,8 @@ ooxcb.xproto
     .. attribute:: place
 
     .. attribute:: event
+
+    .. attribute:: response_type
 
 .. class:: QueryFontReply
 
@@ -3197,6 +3247,8 @@ ooxcb.xproto
 
     .. attribute:: window
 
+    .. attribute:: response_type
+
     .. attribute:: y
 
     .. attribute:: x
@@ -3229,6 +3281,8 @@ ooxcb.xproto
 
     .. attribute:: window
 
+    .. attribute:: response_type
+
     .. attribute:: height
 
 .. class:: QueryColorsReply
@@ -3258,6 +3312,8 @@ ooxcb.xproto
     .. attribute:: detail
 
     .. attribute:: state
+
+    .. attribute:: response_type
 
     .. attribute:: child
 
@@ -3378,6 +3434,8 @@ ooxcb.xproto
 
     .. attribute:: request
 
+    .. attribute:: response_type
+
 .. class:: GetGeometryReply
 
     .. method:: __init__(self, conn)
@@ -3413,6 +3471,8 @@ ooxcb.xproto
     .. attribute:: target
 
     .. attribute:: requestor
+
+    .. attribute:: response_type
 
     .. attribute:: time
 
@@ -3494,6 +3554,8 @@ ooxcb.xproto
 
 
     .. attribute:: mode
+
+    .. attribute:: response_type
 
     .. attribute:: detail
 
@@ -3600,15 +3662,17 @@ ooxcb.xproto
     .. method:: __init__(self, conn)
 
 
-    .. attribute:: property
-
-    .. attribute:: requestor
-
     .. attribute:: selection
 
     .. attribute:: target
 
+    .. attribute:: requestor
+
+    .. attribute:: response_type
+
     .. attribute:: time
+
+    .. attribute:: property
 
 .. class:: PolyShape
 
@@ -3679,6 +3743,8 @@ ooxcb.xproto
     .. attribute:: window
 
     .. attribute:: time
+
+    .. attribute:: response_type
 
     .. attribute:: state
 

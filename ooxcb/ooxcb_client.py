@@ -364,6 +364,14 @@ def py_complex(self, name, cls):
     build_code.append('count = 0')
     struct = Struct()
     for field in self.fields:
+        # This hack is ugly, but it seems to be required for valid send_event stuff.
+        # Normally, `response_type` is set automatically, but it isn't if the
+        # event is part of a send_event request. We have to set it explicitly then
+        # to avoid `BadValue` errors. I hope that doesn't have any side effects.
+        if (field.field_name == 'response_type' and isinstance(self, xcbgen.xtypes.Event)):
+            init_code.append('self.response_type = %s' % self.opcodes[name])
+            struct.push_format(field)
+            continue
         if field.auto:
             struct.push_pad(field.type.size)
             continue
@@ -437,7 +445,7 @@ def py_complex(self, name, cls):
         else:
             read_code.append('self.%s = %s.create_from_stream(self.conn, stream)' % (prefix_if_needed(field.field_name),
                     get_wrapped(field.py_type)))
-            read_code.append('count += self.%s.size', prefix_if_needed(field.field_name))
+            read_code.append('count += self.%s.size' % prefix_if_needed(field.field_name))
             cls.add_instance_attribute(prefix_if_needed(field.field_name), '') # TODO: description
             build_code.append('self.%s.build(stream)' % prefix_if_needed(field.field_name))
             init_code.append('self.%s = None' % (prefix_if_needed(field.field_name)))
@@ -622,7 +630,7 @@ def py_union(self, name):
 
     build.code.extend(['else:',
         INDENT,
-            'raise ooxcb.XcbConnection("No value set in the union!")',
+            'raise ooxcb.XcbException("No value set in the union!")',
         DEDENT
         ])
 
@@ -1012,6 +1020,8 @@ except ImportError:
     print 'Refer to the README file in xcb/proto for more info.'
     print ''
     raise
+
+import xcbgen
 
 if len(sys.argv) > 1: # provided with a module name
     MODNAME = sys.argv[1]

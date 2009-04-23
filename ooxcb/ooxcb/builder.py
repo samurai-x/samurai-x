@@ -37,7 +37,7 @@ def build_list(conn, stream, list_, type):
         is called.
     """
     for item in list_:
-        if type.create_lazy:
+        if getattr(type, 'create_lazy', None):
             item = type.create_lazy(conn, item)
         if isinstance(item, Protobj):
             item.build(stream)
