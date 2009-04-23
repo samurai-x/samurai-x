@@ -50,9 +50,8 @@ invoke the cache:
 
 That's a bit more verbose, but explicit.
 
-Please also note that the cache doesn't use weak references at the moment. That means that
-objects managing X IDs won't be collected by the Python garbage collector unless they are
-removed from the cache, because the cache holds a reference to them:
+The connection uses a `weak value dictionary`_ as cache, so you don't have to
+explictly remove items from the cache. If you want to do anyway, try this:
 
 ::
 
@@ -62,4 +61,4 @@ removed from the cache, because the cache holds a reference to them:
     conn.remove_from_cache_safe(123)
 
 .. _xpyb: http://cgit.freedesktop.org/xcb/xpyb
-
+.. _weak value dictionary: http://docs.python.org/library/weakref.html#weakref.WeakValueDictionary

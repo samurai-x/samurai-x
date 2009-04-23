@@ -25,6 +25,7 @@
 
 import ctypes
 from contextlib import contextmanager
+from weakref import WeakValueDictionary
 
 from . import libxcb
 from .event import Event
@@ -69,7 +70,7 @@ class Connection(EventDispatcher):
         # helper
         self.atoms = AtomDict(self)
         # the X object cache. {X ID: Object, ...}
-        self._cache = {}
+        self._cache = WeakValueDictionary()
 
     @contextmanager
     def bunch(self):
