@@ -57,6 +57,9 @@ EVENTS = {} # {Opcode: classname}
 def is_ignored(tup):
     return strip_ns(tup) in INTERFACE.get('Ignored', [])
 
+def is_wrapped(name):
+    return (name in WRAPPERS or name in INTERFACE.get('ExternallyWrapped', []))
+
 def get_custom_classes():
     return INTERFACE.get('Classes', {})
 
@@ -491,6 +494,13 @@ def py_open(self):
                 .dedent() \
       ()
 
+    if self.namespace.is_ext:
+        py() \
+                ('MAJOR_VERSION = %s' % self.namespace.major_version) \
+                ('MINOR_VERSION = %s' % self.namespace.minor_version) \
+                ('key = ooxcb.ExtensionKey("%s")' % self.namespace.ext_xname) \
+                ()
+
 def py_close(self):
     pass
 
@@ -745,7 +755,7 @@ def request_helper(self, name, void, regular):
     else:
         # Check if we have to append some `.get_internal()` somewhere
         for field in self.fields:
-            if (field.py_type in WRAPPERS and
+            if (is_wrapped(field.py_type) and
                     field is not subject_field and
                     field.field_name not in reqinfo.get('do_not_xize', [])):
                 meth.code.append('%s = %s.get_internal()' %  (field.field_name, field.field_name))

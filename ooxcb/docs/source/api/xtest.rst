@@ -1,0 +1,62 @@
+ooxcb.xtest
+===========
+
+.. module:: ooxcb.xtest
+
+.. class:: GetVersionReply
+
+    .. method:: __init__(self, conn)
+
+
+    .. attribute:: major_version
+
+    .. attribute:: minor_version
+
+.. class:: xtestExtension
+
+    .. data:: header
+
+
+    .. method:: get_version(self, major_version, minor_version)
+
+
+    .. method:: get_version_unchecked(self, major_version, minor_version)
+
+
+    .. method:: compare_cursor(self, window, cursor)
+
+
+    .. method:: compare_cursor_unchecked(self, window, cursor)
+
+
+    .. method:: fake_input_checked(self, type, detail, time, window, rootX, rootY, deviceid)
+
+
+    .. method:: fake_input(self, type, detail, time, window, rootX, rootY, deviceid)
+
+
+    .. method:: grab_control_checked(self, impervious)
+
+
+    .. method:: grab_control(self, impervious)
+
+
+.. class:: CompareCursorReply
+
+    .. method:: __init__(self, conn)
+
+
+    .. attribute:: same
+
+.. class:: CompareCursorCookie
+
+.. class:: Cursor
+
+    .. data:: _None
+
+
+    .. data:: Current
+
+
+.. class:: GetVersionCookie
+

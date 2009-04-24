@@ -34,4 +34,5 @@ ooxcb api documentation
     util.rst
     void.rst
     xproto.rst
+    xtest.rst
 
