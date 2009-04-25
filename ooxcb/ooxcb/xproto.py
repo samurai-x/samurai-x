@@ -1337,6 +1337,7 @@ class ModMask(object):
     _3 = 32
     _4 = 64
     _5 = 128
+    Any = 32768
 
 class Setuprequest(ooxcb.Struct):
     def __init__(self, conn):
@@ -2761,6 +2762,21 @@ class Point(ooxcb.Struct):
         count = 0
         stream.write(pack("=hh", self.x, self.y))
 
+class KeyButMask(object):
+    Shift = 1
+    Lock = 2
+    Control = 4
+    Mod1 = 8
+    Mod2 = 16
+    Mod3 = 32
+    Mod4 = 64
+    Mod5 = 128
+    Button1 = 256
+    Button2 = 512
+    Button3 = 1024
+    Button4 = 2048
+    Button5 = 4096
+
 class BadColormap(ooxcb.ProtocolException):
     pass
 
@@ -3077,7 +3093,7 @@ class GetPropertyReply(ooxcb.Reply):
         self.bytes_after = _unpacked[2]
         self.value_len = _unpacked[3]
         count += 32
-        self.value = ooxcb.List(self.conn, stream, count, self.value_len, SIZES.get(self.format, "B"), self.format // 8)
+        self.value = ooxcb.List(self.conn, stream, count, (self.value_len * (self.format / 8)), SIZES.get(self.format, "B"), self.format // 8)
 
     def build(self, stream):
         count = 0
@@ -3542,7 +3558,7 @@ class GetPropertyCookie(ooxcb.Cookie):
     pass
 
 class JoinStyle(object):
-    Mitre = 0
+    Miter = 0
     Round = 1
     Bevel = 2
 
@@ -3600,6 +3616,9 @@ class Str(ooxcb.Struct):
         struct.name = string
         struct.name_len = len(string)
         return struct
+
+class Time(object):
+    CurrentTime = 0
 
 class AllocColorPlanesReply(ooxcb.Reply):
     def __init__(self, conn):

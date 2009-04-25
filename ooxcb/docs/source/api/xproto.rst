@@ -1078,6 +1078,9 @@ ooxcb.xproto
     .. data:: _5
 
 
+    .. data:: Any
+
+
 .. class:: Setuprequest
 
     .. method:: __init__(self, conn)
@@ -1768,6 +1771,47 @@ ooxcb.xproto
 
     .. attribute:: x
 
+.. class:: KeyButMask
+
+    .. data:: Shift
+
+
+    .. data:: Lock
+
+
+    .. data:: Control
+
+
+    .. data:: Mod1
+
+
+    .. data:: Mod2
+
+
+    .. data:: Mod3
+
+
+    .. data:: Mod4
+
+
+    .. data:: Mod5
+
+
+    .. data:: Button1
+
+
+    .. data:: Button2
+
+
+    .. data:: Button3
+
+
+    .. data:: Button4
+
+
+    .. data:: Button5
+
+
 .. class:: BadColormap
 
 .. class:: NoExposureEvent
@@ -2404,7 +2448,7 @@ ooxcb.xproto
 
 .. class:: JoinStyle
 
-    .. data:: Mitre
+    .. data:: Miter
 
 
     .. data:: Round
@@ -2473,6 +2517,11 @@ ooxcb.xproto
     .. attribute:: name_len
 
     .. attribute:: name
+
+.. class:: Time
+
+    .. data:: CurrentTime
+
 
 .. class:: AllocColorPlanesReply
 

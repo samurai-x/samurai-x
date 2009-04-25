@@ -12,6 +12,12 @@ Ignored:
     - TIMESTAMP
     - BUTTON
     - VISUALID
+    - Window
+    - Colormap
+    - Font
+    - Cursor
+    - Pixmap
+    - Atom
 
 Xizers:
     CW:

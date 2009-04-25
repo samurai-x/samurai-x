@@ -515,6 +515,9 @@ def py_enum(self, name):
     '''
     Exported function that handles enum declarations.
     '''
+    if is_ignored(name):
+        return
+
     cls = PyClass(strip_ns(name))
 
     count = 0
