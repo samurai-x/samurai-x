@@ -72,14 +72,14 @@ class xtestExtension(ooxcb.Extension):
             CompareCursorCookie(),
             CompareCursorReply)
 
-    def fake_input_checked(self, type, detail, time=0, window=XNone, rootX=0, rootY=0, deviceid=0):
+    def fake_input_checked(self, type, detail=0, time=0, window=XNone, rootX=0, rootY=0, deviceid=0):
         window = window.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxBBxxIIxxxxxxxxHHxxxxxxxB", type, detail, time, window, rootX, rootY, deviceid))
         return self.conn.xtest.send_request(ooxcb.Request(self.conn, buf.getvalue(), 2, True, True), \
             ooxcb.VoidCookie())
 
-    def fake_input(self, type, detail, time=0, window=XNone, rootX=0, rootY=0, deviceid=0):
+    def fake_input(self, type, detail=0, time=0, window=XNone, rootX=0, rootY=0, deviceid=0):
         window = window.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxBBxxIIxxxxxxxxHHxxxxxxxB", type, detail, time, window, rootX, rootY, deviceid))

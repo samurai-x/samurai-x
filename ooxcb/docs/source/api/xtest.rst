@@ -29,10 +29,10 @@ ooxcb.xtest
     .. method:: compare_cursor_unchecked(self, window, cursor)
 
 
-    .. method:: fake_input_checked(self, type, detail, time=0, window=XNone, rootX=0, rootY=0, deviceid=0)
+    .. method:: fake_input_checked(self, type, detail=0, time=0, window=XNone, rootX=0, rootY=0, deviceid=0)
 
 
-    .. method:: fake_input(self, type, detail, time=0, window=XNone, rootX=0, rootY=0, deviceid=0)
+    .. method:: fake_input(self, type, detail=0, time=0, window=XNone, rootX=0, rootY=0, deviceid=0)
 
 
     .. method:: grab_control_checked(self, impervious)

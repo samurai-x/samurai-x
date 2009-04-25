@@ -5,6 +5,7 @@ ExternallyWrapped:
 Requests:
     FakeInput:
         defaults:
+            detail: 0
             time: 0
             window: XNone
             rootX: 0
