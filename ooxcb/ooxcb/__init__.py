@@ -146,7 +146,6 @@ from ooxcb.error import *
 from ooxcb.iter import *
 from ooxcb.exception import *
 from ooxcb.cookie import *
-from ooxcb.void import *
 from ooxcb.reply import *
 from ooxcb.ext import *
 from ooxcb.extkey import *

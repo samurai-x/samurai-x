@@ -86,3 +86,10 @@ class Cookie(object):
             raise IOError("I/O error on X server connection.")
         return self.reply_cls.create_from_address(self.conn, data)
 
+class VoidCookie(Cookie):
+    """
+        a void cookie class.
+    """
+    pass
+
+__all__ = ['Cookie', 'VoidCookie']

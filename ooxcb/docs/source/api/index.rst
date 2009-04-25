@@ -32,7 +32,6 @@ ooxcb api documentation
     types.rst
     union.rst
     util.rst
-    void.rst
     xproto.rst
     xtest.rst
 

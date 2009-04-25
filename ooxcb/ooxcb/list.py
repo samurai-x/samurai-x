@@ -137,6 +137,7 @@ class List(list):
     def to_resources(self, cls):
         """
             interpret the data as a homogenous list of X ids.
+
             :param cls: The resource class to instantiate if the
                         corresponding X id couldn't be found in
                         the cache.
