@@ -11,7 +11,8 @@ from struct import pack, unpack, calcsize
 from array import array
 
 def unpack_from_stream(fmt, stream, offset=0):
-    assert offset == 0 # *offset* doesn't seem to be needed
+    if offset:
+        stream.seek(offset, 1)
     s = stream.read(calcsize(fmt))
     return unpack(fmt, s)
 
@@ -29,26 +30,26 @@ class GetVersionReply(ooxcb.Reply):
     def read(self, stream):
         self._address = stream.address
         count = 0
-        _unpacked = unpack_from_stream("xBxxxxxxH", stream, count)
+        _unpacked = unpack_from_stream("=xBxxxxxxH", stream, count)
         self.major_version = _unpacked[0]
         self.minor_version = _unpacked[1]
 
     def build(self, stream):
         count = 0
-        stream.write(pack("xBxxxxxxH", self.major_version, self.minor_version))
+        stream.write(pack("=xBxxxxxxH", self.major_version, self.minor_version))
 
 class xtestExtension(ooxcb.Extension):
     header = "xtest"
     def get_version(self, major_version, minor_version):
         buf = StringIO.StringIO()
-        buf.write(pack("xxxxBxH", major_version, minor_version))
+        buf.write(pack("=xxxxBxH", major_version, minor_version))
         return self.conn.xtest.send_request(ooxcb.Request(self.conn, buf.getvalue(), 0, False, True), \
             GetVersionCookie(),
             GetVersionReply)
 
     def get_version_unchecked(self, major_version, minor_version):
         buf = StringIO.StringIO()
-        buf.write(pack("xxxxBxH", major_version, minor_version))
+        buf.write(pack("=xxxxBxH", major_version, minor_version))
         return self.conn.xtest.send_request(ooxcb.Request(self.conn, buf.getvalue(), 0, False, False), \
             GetVersionCookie(),
             GetVersionReply)
@@ -57,7 +58,7 @@ class xtestExtension(ooxcb.Extension):
         window = window.get_internal()
         cursor = cursor.get_internal()
         buf = StringIO.StringIO()
-        buf.write(pack("xxxxII", window, cursor))
+        buf.write(pack("=xxxxII", window, cursor))
         return self.conn.xtest.send_request(ooxcb.Request(self.conn, buf.getvalue(), 1, False, True), \
             CompareCursorCookie(),
             CompareCursorReply)
@@ -66,7 +67,7 @@ class xtestExtension(ooxcb.Extension):
         window = window.get_internal()
         cursor = cursor.get_internal()
         buf = StringIO.StringIO()
-        buf.write(pack("xxxxII", window, cursor))
+        buf.write(pack("=xxxxII", window, cursor))
         return self.conn.xtest.send_request(ooxcb.Request(self.conn, buf.getvalue(), 1, False, False), \
             CompareCursorCookie(),
             CompareCursorReply)
@@ -74,26 +75,26 @@ class xtestExtension(ooxcb.Extension):
     def fake_input_checked(self, type, detail, time, window, rootX, rootY, deviceid):
         window = window.get_internal()
         buf = StringIO.StringIO()
-        buf.write(pack("xxxxBBxxIIxxxxxxxxHHxxxxxxxB", type, detail, time, window, rootX, rootY, deviceid))
+        buf.write(pack("=xxxxBBxxIIxxxxxxxxHHxxxxxxxB", type, detail, time, window, rootX, rootY, deviceid))
         return self.conn.xtest.send_request(ooxcb.Request(self.conn, buf.getvalue(), 2, True, True), \
             ooxcb.VoidCookie())
 
     def fake_input(self, type, detail, time, window, rootX, rootY, deviceid):
         window = window.get_internal()
         buf = StringIO.StringIO()
-        buf.write(pack("xxxxBBxxIIxxxxxxxxHHxxxxxxxB", type, detail, time, window, rootX, rootY, deviceid))
+        buf.write(pack("=xxxxBBxxIIxxxxxxxxHHxxxxxxxB", type, detail, time, window, rootX, rootY, deviceid))
         return self.conn.xtest.send_request(ooxcb.Request(self.conn, buf.getvalue(), 2, True, False), \
             ooxcb.VoidCookie())
 
     def grab_control_checked(self, impervious):
         buf = StringIO.StringIO()
-        buf.write(pack("xxxxBxxx", impervious))
+        buf.write(pack("=xxxxBxxx", impervious))
         return self.conn.xtest.send_request(ooxcb.Request(self.conn, buf.getvalue(), 3, True, True), \
             ooxcb.VoidCookie())
 
     def grab_control(self, impervious):
         buf = StringIO.StringIO()
-        buf.write(pack("xxxxBxxx", impervious))
+        buf.write(pack("=xxxxBxxx", impervious))
         return self.conn.xtest.send_request(ooxcb.Request(self.conn, buf.getvalue(), 3, True, False), \
             ooxcb.VoidCookie())
 
@@ -105,12 +106,12 @@ class CompareCursorReply(ooxcb.Reply):
     def read(self, stream):
         self._address = stream.address
         count = 0
-        _unpacked = unpack_from_stream("xBxxxxxx", stream, count)
+        _unpacked = unpack_from_stream("=xBxxxxxx", stream, count)
         self.same = _unpacked[0]
 
     def build(self, stream):
         count = 0
-        stream.write(pack("xBxxxxxx", self.same))
+        stream.write(pack("=xBxxxxxx", self.same))
 
 class CompareCursorCookie(ooxcb.Cookie):
     pass

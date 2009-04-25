@@ -338,7 +338,7 @@ def py_complex(self, name, cls):
     build_code = m_build.code
 
     def _add_fields(fields):
-        read_code.append('_unpacked = unpack_from_stream("%s", stream, count)' % fmt)
+        read_code.append('_unpacked = unpack_from_stream("=%s", stream, count)' % fmt)
         build_fields = []
         for idx, field in enumerate(fields):
             # try if we can get a modifier
@@ -354,7 +354,7 @@ def py_complex(self, name, cls):
             else:
                 build_fields.append('self.%s' % prefix_if_needed(field.field_name))
             cls.add_instance_attribute(prefix_if_needed(field.field_name), '') # TODO: description
-        build_code.append('stream.write(pack("%s", %s))' %
+        build_code.append('stream.write(pack("=%s", %s))' %
                 (fmt, ', '.join(build_fields)))
 
     need_alignment = False
@@ -488,7 +488,7 @@ def py_open(self):
     py() \
       ('def unpack_from_stream(fmt, stream, offset=0):') \
       .indent() \
-                ('assert offset == 0 # *offset* doesn\'t seem to be needed') \
+                ('if offset:').indent()('stream.seek(offset, 1)').dedent() \
                 ('s = stream.read(calcsize(fmt))') \
                 ('return unpack(fmt, s)') \
                 .dedent() \
@@ -592,14 +592,14 @@ def py_union(self, name):
         build.code.append('%s self.%s:' % (kw, prefix_if_needed(field.field_name)))
         build.code.append(INDENT)
         if field.type.is_simple:
-            read.code.append('self.%s = unpack_from_stream("%s", stream)' % \
+            read.code.append('self.%s = unpack_from_stream("=%s", stream)' % \
                     (prefix_if_needed(field.field_name),
                     field.type.py_format_str))
             read.code.append('count = max(count, %s)', field.type.size)
             read.code.append('stream.seek(root)')
 
             build.code.append(
-                    'stream.write(pack("%s", %s))' % (field.py_format_str, prefix_if_needed(field.field_name))
+                    'stream.write(pack("=%s", %s))' % (field.py_format_str, prefix_if_needed(field.field_name))
                     )
 
             # add a simple default value.
@@ -779,16 +779,16 @@ def request_helper(self, name, void, regular):
             fields, size, format = struct.flush()
 
             if size > 0:
-                meth.code.append('buf.write(pack("%s", %s))' % (format, \
+                meth.code.append('buf.write(pack("=%s", %s))' % (format, \
                         ', '.join([prefix_if_needed(f.field_name) for f in fields])))
 
             if field.type.is_expr:
                 #_py('        buf.write(pack(\'%s\', %s))', field.type.py_format_str, _py_get_expr(field.type.expr))
-                meth.code.append('buf.write(pack("%s", %s))' % (field.type.py_format_str,
+                meth.code.append('buf.write(pack("=%s", %s))' % (field.type.py_format_str,
                     get_expr(field.type.expr)))
 
             elif field.type.is_pad:
-                meth.code.append('buf.write(pack("%sx"))' % field.type.nmemb)
+                meth.code.append('buf.write(pack("=%sx"))' % field.type.nmemb)
             elif field.type.is_container:
                 # TODO: try to use the `build` member for classes.
                 meth.code.append('for elt in ooxcb.Iterator(%s, %d, "%s", False):' % \
@@ -796,7 +796,7 @@ def request_helper(self, name, void, regular):
                             field.type.py_format_len,
                             prefix_if_needed(field.field_name)))
                 meth.code.append(INDENT)
-                meth.code.append('buf.write(pack("%s", *elt))' % field.type.py_format_str)
+                meth.code.append('buf.write(pack("=%s", *elt))' % field.type.py_format_str)
                 meth.code.append(DEDENT)
             elif field.type.is_list and field.type.member.is_simple:
                 meth.code.append('buf.write(array("%s", %s).tostring())' % \
@@ -814,12 +814,12 @@ def request_helper(self, name, void, regular):
                             field.type.member.py_format_len,
                             prefix_if_needed(field.field_name)))
                     meth.code.append(INDENT)
-                    meth.code.append('buf.write(pack("%s", *elt))' % field.type.member.py_format_str)
+                    meth.code.append('buf.write(pack("=%s", *elt))' % field.type.member.py_format_str)
                     meth.code.append(DEDENT)
 
         fields, size, format = struct.flush()
         if size > 0:
-            meth.code.append('buf.write(pack("%s", %s))' % (format, ', '.join(
+            meth.code.append('buf.write(pack("=%s", %s))' % (format, ', '.join(
                 [prefix_if_needed(f.field_name) for f in fields])))
 
     meth.code.append('return self.conn.%s.send_request(ooxcb.Request(self.conn, buf.getvalue(), %s, %s, %s), \\' % \
