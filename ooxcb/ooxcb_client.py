@@ -224,14 +224,19 @@ XIZER_MAKERS = {
         }
 XIZERS = {}
 
-def get_length_field(expr):
+def get_length_field(expr, use_self=True):
     '''
     Figures out what C code is needed to get a length field.
     For fields that follow a variable-length field, use the accessor.
     Otherwise, just reference the structure field directly.
+
+    :param use_self: if True, use `self` for field access.
     '''
     if expr.lenfield_name != None:
-        return 'self.%s' % expr.lenfield_name
+        if use_self:
+            return 'self.%s' % expr.lenfield_name
+        else:
+            return expr.lenfield_name
     else:
         return str(expr.nmemb)
 
@@ -310,16 +315,18 @@ def align_size(field):
         return field.type.size if field.type.fixed_size() else 4
     return field.type.size
 
-def get_expr(expr):
+def get_expr(expr, use_self=True):
     '''
     Figures out what C code is needed to get the length of a list field.
     Recurses for math operations.
     Returns bitcount for value-mask fields.
     Otherwise, uses the value of the length field.
+
+    :param use_self: if True: we are in a struct, so use `self` for field access.
     '''
-    lenexp = get_length_field(expr)
+    lenexp = get_length_field(expr, use_self)
     if expr.op != None:
-        return '(' + get_expr(expr.lhs) + ' ' + expr.op + ' ' + get_expr(expr.rhs) + ')'
+        return '(' + get_expr(expr.lhs, use_self) + ' ' + expr.op + ' ' + get_expr(expr.rhs, use_self) + ')'
     elif expr.bitfield:
         return 'ooxcb.popcount(' + lenexp + ')'
     else:
@@ -785,7 +792,7 @@ def request_helper(self, name, void, regular):
             if field.type.is_expr:
                 #_py('        buf.write(pack(\'%s\', %s))', field.type.py_format_str, _py_get_expr(field.type.expr))
                 meth.code.append('buf.write(pack("=%s", %s))' % (field.type.py_format_str,
-                    get_expr(field.type.expr)))
+                    get_expr(field.type.expr, False)))
 
             elif field.type.is_pad:
                 meth.code.append('buf.write(pack("=%sx"))' % field.type.nmemb)
