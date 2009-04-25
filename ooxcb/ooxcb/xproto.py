@@ -4238,13 +4238,13 @@ class Window(ooxcb.Resource):
             value_list.append(values["stack_mode"])
         window = self.get_internal()
         buf = StringIO.StringIO()
-        buf.write(pack("xxxxIH", window, value_mask))
-        buf.write(pack("xx"))
+        buf.write(pack("=xxxxIH", window, value_mask))
+        buf.write(pack("=xx"))
         if value_mask & ConfigWindow.X:
-            buf.write(pack("i", value_list[0]))
+            buf.write(pack("=i", value_list[0]))
             del value_list[0]
         if value_mask & ConfigWindow.Y:
-            buf.write(pack("i", value_list[0]))
+            buf.write(pack("=i", value_list[0]))
             del value_list[0]
         buf.write(array("I", value_list).tostring())
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 12, True, True), \
@@ -4275,13 +4275,13 @@ class Window(ooxcb.Resource):
             value_list.append(values["stack_mode"])
         window = self.get_internal()
         buf = StringIO.StringIO()
-        buf.write(pack("xxxxIH", window, value_mask))
-        buf.write(pack("xx"))
+        buf.write(pack("=xxxxIH", window, value_mask))
+        buf.write(pack("=xx"))
         if value_mask & ConfigWindow.X:
-            buf.write(pack("i", value_list[0]))
+            buf.write(pack("=i", value_list[0]))
             del value_list[0]
         if value_mask & ConfigWindow.Y:
-            buf.write(pack("i", value_list[0]))
+            buf.write(pack("=i", value_list[0]))
             del value_list[0]
         buf.write(array("I", value_list).tostring())
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 12, True, False), \
@@ -4340,7 +4340,7 @@ class Window(ooxcb.Resource):
         if isinstance(type, basestring):
             type = self.conn.atoms[type]
         buf = StringIO.StringIO()
-        buf.write(pack("xBxxIIIBxxxI", mode, self.get_internal(), property.get_internal(), type.get_internal(), format, data_len))
+        buf.write(pack("=xBxxIIIBxxxI", mode, self.get_internal(), property.get_internal(), type.get_internal(), format, data_len))
         buf.write(make_void_array(data, format))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 18, True, True), \
             ooxcb.VoidCookie())
@@ -4352,7 +4352,7 @@ class Window(ooxcb.Resource):
         if isinstance(type, basestring):
             type = self.conn.atoms[type]
         buf = StringIO.StringIO()
-        buf.write(pack("xBxxIIIBxxxI", mode, self.get_internal(), property.get_internal(), type.get_internal(), format, data_len))
+        buf.write(pack("=xBxxIIIBxxxI", mode, self.get_internal(), property.get_internal(), type.get_internal(), format, data_len))
         buf.write(make_void_array(data, format))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 18, True, False), \
             ooxcb.VoidCookie())
@@ -4424,7 +4424,7 @@ class Window(ooxcb.Resource):
     def send_event_checked(self, event_mask, event, propagate=False):
         destination = self.get_internal()
         buf = StringIO.StringIO()
-        buf.write(pack("xBxxII", propagate, destination, event_mask))
+        buf.write(pack("=xBxxII", propagate, destination, event_mask))
         event.build(buf)
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 25, True, True), \
             ooxcb.VoidCookie())
@@ -4432,7 +4432,7 @@ class Window(ooxcb.Resource):
     def send_event(self, event_mask, event, propagate=False):
         destination = self.get_internal()
         buf = StringIO.StringIO()
-        buf.write(pack("xBxxII", propagate, destination, event_mask))
+        buf.write(pack("=xBxxII", propagate, destination, event_mask))
         event.build(buf)
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 25, True, False), \
             ooxcb.VoidCookie())
@@ -5398,9 +5398,9 @@ class GContext(Fontable):
         gc = self.get_internal()
         drawable = drawable.get_internal()
         buf = StringIO.StringIO()
-        buf.write(pack("xxxxII", drawable, gc))
+        buf.write(pack("=xxxxII", drawable, gc))
         for rect in rectangles:
-            buf.write(pack("hhHH", rect.x, rect.y, rect.width, rect.height))
+            buf.write(pack("=hhHH", rect.x, rect.y, rect.width, rect.height))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 67, True, True), \
             ooxcb.VoidCookie())
 
@@ -5408,9 +5408,9 @@ class GContext(Fontable):
         gc = self.get_internal()
         drawable = drawable.get_internal()
         buf = StringIO.StringIO()
-        buf.write(pack("xxxxII", drawable, gc))
+        buf.write(pack("=xxxxII", drawable, gc))
         for rect in rectangles:
-            buf.write(pack("hhHH", rect.x, rect.y, rect.width, rect.height))
+            buf.write(pack("=hhHH", rect.x, rect.y, rect.width, rect.height))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 67, True, False), \
             ooxcb.VoidCookie())
 

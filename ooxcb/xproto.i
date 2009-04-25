@@ -171,10 +171,10 @@ Requests:
 #        initcode:
 #            - !xizer "FontQtyPaths"
 #            - 'buf = StringIO.StringIO()'
-#            - 'buf.write(pack("xxxxH", font_qty))'
+#            - 'buf.write(pack("=xxxxH", font_qty))'
 #            - 'for item in path:'
 #            - !indent
-#            - 'buf.write(pack("H", len(item)) + array("B", item).tostring() + "\x00")'
+#            - 'buf.write(pack("=H", len(item)) + array("B", item).tostring() + "\x00")'
 #            - !dedent
 
     # Atom objects
@@ -214,7 +214,7 @@ Requests:
         arguments: ["property", "type", "format", "data", "mode=PropMode.Replace"]
         initcode: [!xizer "Data", !xizer "PropertyName", !xizer "PropertyType",
         "buf = StringIO.StringIO()",
-        'buf.write(pack("xBxxIIIBxxxI", mode, self.get_internal(), property.get_internal(), type.get_internal(), format, data_len))',
+        'buf.write(pack("=xBxxIIIBxxxI", mode, self.get_internal(), property.get_internal(), type.get_internal(), format, data_len))',
         'buf.write(make_void_array(data, format))']
 
     MapWindow:
@@ -237,20 +237,20 @@ Requests:
             - !xizer "ConfigWindow"
             - "window = self.get_internal()"
             - "buf = StringIO.StringIO()"
-            - 'buf.write(pack("xxxxIH", window, value_mask))'
-            - 'buf.write(pack("xx"))' # NOTE: The pad has to be after the value mask, but xcbgen seems to put it after the value list. So, that's just a workaround.
+            - 'buf.write(pack("=xxxxIH", window, value_mask))'
+            - 'buf.write(pack("=xx"))' # NOTE: The pad has to be after the value mask, but xcbgen seems to put it after the value list. So, that's just a workaround.
 
             # Well, another workaround. The xproto spec says x and y are signed ints.
             # Here we would have an array of unsigned ints.
             # Handcraft needed!
             - 'if value_mask & ConfigWindow.X:'
             - !indent
-            - 'buf.write(pack("i", value_list[0]))'
+            - 'buf.write(pack("=i", value_list[0]))'
             - 'del value_list[0]'
             - !dedent
             - 'if value_mask & ConfigWindow.Y:'
             - !indent
-            - 'buf.write(pack("i", value_list[0]))'
+            - 'buf.write(pack("=i", value_list[0]))'
             - 'del value_list[0]'
             - !dedent
             - 'buf.write(array("I", value_list).tostring())'
@@ -347,7 +347,7 @@ Requests:
         initcode:
             - "destination = self.get_internal()"
             - "buf = StringIO.StringIO()"
-            - 'buf.write(pack("xBxxII", propagate, destination, event_mask))'
+            - 'buf.write(pack("=xBxxII", propagate, destination, event_mask))'
             - "event.build(buf)"
 
     QueryPointer:
@@ -379,10 +379,10 @@ Requests:
             - "gc = self.get_internal()"
             - "drawable = drawable.get_internal()"
             - "buf = StringIO.StringIO()"
-            - 'buf.write(pack("xxxxII", drawable, gc))'
+            - 'buf.write(pack("=xxxxII", drawable, gc))'
             - "for rect in rectangles:"
             - !indent
-            - 'buf.write(pack("hhHH", rect.x, rect.y, rect.width, rect.height))'
+            - 'buf.write(pack("=hhHH", rect.x, rect.y, rect.width, rect.height))'
             - !dedent
 
     PolyPoint:
