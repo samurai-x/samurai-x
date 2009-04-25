@@ -3093,7 +3093,7 @@ class GetPropertyReply(ooxcb.Reply):
         self.bytes_after = _unpacked[2]
         self.value_len = _unpacked[3]
         count += 32
-        self.value = ooxcb.List(self.conn, stream, count, (self.value_len * (self.format / 8)), SIZES.get(self.format, "B"), self.format // 8)
+        self.value = ooxcb.List(self.conn, stream, count, self.value_len, SIZES.get(self.format, "B"), self.format // 8)
 
     def build(self, stream):
         count = 0
