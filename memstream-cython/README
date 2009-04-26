@@ -1,0 +1,6 @@
+memstream-cython
+================
+
+memstream-cython is an api-compatible `ooxcb.memstream.MemoryInputStream`
+replacement, implemented in Cython. It is a bit faster than the pure python
+one.
