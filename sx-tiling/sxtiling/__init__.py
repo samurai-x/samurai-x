@@ -34,15 +34,9 @@ class TilingDesktop(object):
     def __init__(self, plugin, desktop):
         self.plugin = plugin
         self.screen = desktop.screen
-        self.screen.root.push_handlers(
-                on_configure_request=self.on_configure_request,
-        )
-
         self.desktop = desktop
         self.desktop.push_handlers(
-                on_new_client=self.on_new_client,
-                on_unmanage_client=self.on_unmanage_client,
-        )
+                on_rearrange=self.on_rearrange)
         self.geom = self.screen.get_geometry()
         self.scan()
         self.compute_all()
@@ -51,12 +45,8 @@ class TilingDesktop(object):
         for client in self.desktop.clients:
             client.push_handlers(on_focus=self.on_focus)
             client.window.push_handlers(on_configure_notify=self.on_configure_notify)
-            
-    def on_new_client(self, screen, client):
-        client.push_handlers(on_focus=self.on_focus)
-        self.compute_all()
 
-    def on_unmanage_client(self, desktop, client):
+    def on_rearrange(self, desktop):
         self.compute_all()
 
     def compute_all(self):
@@ -82,19 +72,6 @@ class TilingDesktop(object):
                             height=uheight - 1)
                     cnt += 1
             self.plugin.app.conn.flush()
-
-    def on_focus(self, client):
-        self.compute_all()
-
-    def on_configure_request(self, evt):
-        if Client.get_by_window(evt.window) in self.desktop.clients:
-            self.compute_all()
-            return True
-
-    def on_configure_notify(self, evt):
-        if Client.get_by_window(evt.window) in self.desktop.clients:
-            self.compute_all()
-            return True
 
 class SXTiling(Plugin):
     key = 'tiling'

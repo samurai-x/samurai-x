@@ -83,6 +83,7 @@ class Desktop(EventDispatcher):
     def on_focus(self, client):
         """ a client was focused: move it to top of the focus stack """
         self.clients.move_to_top(client)
+        self.rearrange()
 
     def add_client(self, client):
         self.clients.append(client)
@@ -95,6 +96,9 @@ class Desktop(EventDispatcher):
                 32,
                 [self.idx])
 
+    def rearrange(self):
+        self.dispatch_event('on_rearrange', self)
+
     def remove_client(self, client):
         try:
             self.clients.remove(client)
@@ -106,6 +110,7 @@ class Desktop(EventDispatcher):
             return True
 
 Desktop.register_event_type('on_new_client')
+Desktop.register_event_type('on_rearrange')
 Desktop.register_event_type('on_unmanage_client')
 
 class ScreenData(EventDispatcher):
@@ -145,6 +150,7 @@ class ScreenData(EventDispatcher):
         #...attach_data_to(client, data)
         self.active_desktop.add_client(client)
         # TODO: focus it?
+        self.active_desktop.rearrange()
 
     def on_unmanage_client(self, screen, client):
         for desktop in self.desktops:
@@ -155,6 +161,7 @@ class ScreenData(EventDispatcher):
             return
         # display the next one ...
         #self.screen.focus(self.active_desktop.clients.current())
+        self.active_desktop.rearrange()
 
     def set_active_desktop(self, desktop):
         #assert desktop in self.desktops # let's trust the user

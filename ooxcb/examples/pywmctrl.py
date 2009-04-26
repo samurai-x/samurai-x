@@ -18,7 +18,7 @@ class WMControl(object):
     def _send_clientmessage(self, window, atom_name, format, values):
         """
             send a client message to the root window.
-            
+
             :Parameters:
                 `window`: xproto.Window
                     the window property
@@ -48,14 +48,27 @@ class WMControl(object):
 
     def change_desktop(self, desktop):
         """
-            change the current desktop. The desktops' count is
+            changes the current desktop. The desktops' count is
             starting at 0.
         """
         self._send_clientmessage(self.root, "_NET_CURRENT_DESKTOP", 32,
                 [desktop])
 
+    def get_current_desktop(self):
+        """
+            returns the index of the current desktop, starting at 0,
+            or None if it couldn't be fetched.
+        """
+        property = self.root.get_property("_NET_CURRENT_DESKTOP", "CARDINAL") \
+                .reply()
+        if property.exists:
+            return property.value[0]
+        else:
+            return None
+
 if __name__ == '__main__':
     conn = connect()
     wmctrl = WMControl(conn, conn.setup.roots[0].root)
     wmctrl.change_desktop(1)
+    print wmctrl.get_current_desktop()
 

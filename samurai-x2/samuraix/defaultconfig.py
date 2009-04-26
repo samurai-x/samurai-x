@@ -23,8 +23,8 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
-    This module just contains a default example configuration that will be 
-    used as fallback if there is no user configuration found. 
+    This module just contains a default example configuration that will be
+    used as fallback if there is no user configuration found.
     You can print this file using `sx-wm --default-config`.
     Currently, it attempts to load all standard plugins, defines
     two floating desktops, creates some hotkeys and binds the
@@ -34,12 +34,12 @@
 
 config = {
     'core.plugin_paths': ['~/.samuraix/plugins'],
-    'core.plugins': ['sxactions', 'sxdesktops', 'sxbind', 
+    'core.plugins': ['sxactions', 'sxdesktops', 'sxbind',
         'sxsimpledeco', 'sxmoveresize', 'sxtiling'],
 
-    'desktops.desktops': 
+    'desktops.desktops':
         [('one', {'layout': 'floating'}),
-         ('two', {'layout': 'floating'})]
+         ('two', {'layout': 'tiling'})]
     ,
     'bind.keys': {
             'Meta+n': 'desktops.cycle offset=1',

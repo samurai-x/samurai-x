@@ -51,10 +51,10 @@ def parse_buttonstroke(s):
     """
     modmask, button = 0, 0
 
-    parts = s.split('+') 
+    parts = s.split('+')
     modifiers = parts[:-1]
     buttonpart = parts[-1]
-    
+
     # create modmask
     for mod in modifiers:
         try:
@@ -97,7 +97,7 @@ class ClientData(object):
         # it is simply decremented.
         # Maybe that's not necessary, but it seems to be.
         self._window_configures = 0
-        
+
         self.gc = xproto.GContext.create(self.client.conn,
                 self.client.actor,
                 foreground=screen.info.black_pixel,
@@ -186,7 +186,7 @@ class ClientData(object):
         """ if the window is configured, configure the actor, too """
         log.debug('%s got window configure notify event, configure counter=%d' % (self, self._window_configures))
         if self._window_configures == 0:
-            geom = Rect.from_object(evt) 
+            geom = Rect.from_object(evt)
             compute_actor_geom(geom)
             self.client.actor.configure(**geom.to_dict())
             self.client.conn.flush()
@@ -195,6 +195,7 @@ class ClientData(object):
 
     def remove(self):
         """ the end. """
+        log.debug('removing deco for %s' % self.client)
         if self.client.window.valid:
             self.client.window.reparent(self.client.screen.root,
                     self.client.geom.x,
@@ -203,8 +204,24 @@ class ClientData(object):
         self.client.actor.destroy()
         self.gc.free()
         self.client.conn.flush()
-        del self.client
         self._obsolete = True
+        # remove all handlers of everything
+        self.client.remove_handlers(self)
+        self.client.actor.remove_handlers(
+                on_configure_notify=self.actor_on_configure_notify,
+                on_expose=self.on_expose,
+                on_button_press=self.on_button_press,
+                )
+        self.client.window.remove_handlers(
+                on_property_notify=self.on_property_notify,
+                on_configure_notify=self.window_on_configure_notify,
+                on_unmap_notify=self.on_unmap_notify,
+                on_map_notify=self.on_map_notify,
+                )
+        self.client.screen.root.remove_handlers(
+                on_configure_notify=self.screen_on_configure_notify
+                )
+        del self.client
 
 class SXDeco(Plugin):
     key = 'decoration'
@@ -227,7 +244,7 @@ class SXDeco(Plugin):
             screen.push_handlers(self)
             for client in screen.clients:
                 self.create_client_data(screen, client)
-        
+
     def on_new_client(self, screen, client):
         self.create_client_data(screen, client)
 
@@ -235,7 +252,7 @@ class SXDeco(Plugin):
         self.get_data(client).remove()
 
     def create_client_data(self, screen, client):
-        client.actor = xproto.Window.create(self.app.conn, 
+        client.actor = xproto.Window.create(self.app.conn,
                 screen.root,
                 screen.info.root_depth,
                 screen.info.root_visual,
@@ -246,8 +263,8 @@ class SXDeco(Plugin):
                 override_redirect=True,
                 back_pixel=screen.info.white_pixel,
                 event_mask=
-                    xproto.EventMask.Exposure | 
-                    xproto.EventMask.StructureNotify | 
+                    xproto.EventMask.Exposure |
+                    xproto.EventMask.StructureNotify |
                     # Child.StructureNotify and Parent.SubstructureNotify
                     # seem to block each other. That's not what we want.
                     # I commented this out, and it seems to work.
@@ -255,7 +272,7 @@ class SXDeco(Plugin):
                     xproto.EventMask.ButtonPress,
                 )
         client.window.reparent(client.actor, 0, BAR_HEIGHT)
-        
+
         data = ClientData(self, screen, client)
         self.attach_data_to(client, data)
         client.actor.map()
@@ -270,4 +287,4 @@ class SXDeco(Plugin):
                     client=client) # TODO: no additional info? :/
             # ... call the action
             self.app.plugins['actions'].emit(self.bindings[stroke], info)
-  
+

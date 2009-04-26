@@ -261,6 +261,7 @@ class Screen(SXObject):
         self.update_client_list()
         self.clients.remove(client)
         self.dispatch_event('on_unmanage_client', self, client)
+        log.info('Unmanaged %s' % client)
 
     def on_unmanage_client(self, screen, client):
         """
