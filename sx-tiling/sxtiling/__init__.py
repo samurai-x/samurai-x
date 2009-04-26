@@ -34,9 +34,14 @@ class TilingDesktop(object):
     def __init__(self, plugin, desktop):
         self.plugin = plugin
         self.screen = desktop.screen
+        self.screen.root.push_handlers(
+                on_configure_request=self.on_configure_request
+                )
         self.desktop = desktop
         self.desktop.push_handlers(
-                on_rearrange=self.on_rearrange)
+                on_rearrange=self.on_rearrange,
+                on_new_client=self.on_new_client
+                )
         self.geom = self.screen.get_geometry()
         self.scan()
         self.compute_all()
@@ -46,15 +51,27 @@ class TilingDesktop(object):
             client.push_handlers(on_focus=self.on_focus)
             client.window.push_handlers(on_configure_notify=self.on_configure_notify)
 
+    def on_configure_request(self, evt):
+        """
+            event handler: don't handle configure requests for windows
+            in our desktop. we decide how they are configured.
+        """
+        if self.desktop.clients.contains_manager(evt.window):
+            log.debug('caught configure request, computing ...')
+            self.compute_all()
+            return True # -> do not invoke `Screen.on_configure_request`
+
     def on_rearrange(self, desktop):
         self.compute_all()
+
+    def on_new_client(self, desktop, client):
+        client.focus()
 
     def compute_all(self):
         if self.desktop.clients:
             if self.screen.focused_client is None:
                 # We always need a focused client.
                 self.screen.focus(self.desktop.clients.current())
-                return
             geom = self.geom
             cnt = 0
             uheight = geom.height // (max(len(self.desktop.clients) - 1, 1)) # one is focused ;)

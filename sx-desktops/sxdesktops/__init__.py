@@ -63,6 +63,16 @@ class FocusStack(list):
         except IndexError:
             return None
 
+    def contains_manager(self, window):
+        """
+            returns True if the focus stack contains any
+            client managing the window *window*.
+        """
+        for client in self:
+            if client.window is window:
+                return True
+        return False
+
 class Desktop(EventDispatcher):
     def __init__(self, plugin, screen, name, layouter, idx):
         EventDispatcher.__init__(self)
