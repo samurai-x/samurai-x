@@ -185,8 +185,8 @@ class List(list):
     def from_stringlist(stringlist):
         """
             returns a Python list containing the ordinal values of each string
-            in *stringlist*, all of them linked together by \x00 bytes and
-            with a trailing \x00 byte.
+            in *stringlist*, all of them linked together by \\x00 bytes and
+            with a trailing \\x00 byte.
         """
         return map(ord, '\x00'.join(stringlist)) + [0]
 
