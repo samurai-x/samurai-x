@@ -3208,6 +3208,13 @@ class Screen(ooxcb.Struct):
     def get_active_window(self):
         return self.root.get_property('_NET_ACTIVE_WINDOW', 'WINDOW').reply().value.to_windows()[0]
 
+    def get_root_visual_type(self):
+        for depth in self.allowed_depths:
+            for vt in depth.visuals:
+                if self.root_visual == vt.visual_id:
+                    return vt
+        return None
+
 class ReparentNotifyEvent(ooxcb.Event):
     event_name = "on_reparent_notify"
     event_target_class = "Window"

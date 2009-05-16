@@ -579,6 +579,21 @@ Classes:
             code:
                 - "return self.root.get_property('_NET_ACTIVE_WINDOW', 'WINDOW').reply().value.to_windows()[0]"
 
+        - method:
+            name: get_root_visual_type
+            code:
+                - "for depth in self.allowed_depths:"
+                - !indent
+                - "for vt in depth.visuals:"
+                - !indent
+                - "if self.root_visual == vt.visual_id:"
+                - !indent
+                - "return vt"
+                - !dedent
+                - !dedent
+                - !dedent
+                - "return None"
+
     # some additional enums
 
     # Enum for WM_STATE state values

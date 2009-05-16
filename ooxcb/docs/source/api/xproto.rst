@@ -2148,6 +2148,9 @@ ooxcb.xproto
     .. method:: get_active_window(self)
 
 
+    .. method:: get_root_visual_type(self)
+
+
     .. attribute:: min_installed_maps
 
     .. attribute:: max_installed_maps
