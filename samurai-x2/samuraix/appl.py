@@ -85,7 +85,6 @@ class App(SXObject):
 
         """
         self.conn = ooxcb.connect()
-        self.conn.synchronous_check = True # HAR HAR HAR, SO EVIL
         self.cursors = ooxcb.cursors.Cursors(self.conn)
 
         self.conn.push_handlers(self)
