@@ -77,8 +77,6 @@ class App(SXObject):
              * It dispatches 'on_ready'
              * It calls `scan` on each Screen to make it scan for children.
 
-            :todo: turn out the synchronous check (that slows down everything a
-                   bit)
             :todo: allow the user to specify the X connection string. Maybe he
                    wants to connect to a foreign display without changing the
                    DISPLAY environment variable?
