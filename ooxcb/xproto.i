@@ -1,5 +1,6 @@
 ImportCode:
-    ["from ooxcb.types import make_void_array"]
+    ["from ooxcb.types import make_void_array",
+    "from ooxcb.util import cached_property"]
 
 ResourceClasses:
     - WINDOW
@@ -27,6 +28,7 @@ Xizers:
         xize:
             - back_pixmap
             - cursor
+            - colormap
 
     GC:
         type: values
@@ -494,7 +496,6 @@ Classes:
             code:
                 - "return cls.create(conn, screen.root, screen.root_depth, screen.root_visual, *args, **kwargs)"
 
-
     GContext:
         - base: Fontable
         - classmethod:
@@ -573,11 +574,34 @@ Classes:
                 - "r, g, b = [65535 * int(v, base=16) // 255"
                 - "           for v in (color[:2], color[2:4], color[4:])]"
                 - "return self.alloc_color(r, g, b)"
+
+        - classmethod:
+            name: create
+            arguments: ["window", "visual", "alloc=0"] # 0 is ColormapAlloc._None
+            code: [
+                    'mid = conn.generate_id()',
+                    'cmap = cls(conn, mid)',
+                    'if isinstance(visual, Visualtype):',
+                    !indent ,
+                    'visual = visual.visual_id',
+                    !dedent ,
+                    'conn.core.create_colormap_checked(alloc, mid, window.get_internal(), visual).check()',
+                    'conn.add_to_cache(cmap, mid)',
+                    'return cmap'
+                ]
+
     Screen:
         - method:
             name: get_active_window
             code:
                 - "return self.root.get_property('_NET_ACTIVE_WINDOW', 'WINDOW').reply().value.to_windows()[0]"
+
+        - method:
+            name: rgba_colormap
+            decorators: ["cached_property"]
+            code:
+                - "visual = self.get_root_visual_type()"
+                - "return Colormap.create(self.root, visual)"
 
         - method:
             name: get_root_visual_type
@@ -589,6 +613,23 @@ Classes:
                 - "if self.root_visual == vt.visual_id:"
                 - !indent
                 - "return vt"
+                - !dedent
+                - !dedent
+                - !dedent
+                - "return None"
+        - method:
+            name: get_rgba_visual
+            code:
+                - "for depth in self.allowed_depths:"
+                - !indent
+                - "if depth.depth == 32:"
+                - !indent
+                - "for visual in depth.visuals:"
+                - !indent
+                - "if (visual.red_mask == 0xff0000 and visual.green_mask == 0x00ff00 and visual.blue_mask == 0x0000ff):"
+                - !indent
+                - "return visual"
+                - !dedent
                 - !dedent
                 - !dedent
                 - !dedent

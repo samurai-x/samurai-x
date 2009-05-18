@@ -252,6 +252,9 @@ class SXDeco(Plugin):
         self.get_data(client).remove()
 
     def create_client_data(self, screen, client):
+        # to have proper transparency, the actor window 
+        # has to use the same colormap as the foreign window.
+        colormap = client.window.get_attributes().reply().colormap
         client.actor = xproto.Window.create(self.app.conn,
                 screen.root,
                 screen.info.root_depth,
@@ -262,6 +265,7 @@ class SXDeco(Plugin):
                 client.geom.height + BAR_HEIGHT,
                 override_redirect=True,
                 back_pixel=screen.info.white_pixel,
+                colormap=colormap,
                 event_mask=
                     xproto.EventMask.Exposure |
                     xproto.EventMask.StructureNotify |

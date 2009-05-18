@@ -10,6 +10,7 @@ except ImportError:
 from struct import pack, unpack, calcsize
 from array import array
 from ooxcb.types import make_void_array
+from ooxcb.util import cached_property
 
 def unpack_from_stream(fmt, stream, offset=0):
     if offset:
@@ -345,6 +346,16 @@ class Colormap(ooxcb.Resource):
         r, g, b = [65535 * int(v, base=16) // 255
                    for v in (color[:2], color[2:4], color[4:])]
         return self.alloc_color(r, g, b)
+
+    @classmethod
+    def create(cls, window, visual, alloc=0):
+        mid = conn.generate_id()
+        cmap = cls(conn, mid)
+        if isinstance(visual, Visualtype):
+            visual = visual.visual_id
+        conn.core.create_colormap_checked(alloc, mid, window.get_internal(), visual).check()
+        conn.add_to_cache(cmap, mid)
+        return cmap
 
 class SetModifierMappingReply(ooxcb.Reply):
     def __init__(self, conn):
@@ -3208,11 +3219,24 @@ class Screen(ooxcb.Struct):
     def get_active_window(self):
         return self.root.get_property('_NET_ACTIVE_WINDOW', 'WINDOW').reply().value.to_windows()[0]
 
+    @cached_property
+    def rgba_colormap(self):
+        visual = self.get_root_visual_type()
+        return Colormap.create(self.root, visual)
+
     def get_root_visual_type(self):
         for depth in self.allowed_depths:
             for vt in depth.visuals:
                 if self.root_visual == vt.visual_id:
                     return vt
+        return None
+
+    def get_rgba_visual(self):
+        for depth in self.allowed_depths:
+            if depth.depth == 32:
+                for visual in depth.visuals:
+                    if (visual.red_mask == 0xff0000 and visual.green_mask == 0x00ff00 and visual.blue_mask == 0x0000ff):
+                        return visual
         return None
 
 class ReparentNotifyEvent(ooxcb.Event):
@@ -4044,7 +4068,7 @@ class Window(ooxcb.Resource):
             value_list.append(values["dont_propagate"])
         if "colormap" in values:
             value_mask |= 8192
-            value_list.append(values["colormap"])
+            value_list.append(values["colormap"].get_internal())
         if "cursor" in values:
             value_mask |= 16384
             value_list.append(values["cursor"].get_internal())
@@ -4098,7 +4122,7 @@ class Window(ooxcb.Resource):
             value_list.append(values["dont_propagate"])
         if "colormap" in values:
             value_mask |= 8192
-            value_list.append(values["colormap"])
+            value_list.append(values["colormap"].get_internal())
         if "cursor" in values:
             value_mask |= 16384
             value_list.append(values["cursor"].get_internal())
@@ -4629,7 +4653,7 @@ class Window(ooxcb.Resource):
             value_list.append(values["dont_propagate"])
         if "colormap" in values:
             value_mask |= 8192
-            value_list.append(values["colormap"])
+            value_list.append(values["colormap"].get_internal())
         if "cursor" in values:
             value_mask |= 16384
             value_list.append(values["cursor"].get_internal())

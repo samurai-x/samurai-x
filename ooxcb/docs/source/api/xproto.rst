@@ -262,6 +262,9 @@ ooxcb.xproto
     .. method:: alloc_hex_color(self, color)
 
 
+    .. classmethod:: create(cls, window, visual, alloc=0)
+
+
 .. class:: SetModifierMappingReply
 
     .. method:: __init__(self, conn)
@@ -2148,7 +2151,13 @@ ooxcb.xproto
     .. method:: get_active_window(self)
 
 
+    .. method:: rgba_colormap(self)
+
+
     .. method:: get_root_visual_type(self)
+
+
+    .. method:: get_rgba_visual(self)
 
 
     .. attribute:: min_installed_maps
