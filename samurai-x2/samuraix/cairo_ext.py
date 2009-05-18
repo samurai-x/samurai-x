@@ -22,35 +22,30 @@
 # ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-"""
-    This module just contains a default example configuration that will be
-    used as fallback if there is no user configuration found.
-    You can print this file using `sx-wm --default-config`.
-    Currently, it attempts to load all standard plugins, defines
-    two floating desktops, creates some hotkeys and binds the
-    left mouse button to the move action, the right mouse button
-    to the resize action.
-"""
 
-config = {
-    'core.plugin_paths': ['~/.samuraix/plugins'],
-    'core.plugins': ['sxactions', 'sxdesktops', 'sxbind',
-        'sxcairodeco', 'sxmoveresize', 'sxtiling'],
+from ooxcb.contrib import cairo
 
-    'desktops.desktops':
-        [('one', {'layout': 'floating'}),
-         ('two', {'layout': 'tiling'})]
-    ,
-    'bind.keys': {
-            'Meta+n': 'desktops.cycle offset=1',
-            'Meta+p': 'desktops.cycle offset=-1',
-            'Meta+c': 'desktops.cycle_clients',
-            'Meta+d': 'log message="pressed d"',
-            'META+X': 'spawn cmdline="xterm -bg \'#cc0000\'"',
-            'Meta+Q': 'quit',
-        },
-    'decoration.bindings': {
-            '1': 'moveresize.move',
-            '3': 'moveresize.resize',
-        }
-}
+def create_surface(drawable, visualtype, width=None, height=None):
+    """
+        create a cairo surface for *drawable*.
+    
+        :Parameters:
+            `drawable`
+            `visualtype` : ooxcb.xproto.Visualtype
+                most likely the result of `screen.get_root_visual_type()`
+            `width`
+            `height`
+                The dimensions of the surface. If one of those arguments
+                is None, it is retrieved from the drawable's geometry.
+
+    """
+    if (width is None or height is None):
+        geom = drawable.get_geometry().reply()
+        if width is None:
+            width = geom.width
+        if height is None:
+            height = geom.height
+    return cairo.cairo_xcb_surface_create(drawable.conn,
+            drawable,
+            visualtype,
+            width, height)
