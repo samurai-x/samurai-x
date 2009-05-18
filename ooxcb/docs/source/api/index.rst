@@ -23,6 +23,7 @@ ooxcb api documentation
     list.rst
     memstream.rst
     protobj.rst
+    render.rst
     reply.rst
     request.rst
     resource.rst

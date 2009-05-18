@@ -84,4 +84,4 @@ class PyAttribute(CodegenBase):
             DEDENT]
 
     def generate_code(self):
-        return [' = '.join([self.name, self.value])]
+        return [' = '.join(map(str, [self.name, self.value]))]

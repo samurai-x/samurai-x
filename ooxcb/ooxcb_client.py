@@ -428,7 +428,7 @@ def py_complex(self, name, cls):
                         (get_expr(field.type.expr),
                             field.py_listtype,
                             field.py_listsize))
-                if field.py_type in INTERFACE.get('ResourceClasses'):
+                if field.py_type in INTERFACE.get('ResourceClasses', []):
                     # is a resource. wrap them.
                     lread_code = '[%s for w in %s]' % (get_modifier(field) % 'w', lread_code)
             read_code.append('self.%s = %s' % (prefix_if_needed(field.field_name), lread_code))
