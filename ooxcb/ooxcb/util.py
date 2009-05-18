@@ -23,6 +23,13 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+# TODO: rename `ooxcb.types`, so we can do `from types import FunctionType` here
+def _f():
+    pass
+
+FunctionType = type(_f)
+del _f
+
 class cached_property(object):
     """
         A simple cached property descriptor.
@@ -35,8 +42,21 @@ class cached_property(object):
     def __get__(self, obj, type=None):
         if obj is None:
             return self
-        
-        result = self.func(obj) 
+
+        result = self.func(obj)
         setattr(obj, self.name, result)
         return result
+
+def mixin(cls, into):
+    """
+        Add all methods of *cls* into the class *into*.
+
+        :todo: We could also use something like `cls.__bases__ += (into,)`.
+    """
+    for name, member in vars(cls).iteritems():
+        try:
+            if isinstance(member, FunctionType):
+                setattr(into, name, member)
+        except TypeError:
+            continue
 

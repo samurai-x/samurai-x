@@ -12,6 +12,14 @@ ooxcb.xtest
 
     .. attribute:: minor_version
 
+.. class:: WindowMixin
+
+    .. method:: compare_cursor(self, cursor)
+
+
+    .. method:: compare_cursor_unchecked(self, cursor)
+
+
 .. class:: xtestExtension
 
     .. data:: header
@@ -21,12 +29,6 @@ ooxcb.xtest
 
 
     .. method:: get_version_unchecked(self, major_version, minor_version)
-
-
-    .. method:: compare_cursor(self, window, cursor)
-
-
-    .. method:: compare_cursor_unchecked(self, window, cursor)
 
 
     .. method:: fake_input_checked(self, type, detail=0, time=0, window=XNone, rootX=0, rootY=0, deviceid=0)

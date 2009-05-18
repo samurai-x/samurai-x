@@ -50,6 +50,7 @@ py = Codegen()
 NAMESPACE = None
 ALL = {} # contains classes, functions, globals ...
 WRAPPERS = {}
+TAIL = []
 
 ERRORS = {} # {Opcode: (Blargh, Blargh)} - no idea what.
 EVENTS = {} # {Opcode: classname}
@@ -491,6 +492,8 @@ def py_open(self):
 
     if 'ImportCode' in INTERFACE:
         py(INTERFACE['ImportCode'])
+    if 'Mixins' in INTERFACE:
+        py('from ooxcb.util import mixin')
 
     py() \
       ('def unpack_from_stream(fmt, stream, offset=0):') \
@@ -968,6 +971,12 @@ def process_custom_classes(classes):
             mtype, minfo = dct.items()[0]
             add_custom_member(cls, mtype, minfo)
 
+def make_mixins():
+    for name, into in INTERFACE.get('Mixins', {}).iteritems():
+        clsname = pythonize_classname(name) + 'Mixin'
+        WRAPPERS[name] = ALL[clsname] = PyClass(clsname)
+        TAIL.append('mixin(%s, %s)' % (clsname, into))
+
 def make_xizers():
     for name, info in INTERFACE.get('Xizers', {}).iteritems():
         typ = info['type']
@@ -1012,6 +1021,8 @@ def generate_all():
         py('ooxcb._add_ext(key, %sExtension, _events, _errors)' % MODNAME)
     else:
         py('ooxcb._add_core(%sExtension, Setup, _events, _errors)' % MODNAME)
+
+    py(TAIL)
 
 # Must create an "output" dictionary before any xcbgen imports.
 output = {'open'    : py_open,
@@ -1067,6 +1078,7 @@ module = Module('%s.xml' % MODNAME, output)
 
 module.register()
 module.resolve()
+make_mixins()
 
 module.generate()
 make_xizers()

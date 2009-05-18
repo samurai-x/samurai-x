@@ -9,6 +9,8 @@ except ImportError:
     import StringIO
 from struct import pack, unpack, calcsize
 from array import array
+from ooxcb.xproto import Window
+from ooxcb.util import mixin
 
 def unpack_from_stream(fmt, stream, offset=0):
     if offset:
@@ -38,6 +40,25 @@ class GetVersionReply(ooxcb.Reply):
         count = 0
         stream.write(pack("=xBxxxxxxH", self.major_version, self.minor_version))
 
+class WindowMixin(object):
+    def compare_cursor(self, cursor):
+        window = self.get_internal()
+        cursor = cursor.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxII", window, cursor))
+        return self.conn.xtest.send_request(ooxcb.Request(self.conn, buf.getvalue(), 1, False, True), \
+            CompareCursorCookie(),
+            CompareCursorReply)
+
+    def compare_cursor_unchecked(self, cursor):
+        window = self.get_internal()
+        cursor = cursor.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxII", window, cursor))
+        return self.conn.xtest.send_request(ooxcb.Request(self.conn, buf.getvalue(), 1, False, False), \
+            CompareCursorCookie(),
+            CompareCursorReply)
+
 class xtestExtension(ooxcb.Extension):
     header = "xtest"
     def get_version(self, major_version, minor_version):
@@ -53,24 +74,6 @@ class xtestExtension(ooxcb.Extension):
         return self.conn.xtest.send_request(ooxcb.Request(self.conn, buf.getvalue(), 0, False, False), \
             GetVersionCookie(),
             GetVersionReply)
-
-    def compare_cursor(self, window, cursor):
-        window = window.get_internal()
-        cursor = cursor.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxII", window, cursor))
-        return self.conn.xtest.send_request(ooxcb.Request(self.conn, buf.getvalue(), 1, False, True), \
-            CompareCursorCookie(),
-            CompareCursorReply)
-
-    def compare_cursor_unchecked(self, window, cursor):
-        window = window.get_internal()
-        cursor = cursor.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxII", window, cursor))
-        return self.conn.xtest.send_request(ooxcb.Request(self.conn, buf.getvalue(), 1, False, False), \
-            CompareCursorCookie(),
-            CompareCursorReply)
 
     def fake_input_checked(self, type, detail=0, time=0, window=XNone, rootX=0, rootY=0, deviceid=0):
         window = window.get_internal()
@@ -134,4 +137,5 @@ for ev in _events.itervalues():
         ev.event_target_class = globals()[ev.event_target_class]
 
 ooxcb._add_ext(key, xtestExtension, _events, _errors)
+mixin(WindowMixin, Window)
 

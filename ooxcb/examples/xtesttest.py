@@ -28,3 +28,7 @@ center = (screen.width_in_pixels // 2, screen.height_in_pixels // 2)
 with conn.bunch():
     conn.xtest.fake_input(MotionNotify, rootX=center[0], rootY=center[1])
 
+# Now test if the root window's cursor is the null cursor.
+# Note that `compare_cursor` was mixed into the Window class.
+print screen.root.compare_cursor(ooxcb.xproto.XNone).reply().same
+
