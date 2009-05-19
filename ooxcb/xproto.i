@@ -92,6 +92,12 @@ Xizers:
         length_out: dashes_len
         seq_out: dashes
 
+    Image:
+        type: seq
+        seq_in: data
+        seq_out: data
+        length_out: data_len
+
     String:
         type: string
         seq_in: string
@@ -323,9 +329,6 @@ Requests:
     ListProperties:
         subject: window
 
-    GetGeometry:
-        subject: drawable
-
     GrabKey:
         subject: grab_window
         arguments: ["key", "modifiers", "owner_events=True", "pointer_mode=GrabMode.Async", "keyboard_mode=GrabMode.Async"]
@@ -534,6 +537,12 @@ Requests:
         do_not_xize: ["arcs"]
         doc: ":type arcs: a list of :class:`Arc` instances"
 
+    PutImage:
+        subject: gc
+        arguments: ["drawable", "format", "width", "height", "dst_x", "dst_y", "depth", "left_pad", "data"]
+        precode:
+            - !xizer "Image"
+
     FreeGC:
         subject: gc
         name: free
@@ -582,6 +591,13 @@ Requests:
         precode: ["string_len = len(string)"]
         arguments: ["string"]
         do_not_xize: ["string"]
+
+    # Drawable objects
+    GetGeometry:
+        subject: drawable
+
+    GetImage:
+        subject: drawable
 
     # Pixmap objects
     FreePixmap:

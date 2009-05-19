@@ -37,6 +37,22 @@ class Drawable(ooxcb.Resource):
             GetGeometryCookie(),
             GetGeometryReply)
 
+    def get_image(self, format, x, y, width, height, plane_mask):
+        drawable = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xBxxIhhHHI", format, drawable, x, y, width, height, plane_mask))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 73, False, True), \
+            GetImageCookie(),
+            GetImageReply)
+
+    def get_image_unchecked(self, format, x, y, width, height, plane_mask):
+        drawable = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xBxxIhhHHI", format, drawable, x, y, width, height, plane_mask))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 73, False, False), \
+            GetImageCookie(),
+            GetImageReply)
+
 class GetModifierMappingCookie(ooxcb.Cookie):
     pass
 
@@ -1688,40 +1704,6 @@ class xprotoExtension(ooxcb.Extension):
         buf.write(make_array(value_list, "I"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 55, True, False), \
             ooxcb.VoidCookie())
-
-    def put_image_checked(self, format, drawable, gc, width, height, dst_x, dst_y, left_pad, depth, data_len, data):
-        drawable = drawable.get_internal()
-        gc = gc.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xBxxIIHHhhBBxx", format, drawable, gc, width, height, dst_x, dst_y, left_pad, depth))
-        buf.write(make_array(data, "B"))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 72, True, True), \
-            ooxcb.VoidCookie())
-
-    def put_image(self, format, drawable, gc, width, height, dst_x, dst_y, left_pad, depth, data_len, data):
-        drawable = drawable.get_internal()
-        gc = gc.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xBxxIIHHhhBBxx", format, drawable, gc, width, height, dst_x, dst_y, left_pad, depth))
-        buf.write(make_array(data, "B"))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 72, True, False), \
-            ooxcb.VoidCookie())
-
-    def get_image(self, format, drawable, x, y, width, height, plane_mask):
-        drawable = drawable.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xBxxIhhHHI", format, drawable, x, y, width, height, plane_mask))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 73, False, True), \
-            GetImageCookie(),
-            GetImageReply)
-
-    def get_image_unchecked(self, format, drawable, x, y, width, height, plane_mask):
-        drawable = drawable.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xBxxIhhHHI", format, drawable, x, y, width, height, plane_mask))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 73, False, False), \
-            GetImageCookie(),
-            GetImageReply)
 
     def poly_text8_checked(self, drawable, gc, x, y, items_len, items):
         drawable = drawable.get_internal()
@@ -5724,6 +5706,26 @@ class GContext(Fontable):
         for obj in arcs:
             obj.build(buf)
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 71, True, False), \
+            ooxcb.VoidCookie())
+
+    def put_image_checked(self, drawable, format, width, height, dst_x, dst_y, depth, left_pad, data):
+        data_len = len(data)
+        drawable = drawable.get_internal()
+        gc = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xBxxIIHHhhBBxx", format, drawable, gc, width, height, dst_x, dst_y, left_pad, depth))
+        buf.write(make_array(data, "B"))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 72, True, True), \
+            ooxcb.VoidCookie())
+
+    def put_image(self, drawable, format, width, height, dst_x, dst_y, depth, left_pad, data):
+        data_len = len(data)
+        drawable = drawable.get_internal()
+        gc = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xBxxIIHHhhBBxx", format, drawable, gc, width, height, dst_x, dst_y, left_pad, depth))
+        buf.write(make_array(data, "B"))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 72, True, False), \
             ooxcb.VoidCookie())
 
     def image_text8_checked(self, drawable, x, y, string):

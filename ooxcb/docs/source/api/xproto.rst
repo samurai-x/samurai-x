@@ -1227,18 +1227,6 @@ ooxcb.xproto
     .. method:: create_g_c(self, cid, drawable, value_mask, value_list)
 
 
-    .. method:: put_image_checked(self, format, drawable, gc, width, height, dst_x, dst_y, left_pad, depth, data_len, data)
-
-
-    .. method:: put_image(self, format, drawable, gc, width, height, dst_x, dst_y, left_pad, depth, data_len, data)
-
-
-    .. method:: get_image(self, format, drawable, x, y, width, height, plane_mask)
-
-
-    .. method:: get_image_unchecked(self, format, drawable, x, y, width, height, plane_mask)
-
-
     .. method:: poly_text8_checked(self, drawable, gc, x, y, items_len, items)
 
 
@@ -3552,6 +3540,12 @@ ooxcb.xproto
     .. method:: get_geometry_unchecked(self)
 
 
+    .. method:: get_image(self, format, x, y, width, height, plane_mask)
+
+
+    .. method:: get_image_unchecked(self, format, x, y, width, height, plane_mask)
+
+
 .. class:: FocusInEvent
 
     .. data:: event_name
@@ -3664,6 +3658,12 @@ ooxcb.xproto
 
 
     .. method:: poly_fill_arc(self, drawable, arcs)
+
+
+    .. method:: put_image_checked(self, drawable, format, width, height, dst_x, dst_y, depth, left_pad, data)
+
+
+    .. method:: put_image(self, drawable, format, width, height, dst_x, dst_y, depth, left_pad, data)
 
 
     .. method:: image_text8_checked(self, drawable, x, y, string)
