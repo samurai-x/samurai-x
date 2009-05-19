@@ -19,10 +19,18 @@ def main():
     win.map()
     conn.flush()
 
+    # With this line style and these dashes, we can get funny
+    # dashed lines!
     gc = GContext.create(conn, win,
             foreground=screen.black_pixel,
-            background=pixel
+            background=pixel,
+            line_style=LineStyle.DoubleDash,
     )
+    gc.set_dashes(0, [2, 3, 4])
+
+    # You could transfer this gc's settings to another gc this way:
+    # gc1.copy(gc2, ('dash_mode', 'line_style'))
+    # The second argument should be a tuple of the settings to transfer.
 
     @win.event
     def on_button_press(evt):
@@ -50,6 +58,12 @@ def main():
             # while negative angles indicate clockwise motion.
             gc.poly_arc(win,
                     [Arc.create(conn, 200, 200, 300, 300, 0, 90 << 6)])
+            # And now a filled poly!
+            gc.fill_poly(win,
+                    [(410, 410), (440, 410), (420, 440), (400, 425)],
+                    PolyShape.Nonconvex)
+            # If you want a filled rectangle, use gc.poly_fill_rectangle,
+            # if you want a filled arc, use gc.poly_fill_arc.
 
     while 1:
         conn.wait_for_event().dispatch()

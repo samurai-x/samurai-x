@@ -204,6 +204,26 @@ def make_values_xizer(enum_name, values_dict_name, mask_out='value_mask', list_o
 
     return lambda code=code: code
 
+def make_mask_xizer(iterable_in, enum_name, mask_out):
+    code = []
+    enum = ALL[enum_name]
+    code.append(template("$mask_out = 0", mask_out=mask_out))
+    for member in enum.members:
+        if not isinstance(member, PyAttribute):
+            continue
+        key = pythonize_camelcase_name(member.name)
+        value = member.value
+        code.extend([
+            template('if "${key}" in ${iterable_in}:',
+                key=key,
+                iterable_in=iterable_in),
+            INDENT,
+            template('$mask_out |= $value',
+                mask_out=mask_out,
+                value=value),
+            DEDENT])
+    return lambda code=code: code
+
 def make_lazy_none_xizer(value, from_='None', to='XNone'):
     code = ['if %s is %s:' % (value, from_),
             INDENT,
@@ -220,6 +240,7 @@ XIZER_MAKERS = {
         'seq': make_seq_xizer,
         'objects': make_objects_xizer,
         'rectangles': make_rectangles_xizer,
+        'mask': make_mask_xizer,
         'lazy_atom': make_lazy_atom_xizer,
         'lazy_none': make_lazy_none_xizer,
         }

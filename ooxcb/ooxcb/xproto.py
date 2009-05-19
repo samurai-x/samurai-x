@@ -1473,29 +1473,13 @@ class xprotoExtension(ooxcb.Extension):
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 30, True, False), \
             ooxcb.VoidCookie())
 
-    def grab_keyboard(self, owner_events, grab_window, time, pointer_mode, keyboard_mode):
-        grab_window = grab_window.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xBxxIIBBxx", owner_events, grab_window, time, pointer_mode, keyboard_mode))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 31, False, True), \
-            GrabKeyboardCookie(),
-            GrabKeyboardReply)
-
-    def grab_keyboard_unchecked(self, owner_events, grab_window, time, pointer_mode, keyboard_mode):
-        grab_window = grab_window.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xBxxIIBBxx", owner_events, grab_window, time, pointer_mode, keyboard_mode))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 31, False, False), \
-            GrabKeyboardCookie(),
-            GrabKeyboardReply)
-
-    def ungrab_keyboard_checked(self, time):
+    def ungrab_keyboard_checked(self, time=0):
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", time))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 32, True, True), \
             ooxcb.VoidCookie())
 
-    def ungrab_keyboard(self, time):
+    def ungrab_keyboard(self, time=0):
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", time))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 32, True, False), \
@@ -1687,20 +1671,6 @@ class xprotoExtension(ooxcb.Extension):
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 53, True, False), \
             ooxcb.VoidCookie())
 
-    def free_pixmap_checked(self, pixmap):
-        pixmap = pixmap.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxI", pixmap))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 54, True, True), \
-            ooxcb.VoidCookie())
-
-    def free_pixmap(self, pixmap):
-        pixmap = pixmap.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxI", pixmap))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 54, True, False), \
-            ooxcb.VoidCookie())
-
     def create_g_c_checked(self, cid, drawable, value_mask, value_list):
         cid = cid.get_internal()
         drawable = drawable.get_internal()
@@ -1717,176 +1687,6 @@ class xprotoExtension(ooxcb.Extension):
         buf.write(pack("=xxxxIII", cid, drawable, value_mask))
         buf.write(make_array(value_list, "I"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 55, True, False), \
-            ooxcb.VoidCookie())
-
-    def change_g_c_checked(self, gc, value_mask, value_list):
-        gc = gc.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxII", gc, value_mask))
-        buf.write(make_array(value_list, "I"))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 56, True, True), \
-            ooxcb.VoidCookie())
-
-    def change_g_c(self, gc, value_mask, value_list):
-        gc = gc.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxII", gc, value_mask))
-        buf.write(make_array(value_list, "I"))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 56, True, False), \
-            ooxcb.VoidCookie())
-
-    def copy_g_c_checked(self, src_gc, dst_gc, value_mask):
-        src_gc = src_gc.get_internal()
-        dst_gc = dst_gc.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxIII", src_gc, dst_gc, value_mask))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 57, True, True), \
-            ooxcb.VoidCookie())
-
-    def copy_g_c(self, src_gc, dst_gc, value_mask):
-        src_gc = src_gc.get_internal()
-        dst_gc = dst_gc.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxIII", src_gc, dst_gc, value_mask))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 57, True, False), \
-            ooxcb.VoidCookie())
-
-    def set_dashes_checked(self, gc, dash_offset, dashes_len, dashes):
-        gc = gc.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxIHH", gc, dash_offset, dashes_len))
-        buf.write(make_array(dashes, "B"))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 58, True, True), \
-            ooxcb.VoidCookie())
-
-    def set_dashes(self, gc, dash_offset, dashes_len, dashes):
-        gc = gc.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxIHH", gc, dash_offset, dashes_len))
-        buf.write(make_array(dashes, "B"))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 58, True, False), \
-            ooxcb.VoidCookie())
-
-    def set_clip_rectangles_checked(self, ordering, gc, clip_x_origin, clip_y_origin, rectangles_len, rectangles):
-        gc = gc.get_internal()
-        rectangles = rectangles.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xBxxIhh", ordering, gc, clip_x_origin, clip_y_origin))
-        for elt in ooxcb.Iterator(rectangles, 4, "rectangles", True):
-            buf.write(pack("=hhHH", *elt))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 59, True, True), \
-            ooxcb.VoidCookie())
-
-    def set_clip_rectangles(self, ordering, gc, clip_x_origin, clip_y_origin, rectangles_len, rectangles):
-        gc = gc.get_internal()
-        rectangles = rectangles.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xBxxIhh", ordering, gc, clip_x_origin, clip_y_origin))
-        for elt in ooxcb.Iterator(rectangles, 4, "rectangles", True):
-            buf.write(pack("=hhHH", *elt))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 59, True, False), \
-            ooxcb.VoidCookie())
-
-    def copy_area_checked(self, src_drawable, dst_drawable, gc, src_x, src_y, dst_x, dst_y, width, height):
-        src_drawable = src_drawable.get_internal()
-        dst_drawable = dst_drawable.get_internal()
-        gc = gc.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxIIIhhhhHH", src_drawable, dst_drawable, gc, src_x, src_y, dst_x, dst_y, width, height))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 62, True, True), \
-            ooxcb.VoidCookie())
-
-    def copy_area(self, src_drawable, dst_drawable, gc, src_x, src_y, dst_x, dst_y, width, height):
-        src_drawable = src_drawable.get_internal()
-        dst_drawable = dst_drawable.get_internal()
-        gc = gc.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxIIIhhhhHH", src_drawable, dst_drawable, gc, src_x, src_y, dst_x, dst_y, width, height))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 62, True, False), \
-            ooxcb.VoidCookie())
-
-    def copy_plane_checked(self, src_drawable, dst_drawable, gc, src_x, src_y, dst_x, dst_y, width, height, bit_plane):
-        src_drawable = src_drawable.get_internal()
-        dst_drawable = dst_drawable.get_internal()
-        gc = gc.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxIIIhhhhHHI", src_drawable, dst_drawable, gc, src_x, src_y, dst_x, dst_y, width, height, bit_plane))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 63, True, True), \
-            ooxcb.VoidCookie())
-
-    def copy_plane(self, src_drawable, dst_drawable, gc, src_x, src_y, dst_x, dst_y, width, height, bit_plane):
-        src_drawable = src_drawable.get_internal()
-        dst_drawable = dst_drawable.get_internal()
-        gc = gc.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxIIIhhhhHHI", src_drawable, dst_drawable, gc, src_x, src_y, dst_x, dst_y, width, height, bit_plane))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 63, True, False), \
-            ooxcb.VoidCookie())
-
-    def fill_poly_checked(self, drawable, gc, shape, coordinate_mode, points_len, points):
-        drawable = drawable.get_internal()
-        gc = gc.get_internal()
-        points = points.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxIIBBxx", drawable, gc, shape, coordinate_mode))
-        for elt in ooxcb.Iterator(points, 2, "points", True):
-            buf.write(pack("=hh", *elt))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 69, True, True), \
-            ooxcb.VoidCookie())
-
-    def fill_poly(self, drawable, gc, shape, coordinate_mode, points_len, points):
-        drawable = drawable.get_internal()
-        gc = gc.get_internal()
-        points = points.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxIIBBxx", drawable, gc, shape, coordinate_mode))
-        for elt in ooxcb.Iterator(points, 2, "points", True):
-            buf.write(pack("=hh", *elt))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 69, True, False), \
-            ooxcb.VoidCookie())
-
-    def poly_fill_rectangle_checked(self, drawable, gc, rectangles_len, rectangles):
-        drawable = drawable.get_internal()
-        gc = gc.get_internal()
-        rectangles = rectangles.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxII", drawable, gc))
-        for elt in ooxcb.Iterator(rectangles, 4, "rectangles", True):
-            buf.write(pack("=hhHH", *elt))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 70, True, True), \
-            ooxcb.VoidCookie())
-
-    def poly_fill_rectangle(self, drawable, gc, rectangles_len, rectangles):
-        drawable = drawable.get_internal()
-        gc = gc.get_internal()
-        rectangles = rectangles.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxII", drawable, gc))
-        for elt in ooxcb.Iterator(rectangles, 4, "rectangles", True):
-            buf.write(pack("=hhHH", *elt))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 70, True, False), \
-            ooxcb.VoidCookie())
-
-    def poly_fill_arc_checked(self, drawable, gc, arcs_len, arcs):
-        drawable = drawable.get_internal()
-        gc = gc.get_internal()
-        arcs = arcs.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxII", drawable, gc))
-        for elt in ooxcb.Iterator(arcs, 6, "arcs", True):
-            buf.write(pack("=hhHHhh", *elt))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 71, True, True), \
-            ooxcb.VoidCookie())
-
-    def poly_fill_arc(self, drawable, gc, arcs_len, arcs):
-        drawable = drawable.get_internal()
-        gc = gc.get_internal()
-        arcs = arcs.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxII", drawable, gc))
-        for elt in ooxcb.Iterator(arcs, 6, "arcs", True):
-            buf.write(pack("=hhHHhh", *elt))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 71, True, False), \
             ooxcb.VoidCookie())
 
     def put_image_checked(self, format, drawable, gc, width, height, dst_x, dst_y, left_pad, depth, data_len, data):
@@ -3929,9 +3729,30 @@ class ListHostsCookie(ooxcb.Cookie):
 class GetMotionEventsCookie(ooxcb.Cookie):
     pass
 
-class Pixmap(ooxcb.Resource):
+class Pixmap(Drawable):
     def __init__(self, conn, xid):
         ooxcb.Resource.__init__(self, conn, xid)
+
+    def free_pixmap_checked(self):
+        pixmap = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxI", pixmap))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 54, True, True), \
+            ooxcb.VoidCookie())
+
+    def free_pixmap(self):
+        pixmap = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxI", pixmap))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 54, True, False), \
+            ooxcb.VoidCookie())
+
+    @classmethod
+    def create(cls, drawable, width, height, depth):
+        pid = conn.generate_id()
+        pixmap = cls(conn, pid)
+        conn.core.create_pixmap_checked(depth, pixmap, drawable, width, height).check()
+        return pixmap
 
 class MapNotifyEvent(ooxcb.Event):
     event_name = "on_map_notify"
@@ -4503,6 +4324,22 @@ class Window(Drawable):
         buf.write(pack("=xBxxIHxx", button, grab_window, modifiers))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 29, True, False), \
             ooxcb.VoidCookie())
+
+    def grab_keyboard(self, owner_events=True, time=0, pointer_mode=GrabMode.Async, keyboard_mode=GrabMode.Async):
+        grab_window = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xBxxIIBBxx", owner_events, grab_window, time, pointer_mode, keyboard_mode))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 31, False, True), \
+            GrabKeyboardCookie(),
+            GrabKeyboardReply)
+
+    def grab_keyboard_unchecked(self, owner_events=True, time=0, pointer_mode=GrabMode.Async, keyboard_mode=GrabMode.Async):
+        grab_window = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xBxxIIBBxx", owner_events, grab_window, time, pointer_mode, keyboard_mode))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 31, False, False), \
+            GrabKeyboardCookie(),
+            GrabKeyboardReply)
 
     def grab_key_checked(self, key, modifiers, owner_events=True, pointer_mode=GrabMode.Async, keyboard_mode=GrabMode.Async):
         grab_window = self.get_internal()
@@ -5363,6 +5200,310 @@ class GContext(Fontable):
     def __init__(self, conn, xid):
         ooxcb.Resource.__init__(self, conn, xid)
 
+    def change_g_c_checked(self, values):
+        value_mask, value_list = 0, []
+        if "function" in values:
+            value_mask |= 1
+            value_list.append(values["function"])
+        if "plane_mask" in values:
+            value_mask |= 2
+            value_list.append(values["plane_mask"])
+        if "foreground" in values:
+            value_mask |= 4
+            value_list.append(values["foreground"])
+        if "background" in values:
+            value_mask |= 8
+            value_list.append(values["background"])
+        if "line_width" in values:
+            value_mask |= 16
+            value_list.append(values["line_width"])
+        if "line_style" in values:
+            value_mask |= 32
+            value_list.append(values["line_style"])
+        if "cap_style" in values:
+            value_mask |= 64
+            value_list.append(values["cap_style"])
+        if "join_style" in values:
+            value_mask |= 128
+            value_list.append(values["join_style"])
+        if "fill_style" in values:
+            value_mask |= 256
+            value_list.append(values["fill_style"])
+        if "fill_rule" in values:
+            value_mask |= 512
+            value_list.append(values["fill_rule"])
+        if "tile" in values:
+            value_mask |= 1024
+            value_list.append(values["tile"])
+        if "stipple" in values:
+            value_mask |= 2048
+            value_list.append(values["stipple"])
+        if "tile_stipple_origin_x" in values:
+            value_mask |= 4096
+            value_list.append(values["tile_stipple_origin_x"])
+        if "tile_stipple_origin_y" in values:
+            value_mask |= 8192
+            value_list.append(values["tile_stipple_origin_y"])
+        if "font" in values:
+            value_mask |= 16384
+            value_list.append(values["font"].get_internal())
+        if "subwindow_mode" in values:
+            value_mask |= 32768
+            value_list.append(values["subwindow_mode"])
+        if "graphics_exposures" in values:
+            value_mask |= 65536
+            value_list.append(values["graphics_exposures"])
+        if "clip_origin_x" in values:
+            value_mask |= 131072
+            value_list.append(values["clip_origin_x"])
+        if "clip_origin_y" in values:
+            value_mask |= 262144
+            value_list.append(values["clip_origin_y"])
+        if "clip_mask" in values:
+            value_mask |= 524288
+            value_list.append(values["clip_mask"])
+        if "dash_offset" in values:
+            value_mask |= 1048576
+            value_list.append(values["dash_offset"])
+        if "dash_list" in values:
+            value_mask |= 2097152
+            value_list.append(values["dash_list"])
+        if "arc_mode" in values:
+            value_mask |= 4194304
+            value_list.append(values["arc_mode"])
+        gc = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxII", gc, value_mask))
+        buf.write(make_array(value_list, "I"))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 56, True, True), \
+            ooxcb.VoidCookie())
+
+    def change_g_c(self, values):
+        value_mask, value_list = 0, []
+        if "function" in values:
+            value_mask |= 1
+            value_list.append(values["function"])
+        if "plane_mask" in values:
+            value_mask |= 2
+            value_list.append(values["plane_mask"])
+        if "foreground" in values:
+            value_mask |= 4
+            value_list.append(values["foreground"])
+        if "background" in values:
+            value_mask |= 8
+            value_list.append(values["background"])
+        if "line_width" in values:
+            value_mask |= 16
+            value_list.append(values["line_width"])
+        if "line_style" in values:
+            value_mask |= 32
+            value_list.append(values["line_style"])
+        if "cap_style" in values:
+            value_mask |= 64
+            value_list.append(values["cap_style"])
+        if "join_style" in values:
+            value_mask |= 128
+            value_list.append(values["join_style"])
+        if "fill_style" in values:
+            value_mask |= 256
+            value_list.append(values["fill_style"])
+        if "fill_rule" in values:
+            value_mask |= 512
+            value_list.append(values["fill_rule"])
+        if "tile" in values:
+            value_mask |= 1024
+            value_list.append(values["tile"])
+        if "stipple" in values:
+            value_mask |= 2048
+            value_list.append(values["stipple"])
+        if "tile_stipple_origin_x" in values:
+            value_mask |= 4096
+            value_list.append(values["tile_stipple_origin_x"])
+        if "tile_stipple_origin_y" in values:
+            value_mask |= 8192
+            value_list.append(values["tile_stipple_origin_y"])
+        if "font" in values:
+            value_mask |= 16384
+            value_list.append(values["font"].get_internal())
+        if "subwindow_mode" in values:
+            value_mask |= 32768
+            value_list.append(values["subwindow_mode"])
+        if "graphics_exposures" in values:
+            value_mask |= 65536
+            value_list.append(values["graphics_exposures"])
+        if "clip_origin_x" in values:
+            value_mask |= 131072
+            value_list.append(values["clip_origin_x"])
+        if "clip_origin_y" in values:
+            value_mask |= 262144
+            value_list.append(values["clip_origin_y"])
+        if "clip_mask" in values:
+            value_mask |= 524288
+            value_list.append(values["clip_mask"])
+        if "dash_offset" in values:
+            value_mask |= 1048576
+            value_list.append(values["dash_offset"])
+        if "dash_list" in values:
+            value_mask |= 2097152
+            value_list.append(values["dash_list"])
+        if "arc_mode" in values:
+            value_mask |= 4194304
+            value_list.append(values["arc_mode"])
+        gc = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxII", gc, value_mask))
+        buf.write(make_array(value_list, "I"))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 56, True, False), \
+            ooxcb.VoidCookie())
+
+    def copy_checked(self, values=()):
+        value_mask = 0
+        if "function" in values:
+            value_mask |= 1
+        if "plane_mask" in values:
+            value_mask |= 2
+        if "foreground" in values:
+            value_mask |= 4
+        if "background" in values:
+            value_mask |= 8
+        if "line_width" in values:
+            value_mask |= 16
+        if "line_style" in values:
+            value_mask |= 32
+        if "cap_style" in values:
+            value_mask |= 64
+        if "join_style" in values:
+            value_mask |= 128
+        if "fill_style" in values:
+            value_mask |= 256
+        if "fill_rule" in values:
+            value_mask |= 512
+        if "tile" in values:
+            value_mask |= 1024
+        if "stipple" in values:
+            value_mask |= 2048
+        if "tile_stipple_origin_x" in values:
+            value_mask |= 4096
+        if "tile_stipple_origin_y" in values:
+            value_mask |= 8192
+        if "font" in values:
+            value_mask |= 16384
+        if "subwindow_mode" in values:
+            value_mask |= 32768
+        if "graphics_exposures" in values:
+            value_mask |= 65536
+        if "clip_origin_x" in values:
+            value_mask |= 131072
+        if "clip_origin_y" in values:
+            value_mask |= 262144
+        if "clip_mask" in values:
+            value_mask |= 524288
+        if "dash_offset" in values:
+            value_mask |= 1048576
+        if "dash_list" in values:
+            value_mask |= 2097152
+        if "arc_mode" in values:
+            value_mask |= 4194304
+        src_gc = self.get_internal()
+        dst_gc = dst_gc.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxIII", src_gc, dst_gc, value_mask))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 57, True, True), \
+            ooxcb.VoidCookie())
+
+    def copy(self, values=()):
+        value_mask = 0
+        if "function" in values:
+            value_mask |= 1
+        if "plane_mask" in values:
+            value_mask |= 2
+        if "foreground" in values:
+            value_mask |= 4
+        if "background" in values:
+            value_mask |= 8
+        if "line_width" in values:
+            value_mask |= 16
+        if "line_style" in values:
+            value_mask |= 32
+        if "cap_style" in values:
+            value_mask |= 64
+        if "join_style" in values:
+            value_mask |= 128
+        if "fill_style" in values:
+            value_mask |= 256
+        if "fill_rule" in values:
+            value_mask |= 512
+        if "tile" in values:
+            value_mask |= 1024
+        if "stipple" in values:
+            value_mask |= 2048
+        if "tile_stipple_origin_x" in values:
+            value_mask |= 4096
+        if "tile_stipple_origin_y" in values:
+            value_mask |= 8192
+        if "font" in values:
+            value_mask |= 16384
+        if "subwindow_mode" in values:
+            value_mask |= 32768
+        if "graphics_exposures" in values:
+            value_mask |= 65536
+        if "clip_origin_x" in values:
+            value_mask |= 131072
+        if "clip_origin_y" in values:
+            value_mask |= 262144
+        if "clip_mask" in values:
+            value_mask |= 524288
+        if "dash_offset" in values:
+            value_mask |= 1048576
+        if "dash_list" in values:
+            value_mask |= 2097152
+        if "arc_mode" in values:
+            value_mask |= 4194304
+        src_gc = self.get_internal()
+        dst_gc = dst_gc.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxIII", src_gc, dst_gc, value_mask))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 57, True, False), \
+            ooxcb.VoidCookie())
+
+    def set_dashes_checked(self, dash_offset, dashes):
+        dashes_len = len(dashes)
+        gc = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxIHH", gc, dash_offset, dashes_len))
+        buf.write(make_array(dashes, "B"))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 58, True, True), \
+            ooxcb.VoidCookie())
+
+    def set_dashes(self, dash_offset, dashes):
+        dashes_len = len(dashes)
+        gc = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxIHH", gc, dash_offset, dashes_len))
+        buf.write(make_array(dashes, "B"))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 58, True, False), \
+            ooxcb.VoidCookie())
+
+    def set_clip_rectangles_checked(self, clip_x_origin, clip_y_origin, ordering, rectangles):
+        rectangles_len = len(rectangles)
+        gc = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xBxxIhh", ordering, gc, clip_x_origin, clip_y_origin))
+        for obj in rectangles:
+            obj.build(buf)
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 59, True, True), \
+            ooxcb.VoidCookie())
+
+    def set_clip_rectangles(self, clip_x_origin, clip_y_origin, ordering, rectangles):
+        rectangles_len = len(rectangles)
+        gc = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xBxxIhh", ordering, gc, clip_x_origin, clip_y_origin))
+        for obj in rectangles:
+            obj.build(buf)
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 59, True, False), \
+            ooxcb.VoidCookie())
+
     def free_checked(self):
         gc = self.get_internal()
         buf = StringIO.StringIO()
@@ -5375,6 +5516,42 @@ class GContext(Fontable):
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", gc))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 60, True, False), \
+            ooxcb.VoidCookie())
+
+    def copy_area_checked(self, src_drawable, dst_drawable, src_x, src_y, dst_x, dst_y, width, height):
+        src_drawable = src_drawable.get_internal()
+        dst_drawable = dst_drawable.get_internal()
+        gc = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxIIIhhhhHH", src_drawable, dst_drawable, gc, src_x, src_y, dst_x, dst_y, width, height))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 62, True, True), \
+            ooxcb.VoidCookie())
+
+    def copy_area(self, src_drawable, dst_drawable, src_x, src_y, dst_x, dst_y, width, height):
+        src_drawable = src_drawable.get_internal()
+        dst_drawable = dst_drawable.get_internal()
+        gc = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxIIIhhhhHH", src_drawable, dst_drawable, gc, src_x, src_y, dst_x, dst_y, width, height))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 62, True, False), \
+            ooxcb.VoidCookie())
+
+    def copy_plane_checked(self, src_drawable, dst_drawable, src_x, src_y, dst_x, dst_y, width, height, bit_plane):
+        src_drawable = src_drawable.get_internal()
+        dst_drawable = dst_drawable.get_internal()
+        gc = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxIIIhhhhHHI", src_drawable, dst_drawable, gc, src_x, src_y, dst_x, dst_y, width, height, bit_plane))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 63, True, True), \
+            ooxcb.VoidCookie())
+
+    def copy_plane(self, src_drawable, dst_drawable, src_x, src_y, dst_x, dst_y, width, height, bit_plane):
+        src_drawable = src_drawable.get_internal()
+        dst_drawable = dst_drawable.get_internal()
+        gc = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxIIIhhhhHHI", src_drawable, dst_drawable, gc, src_x, src_y, dst_x, dst_y, width, height, bit_plane))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 63, True, False), \
             ooxcb.VoidCookie())
 
     def poly_point_checked(self, drawable, points, coordinate_mode=0):
@@ -5483,6 +5660,70 @@ class GContext(Fontable):
         for obj in arcs:
             obj.build(buf)
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 68, True, False), \
+            ooxcb.VoidCookie())
+
+    def fill_poly_checked(self, drawable, points, shape=0, coordinate_mode=0):
+        points_len = len(points)
+        drawable = drawable.get_internal()
+        gc = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxIIBBxx", drawable, gc, shape, coordinate_mode))
+        for elt in ooxcb.Iterator(points, 2, "points", True):
+            buf.write(pack("=hh", *elt))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 69, True, True), \
+            ooxcb.VoidCookie())
+
+    def fill_poly(self, drawable, points, shape=0, coordinate_mode=0):
+        points_len = len(points)
+        drawable = drawable.get_internal()
+        gc = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxIIBBxx", drawable, gc, shape, coordinate_mode))
+        for elt in ooxcb.Iterator(points, 2, "points", True):
+            buf.write(pack("=hh", *elt))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 69, True, False), \
+            ooxcb.VoidCookie())
+
+    def poly_fill_rectangle_checked(self, drawable, rectangles):
+        gc = self.get_internal()
+        drawable = drawable.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxII", drawable, gc))
+        for rect in rectangles:
+            buf.write(pack("=hhHH", rect.x, rect.y, rect.width, rect.height))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 70, True, True), \
+            ooxcb.VoidCookie())
+
+    def poly_fill_rectangle(self, drawable, rectangles):
+        gc = self.get_internal()
+        drawable = drawable.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxII", drawable, gc))
+        for rect in rectangles:
+            buf.write(pack("=hhHH", rect.x, rect.y, rect.width, rect.height))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 70, True, False), \
+            ooxcb.VoidCookie())
+
+    def poly_fill_arc_checked(self, drawable, arcs):
+        arcs_length = len(arcs)
+        drawable = drawable.get_internal()
+        gc = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack('xxxxII', drawable, gc))
+        for obj in arcs:
+            obj.build(buf)
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 71, True, True), \
+            ooxcb.VoidCookie())
+
+    def poly_fill_arc(self, drawable, arcs):
+        arcs_length = len(arcs)
+        drawable = drawable.get_internal()
+        gc = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack('xxxxII', drawable, gc))
+        for obj in arcs:
+            obj.build(buf)
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 71, True, False), \
             ooxcb.VoidCookie())
 
     def image_text8_checked(self, drawable, x, y, string):

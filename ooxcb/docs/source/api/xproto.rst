@@ -1143,16 +1143,10 @@ ooxcb.xproto
     .. method:: change_active_pointer_grab(self, cursor, time, event_mask)
 
 
-    .. method:: grab_keyboard(self, owner_events, grab_window, time, pointer_mode, keyboard_mode)
+    .. method:: ungrab_keyboard_checked(self, time=0)
 
 
-    .. method:: grab_keyboard_unchecked(self, owner_events, grab_window, time, pointer_mode, keyboard_mode)
-
-
-    .. method:: ungrab_keyboard_checked(self, time)
-
-
-    .. method:: ungrab_keyboard(self, time)
+    .. method:: ungrab_keyboard(self, time=0)
 
 
     .. method:: allow_events_checked(self, mode, time=0)
@@ -1227,70 +1221,10 @@ ooxcb.xproto
     .. method:: create_pixmap(self, depth, pid, drawable, width, height)
 
 
-    .. method:: free_pixmap_checked(self, pixmap)
-
-
-    .. method:: free_pixmap(self, pixmap)
-
-
     .. method:: create_g_c_checked(self, cid, drawable, value_mask, value_list)
 
 
     .. method:: create_g_c(self, cid, drawable, value_mask, value_list)
-
-
-    .. method:: change_g_c_checked(self, gc, value_mask, value_list)
-
-
-    .. method:: change_g_c(self, gc, value_mask, value_list)
-
-
-    .. method:: copy_g_c_checked(self, src_gc, dst_gc, value_mask)
-
-
-    .. method:: copy_g_c(self, src_gc, dst_gc, value_mask)
-
-
-    .. method:: set_dashes_checked(self, gc, dash_offset, dashes_len, dashes)
-
-
-    .. method:: set_dashes(self, gc, dash_offset, dashes_len, dashes)
-
-
-    .. method:: set_clip_rectangles_checked(self, ordering, gc, clip_x_origin, clip_y_origin, rectangles_len, rectangles)
-
-
-    .. method:: set_clip_rectangles(self, ordering, gc, clip_x_origin, clip_y_origin, rectangles_len, rectangles)
-
-
-    .. method:: copy_area_checked(self, src_drawable, dst_drawable, gc, src_x, src_y, dst_x, dst_y, width, height)
-
-
-    .. method:: copy_area(self, src_drawable, dst_drawable, gc, src_x, src_y, dst_x, dst_y, width, height)
-
-
-    .. method:: copy_plane_checked(self, src_drawable, dst_drawable, gc, src_x, src_y, dst_x, dst_y, width, height, bit_plane)
-
-
-    .. method:: copy_plane(self, src_drawable, dst_drawable, gc, src_x, src_y, dst_x, dst_y, width, height, bit_plane)
-
-
-    .. method:: fill_poly_checked(self, drawable, gc, shape, coordinate_mode, points_len, points)
-
-
-    .. method:: fill_poly(self, drawable, gc, shape, coordinate_mode, points_len, points)
-
-
-    .. method:: poly_fill_rectangle_checked(self, drawable, gc, rectangles_len, rectangles)
-
-
-    .. method:: poly_fill_rectangle(self, drawable, gc, rectangles_len, rectangles)
-
-
-    .. method:: poly_fill_arc_checked(self, drawable, gc, arcs_len, arcs)
-
-
-    .. method:: poly_fill_arc(self, drawable, gc, arcs_len, arcs)
 
 
     .. method:: put_image_checked(self, format, drawable, gc, width, height, dst_x, dst_y, left_pad, depth, data_len, data)
@@ -2857,6 +2791,15 @@ ooxcb.xproto
     .. method:: __init__(self, conn, xid)
 
 
+    .. method:: free_pixmap_checked(self)
+
+
+    .. method:: free_pixmap(self)
+
+
+    .. classmethod:: create(cls, drawable, width, height, depth)
+
+
 .. class:: MapNotifyEvent
 
     .. data:: event_name
@@ -3023,6 +2966,12 @@ ooxcb.xproto
 
 
     .. method:: ungrab_button(self, button, modifiers)
+
+
+    .. method:: grab_keyboard(self, owner_events=True, time=0, pointer_mode=GrabMode.Async, keyboard_mode=GrabMode.Async)
+
+
+    .. method:: grab_keyboard_unchecked(self, owner_events=True, time=0, pointer_mode=GrabMode.Async, keyboard_mode=GrabMode.Async)
 
 
     .. method:: grab_key_checked(self, key, modifiers, owner_events=True, pointer_mode=GrabMode.Async, keyboard_mode=GrabMode.Async)
@@ -3627,10 +3576,46 @@ ooxcb.xproto
     .. method:: __init__(self, conn, xid)
 
 
+    .. method:: change_g_c_checked(self, values)
+
+
+    .. method:: change_g_c(self, values)
+
+
+    .. method:: copy_checked(self, values=())
+
+
+    .. method:: copy(self, values=())
+
+
+    .. method:: set_dashes_checked(self, dash_offset, dashes)
+
+
+    .. method:: set_dashes(self, dash_offset, dashes)
+
+
+    .. method:: set_clip_rectangles_checked(self, clip_x_origin, clip_y_origin, ordering, rectangles)
+
+
+    .. method:: set_clip_rectangles(self, clip_x_origin, clip_y_origin, ordering, rectangles)
+
+
     .. method:: free_checked(self)
 
 
     .. method:: free(self)
+
+
+    .. method:: copy_area_checked(self, src_drawable, dst_drawable, src_x, src_y, dst_x, dst_y, width, height)
+
+
+    .. method:: copy_area(self, src_drawable, dst_drawable, src_x, src_y, dst_x, dst_y, width, height)
+
+
+    .. method:: copy_plane_checked(self, src_drawable, dst_drawable, src_x, src_y, dst_x, dst_y, width, height, bit_plane)
+
+
+    .. method:: copy_plane(self, src_drawable, dst_drawable, src_x, src_y, dst_x, dst_y, width, height, bit_plane)
 
 
     .. method:: poly_point_checked(self, drawable, points, coordinate_mode=0)
@@ -3661,6 +3646,24 @@ ooxcb.xproto
 
 
     .. method:: poly_arc(self, drawable, arcs)
+
+
+    .. method:: fill_poly_checked(self, drawable, points, shape=0, coordinate_mode=0)
+
+
+    .. method:: fill_poly(self, drawable, points, shape=0, coordinate_mode=0)
+
+
+    .. method:: poly_fill_rectangle_checked(self, drawable, rectangles)
+
+
+    .. method:: poly_fill_rectangle(self, drawable, rectangles)
+
+
+    .. method:: poly_fill_arc_checked(self, drawable, arcs)
+
+
+    .. method:: poly_fill_arc(self, drawable, arcs)
 
 
     .. method:: image_text8_checked(self, drawable, x, y, string)

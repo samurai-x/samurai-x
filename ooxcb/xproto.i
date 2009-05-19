@@ -37,6 +37,12 @@ Xizers:
         xize:
             - font
 
+    CopyGC:
+        type: mask
+        enum_name: GC
+        iterable_in: values
+        mask_out: value_mask
+
     ConfigWindow:
         type: values
         enum_name: ConfigWindow
@@ -64,6 +70,12 @@ Xizers:
         type: objects
         name: rectangles
 
+    Rectangles:
+        type: seq
+        seq_in: rectangles
+        length_out: rectangles_len
+        seq_out: rectangles
+
     ArcsObjects:
         type: objects
         name: arcs
@@ -73,6 +85,12 @@ Xizers:
         seq_in: arcs
         length_out: arcs_length
         seq_out: arcs
+
+    Dashes:
+        type: seq
+        seq_in: dashes
+        length_out: dashes_len
+        seq_out: dashes
 
     String:
         type: string
@@ -361,6 +379,18 @@ Requests:
         defaults:
             time: 0 # TODO: CurrentTime
 
+    GrabKeyboard:
+        subject: grab_window
+        defaults:
+            owner_events: True
+            pointer_mode: GrabMode.Async
+            keyboard_mode: GrabMode.Async
+            time: 0 # TODO: CurrentTime
+
+    UngrabKeyboard:
+        defaults:
+            time: 0
+
     SendEvent:
         subject: destination # TODO: add PointerWindow and InputFocus!
         arguments: ["event_mask", "event", "propagate=False"]
@@ -442,13 +472,84 @@ Requests:
             - "buf = StringIO.StringIO()"
             - "buf.write(pack('xxxxII', drawable, gc))"
             - !xizer "ArcsObjects"
+        do_not_xize: ["arcs"]
+        doc: ":type arcs: a list of :class:`Arc` instances"
 
+    SetDashes:
+        subject: gc
+        arguments: ["dash_offset", "dashes"]
+        precode:
+            - !xizer "Dashes"
+
+    SetClipRectangles:
+        subject: gc
+        arguments: ["clip_x_origin", "clip_y_origin", "ordering", "rectangles"]
+        initcode:
+            - !xizer "Rectangles"
+            - "gc = self.get_internal()"
+            - "buf = StringIO.StringIO()"
+            - 'buf.write(pack("=xBxxIhh", ordering, gc, clip_x_origin, clip_y_origin))'
+            - !xizer "RectanglesObjects"
+        do_not_xize: ["rectangles"]
+        doc: ":type rectangles: a list of :class:`Rectangle` instances"
+
+    CopyArea:
+        subject: gc
+
+    CopyPlane:
+        subject: gc
+
+    FillPoly:
+        subject: gc
+        arguments: ["drawable", "points", "shape=0", "coordinate_mode=0"] # PolyShape.Complex, CoordMode.Origin
+        precode:
+            - !xizer "Points"
+        do_not_xize:
+            - "points"
+        doc: ":param points: a list of tuples (x, y)\n:type coordinate_mode: :class:`CoordMode`\n:type shape: :class:`PolyShape`"
+
+    PolyFillRectangle:
+        subject: gc
+        arguments: ["drawable", "rectangles"]
+        initcode:
+            - "gc = self.get_internal()"
+            - "drawable = drawable.get_internal()"
+            - "buf = StringIO.StringIO()"
+            - 'buf.write(pack("=xxxxII", drawable, gc))'
+            - "for rect in rectangles:"
+            - !indent
+            - 'buf.write(pack("=hhHH", rect.x, rect.y, rect.width, rect.height))'
+            - !dedent
+
+    PolyFillArc:
+        subject: gc
+        arguments: ["drawable", "arcs"]
+        initcode:
+            - !xizer "Arcs"
+            - "drawable = drawable.get_internal()"
+            - "gc = self.get_internal()"
+            - "buf = StringIO.StringIO()"
+            - "buf.write(pack('xxxxII', drawable, gc))"
+            - !xizer "ArcsObjects"
         do_not_xize: ["arcs"]
         doc: ":type arcs: a list of :class:`Arc` instances"
 
     FreeGC:
         subject: gc
         name: free
+
+    ChangeGC:
+        subject: gc
+        arguments: ["values"]
+        precode:
+            - !xizer "GC"
+
+    CopyGC:
+        subject: src_gc
+        arguments: ["values=()"]
+        name: copy
+        precode:
+            - !xizer "CopyGC"
 
     # Colormap objects
 
@@ -482,6 +583,10 @@ Requests:
         arguments: ["string"]
         do_not_xize: ["string"]
 
+    # Pixmap objects
+    FreePixmap:
+        subject: pixmap
+
     # Cursor objects
 
     # TODO: wrap create_cursor
@@ -490,7 +595,7 @@ Requests:
 
 Classes:
     Drawable:
-        - order: 99 # just before `Window`
+        - order: 99 # just before `Window` and `Pixmap`
 
     Window:
         - base: Drawable
@@ -512,6 +617,18 @@ Classes:
             arguments: ["conn", "screen", "*args", "**kwargs"]
             code:
                 - "return cls.create(conn, screen.root, screen.root_depth, screen.root_visual, *args, **kwargs)"
+
+    Pixmap:
+        - order: 100
+        - base: Drawable
+        - classmethod:
+            name: create
+            arguments: ["drawable", "width", "height", "depth"]
+            code:
+                - "pid = conn.generate_id()"
+                - "pixmap = cls(conn, pid)"
+                - "conn.core.create_pixmap_checked(depth, pixmap, drawable, width, height).check()"
+                - "return pixmap"
 
     GContext:
         - base: Fontable
