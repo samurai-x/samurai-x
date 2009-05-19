@@ -2989,12 +2989,6 @@ ooxcb.xproto
     .. method:: circulate_window(self, direction)
 
 
-    .. method:: get_geometry(self)
-
-
-    .. method:: get_geometry_unchecked(self)
-
-
     .. method:: query_tree(self)
 
 
@@ -3601,6 +3595,12 @@ ooxcb.xproto
 .. class:: Drawable
 
     .. method:: __init__(self, conn, xid)
+
+
+    .. method:: get_geometry(self)
+
+
+    .. method:: get_geometry_unchecked(self)
 
 
 .. class:: FocusInEvent

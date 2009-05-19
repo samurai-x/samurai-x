@@ -307,7 +307,6 @@ Requests:
 
     GetGeometry:
         subject: drawable
-        class: Window # TODO: for drawable, not for Window!
 
     GrabKey:
         subject: grab_window
@@ -476,8 +475,12 @@ Requests:
     # no need to hack CreateGlyphCursor ...
 
 Classes:
+    Drawable:
+        - order: 99 # just before `Window`
+
     Window:
-#        - base: Drawable # TODO: fix the class 'order'?
+        - base: Drawable
+        - order: 100
         - classmethod:
             name: create
             arguments: ["conn", "parent", "depth", "visual", "x=0", "y=0", "width=640", "height=480", "border_width=0", "_class=WindowClass.InputOutput", "**values"]

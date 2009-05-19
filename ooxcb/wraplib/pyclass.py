@@ -3,11 +3,12 @@ from .template import template
 from .pymember import PyMethod, PyAttribute
 
 class PyClass(CodegenBase):
-    def __init__(self, name, base='object'):
+    def __init__(self, name, base='object', order=100):
         self.name = name
         self.base = base
         self.members = []
         self.instance_attributes = {}
+        self.order = order
 
     def add_member(self, member):
         self.members.append(member)

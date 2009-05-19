@@ -17,6 +17,26 @@ def unpack_from_stream(fmt, stream, offset=0):
     s = stream.read(calcsize(fmt))
     return unpack(fmt, s)
 
+class Drawable(ooxcb.Resource):
+    def __init__(self, conn, xid):
+        ooxcb.Resource.__init__(self, conn, xid)
+
+    def get_geometry(self):
+        drawable = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxI", drawable))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 14, False, True), \
+            GetGeometryCookie(),
+            GetGeometryReply)
+
+    def get_geometry_unchecked(self):
+        drawable = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxI", drawable))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 14, False, False), \
+            GetGeometryCookie(),
+            GetGeometryReply)
+
 class GetModifierMappingCookie(ooxcb.Cookie):
     pass
 
@@ -4020,7 +4040,7 @@ class Fontprop(ooxcb.Struct):
         count = 0
         stream.write(pack("=II", self.name.get_internal(), self.value))
 
-class Window(ooxcb.Resource):
+class Window(Drawable):
     def __init__(self, conn, xid):
         ooxcb.Resource.__init__(self, conn, xid)
 
@@ -4349,22 +4369,6 @@ class Window(ooxcb.Resource):
         buf.write(pack("=xBxxI", direction, window))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 13, True, False), \
             ooxcb.VoidCookie())
-
-    def get_geometry(self):
-        drawable = self.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxI", drawable))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 14, False, True), \
-            GetGeometryCookie(),
-            GetGeometryReply)
-
-    def get_geometry_unchecked(self):
-        drawable = self.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxI", drawable))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 14, False, False), \
-            GetGeometryCookie(),
-            GetGeometryReply)
 
     def query_tree(self):
         window = self.get_internal()
@@ -5330,10 +5334,6 @@ class CursorError(ooxcb.Error):
     def build(self, stream):
         count = 0
         stream.write(pack("=xxxxIHBx", self.bad_value, self.minor_opcode, self.major_opcode))
-
-class Drawable(ooxcb.Resource):
-    def __init__(self, conn, xid):
-        ooxcb.Resource.__init__(self, conn, xid)
 
 class FocusInEvent(ooxcb.Event):
     event_name = "on_focus_in"

@@ -950,11 +950,15 @@ def add_custom_member(cls, mtype, minfo):
     def _set_base():
         cls.base = minfo
 
+    def _set_order():
+        cls.order = int(minfo)
+
     types = {
         'method': _add_method,
         'classmethod': _add_classmethod,
         'attribute': _add_attribute,
         'base': _set_base,
+        'order': _set_order,
         }
     return types[mtype]()
 
@@ -995,7 +999,9 @@ def generate_docs():
         f.write(gen.buf)
 
 def generate_all():
-    for item in ALL.itervalues():
+    # print all items, sorted ascending by their `order` attribute.
+    # default is 100.
+    for item in sorted(ALL.itervalues(), key=lambda item: getattr(item, 'order', 100)):
         map(py, item.generate_code())
     # and last but not least: the events, errors, and registring!
     py('_events = {')
