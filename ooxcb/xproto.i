@@ -310,10 +310,24 @@ Requests:
 
     GrabKey:
         subject: grab_window
+        arguments: ["key", "modifiers", "owner_events=True", "pointer_mode=GrabMode.Async", "keyboard_mode=GrabMode.Async"]
+        # Swapped `key` and `modifiers`, found this more consistent, because
+        # UngrabKey has `key`, `modifiers` too :)
+
+    UngrabKey:
+        subject: grab_window
+
+    UngrabButton:
+        subject: grab_window
+
+    GrabButton:
+        subject: grab_window
         defaults:
             owner_events: True
             pointer_mode: GrabMode.Async
             keyboard_mode: GrabMode.Async
+            confine_to: XNone
+            cursor: XNone
 
     ReparentWindow:
         name: reparent
@@ -567,7 +581,7 @@ Classes:
                 - "rect.width = width"
                 - "rect.height = height"
                 - "return rect"
-    
+
     Colormap:
         - method:
             name: alloc_hex_color

@@ -1137,18 +1137,6 @@ ooxcb.xproto
     .. method:: ungrab_pointer(self, time=0)
 
 
-    .. method:: grab_button_checked(self, owner_events, grab_window, event_mask, pointer_mode, keyboard_mode, confine_to, cursor, button, modifiers)
-
-
-    .. method:: grab_button(self, owner_events, grab_window, event_mask, pointer_mode, keyboard_mode, confine_to, cursor, button, modifiers)
-
-
-    .. method:: ungrab_button_checked(self, button, grab_window, modifiers)
-
-
-    .. method:: ungrab_button(self, button, grab_window, modifiers)
-
-
     .. method:: change_active_pointer_grab_checked(self, cursor, time, event_mask)
 
 
@@ -1165,12 +1153,6 @@ ooxcb.xproto
 
 
     .. method:: ungrab_keyboard(self, time)
-
-
-    .. method:: ungrab_key_checked(self, key, grab_window, modifiers)
-
-
-    .. method:: ungrab_key(self, key, grab_window, modifiers)
 
 
     .. method:: allow_events_checked(self, mode, time=0)
@@ -3031,10 +3013,28 @@ ooxcb.xproto
     .. method:: grab_pointer_unchecked(self, event_mask, owner_events=True, pointer_mode=GrabMode.Async, keyboard_mode=GrabMode.Async, confine_to=None, cursor=None, time=0)
 
 
-    .. method:: grab_key_checked(self, modifiers, key, owner_events=True, pointer_mode=GrabMode.Async, keyboard_mode=GrabMode.Async)
+    .. method:: grab_button_checked(self, event_mask, button, modifiers, owner_events=True, pointer_mode=GrabMode.Async, keyboard_mode=GrabMode.Async, confine_to=XNone, cursor=XNone)
 
 
-    .. method:: grab_key(self, modifiers, key, owner_events=True, pointer_mode=GrabMode.Async, keyboard_mode=GrabMode.Async)
+    .. method:: grab_button(self, event_mask, button, modifiers, owner_events=True, pointer_mode=GrabMode.Async, keyboard_mode=GrabMode.Async, confine_to=XNone, cursor=XNone)
+
+
+    .. method:: ungrab_button_checked(self, button, modifiers)
+
+
+    .. method:: ungrab_button(self, button, modifiers)
+
+
+    .. method:: grab_key_checked(self, key, modifiers, owner_events=True, pointer_mode=GrabMode.Async, keyboard_mode=GrabMode.Async)
+
+
+    .. method:: grab_key(self, key, modifiers, owner_events=True, pointer_mode=GrabMode.Async, keyboard_mode=GrabMode.Async)
+
+
+    .. method:: ungrab_key_checked(self, key, modifiers)
+
+
+    .. method:: ungrab_key(self, key, modifiers)
 
 
     .. method:: query_pointer(self)

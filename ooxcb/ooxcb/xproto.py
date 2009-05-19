@@ -1459,38 +1459,6 @@ class xprotoExtension(ooxcb.Extension):
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 27, True, False), \
             ooxcb.VoidCookie())
 
-    def grab_button_checked(self, owner_events, grab_window, event_mask, pointer_mode, keyboard_mode, confine_to, cursor, button, modifiers):
-        grab_window = grab_window.get_internal()
-        confine_to = confine_to.get_internal()
-        cursor = cursor.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xBxxIHBBIIBxH", owner_events, grab_window, event_mask, pointer_mode, keyboard_mode, confine_to, cursor, button, modifiers))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 28, True, True), \
-            ooxcb.VoidCookie())
-
-    def grab_button(self, owner_events, grab_window, event_mask, pointer_mode, keyboard_mode, confine_to, cursor, button, modifiers):
-        grab_window = grab_window.get_internal()
-        confine_to = confine_to.get_internal()
-        cursor = cursor.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xBxxIHBBIIBxH", owner_events, grab_window, event_mask, pointer_mode, keyboard_mode, confine_to, cursor, button, modifiers))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 28, True, False), \
-            ooxcb.VoidCookie())
-
-    def ungrab_button_checked(self, button, grab_window, modifiers):
-        grab_window = grab_window.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xBxxIHxx", button, grab_window, modifiers))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 29, True, True), \
-            ooxcb.VoidCookie())
-
-    def ungrab_button(self, button, grab_window, modifiers):
-        grab_window = grab_window.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xBxxIHxx", button, grab_window, modifiers))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 29, True, False), \
-            ooxcb.VoidCookie())
-
     def change_active_pointer_grab_checked(self, cursor, time, event_mask):
         cursor = cursor.get_internal()
         buf = StringIO.StringIO()
@@ -1531,20 +1499,6 @@ class xprotoExtension(ooxcb.Extension):
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", time))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 32, True, False), \
-            ooxcb.VoidCookie())
-
-    def ungrab_key_checked(self, key, grab_window, modifiers):
-        grab_window = grab_window.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xBxxIHxx", key, grab_window, modifiers))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 34, True, True), \
-            ooxcb.VoidCookie())
-
-    def ungrab_key(self, key, grab_window, modifiers):
-        grab_window = grab_window.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xBxxIHxx", key, grab_window, modifiers))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 34, True, False), \
             ooxcb.VoidCookie())
 
     def allow_events_checked(self, mode, time=0):
@@ -4518,18 +4472,64 @@ class Window(Drawable):
             GrabPointerCookie(),
             GrabPointerReply)
 
-    def grab_key_checked(self, modifiers, key, owner_events=True, pointer_mode=GrabMode.Async, keyboard_mode=GrabMode.Async):
+    def grab_button_checked(self, event_mask, button, modifiers, owner_events=True, pointer_mode=GrabMode.Async, keyboard_mode=GrabMode.Async, confine_to=XNone, cursor=XNone):
+        grab_window = self.get_internal()
+        confine_to = confine_to.get_internal()
+        cursor = cursor.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xBxxIHBBIIBxH", owner_events, grab_window, event_mask, pointer_mode, keyboard_mode, confine_to, cursor, button, modifiers))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 28, True, True), \
+            ooxcb.VoidCookie())
+
+    def grab_button(self, event_mask, button, modifiers, owner_events=True, pointer_mode=GrabMode.Async, keyboard_mode=GrabMode.Async, confine_to=XNone, cursor=XNone):
+        grab_window = self.get_internal()
+        confine_to = confine_to.get_internal()
+        cursor = cursor.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xBxxIHBBIIBxH", owner_events, grab_window, event_mask, pointer_mode, keyboard_mode, confine_to, cursor, button, modifiers))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 28, True, False), \
+            ooxcb.VoidCookie())
+
+    def ungrab_button_checked(self, button, modifiers):
+        grab_window = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xBxxIHxx", button, grab_window, modifiers))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 29, True, True), \
+            ooxcb.VoidCookie())
+
+    def ungrab_button(self, button, modifiers):
+        grab_window = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xBxxIHxx", button, grab_window, modifiers))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 29, True, False), \
+            ooxcb.VoidCookie())
+
+    def grab_key_checked(self, key, modifiers, owner_events=True, pointer_mode=GrabMode.Async, keyboard_mode=GrabMode.Async):
         grab_window = self.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxIHBBBxxx", owner_events, grab_window, modifiers, key, pointer_mode, keyboard_mode))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 33, True, True), \
             ooxcb.VoidCookie())
 
-    def grab_key(self, modifiers, key, owner_events=True, pointer_mode=GrabMode.Async, keyboard_mode=GrabMode.Async):
+    def grab_key(self, key, modifiers, owner_events=True, pointer_mode=GrabMode.Async, keyboard_mode=GrabMode.Async):
         grab_window = self.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxIHBBBxxx", owner_events, grab_window, modifiers, key, pointer_mode, keyboard_mode))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 33, True, False), \
+            ooxcb.VoidCookie())
+
+    def ungrab_key_checked(self, key, modifiers):
+        grab_window = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xBxxIHxx", key, grab_window, modifiers))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 34, True, True), \
+            ooxcb.VoidCookie())
+
+    def ungrab_key(self, key, modifiers):
+        grab_window = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xBxxIHxx", key, grab_window, modifiers))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 34, True, False), \
             ooxcb.VoidCookie())
 
     def query_pointer(self):
