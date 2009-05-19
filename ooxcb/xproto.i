@@ -261,7 +261,7 @@ Requests:
             - 'buf.write(pack("=i", value_list[0]))'
             - 'del value_list[0]'
             - !dedent
-            - 'buf.write(array("I", value_list).tostring())'
+            - 'buf.write(make_array(value_list, "I"))'
 
         arguments: ["**values"]
         name: "configure"

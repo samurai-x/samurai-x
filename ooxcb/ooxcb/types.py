@@ -23,23 +23,69 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from array import array
+import ctypes
+
+TYPES = {
+        'b': ctypes.c_int8,
+        'B': ctypes.c_uint8,
+        'h': ctypes.c_int16,
+        'H': ctypes.c_uint16,
+        'i': ctypes.c_int32,
+        'I': ctypes.c_uint32,
+        # TODO: test float and double on 64bit platforms
+        'f': ctypes.c_float,
+        'd': ctypes.c_double,
+        }
 
 SIZES = {
-        8:'B',
-        16:'H',
-        32:'L'
-        } # TODO: test these for 64bit
+        8: 'B',
+        16: 'H',
+        32: 'I',
+        }
+
+def make_array(data, typecode):
+    """
+        return a packed representation of the data *data*.
+
+        :Parameters:
+            `data`: list or str or unicode
+                should be a list of numeric values, each item
+                suitable for the given typecode.
+                If it's a str or unicode instance, each char
+                is converted to its ordinal value and then packed.
+            `typecode`: str
+                one of:
+                 * 'b', 8 bit signed
+                 * 'B', 8 bit unsigned
+                 * 'h', 16 bit signed,
+                 * 'H', 16 bit unsigned
+                 * 'i', 32 bit signed
+                 * 'I', 32 bit unsigned
+                 * 'f', float
+                 * 'd', double
+        :returns: a string
+    """
+    if isinstance(data, basestring):
+        data = map(ord, data)
+    type = TYPES[typecode]
+    arr = (type * len(data))()
+    arr[:] = data
+    # TODO: i hope that doesn't leak memory
+    return ctypes.string_at(
+            ctypes.addressof(arr),
+            ctypes.sizeof(type) * len(data)
+            )
 
 def make_void_array(data, format):
     """
-        Return a packed representation of the data
-        *data*.
+        Return a packed representation of the data *data*.
+        The only difference to `make_array` is that you pass the
+        count of bytes per value to `make_void_array`, and all
+        values are treated as unsigned.
+
         :param format: the count of bits to pack per value,
                        one of 8, 16, 32.
     """
     typecode = SIZES[format]
-    arr = array(typecode, data)
-    assert arr.itemsize * 8 == format, "Running a 64bit system? Please file a bug."
-    return arr.tostring()
+    return make_array(data, typecode)
 

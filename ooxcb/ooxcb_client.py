@@ -479,7 +479,7 @@ def py_open(self):
     py('# auto generated. yay.') \
       ('import ooxcb') \
       ('from ooxcb.resource import XNone') \
-      ('from ooxcb.types import SIZES') \
+      ('from ooxcb.types import SIZES, make_array') \
       ('from ooxcb.builder import build_list') \
       ('try:').indent() \
                 ('import cStringIO as StringIO') \
@@ -488,7 +488,6 @@ def py_open(self):
                 ('import StringIO') \
                 .dedent() \
       ('from struct import pack, unpack, calcsize') \
-      ('from array import array')
 
     if 'ImportCode' in INTERFACE:
         py(INTERFACE['ImportCode'])
@@ -812,9 +811,9 @@ def request_helper(self, name, void, regular):
                 meth.code.append('buf.write(pack("=%s", *elt))' % field.type.py_format_str)
                 meth.code.append(DEDENT)
             elif field.type.is_list and field.type.member.is_simple:
-                meth.code.append('buf.write(array("%s", %s).tostring())' % \
-                        (field.type.member.py_format_str,
-                        prefix_if_needed(field.field_name)))
+                meth.code.append('buf.write(make_array(%s, "%s"))' % \
+                        (prefix_if_needed(field.field_name),
+                        field.type.member.py_format_str))
             else:
 # TODO: should we really add that? hmmm ...
                 if field.field_type[-1] == 'CHAR2B':

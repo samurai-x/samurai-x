@@ -24,20 +24,8 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import ctypes
-from ctypes import POINTER
 
-BUILDERS = {
-        'b': POINTER(ctypes.c_byte),
-        'B': POINTER(ctypes.c_ubyte),
-        'h': POINTER(ctypes.c_short),
-        'H': POINTER(ctypes.c_ushort),
-        'i': POINTER(ctypes.c_int),
-        'I': POINTER(ctypes.c_uint),
-        'L': POINTER(ctypes.c_long), # correct? it's long long in xpyb's list.c
-        'K': POINTER(ctypes.c_ulong), # correct?
-        'f': POINTER(ctypes.c_float),
-        'd': POINTER(ctypes.c_double)
-        }
+from ooxcb.types import TYPES
 
 def build_value(s, data):
     """
@@ -46,7 +34,7 @@ def build_value(s, data):
         :param s: The type identifier; mostly :mod:`struct`-compatible
         :param data: A string containing the data.
     """
-    return ctypes.cast(data, BUILDERS[s[0]]).contents.value
+    return ctypes.cast(data, ctypes.POINTER(TYPES[s[0]])).contents.value
 
 class List(list):
     """

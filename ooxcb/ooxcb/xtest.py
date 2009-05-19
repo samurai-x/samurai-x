@@ -1,14 +1,13 @@
 # auto generated. yay.
 import ooxcb
 from ooxcb.resource import XNone
-from ooxcb.types import SIZES
+from ooxcb.types import SIZES, make_array
 from ooxcb.builder import build_list
 try:
     import cStringIO as StringIO
 except ImportError:
     import StringIO
 from struct import pack, unpack, calcsize
-from array import array
 from ooxcb.xproto import Window
 from ooxcb.util import mixin
 

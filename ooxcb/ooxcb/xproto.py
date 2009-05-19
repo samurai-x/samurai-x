@@ -1,14 +1,13 @@
 # auto generated. yay.
 import ooxcb
 from ooxcb.resource import XNone
-from ooxcb.types import SIZES
+from ooxcb.types import SIZES, make_array
 from ooxcb.builder import build_list
 try:
     import cStringIO as StringIO
 except ImportError:
     import StringIO
 from struct import pack, unpack, calcsize
-from array import array
 from ooxcb.types import make_void_array
 from ooxcb.util import cached_property
 
@@ -326,7 +325,7 @@ class Colormap(ooxcb.Resource):
         cmap = self.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIHxx", cmap, name_len))
-        buf.write(array("B", name).tostring())
+        buf.write(make_array(name, "B"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 85, False, True), \
             AllocNamedColorCookie(),
             AllocNamedColorReply)
@@ -336,7 +335,7 @@ class Colormap(ooxcb.Resource):
         cmap = self.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIHxx", cmap, name_len))
-        buf.write(array("B", name).tostring())
+        buf.write(make_array(name, "B"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 85, False, False), \
             AllocNamedColorCookie(),
             AllocNamedColorReply)
@@ -1397,7 +1396,7 @@ class xprotoExtension(ooxcb.Extension):
         parent = parent.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxIIhhHHHHII", depth, wid, parent, x, y, width, height, border_width, _class, visual, value_mask))
-        buf.write(array("I", value_list).tostring())
+        buf.write(make_array(value_list, "I"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 1, True, True), \
             ooxcb.VoidCookie())
 
@@ -1406,7 +1405,7 @@ class xprotoExtension(ooxcb.Extension):
         parent = parent.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxIIhhHHHHII", depth, wid, parent, x, y, width, height, border_width, _class, visual, value_mask))
-        buf.write(array("I", value_list).tostring())
+        buf.write(make_array(value_list, "I"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 1, True, False), \
             ooxcb.VoidCookie())
 
@@ -1414,7 +1413,7 @@ class xprotoExtension(ooxcb.Extension):
         name_len = len(name)
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxHxx", only_if_exists, name_len))
-        buf.write(array("B", name).tostring())
+        buf.write(make_array(name, "B"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 16, False, True), \
             InternAtomCookie(),
             InternAtomReply)
@@ -1423,7 +1422,7 @@ class xprotoExtension(ooxcb.Extension):
         name_len = len(name)
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxHxx", only_if_exists, name_len))
-        buf.write(array("B", name).tostring())
+        buf.write(make_array(name, "B"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 16, False, False), \
             InternAtomCookie(),
             InternAtomReply)
@@ -1621,7 +1620,7 @@ class xprotoExtension(ooxcb.Extension):
         fid = fid.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIHxx", fid, name_len))
-        buf.write(array("B", name).tostring())
+        buf.write(make_array(name, "B"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 45, True, True), \
             ooxcb.VoidCookie())
 
@@ -1630,7 +1629,7 @@ class xprotoExtension(ooxcb.Extension):
         fid = fid.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIHxx", fid, name_len))
-        buf.write(array("B", name).tostring())
+        buf.write(make_array(name, "B"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 45, True, False), \
             ooxcb.VoidCookie())
 
@@ -1638,7 +1637,7 @@ class xprotoExtension(ooxcb.Extension):
         pattern_len = len(pattern)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxHH", max_names, pattern_len))
-        buf.write(array("B", pattern).tostring())
+        buf.write(make_array(pattern, "B"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 49, False, True), \
             ListFontsCookie(),
             ListFontsReply)
@@ -1647,7 +1646,7 @@ class xprotoExtension(ooxcb.Extension):
         pattern_len = len(pattern)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxHH", max_names, pattern_len))
-        buf.write(array("B", pattern).tostring())
+        buf.write(make_array(pattern, "B"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 49, False, False), \
             ListFontsCookie(),
             ListFontsReply)
@@ -1656,7 +1655,7 @@ class xprotoExtension(ooxcb.Extension):
         pattern_len = len(pattern)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxHH", max_names, pattern_len))
-        buf.write(array("B", pattern).tostring())
+        buf.write(make_array(pattern, "B"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 50, False, True), \
             ListFontsWithInfoCookie(),
             ListFontsWithInfoReply)
@@ -1665,7 +1664,7 @@ class xprotoExtension(ooxcb.Extension):
         pattern_len = len(pattern)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxHH", max_names, pattern_len))
-        buf.write(array("B", pattern).tostring())
+        buf.write(make_array(pattern, "B"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 50, False, False), \
             ListFontsWithInfoCookie(),
             ListFontsWithInfoReply)
@@ -1673,14 +1672,14 @@ class xprotoExtension(ooxcb.Extension):
     def set_font_path_checked(self, path):
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxH", font_qty))
-        buf.write(array("B", path).tostring())
+        buf.write(make_array(path, "B"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 51, True, True), \
             ooxcb.VoidCookie())
 
     def set_font_path(self, path):
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxH", font_qty))
-        buf.write(array("B", path).tostring())
+        buf.write(make_array(path, "B"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 51, True, False), \
             ooxcb.VoidCookie())
 
@@ -1733,7 +1732,7 @@ class xprotoExtension(ooxcb.Extension):
         drawable = drawable.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIII", cid, drawable, value_mask))
-        buf.write(array("I", value_list).tostring())
+        buf.write(make_array(value_list, "I"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 55, True, True), \
             ooxcb.VoidCookie())
 
@@ -1742,7 +1741,7 @@ class xprotoExtension(ooxcb.Extension):
         drawable = drawable.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIII", cid, drawable, value_mask))
-        buf.write(array("I", value_list).tostring())
+        buf.write(make_array(value_list, "I"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 55, True, False), \
             ooxcb.VoidCookie())
 
@@ -1750,7 +1749,7 @@ class xprotoExtension(ooxcb.Extension):
         gc = gc.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxII", gc, value_mask))
-        buf.write(array("I", value_list).tostring())
+        buf.write(make_array(value_list, "I"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 56, True, True), \
             ooxcb.VoidCookie())
 
@@ -1758,7 +1757,7 @@ class xprotoExtension(ooxcb.Extension):
         gc = gc.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxII", gc, value_mask))
-        buf.write(array("I", value_list).tostring())
+        buf.write(make_array(value_list, "I"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 56, True, False), \
             ooxcb.VoidCookie())
 
@@ -1782,7 +1781,7 @@ class xprotoExtension(ooxcb.Extension):
         gc = gc.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIHH", gc, dash_offset, dashes_len))
-        buf.write(array("B", dashes).tostring())
+        buf.write(make_array(dashes, "B"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 58, True, True), \
             ooxcb.VoidCookie())
 
@@ -1790,7 +1789,7 @@ class xprotoExtension(ooxcb.Extension):
         gc = gc.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIHH", gc, dash_offset, dashes_len))
-        buf.write(array("B", dashes).tostring())
+        buf.write(make_array(dashes, "B"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 58, True, False), \
             ooxcb.VoidCookie())
 
@@ -1921,7 +1920,7 @@ class xprotoExtension(ooxcb.Extension):
         gc = gc.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxIIHHhhBBxx", format, drawable, gc, width, height, dst_x, dst_y, left_pad, depth))
-        buf.write(array("B", data).tostring())
+        buf.write(make_array(data, "B"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 72, True, True), \
             ooxcb.VoidCookie())
 
@@ -1930,7 +1929,7 @@ class xprotoExtension(ooxcb.Extension):
         gc = gc.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxIIHHhhBBxx", format, drawable, gc, width, height, dst_x, dst_y, left_pad, depth))
-        buf.write(array("B", data).tostring())
+        buf.write(make_array(data, "B"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 72, True, False), \
             ooxcb.VoidCookie())
 
@@ -1955,7 +1954,7 @@ class xprotoExtension(ooxcb.Extension):
         gc = gc.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIIhh", drawable, gc, x, y))
-        buf.write(array("B", items).tostring())
+        buf.write(make_array(items, "B"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 74, True, True), \
             ooxcb.VoidCookie())
 
@@ -1964,7 +1963,7 @@ class xprotoExtension(ooxcb.Extension):
         gc = gc.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIIhh", drawable, gc, x, y))
-        buf.write(array("B", items).tostring())
+        buf.write(make_array(items, "B"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 74, True, False), \
             ooxcb.VoidCookie())
 
@@ -1973,7 +1972,7 @@ class xprotoExtension(ooxcb.Extension):
         gc = gc.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIIhh", drawable, gc, x, y))
-        buf.write(array("B", items).tostring())
+        buf.write(make_array(items, "B"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 75, True, True), \
             ooxcb.VoidCookie())
 
@@ -1982,7 +1981,7 @@ class xprotoExtension(ooxcb.Extension):
         gc = gc.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIIhh", drawable, gc, x, y))
-        buf.write(array("B", items).tostring())
+        buf.write(make_array(items, "B"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 75, True, False), \
             ooxcb.VoidCookie())
 
@@ -2112,7 +2111,7 @@ class xprotoExtension(ooxcb.Extension):
         cmap = cmap.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxII", cmap, plane_mask))
-        buf.write(array("I", pixels).tostring())
+        buf.write(make_array(pixels, "I"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 88, True, True), \
             ooxcb.VoidCookie())
 
@@ -2120,7 +2119,7 @@ class xprotoExtension(ooxcb.Extension):
         cmap = cmap.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxII", cmap, plane_mask))
-        buf.write(array("I", pixels).tostring())
+        buf.write(make_array(pixels, "I"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 88, True, False), \
             ooxcb.VoidCookie())
 
@@ -2148,7 +2147,7 @@ class xprotoExtension(ooxcb.Extension):
         cmap = cmap.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxIIHxx", flags, cmap, pixel, name_len))
-        buf.write(array("B", name).tostring())
+        buf.write(make_array(name, "B"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 90, True, True), \
             ooxcb.VoidCookie())
 
@@ -2156,7 +2155,7 @@ class xprotoExtension(ooxcb.Extension):
         cmap = cmap.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxIIHxx", flags, cmap, pixel, name_len))
-        buf.write(array("B", name).tostring())
+        buf.write(make_array(name, "B"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 90, True, False), \
             ooxcb.VoidCookie())
 
@@ -2164,7 +2163,7 @@ class xprotoExtension(ooxcb.Extension):
         cmap = cmap.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", cmap))
-        buf.write(array("I", pixels).tostring())
+        buf.write(make_array(pixels, "I"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 91, False, True), \
             QueryColorsCookie(),
             QueryColorsReply)
@@ -2173,7 +2172,7 @@ class xprotoExtension(ooxcb.Extension):
         cmap = cmap.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", cmap))
-        buf.write(array("I", pixels).tostring())
+        buf.write(make_array(pixels, "I"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 91, False, False), \
             QueryColorsCookie(),
             QueryColorsReply)
@@ -2182,7 +2181,7 @@ class xprotoExtension(ooxcb.Extension):
         cmap = cmap.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIHxx", cmap, name_len))
-        buf.write(array("B", name).tostring())
+        buf.write(make_array(name, "B"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 92, False, True), \
             LookupColorCookie(),
             LookupColorReply)
@@ -2191,7 +2190,7 @@ class xprotoExtension(ooxcb.Extension):
         cmap = cmap.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIHxx", cmap, name_len))
-        buf.write(array("B", name).tostring())
+        buf.write(make_array(name, "B"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 92, False, False), \
             LookupColorCookie(),
             LookupColorReply)
@@ -2279,7 +2278,7 @@ class xprotoExtension(ooxcb.Extension):
     def query_extension(self, name_len, name):
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxHxx", name_len))
-        buf.write(array("B", name).tostring())
+        buf.write(make_array(name, "B"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 98, False, True), \
             QueryExtensionCookie(),
             QueryExtensionReply)
@@ -2287,7 +2286,7 @@ class xprotoExtension(ooxcb.Extension):
     def query_extension_unchecked(self, name_len, name):
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxHxx", name_len))
-        buf.write(array("B", name).tostring())
+        buf.write(make_array(name, "B"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 98, False, False), \
             QueryExtensionCookie(),
             QueryExtensionReply)
@@ -2309,14 +2308,14 @@ class xprotoExtension(ooxcb.Extension):
     def change_keyboard_mapping_checked(self, keycode_count, first_keycode, keysyms_per_keycode, keysyms):
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxBB", keycode_count, first_keycode, keysyms_per_keycode))
-        buf.write(array("I", keysyms).tostring())
+        buf.write(make_array(keysyms, "I"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 100, True, True), \
             ooxcb.VoidCookie())
 
     def change_keyboard_mapping(self, keycode_count, first_keycode, keysyms_per_keycode, keysyms):
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxBB", keycode_count, first_keycode, keysyms_per_keycode))
-        buf.write(array("I", keysyms).tostring())
+        buf.write(make_array(keysyms, "I"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 100, True, False), \
             ooxcb.VoidCookie())
 
@@ -2337,14 +2336,14 @@ class xprotoExtension(ooxcb.Extension):
     def change_keyboard_control_checked(self, value_mask, value_list):
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", value_mask))
-        buf.write(array("I", value_list).tostring())
+        buf.write(make_array(value_list, "I"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 102, True, True), \
             ooxcb.VoidCookie())
 
     def change_keyboard_control(self, value_mask, value_list):
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", value_mask))
-        buf.write(array("I", value_list).tostring())
+        buf.write(make_array(value_list, "I"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 102, True, False), \
             ooxcb.VoidCookie())
 
@@ -2429,14 +2428,14 @@ class xprotoExtension(ooxcb.Extension):
     def change_hosts_checked(self, mode, family, address_len, address):
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxBxH", mode, family, address_len))
-        buf.write(array("B", address).tostring())
+        buf.write(make_array(address, "B"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 109, True, True), \
             ooxcb.VoidCookie())
 
     def change_hosts(self, mode, family, address_len, address):
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxBxH", mode, family, address_len))
-        buf.write(array("B", address).tostring())
+        buf.write(make_array(address, "B"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 109, True, False), \
             ooxcb.VoidCookie())
 
@@ -2495,7 +2494,7 @@ class xprotoExtension(ooxcb.Extension):
         atoms = atoms.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIHh", window, atoms_len, delta))
-        buf.write(array("I", atoms).tostring())
+        buf.write(make_array(atoms, "I"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 114, True, True), \
             ooxcb.VoidCookie())
 
@@ -2504,7 +2503,7 @@ class xprotoExtension(ooxcb.Extension):
         atoms = atoms.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIHh", window, atoms_len, delta))
-        buf.write(array("I", atoms).tostring())
+        buf.write(make_array(atoms, "I"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 114, True, False), \
             ooxcb.VoidCookie())
 
@@ -2523,7 +2522,7 @@ class xprotoExtension(ooxcb.Extension):
     def set_pointer_mapping(self, map_len, map):
         buf = StringIO.StringIO()
         buf.write(pack("=xBxx", map_len))
-        buf.write(array("B", map).tostring())
+        buf.write(make_array(map, "B"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 116, False, True), \
             SetPointerMappingCookie(),
             SetPointerMappingReply)
@@ -2531,7 +2530,7 @@ class xprotoExtension(ooxcb.Extension):
     def set_pointer_mapping_unchecked(self, map_len, map):
         buf = StringIO.StringIO()
         buf.write(pack("=xBxx", map_len))
-        buf.write(array("B", map).tostring())
+        buf.write(make_array(map, "B"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 116, False, False), \
             SetPointerMappingCookie(),
             SetPointerMappingReply)
@@ -2553,7 +2552,7 @@ class xprotoExtension(ooxcb.Extension):
     def set_modifier_mapping(self, keycodes_per_modifier, keycodes):
         buf = StringIO.StringIO()
         buf.write(pack("=xBxx", keycodes_per_modifier))
-        buf.write(array("B", keycodes).tostring())
+        buf.write(make_array(keycodes, "B"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 118, False, True), \
             SetModifierMappingCookie(),
             SetModifierMappingReply)
@@ -2561,7 +2560,7 @@ class xprotoExtension(ooxcb.Extension):
     def set_modifier_mapping_unchecked(self, keycodes_per_modifier, keycodes):
         buf = StringIO.StringIO()
         buf.write(pack("=xBxx", keycodes_per_modifier))
-        buf.write(array("B", keycodes).tostring())
+        buf.write(make_array(keycodes, "B"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 118, False, False), \
             SetModifierMappingCookie(),
             SetModifierMappingReply)
@@ -4075,7 +4074,7 @@ class Window(ooxcb.Resource):
         window = self.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxII", window, value_mask))
-        buf.write(array("I", value_list).tostring())
+        buf.write(make_array(value_list, "I"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 2, True, True), \
             ooxcb.VoidCookie())
 
@@ -4129,7 +4128,7 @@ class Window(ooxcb.Resource):
         window = self.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxII", window, value_mask))
-        buf.write(array("I", value_list).tostring())
+        buf.write(make_array(value_list, "I"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 2, True, False), \
             ooxcb.VoidCookie())
 
@@ -4296,7 +4295,7 @@ class Window(ooxcb.Resource):
         if value_mask & ConfigWindow.Y:
             buf.write(pack("=i", value_list[0]))
             del value_list[0]
-        buf.write(array("I", value_list).tostring())
+        buf.write(make_array(value_list, "I"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 12, True, True), \
             ooxcb.VoidCookie())
 
@@ -4333,7 +4332,7 @@ class Window(ooxcb.Resource):
         if value_mask & ConfigWindow.Y:
             buf.write(pack("=i", value_list[0]))
             del value_list[0]
-        buf.write(array("I", value_list).tostring())
+        buf.write(make_array(value_list, "I"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 12, True, False), \
             ooxcb.VoidCookie())
 
@@ -5495,7 +5494,7 @@ class GContext(Fontable):
         gc = self.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxIIhh", string_len, drawable, gc, x, y))
-        buf.write(array("B", string).tostring())
+        buf.write(make_array(string, "B"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 76, True, True), \
             ooxcb.VoidCookie())
 
@@ -5508,7 +5507,7 @@ class GContext(Fontable):
         gc = self.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxIIhh", string_len, drawable, gc, x, y))
-        buf.write(array("B", string).tostring())
+        buf.write(make_array(string, "B"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 76, True, False), \
             ooxcb.VoidCookie())
 
