@@ -3,12 +3,14 @@ sys.path.append('..')
 
 import ooxcb
 from ooxcb import xproto
-from ooxcb.contrib.pil import get_pil_image
+import ooxcb.contrib.pil
+
+ooxcb.contrib.pil.mixin()
 
 conn = ooxcb.connect()
 root = conn.setup.roots[conn.pref_screen].root
 
-image = get_pil_image(root)
+image = root.get_pil_image()
 image.save("screenshot.png")
 
 conn.disconnect()

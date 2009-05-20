@@ -30,7 +30,8 @@ except ImportError:
 
 from PIL import Image
 
-from ooxcb.xproto import ImageFormat
+from ooxcb.xproto import ImageFormat, Window
+from ooxcb.util import mixin_functions
 
 def put_pil_image(gc, drawable, image, dst_x=0, dst_y=0):
     """
@@ -44,7 +45,7 @@ def put_pil_image(gc, drawable, image, dst_x=0, dst_y=0):
         :todo: use image's depth
     """
     data = image.tostring("raw", "BGRX")
-    depth = drawable.get_geometry().reply().depth 
+    depth = drawable.get_geometry().reply().depth
     # ^^^ That's a bit hacky. What if the depths do not match?
     gc.put_image(
         drawable,
@@ -58,6 +59,17 @@ def put_pil_image(gc, drawable, image, dst_x=0, dst_y=0):
         data)
 
 def get_pil_image(drawable, x=0, y=0, width=None, height=None):
+    """
+        get an image of *drawable* as a PIL Image instance.
+
+        :Parameters:
+            `x`: int
+            `y`: int
+            `width`: int or None
+                set to drawable's width if None
+            `height`: int or None
+                set to drawable's height if None
+    """
     if (width is None or height is None):
         geom = drawable.get_geometry().reply()
         width = geom.width
@@ -71,3 +83,11 @@ def get_pil_image(drawable, x=0, y=0, width=None, height=None):
     data = ''.join(map(chr, reply.data))
     return Image.fromstring("RGBX", (width - x, height - y),
             data, "raw", "BGRX").convert("RGB")
+
+def mixin():
+    """
+        add :func:`put_pil_image` and :func:`get_pil_image` as methods
+        to :class:`ooxcb.xproto.Window`.
+    """
+    mixin_functions((put_pil_image, get_pil_image), Window)
+

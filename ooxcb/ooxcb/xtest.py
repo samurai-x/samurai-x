@@ -9,7 +9,7 @@ except ImportError:
     import StringIO
 from struct import pack, unpack, calcsize
 from ooxcb.xproto import Window
-from ooxcb.util import mixin
+from ooxcb.util import mixin_class
 
 def unpack_from_stream(fmt, stream, offset=0):
     if offset:
@@ -136,5 +136,5 @@ for ev in _events.itervalues():
         ev.event_target_class = globals()[ev.event_target_class]
 
 ooxcb._add_ext(key, xtestExtension, _events, _errors)
-mixin(WindowMixin, Window)
+mixin_class(WindowMixin, Window)
 

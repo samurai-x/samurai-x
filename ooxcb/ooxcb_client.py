@@ -513,7 +513,7 @@ def py_open(self):
     if 'ImportCode' in INTERFACE:
         py(INTERFACE['ImportCode'])
     if 'Mixins' in INTERFACE:
-        py('from ooxcb.util import mixin')
+        py('from ooxcb.util import mixin_class')
 
     py() \
       ('def unpack_from_stream(fmt, stream, offset=0):') \
@@ -999,7 +999,7 @@ def make_mixins():
     for name, into in INTERFACE.get('Mixins', {}).iteritems():
         clsname = pythonize_classname(name) + 'Mixin'
         WRAPPERS[name] = ALL[clsname] = PyClass(clsname)
-        TAIL.append('mixin(%s, %s)' % (clsname, into))
+        TAIL.append('mixin_class(%s, %s)' % (clsname, into))
 
 def make_xizers():
     for name, info in INTERFACE.get('Xizers', {}).iteritems():

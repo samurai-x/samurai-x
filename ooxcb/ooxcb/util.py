@@ -47,9 +47,9 @@ class cached_property(object):
         setattr(obj, self.name, result)
         return result
 
-def mixin(cls, into):
+def mixin_class(cls, into):
     """
-        Add all methods of *cls* into the class *into*.
+        Add all methods of *cls* to the class *into*.
 
         :todo: We could also use something like `cls.__bases__ += (into,)`.
     """
@@ -59,4 +59,11 @@ def mixin(cls, into):
                 setattr(into, name, member)
         except TypeError:
             continue
+
+def mixin_functions(functions, into):
+    """
+        Add all functions in *functions* to the class *into*.
+    """
+    for function in functions:
+        setattr(into, function.__name__, function)
 
