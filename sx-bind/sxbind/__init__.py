@@ -34,7 +34,7 @@ from ooxcb.xproto import ModMask
 from sxactions import ActionInfo
 
 MODIFIERS = {
-        # TODO: I am not sure about the 
+        # TODO: I am not sure about the
         # following four modifiers.
         'alt': ModMask._1,
         'numlock': ModMask._2,
@@ -65,10 +65,10 @@ def parse_keystroke(s):
     """
     modmask, keysym = 0, 0
 
-    parts = s.split('+') 
+    parts = s.split('+')
     modifiers = parts[:-1]
     key = parts[-1]
-    
+
     # create modmask
     for mod in modifiers:
         try:
@@ -116,15 +116,15 @@ class SXBind(Plugin):
             log.warning('received an invalid key press event: %s' % key)
 
     def bind_key_to_action(self, modifiers, keycode, line):
-        """ 
+        """
             TODO: support keysyms
         """
-        self.bindings[(modifiers, keycode)] = line 
+        self.bindings[(modifiers, keycode)] = line
         for screen in self.app.screens:
-            screen.root.grab_key(modifiers, keycode)
-        
+            screen.root.grab_key(keycode, modifiers)
+
     def bind_keystroke(self, keystroke, line):
         modifiers, keysym = parse_keystroke(keystroke)
         keycode = self.app.conn.keysyms.get_keycode(keysym)
-        
+
         self.bind_key_to_action(modifiers, keycode, line)
