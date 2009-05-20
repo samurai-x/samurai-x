@@ -185,6 +185,10 @@ Xizers:
         type: lazy_none
         value: cursor
 
+    MaskNone:
+        type: lazy_none
+        value: mask
+
     ConfineToNone:
         type: lazy_none
         value: confine_to
@@ -652,7 +656,8 @@ Requests:
 
     ChangeGC:
         subject: gc
-        arguments: ["values"]
+        name: change
+        arguments: ["**values"]
         precode:
             - !xizer "GC"
 
@@ -760,9 +765,14 @@ Requests:
     # Pixmap objects
     FreePixmap:
         subject: pixmap
+        name: free
 
     # Cursor objects
-    # no need to wrap CreateCursor + CreateGlyphCursor, they're alright
+    # no need to wrap CreateGlyphCursor, it is alright
+
+    CreateCursor:
+        precode:
+            - !xizer "MaskNone"
 
     FreeCursor:
         subject: cursor
@@ -802,7 +812,7 @@ Classes:
         - base: Drawable
         - classmethod:
             name: create
-            arguments: ["drawable", "width", "height", "depth"]
+            arguments: ["conn", "drawable", "width", "height", "depth"]
             code:
                 - "pid = conn.generate_id()"
                 - "pixmap = cls(conn, pid)"

@@ -1926,6 +1926,8 @@ class xprotoExtension(ooxcb.Extension):
             ooxcb.VoidCookie())
 
     def create_cursor_checked(self, cid, source, mask, fore_red, fore_green, fore_blue, back_red, back_green, back_blue, x, y):
+        if mask is None:
+            mask = XNone
         cid = cid.get_internal()
         source = source.get_internal()
         mask = mask.get_internal()
@@ -1935,6 +1937,8 @@ class xprotoExtension(ooxcb.Extension):
             ooxcb.VoidCookie())
 
     def create_cursor(self, cid, source, mask, fore_red, fore_green, fore_blue, back_red, back_green, back_blue, x, y):
+        if mask is None:
+            mask = XNone
         cid = cid.get_internal()
         source = source.get_internal()
         mask = mask.get_internal()
@@ -3721,14 +3725,14 @@ class Pixmap(Drawable):
     def __init__(self, conn, xid):
         ooxcb.Resource.__init__(self, conn, xid)
 
-    def free_pixmap_checked(self):
+    def free_checked(self):
         pixmap = self.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", pixmap))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 54, True, True), \
             ooxcb.VoidCookie())
 
-    def free_pixmap(self):
+    def free(self):
         pixmap = self.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", pixmap))
@@ -3736,7 +3740,7 @@ class Pixmap(Drawable):
             ooxcb.VoidCookie())
 
     @classmethod
-    def create(cls, drawable, width, height, depth):
+    def create(cls, conn, drawable, width, height, depth):
         pid = conn.generate_id()
         pixmap = cls(conn, pid)
         conn.core.create_pixmap_checked(depth, pixmap, drawable, width, height).check()
@@ -5228,7 +5232,7 @@ class GContext(Fontable):
     def __init__(self, conn, xid):
         ooxcb.Resource.__init__(self, conn, xid)
 
-    def change_g_c_checked(self, values):
+    def change_checked(self, **values):
         value_mask, value_list = 0, []
         if "function" in values:
             value_mask |= 1
@@ -5306,7 +5310,7 @@ class GContext(Fontable):
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 56, True, True), \
             ooxcb.VoidCookie())
 
-    def change_g_c(self, values):
+    def change(self, **values):
         value_mask, value_list = 0, []
         if "function" in values:
             value_mask |= 1

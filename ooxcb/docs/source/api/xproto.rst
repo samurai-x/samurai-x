@@ -2752,13 +2752,13 @@ ooxcb.xproto
     .. method:: __init__(self, conn, xid)
 
 
-    .. method:: free_pixmap_checked(self)
+    .. method:: free_checked(self)
 
 
-    .. method:: free_pixmap(self)
+    .. method:: free(self)
 
 
-    .. classmethod:: create(cls, drawable, width, height, depth)
+    .. classmethod:: create(cls, conn, drawable, width, height, depth)
 
 
 .. class:: MapNotifyEvent
@@ -3561,10 +3561,10 @@ ooxcb.xproto
     .. method:: __init__(self, conn, xid)
 
 
-    .. method:: change_g_c_checked(self, values)
+    .. method:: change_checked(self, **values)
 
 
-    .. method:: change_g_c(self, values)
+    .. method:: change(self, **values)
 
 
     .. method:: copy_checked(self, values=())
