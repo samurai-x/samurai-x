@@ -76,6 +76,12 @@ Xizers:
         length_out: rectangles_len
         seq_out: rectangles
 
+    StoreColors:
+        type: seq
+        seq_in: items
+        length_out: items_len
+        seq_out: items
+
     ArcsObjects:
         type: objects
         name: arcs
@@ -104,6 +110,18 @@ Xizers:
         length_out: string_len
         seq_out: string
 
+    Text8:
+        type: string
+        seq_in: string
+        length_out: items_len
+        seq_out: items
+
+    Text16:
+        type: utf16
+        seq_in: string
+        length_out: items_len
+        seq_out: items
+
     UTF16:
         type: utf16
         seq_in: string
@@ -127,6 +145,12 @@ Xizers:
         seq_in: path
         length_out: font_qty
         seq_out: path
+
+    Pixels:
+        type: seq
+        seq_in: pixels
+        length_out: pixels_len
+        seq_out: pixels
 
     PropertyName:
         type: lazy_atom
@@ -233,6 +257,10 @@ Requests:
             time: 0 # CurrentTime
 
     # Window objects
+
+    ListInstalledColormaps:
+        subject: window
+
     GetProperty:
         subject: window
         precode: [!xizer "PropertyName", !xizer "PropertyType"]
@@ -543,6 +571,16 @@ Requests:
         precode:
             - !xizer "Image"
 
+    PolyText8:
+        subject: gc
+        precode: [!xizer "Text8"]
+        arguments: ["drawable", "x", "y", "string"]
+
+    PolyText16:
+        subject: gc
+        precode: [!xizer "Text16"]
+        arguments: ["drawable", "x", "y", "string"]
+
     FreeGC:
         subject: gc
         name: free
@@ -565,7 +603,59 @@ Requests:
     AllocColor:
         subject: cmap
 
+    AllocColorCells: # TODO: what does this do?
+        subject: cmap
+
+    AllocColorPlanes: # TODO: and that?
+        subject: cmap
+
     AllocNamedColor:
+        subject: cmap
+        arguments: ["name"]
+        precode:
+            - !xizer "Name"
+
+    FreeColors:
+        subject: cmap
+        arguments: ["pixels", "plane_mask"]
+        precode:
+            - !xizer "Pixels"
+
+    FreeColormap:
+        subject: cmap
+        name: free
+
+    CopyColormapAndFree:
+        subject: src_cmap # TODO: this method is not intuitive
+
+    InstallColormap:
+        subject: cmap
+        name: install
+
+    UninstallColormap:
+        subject: cmap
+        name: uninstall
+
+    StoreColors:
+        subject: cmap
+        arguments: ["items"]
+        precode:
+            - !xizer "StoreColors"
+        doc: ":type items: list of tuples (pixel, red, green, blue, flags)" # TODO - objects?
+
+    StoreNamedColor:
+        subject: cmap
+        arguments: ["flags", "pixel", "name"]
+        precode:
+            - !xizer "Name"
+
+    QueryColors:
+        subject: cmap
+        arguments: ["pixels"]
+        precode:
+            - !xizer "Pixels"
+
+    LookupColor:
         subject: cmap
         arguments: ["name"]
         precode:

@@ -340,6 +340,64 @@ class Colormap(ooxcb.Resource):
     def __init__(self, conn, xid):
         ooxcb.Resource.__init__(self, conn, xid)
 
+    def free_checked(self):
+        cmap = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxI", cmap))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 79, True, True), \
+            ooxcb.VoidCookie())
+
+    def free(self):
+        cmap = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxI", cmap))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 79, True, False), \
+            ooxcb.VoidCookie())
+
+    def copy_colormap_and_free_checked(self, mid):
+        mid = mid.get_internal()
+        src_cmap = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxII", mid, src_cmap))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 80, True, True), \
+            ooxcb.VoidCookie())
+
+    def copy_colormap_and_free(self, mid):
+        mid = mid.get_internal()
+        src_cmap = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxII", mid, src_cmap))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 80, True, False), \
+            ooxcb.VoidCookie())
+
+    def install_checked(self):
+        cmap = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxI", cmap))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 81, True, True), \
+            ooxcb.VoidCookie())
+
+    def install(self):
+        cmap = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxI", cmap))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 81, True, False), \
+            ooxcb.VoidCookie())
+
+    def uninstall_checked(self):
+        cmap = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxI", cmap))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 82, True, True), \
+            ooxcb.VoidCookie())
+
+    def uninstall(self):
+        cmap = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxI", cmap))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 82, True, False), \
+            ooxcb.VoidCookie())
+
     def alloc_color(self, red, green, blue):
         cmap = self.get_internal()
         buf = StringIO.StringIO()
@@ -375,6 +433,136 @@ class Colormap(ooxcb.Resource):
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 85, False, False), \
             AllocNamedColorCookie(),
             AllocNamedColorReply)
+
+    def alloc_color_cells(self, contiguous, colors, planes):
+        cmap = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xBxxIHH", contiguous, cmap, colors, planes))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 86, False, True), \
+            AllocColorCellsCookie(),
+            AllocColorCellsReply)
+
+    def alloc_color_cells_unchecked(self, contiguous, colors, planes):
+        cmap = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xBxxIHH", contiguous, cmap, colors, planes))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 86, False, False), \
+            AllocColorCellsCookie(),
+            AllocColorCellsReply)
+
+    def alloc_color_planes(self, contiguous, colors, reds, greens, blues):
+        cmap = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xBxxIHHHH", contiguous, cmap, colors, reds, greens, blues))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 87, False, True), \
+            AllocColorPlanesCookie(),
+            AllocColorPlanesReply)
+
+    def alloc_color_planes_unchecked(self, contiguous, colors, reds, greens, blues):
+        cmap = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xBxxIHHHH", contiguous, cmap, colors, reds, greens, blues))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 87, False, False), \
+            AllocColorPlanesCookie(),
+            AllocColorPlanesReply)
+
+    def free_colors_checked(self, pixels, plane_mask):
+        pixels_len = len(pixels)
+        cmap = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxII", cmap, plane_mask))
+        buf.write(make_array(pixels, "I"))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 88, True, True), \
+            ooxcb.VoidCookie())
+
+    def free_colors(self, pixels, plane_mask):
+        pixels_len = len(pixels)
+        cmap = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxII", cmap, plane_mask))
+        buf.write(make_array(pixels, "I"))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 88, True, False), \
+            ooxcb.VoidCookie())
+
+    def store_colors_checked(self, items):
+        items_len = len(items)
+        cmap = self.get_internal()
+        items = items.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxI", cmap))
+        for elt in ooxcb.Iterator(items, 5, "items", True):
+            buf.write(pack("=IHHHBx", *elt))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 89, True, True), \
+            ooxcb.VoidCookie())
+
+    def store_colors(self, items):
+        items_len = len(items)
+        cmap = self.get_internal()
+        items = items.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxI", cmap))
+        for elt in ooxcb.Iterator(items, 5, "items", True):
+            buf.write(pack("=IHHHBx", *elt))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 89, True, False), \
+            ooxcb.VoidCookie())
+
+    def store_named_color_checked(self, flags, pixel, name):
+        name_len = len(name)
+        cmap = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xBxxIIHxx", flags, cmap, pixel, name_len))
+        buf.write(make_array(name, "B"))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 90, True, True), \
+            ooxcb.VoidCookie())
+
+    def store_named_color(self, flags, pixel, name):
+        name_len = len(name)
+        cmap = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xBxxIIHxx", flags, cmap, pixel, name_len))
+        buf.write(make_array(name, "B"))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 90, True, False), \
+            ooxcb.VoidCookie())
+
+    def query_colors(self, pixels):
+        pixels_len = len(pixels)
+        cmap = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxI", cmap))
+        buf.write(make_array(pixels, "I"))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 91, False, True), \
+            QueryColorsCookie(),
+            QueryColorsReply)
+
+    def query_colors_unchecked(self, pixels):
+        pixels_len = len(pixels)
+        cmap = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxI", cmap))
+        buf.write(make_array(pixels, "I"))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 91, False, False), \
+            QueryColorsCookie(),
+            QueryColorsReply)
+
+    def lookup_color(self, name):
+        name_len = len(name)
+        cmap = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxIHxx", cmap, name_len))
+        buf.write(make_array(name, "B"))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 92, False, True), \
+            LookupColorCookie(),
+            LookupColorReply)
+
+    def lookup_color_unchecked(self, name):
+        name_len = len(name)
+        cmap = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxIHxx", cmap, name_len))
+        buf.write(make_array(name, "B"))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 92, False, False), \
+            LookupColorCookie(),
+            LookupColorReply)
 
     def alloc_hex_color(self, color):
         color = color.strip('#')
@@ -1705,42 +1893,6 @@ class xprotoExtension(ooxcb.Extension):
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 55, True, False), \
             ooxcb.VoidCookie())
 
-    def poly_text8_checked(self, drawable, gc, x, y, items_len, items):
-        drawable = drawable.get_internal()
-        gc = gc.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxIIhh", drawable, gc, x, y))
-        buf.write(make_array(items, "B"))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 74, True, True), \
-            ooxcb.VoidCookie())
-
-    def poly_text8(self, drawable, gc, x, y, items_len, items):
-        drawable = drawable.get_internal()
-        gc = gc.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxIIhh", drawable, gc, x, y))
-        buf.write(make_array(items, "B"))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 74, True, False), \
-            ooxcb.VoidCookie())
-
-    def poly_text16_checked(self, drawable, gc, x, y, items_len, items):
-        drawable = drawable.get_internal()
-        gc = gc.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxIIhh", drawable, gc, x, y))
-        buf.write(make_array(items, "B"))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 75, True, True), \
-            ooxcb.VoidCookie())
-
-    def poly_text16(self, drawable, gc, x, y, items_len, items):
-        drawable = drawable.get_internal()
-        gc = gc.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxIIhh", drawable, gc, x, y))
-        buf.write(make_array(items, "B"))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 75, True, False), \
-            ooxcb.VoidCookie())
-
     def create_colormap_checked(self, alloc, mid, window, visual):
         mid = mid.get_internal()
         window = window.get_internal()
@@ -1756,200 +1908,6 @@ class xprotoExtension(ooxcb.Extension):
         buf.write(pack("=xBxxIII", alloc, mid, window, visual))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 78, True, False), \
             ooxcb.VoidCookie())
-
-    def free_colormap_checked(self, cmap):
-        cmap = cmap.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxI", cmap))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 79, True, True), \
-            ooxcb.VoidCookie())
-
-    def free_colormap(self, cmap):
-        cmap = cmap.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxI", cmap))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 79, True, False), \
-            ooxcb.VoidCookie())
-
-    def copy_colormap_and_free_checked(self, mid, src_cmap):
-        mid = mid.get_internal()
-        src_cmap = src_cmap.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxII", mid, src_cmap))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 80, True, True), \
-            ooxcb.VoidCookie())
-
-    def copy_colormap_and_free(self, mid, src_cmap):
-        mid = mid.get_internal()
-        src_cmap = src_cmap.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxII", mid, src_cmap))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 80, True, False), \
-            ooxcb.VoidCookie())
-
-    def install_colormap_checked(self, cmap):
-        cmap = cmap.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxI", cmap))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 81, True, True), \
-            ooxcb.VoidCookie())
-
-    def install_colormap(self, cmap):
-        cmap = cmap.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxI", cmap))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 81, True, False), \
-            ooxcb.VoidCookie())
-
-    def uninstall_colormap_checked(self, cmap):
-        cmap = cmap.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxI", cmap))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 82, True, True), \
-            ooxcb.VoidCookie())
-
-    def uninstall_colormap(self, cmap):
-        cmap = cmap.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxI", cmap))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 82, True, False), \
-            ooxcb.VoidCookie())
-
-    def list_installed_colormaps(self, window):
-        window = window.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxI", window))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 83, False, True), \
-            ListInstalledColormapsCookie(),
-            ListInstalledColormapsReply)
-
-    def list_installed_colormaps_unchecked(self, window):
-        window = window.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxI", window))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 83, False, False), \
-            ListInstalledColormapsCookie(),
-            ListInstalledColormapsReply)
-
-    def alloc_color_cells(self, contiguous, cmap, colors, planes):
-        cmap = cmap.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xBxxIHH", contiguous, cmap, colors, planes))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 86, False, True), \
-            AllocColorCellsCookie(),
-            AllocColorCellsReply)
-
-    def alloc_color_cells_unchecked(self, contiguous, cmap, colors, planes):
-        cmap = cmap.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xBxxIHH", contiguous, cmap, colors, planes))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 86, False, False), \
-            AllocColorCellsCookie(),
-            AllocColorCellsReply)
-
-    def alloc_color_planes(self, contiguous, cmap, colors, reds, greens, blues):
-        cmap = cmap.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xBxxIHHHH", contiguous, cmap, colors, reds, greens, blues))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 87, False, True), \
-            AllocColorPlanesCookie(),
-            AllocColorPlanesReply)
-
-    def alloc_color_planes_unchecked(self, contiguous, cmap, colors, reds, greens, blues):
-        cmap = cmap.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xBxxIHHHH", contiguous, cmap, colors, reds, greens, blues))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 87, False, False), \
-            AllocColorPlanesCookie(),
-            AllocColorPlanesReply)
-
-    def free_colors_checked(self, cmap, plane_mask, pixels_len, pixels):
-        cmap = cmap.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxII", cmap, plane_mask))
-        buf.write(make_array(pixels, "I"))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 88, True, True), \
-            ooxcb.VoidCookie())
-
-    def free_colors(self, cmap, plane_mask, pixels_len, pixels):
-        cmap = cmap.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxII", cmap, plane_mask))
-        buf.write(make_array(pixels, "I"))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 88, True, False), \
-            ooxcb.VoidCookie())
-
-    def store_colors_checked(self, cmap, items_len, items):
-        cmap = cmap.get_internal()
-        items = items.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxI", cmap))
-        for elt in ooxcb.Iterator(items, 5, "items", True):
-            buf.write(pack("=IHHHBx", *elt))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 89, True, True), \
-            ooxcb.VoidCookie())
-
-    def store_colors(self, cmap, items_len, items):
-        cmap = cmap.get_internal()
-        items = items.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxI", cmap))
-        for elt in ooxcb.Iterator(items, 5, "items", True):
-            buf.write(pack("=IHHHBx", *elt))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 89, True, False), \
-            ooxcb.VoidCookie())
-
-    def store_named_color_checked(self, flags, cmap, pixel, name_len, name):
-        cmap = cmap.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xBxxIIHxx", flags, cmap, pixel, name_len))
-        buf.write(make_array(name, "B"))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 90, True, True), \
-            ooxcb.VoidCookie())
-
-    def store_named_color(self, flags, cmap, pixel, name_len, name):
-        cmap = cmap.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xBxxIIHxx", flags, cmap, pixel, name_len))
-        buf.write(make_array(name, "B"))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 90, True, False), \
-            ooxcb.VoidCookie())
-
-    def query_colors(self, cmap, pixels_len, pixels):
-        cmap = cmap.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxI", cmap))
-        buf.write(make_array(pixels, "I"))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 91, False, True), \
-            QueryColorsCookie(),
-            QueryColorsReply)
-
-    def query_colors_unchecked(self, cmap, pixels_len, pixels):
-        cmap = cmap.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxI", cmap))
-        buf.write(make_array(pixels, "I"))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 91, False, False), \
-            QueryColorsCookie(),
-            QueryColorsReply)
-
-    def lookup_color(self, cmap, name_len, name):
-        cmap = cmap.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxIHxx", cmap, name_len))
-        buf.write(make_array(name, "B"))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 92, False, True), \
-            LookupColorCookie(),
-            LookupColorReply)
-
-    def lookup_color_unchecked(self, cmap, name_len, name):
-        cmap = cmap.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxIHxx", cmap, name_len))
-        buf.write(make_array(name, "B"))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 92, False, False), \
-            LookupColorCookie(),
-            LookupColorReply)
 
     def create_cursor_checked(self, cid, source, mask, fore_red, fore_green, fore_blue, back_red, back_green, back_blue, x, y):
         cid = cid.get_internal()
@@ -4429,6 +4387,22 @@ class Window(Drawable):
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 61, True, False), \
             ooxcb.VoidCookie())
 
+    def list_installed_colormaps(self):
+        window = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxI", window))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 83, False, True), \
+            ListInstalledColormapsCookie(),
+            ListInstalledColormapsReply)
+
+    def list_installed_colormaps_unchecked(self):
+        window = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxI", window))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 83, False, False), \
+            ListInstalledColormapsCookie(),
+            ListInstalledColormapsReply)
+
     @classmethod
     def create(cls, conn, parent, depth, visual, x=0, y=0, width=640, height=480, border_width=0, _class=WindowClass.InputOutput, **values):
         wid = conn.generate_id()
@@ -5726,6 +5700,58 @@ class GContext(Fontable):
         buf.write(pack("=xBxxIIHHhhBBxx", format, drawable, gc, width, height, dst_x, dst_y, left_pad, depth))
         buf.write(make_array(data, "B"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 72, True, False), \
+            ooxcb.VoidCookie())
+
+    def poly_text8_checked(self, drawable, x, y, string):
+        if isinstance(string, unicode):
+            string = string.encode("utf-8")
+        items_len = len(string)
+        items = map(ord, string)
+        drawable = drawable.get_internal()
+        gc = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxIIhh", drawable, gc, x, y))
+        buf.write(make_array(items, "B"))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 74, True, True), \
+            ooxcb.VoidCookie())
+
+    def poly_text8(self, drawable, x, y, string):
+        if isinstance(string, unicode):
+            string = string.encode("utf-8")
+        items_len = len(string)
+        items = map(ord, string)
+        drawable = drawable.get_internal()
+        gc = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxIIhh", drawable, gc, x, y))
+        buf.write(make_array(items, "B"))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 74, True, False), \
+            ooxcb.VoidCookie())
+
+    def poly_text16_checked(self, drawable, x, y, string):
+        if not isinstance(string, unicode):
+            raise XcbException("`string` has to be an unicode string")
+        items = string.encode("utf-16be")
+        items_len = len(items) / 2 # should work
+        drawable = drawable.get_internal()
+        gc = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxIIhh", drawable, gc, x, y))
+        buf.write(make_array(items, "B"))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 75, True, True), \
+            ooxcb.VoidCookie())
+
+    def poly_text16(self, drawable, x, y, string):
+        if not isinstance(string, unicode):
+            raise XcbException("`string` has to be an unicode string")
+        items = string.encode("utf-16be")
+        items_len = len(items) / 2 # should work
+        drawable = drawable.get_internal()
+        gc = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxIIhh", drawable, gc, x, y))
+        buf.write(make_array(items, "B"))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 75, True, False), \
             ooxcb.VoidCookie())
 
     def image_text8_checked(self, drawable, x, y, string):

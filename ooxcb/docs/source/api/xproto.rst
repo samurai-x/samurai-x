@@ -247,6 +247,30 @@ ooxcb.xproto
     .. method:: __init__(self, conn, xid)
 
 
+    .. method:: free_checked(self)
+
+
+    .. method:: free(self)
+
+
+    .. method:: copy_colormap_and_free_checked(self, mid)
+
+
+    .. method:: copy_colormap_and_free(self, mid)
+
+
+    .. method:: install_checked(self)
+
+
+    .. method:: install(self)
+
+
+    .. method:: uninstall_checked(self)
+
+
+    .. method:: uninstall(self)
+
+
     .. method:: alloc_color(self, red, green, blue)
 
 
@@ -257,6 +281,48 @@ ooxcb.xproto
 
 
     .. method:: alloc_named_color_unchecked(self, name)
+
+
+    .. method:: alloc_color_cells(self, contiguous, colors, planes)
+
+
+    .. method:: alloc_color_cells_unchecked(self, contiguous, colors, planes)
+
+
+    .. method:: alloc_color_planes(self, contiguous, colors, reds, greens, blues)
+
+
+    .. method:: alloc_color_planes_unchecked(self, contiguous, colors, reds, greens, blues)
+
+
+    .. method:: free_colors_checked(self, pixels, plane_mask)
+
+
+    .. method:: free_colors(self, pixels, plane_mask)
+
+
+    .. method:: store_colors_checked(self, items)
+
+
+    .. method:: store_colors(self, items)
+
+
+    .. method:: store_named_color_checked(self, flags, pixel, name)
+
+
+    .. method:: store_named_color(self, flags, pixel, name)
+
+
+    .. method:: query_colors(self, pixels)
+
+
+    .. method:: query_colors_unchecked(self, pixels)
+
+
+    .. method:: lookup_color(self, name)
+
+
+    .. method:: lookup_color_unchecked(self, name)
 
 
     .. method:: alloc_hex_color(self, color)
@@ -1227,94 +1293,10 @@ ooxcb.xproto
     .. method:: create_g_c(self, cid, drawable, value_mask, value_list)
 
 
-    .. method:: poly_text8_checked(self, drawable, gc, x, y, items_len, items)
-
-
-    .. method:: poly_text8(self, drawable, gc, x, y, items_len, items)
-
-
-    .. method:: poly_text16_checked(self, drawable, gc, x, y, items_len, items)
-
-
-    .. method:: poly_text16(self, drawable, gc, x, y, items_len, items)
-
-
     .. method:: create_colormap_checked(self, alloc, mid, window, visual)
 
 
     .. method:: create_colormap(self, alloc, mid, window, visual)
-
-
-    .. method:: free_colormap_checked(self, cmap)
-
-
-    .. method:: free_colormap(self, cmap)
-
-
-    .. method:: copy_colormap_and_free_checked(self, mid, src_cmap)
-
-
-    .. method:: copy_colormap_and_free(self, mid, src_cmap)
-
-
-    .. method:: install_colormap_checked(self, cmap)
-
-
-    .. method:: install_colormap(self, cmap)
-
-
-    .. method:: uninstall_colormap_checked(self, cmap)
-
-
-    .. method:: uninstall_colormap(self, cmap)
-
-
-    .. method:: list_installed_colormaps(self, window)
-
-
-    .. method:: list_installed_colormaps_unchecked(self, window)
-
-
-    .. method:: alloc_color_cells(self, contiguous, cmap, colors, planes)
-
-
-    .. method:: alloc_color_cells_unchecked(self, contiguous, cmap, colors, planes)
-
-
-    .. method:: alloc_color_planes(self, contiguous, cmap, colors, reds, greens, blues)
-
-
-    .. method:: alloc_color_planes_unchecked(self, contiguous, cmap, colors, reds, greens, blues)
-
-
-    .. method:: free_colors_checked(self, cmap, plane_mask, pixels_len, pixels)
-
-
-    .. method:: free_colors(self, cmap, plane_mask, pixels_len, pixels)
-
-
-    .. method:: store_colors_checked(self, cmap, items_len, items)
-
-
-    .. method:: store_colors(self, cmap, items_len, items)
-
-
-    .. method:: store_named_color_checked(self, flags, cmap, pixel, name_len, name)
-
-
-    .. method:: store_named_color(self, flags, cmap, pixel, name_len, name)
-
-
-    .. method:: query_colors(self, cmap, pixels_len, pixels)
-
-
-    .. method:: query_colors_unchecked(self, cmap, pixels_len, pixels)
-
-
-    .. method:: lookup_color(self, cmap, name_len, name)
-
-
-    .. method:: lookup_color_unchecked(self, cmap, name_len, name)
 
 
     .. method:: create_cursor_checked(self, cid, source, mask, fore_red, fore_green, fore_blue, back_red, back_green, back_blue, x, y)
@@ -3004,6 +2986,12 @@ ooxcb.xproto
     .. method:: clear_area(self, x, y, width, height, exposures=False)
 
 
+    .. method:: list_installed_colormaps(self)
+
+
+    .. method:: list_installed_colormaps_unchecked(self)
+
+
     .. classmethod:: create(cls, conn, parent, depth, visual, x=0, y=0, width=640, height=480, border_width=0, _class=WindowClass.InputOutput, **values)
 
 
@@ -3664,6 +3652,18 @@ ooxcb.xproto
 
 
     .. method:: put_image(self, drawable, format, width, height, dst_x, dst_y, depth, left_pad, data)
+
+
+    .. method:: poly_text8_checked(self, drawable, x, y, string)
+
+
+    .. method:: poly_text8(self, drawable, x, y, string)
+
+
+    .. method:: poly_text16_checked(self, drawable, x, y, string)
+
+
+    .. method:: poly_text16(self, drawable, x, y, string)
 
 
     .. method:: image_text8_checked(self, drawable, x, y, string)
