@@ -52,5 +52,9 @@ config = {
     'decoration.bindings': {
             '1': 'moveresize.move',
             '3': 'moveresize.resize',
-        }
+        },
+    'cairodeco.height': 20,
+    'cairodeco.title.position': "center", # one of "left", "center" or "right"
+    'cairodeco.color': (0, 0, 255), # (R, G, B)
+    'cairodeco.title.color': (255, 0, 0) # (R, G, B)
 }

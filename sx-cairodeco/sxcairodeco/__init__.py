@@ -26,6 +26,7 @@
 import logging
 log = logging.getLogger(__name__)
 
+from samuraix import config
 from samuraix.plugin import Plugin
 from samuraix.cairo_ext import create_surface
 from samuraix.rect import Rect
@@ -34,8 +35,6 @@ from ooxcb.contrib import cairo
 
 from sxbind import MODIFIERS # Oh no, we depend on sxbind! TODO? (maybe move into samuraix.contrib or something like that?)
 from sxactions import ActionInfo
-
-BAR_HEIGHT = 20
 
 def parse_buttonstroke(s):
     """
@@ -74,13 +73,13 @@ def parse_buttonstroke(s):
 
 def compute_window_geom(geom):
     """ convert the 'frame geom' to the 'window geom' """
-    geom.y += BAR_HEIGHT
-    geom.height -= BAR_HEIGHT
+    geom.y += config['cairodeco.height']
+    geom.height -= config['cairodeco.height']
 
 def compute_actor_geom(geom):
     """ convert the 'window geom' to the 'geom geom' """
-    geom.y = max(0, geom.y - BAR_HEIGHT)
-    geom.height = max(1, geom.height + BAR_HEIGHT)
+    geom.y = max(0, geom.y - config['cairodeco.height'])
+    geom.height = max(1, geom.height + config['cairodeco.height'])
 
 class ClientData(object):
     def __init__(self, plugin, screen, client):
@@ -128,6 +127,8 @@ class ClientData(object):
                 on_configure_notify=self.screen_on_configure_notify
                 )
 
+        self.redraw()
+
     def on_focus(self, client):
         if (self._active and not self._obsolete):
             # Seems like we are getting strange errors if we
@@ -173,9 +174,32 @@ class ClientData(object):
     def redraw(self):
         log.debug('Redrawing, active=%s, obsolete=%s' % (self._active, self._obsolete))
         self.client.actor.clear_area(0, 0, self.client.geom.width, self.client.geom.height)
-        wm_name = self.client.get_window_title() # <- TODO: is that too expensive?
-        cairo.cairo_move_to(self.cr, 1, BAR_HEIGHT - 4)
-        cairo.cairo_show_text(self.cr, wm_name)
+
+        extents = cairo.cairo_text_extents_t()
+
+        window_title = self.client.get_window_title() # <- TODO: is that too expensive?
+
+        cairo.cairo_set_operator(self.cr, cairo.CAIRO_OPERATOR_OVER)
+        cairo.cairo_set_source_rgba(self.cr, config['cairodeco.color'][0], config['cairodeco.color'][1], config['cairodeco.color'][2], 1)
+        cairo.cairo_paint(self.cr)
+
+        cairo.cairo_set_source_rgba(self.cr, config['cairodeco.title.color'][0], config['cairodeco.title.color'][1], config['cairodeco.title.color'][2], 1)
+
+        cairo.cairo_show_text(self.cr, window_title)
+        cairo.cairo_text_extents(self.cr, window_title, extents)
+
+        width = self.client.geom.width
+        x = 0
+
+        if config['cairodeco.title.position'] == 'left':
+            x = 0
+        elif config['cairodeco.title.position'] == 'right':
+            x = width - extents.x_advance
+        elif config['cairodeco.title.position'] == 'center':
+            x = (width - extents.x_advance) / 2
+
+
+        cairo.cairo_move_to(self.cr, x, config['cairodeco.height'] - (config['cairodeco.height'] - extents.height) / 2.0)
         self.client.conn.flush()
 
     def actor_on_configure_notify(self, evt):
@@ -266,7 +290,7 @@ class SXDeco(Plugin):
                 client.geom.x,
                 client.geom.y,
                 client.geom.width,
-                client.geom.height + BAR_HEIGHT,
+                client.geom.height + config['cairodeco.height'],
                 override_redirect=True,
                 back_pixel=screen.info.white_pixel,
                 colormap=colormap,
@@ -279,7 +303,7 @@ class SXDeco(Plugin):
 #                    xproto.EventMask.SubstructureNotify |
                     xproto.EventMask.ButtonPress,
                 )
-        client.window.reparent(client.actor, 0, BAR_HEIGHT)
+        client.window.reparent(client.actor, 0, config['cairodeco.height'])
 
         data = ClientData(self, screen, client)
         self.attach_data_to(client, data)
