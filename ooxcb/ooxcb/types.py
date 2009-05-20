@@ -23,19 +23,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import ctypes
-
-TYPES = {
-        'b': ctypes.c_int8,
-        'B': ctypes.c_uint8,
-        'h': ctypes.c_int16,
-        'H': ctypes.c_uint16,
-        'i': ctypes.c_int32,
-        'I': ctypes.c_uint32,
-        # TODO: test float and double on 64bit platforms
-        'f': ctypes.c_float,
-        'd': ctypes.c_double,
-        }
+import struct
 
 SIZES = {
         8: 'B',
@@ -67,14 +55,8 @@ def make_array(data, typecode):
     """
     if isinstance(data, basestring):
         data = map(ord, data)
-    type = TYPES[typecode]
-    arr = (type * len(data))()
-    arr[:] = data
-    # TODO: i hope that doesn't leak memory
-    return ctypes.string_at(
-            ctypes.addressof(arr),
-            ctypes.sizeof(type) * len(data)
-            )
+    fmt = '=' + (typecode * len(data))
+    return struct.pack(fmt, *data)
 
 def make_void_array(data, format):
     """

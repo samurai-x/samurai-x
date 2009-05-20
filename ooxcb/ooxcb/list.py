@@ -23,18 +23,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import ctypes
-
-from ooxcb.types import TYPES
-
-def build_value(s, data):
-    """
-        returns a python value for a C data block.
-
-        :param s: The type identifier; mostly :mod:`struct`-compatible
-        :param data: A string containing the data.
-    """
-    return ctypes.cast(data, ctypes.POINTER(TYPES[s[0]])).contents.value
+import struct
 
 class List(list):
     """
@@ -81,30 +70,33 @@ class List(list):
         """
         self.conn = conn
         cur = 0
-        for i in xrange(length):
-            # TODO: I don't think that call is necessary. If there are problems
-            # try to comment in this call ;-)
-            #stream.seek(cur)
-            if isinstance(type, str):
-                obj = build_value(type, stream.read(size))
-                cur += size
-            elif size > 0:
-                obj = type(conn)
-                obj.read(stream)
-                cur += size
-                # If the type has a `pythonize_lazy` method defined, call it.
-                if type.pythonize_lazy:
-                    obj = obj.pythonize_lazy()
-            else:
-                obj = type(conn) # ... is a sequence
-                obj.read(stream)
-                datalen = obj.size
-                cur += datalen
-                # If the type has a `pythonize_lazy` method defined, call it.
-                if type.pythonize_lazy:
-                    obj = obj.pythonize_lazy()
+        if isinstance(type, str):
+            if length:
+                fmt = '=' + (type * length)
+                self.extend(struct.unpack(fmt, stream.read(size * length)))
+                cur = size * length
+        else:
+            for i in xrange(length):
+                # TODO: I don't think that call is necessary. If there are problems
+                # try to comment in this call ;-)
+                #stream.seek(cur)
+                if size > 0:
+                    obj = type(conn)
+                    obj.read(stream)
+                    cur += size
+                    # If the type has a `pythonize_lazy` method defined, call it.
+                    if type.pythonize_lazy:
+                        obj = obj.pythonize_lazy()
+                else:
+                    obj = type(conn) # ... is a sequence
+                    obj.read(stream)
+                    datalen = obj.size
+                    cur += datalen
+                    # If the type has a `pythonize_lazy` method defined, call it.
+                    if type.pythonize_lazy:
+                        obj = obj.pythonize_lazy()
 
-            self.append(obj)
+                self.append(obj)
 
         self.size = cur - offset
 
