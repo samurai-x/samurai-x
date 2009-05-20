@@ -37,6 +37,17 @@ Xizers:
         xize:
             - font
 
+    KB:
+        type: values
+        enum_name: KB
+        values_dict_name: values
+
+    Address:
+        type: seq
+        seq_in: address
+        length_out: address_len
+        seq_out: address
+
     CopyGC:
         type: mask
         enum_name: GC
@@ -47,6 +58,12 @@ Xizers:
         type: values
         enum_name: ConfigWindow
         values_dict_name: values
+
+    PointerMap:
+        type: seq
+        seq_in: map
+        seq_out: map
+        length_out: map_len
 
     Name:
         type: seq
@@ -218,6 +235,41 @@ Requests:
         precode:
             - !xizer "Pattern"
 
+    QueryExtension:
+        arguments: ["name"]
+        precode:
+            - !xizer "Name"
+
+    ChangeKeyboardControl:
+        arguments: ["**values"]
+        precode:
+            - !xizer "KB"
+
+    Bell:
+        defaults:
+            percent: 0
+
+    ChangeHosts:
+        arguments: ["mode", "family", "address"]
+        precode:
+            - !xizer "Address"
+
+    KillClient:
+        arguments: ["resource"] # TODO: allow AllTemporary somehow
+        precode:
+            - "resource = resource.get_internal()"
+
+    SetPointerMapping:
+        arguments: ["map"]
+        precode:
+            - !xizer "PointerMap"
+
+    # no need to wrap ListExtensions, ChangeKeyboardMapping, GetKeyboardMapping,
+    # GetKeyboardControl, ChangePointerControl, GetPointerControl,
+    # SetScreenSaver, GetScreenSaver, ListHosts, SetAccessControl,
+    # SetCloseDownMode, ForceScreenSaver, GetPointerMapping,
+    # SetModifierMapping, GetModifierMapping, NoOperation
+
     SetFontPath:
         # `font_qty` seems to be `path_len`, and `path_len`
         # is unused. WTF o_O
@@ -268,6 +320,19 @@ Requests:
             long_offset: 0
             long_length: 2**32-1
             delete: False
+
+    RotateProperties: # TODO: test
+        subject: window
+        arguments: ["atoms", "delta"]
+        precode:
+            - "atoms_ = []"
+            - "for atom in atoms_:"
+            - !indent
+            - "atoms.append(atom.get_internal())"
+            - !dedent
+            - "atoms_len = len(atoms_)"
+        do_not_xize:
+            - atoms
 
     ChangeProperty:
         subject: window
@@ -689,15 +754,23 @@ Requests:
     GetImage:
         subject: drawable
 
+    QueryBestSize:
+        subject: drawable
+
     # Pixmap objects
     FreePixmap:
         subject: pixmap
 
     # Cursor objects
+    # no need to wrap CreateCursor + CreateGlyphCursor, they're alright
 
-    # TODO: wrap create_cursor
+    FreeCursor:
+        subject: cursor
+        name: free
 
-    # no need to hack CreateGlyphCursor ...
+    RecolorCursor:
+        subject: cursor
+        name: recolor
 
 Classes:
     Drawable:
@@ -763,6 +836,16 @@ Classes:
                 - "return font"
 
     Cursor:
+        - classmethod:
+            name: create
+            arguments: ["conn", "source", "mask", "fore_red", "fore_green", "fore_blue", "back_red", "back_green", "back_blue", "x", "y"]
+            code:
+                - "cid = conn.generate_id()"
+                - "cursor = cls(conn, cid)"
+                - "conn.core.create_cursor_checked(cursor, source, mask, fore_red, fore_green, fore_blue, back_red, back_green, back_blue, x, y).check()"
+                - "conn.add_to_cache(cid, cursor)"
+                - "return cursor"
+
         - classmethod:
             name: create_glyph
             arguments: ["conn", "source_font", "mask_font", "source_char", "mask_char", "fore_red", "fore_green", "fore_blue", "back_red", "back_green", "back_blue"]

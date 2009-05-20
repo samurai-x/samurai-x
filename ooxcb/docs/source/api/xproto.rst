@@ -1311,28 +1311,10 @@ ooxcb.xproto
     .. method:: create_glyph_cursor(self, cid, source_font, mask_font, source_char, mask_char, fore_red, fore_green, fore_blue, back_red, back_green, back_blue)
 
 
-    .. method:: free_cursor_checked(self, cursor)
+    .. method:: query_extension(self, name)
 
 
-    .. method:: free_cursor(self, cursor)
-
-
-    .. method:: recolor_cursor_checked(self, cursor, fore_red, fore_green, fore_blue, back_red, back_green, back_blue)
-
-
-    .. method:: recolor_cursor(self, cursor, fore_red, fore_green, fore_blue, back_red, back_green, back_blue)
-
-
-    .. method:: query_best_size(self, _class, drawable, width, height)
-
-
-    .. method:: query_best_size_unchecked(self, _class, drawable, width, height)
-
-
-    .. method:: query_extension(self, name_len, name)
-
-
-    .. method:: query_extension_unchecked(self, name_len, name)
+    .. method:: query_extension_unchecked(self, name)
 
 
     .. method:: list_extensions(self)
@@ -1353,10 +1335,10 @@ ooxcb.xproto
     .. method:: get_keyboard_mapping_unchecked(self, first_keycode, count)
 
 
-    .. method:: change_keyboard_control_checked(self, value_mask, value_list)
+    .. method:: change_keyboard_control_checked(self, **values)
 
 
-    .. method:: change_keyboard_control(self, value_mask, value_list)
+    .. method:: change_keyboard_control(self, **values)
 
 
     .. method:: get_keyboard_control(self)
@@ -1365,10 +1347,10 @@ ooxcb.xproto
     .. method:: get_keyboard_control_unchecked(self)
 
 
-    .. method:: bell_checked(self, percent)
+    .. method:: bell_checked(self, percent=0)
 
 
-    .. method:: bell(self, percent)
+    .. method:: bell(self, percent=0)
 
 
     .. method:: change_pointer_control_checked(self, acceleration_numerator, acceleration_denominator, threshold, do_acceleration, do_threshold)
@@ -1395,10 +1377,10 @@ ooxcb.xproto
     .. method:: get_screen_saver_unchecked(self)
 
 
-    .. method:: change_hosts_checked(self, mode, family, address_len, address)
+    .. method:: change_hosts_checked(self, mode, family, address)
 
 
-    .. method:: change_hosts(self, mode, family, address_len, address)
+    .. method:: change_hosts(self, mode, family, address)
 
 
     .. method:: list_hosts(self)
@@ -1425,22 +1407,16 @@ ooxcb.xproto
     .. method:: kill_client(self, resource)
 
 
-    .. method:: rotate_properties_checked(self, window, atoms_len, delta, atoms)
-
-
-    .. method:: rotate_properties(self, window, atoms_len, delta, atoms)
-
-
     .. method:: force_screen_saver_checked(self, mode)
 
 
     .. method:: force_screen_saver(self, mode)
 
 
-    .. method:: set_pointer_mapping(self, map_len, map)
+    .. method:: set_pointer_mapping(self, map)
 
 
-    .. method:: set_pointer_mapping_unchecked(self, map_len, map)
+    .. method:: set_pointer_mapping_unchecked(self, map)
 
 
     .. method:: get_pointer_mapping(self)
@@ -1593,6 +1569,21 @@ ooxcb.xproto
 .. class:: Cursor
 
     .. method:: __init__(self, conn, xid)
+
+
+    .. method:: free_checked(self)
+
+
+    .. method:: free(self)
+
+
+    .. method:: recolor_checked(self, fore_red, fore_green, fore_blue, back_red, back_green, back_blue)
+
+
+    .. method:: recolor(self, fore_red, fore_green, fore_blue, back_red, back_green, back_blue)
+
+
+    .. classmethod:: create(cls, conn, source, mask, fore_red, fore_green, fore_blue, back_red, back_green, back_blue, x, y)
 
 
     .. classmethod:: create_glyph(cls, conn, source_font, mask_font, source_char, mask_char, fore_red, fore_green, fore_blue, back_red, back_green, back_blue)
@@ -2992,6 +2983,12 @@ ooxcb.xproto
     .. method:: list_installed_colormaps_unchecked(self)
 
 
+    .. method:: rotate_properties_checked(self, atoms, delta)
+
+
+    .. method:: rotate_properties(self, atoms, delta)
+
+
     .. classmethod:: create(cls, conn, parent, depth, visual, x=0, y=0, width=640, height=480, border_width=0, _class=WindowClass.InputOutput, **values)
 
 
@@ -3532,6 +3529,12 @@ ooxcb.xproto
 
 
     .. method:: get_image_unchecked(self, format, x, y, width, height, plane_mask)
+
+
+    .. method:: query_best_size(self, _class, width, height)
+
+
+    .. method:: query_best_size_unchecked(self, _class, width, height)
 
 
 .. class:: FocusInEvent

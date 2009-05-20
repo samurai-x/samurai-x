@@ -53,6 +53,22 @@ class Drawable(ooxcb.Resource):
             GetImageCookie(),
             GetImageReply)
 
+    def query_best_size(self, _class, width, height):
+        drawable = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xBxxIHH", _class, drawable, width, height))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 97, False, True), \
+            QueryBestSizeCookie(),
+            QueryBestSizeReply)
+
+    def query_best_size_unchecked(self, _class, width, height):
+        drawable = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xBxxIHH", _class, drawable, width, height))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 97, False, False), \
+            QueryBestSizeCookie(),
+            QueryBestSizeReply)
+
 class GetModifierMappingCookie(ooxcb.Cookie):
     pass
 
@@ -1945,51 +1961,8 @@ class xprotoExtension(ooxcb.Extension):
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 94, True, False), \
             ooxcb.VoidCookie())
 
-    def free_cursor_checked(self, cursor):
-        cursor = cursor.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxI", cursor))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 95, True, True), \
-            ooxcb.VoidCookie())
-
-    def free_cursor(self, cursor):
-        cursor = cursor.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxI", cursor))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 95, True, False), \
-            ooxcb.VoidCookie())
-
-    def recolor_cursor_checked(self, cursor, fore_red, fore_green, fore_blue, back_red, back_green, back_blue):
-        cursor = cursor.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxIHHHHHH", cursor, fore_red, fore_green, fore_blue, back_red, back_green, back_blue))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 96, True, True), \
-            ooxcb.VoidCookie())
-
-    def recolor_cursor(self, cursor, fore_red, fore_green, fore_blue, back_red, back_green, back_blue):
-        cursor = cursor.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxIHHHHHH", cursor, fore_red, fore_green, fore_blue, back_red, back_green, back_blue))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 96, True, False), \
-            ooxcb.VoidCookie())
-
-    def query_best_size(self, _class, drawable, width, height):
-        drawable = drawable.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xBxxIHH", _class, drawable, width, height))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 97, False, True), \
-            QueryBestSizeCookie(),
-            QueryBestSizeReply)
-
-    def query_best_size_unchecked(self, _class, drawable, width, height):
-        drawable = drawable.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xBxxIHH", _class, drawable, width, height))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 97, False, False), \
-            QueryBestSizeCookie(),
-            QueryBestSizeReply)
-
-    def query_extension(self, name_len, name):
+    def query_extension(self, name):
+        name_len = len(name)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxHxx", name_len))
         buf.write(make_array(name, "B"))
@@ -1997,7 +1970,8 @@ class xprotoExtension(ooxcb.Extension):
             QueryExtensionCookie(),
             QueryExtensionReply)
 
-    def query_extension_unchecked(self, name_len, name):
+    def query_extension_unchecked(self, name):
+        name_len = len(name)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxHxx", name_len))
         buf.write(make_array(name, "B"))
@@ -2047,14 +2021,64 @@ class xprotoExtension(ooxcb.Extension):
             GetKeyboardMappingCookie(),
             GetKeyboardMappingReply)
 
-    def change_keyboard_control_checked(self, value_mask, value_list):
+    def change_keyboard_control_checked(self, **values):
+        value_mask, value_list = 0, []
+        if "key_click_percent" in values:
+            value_mask |= 1
+            value_list.append(values["key_click_percent"])
+        if "bell_percent" in values:
+            value_mask |= 2
+            value_list.append(values["bell_percent"])
+        if "bell_pitch" in values:
+            value_mask |= 4
+            value_list.append(values["bell_pitch"])
+        if "bell_duration" in values:
+            value_mask |= 8
+            value_list.append(values["bell_duration"])
+        if "led" in values:
+            value_mask |= 16
+            value_list.append(values["led"])
+        if "led_mode" in values:
+            value_mask |= 32
+            value_list.append(values["led_mode"])
+        if "key" in values:
+            value_mask |= 64
+            value_list.append(values["key"])
+        if "auto_repeat_mode" in values:
+            value_mask |= 128
+            value_list.append(values["auto_repeat_mode"])
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", value_mask))
         buf.write(make_array(value_list, "I"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 102, True, True), \
             ooxcb.VoidCookie())
 
-    def change_keyboard_control(self, value_mask, value_list):
+    def change_keyboard_control(self, **values):
+        value_mask, value_list = 0, []
+        if "key_click_percent" in values:
+            value_mask |= 1
+            value_list.append(values["key_click_percent"])
+        if "bell_percent" in values:
+            value_mask |= 2
+            value_list.append(values["bell_percent"])
+        if "bell_pitch" in values:
+            value_mask |= 4
+            value_list.append(values["bell_pitch"])
+        if "bell_duration" in values:
+            value_mask |= 8
+            value_list.append(values["bell_duration"])
+        if "led" in values:
+            value_mask |= 16
+            value_list.append(values["led"])
+        if "led_mode" in values:
+            value_mask |= 32
+            value_list.append(values["led_mode"])
+        if "key" in values:
+            value_mask |= 64
+            value_list.append(values["key"])
+        if "auto_repeat_mode" in values:
+            value_mask |= 128
+            value_list.append(values["auto_repeat_mode"])
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", value_mask))
         buf.write(make_array(value_list, "I"))
@@ -2075,13 +2099,13 @@ class xprotoExtension(ooxcb.Extension):
             GetKeyboardControlCookie(),
             GetKeyboardControlReply)
 
-    def bell_checked(self, percent):
+    def bell_checked(self, percent=0):
         buf = StringIO.StringIO()
         buf.write(pack("=xbxx", percent))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 104, True, True), \
             ooxcb.VoidCookie())
 
-    def bell(self, percent):
+    def bell(self, percent=0):
         buf = StringIO.StringIO()
         buf.write(pack("=xbxx", percent))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 104, True, False), \
@@ -2139,14 +2163,16 @@ class xprotoExtension(ooxcb.Extension):
             GetScreenSaverCookie(),
             GetScreenSaverReply)
 
-    def change_hosts_checked(self, mode, family, address_len, address):
+    def change_hosts_checked(self, mode, family, address):
+        address_len = len(address)
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxBxH", mode, family, address_len))
         buf.write(make_array(address, "B"))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 109, True, True), \
             ooxcb.VoidCookie())
 
-    def change_hosts(self, mode, family, address_len, address):
+    def change_hosts(self, mode, family, address):
+        address_len = len(address)
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxBxH", mode, family, address_len))
         buf.write(make_array(address, "B"))
@@ -2192,33 +2218,17 @@ class xprotoExtension(ooxcb.Extension):
             ooxcb.VoidCookie())
 
     def kill_client_checked(self, resource):
+        resource = resource.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", resource))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 113, True, True), \
             ooxcb.VoidCookie())
 
     def kill_client(self, resource):
+        resource = resource.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", resource))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 113, True, False), \
-            ooxcb.VoidCookie())
-
-    def rotate_properties_checked(self, window, atoms_len, delta, atoms):
-        window = window.get_internal()
-        atoms = atoms.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxIHh", window, atoms_len, delta))
-        buf.write(make_array(atoms, "I"))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 114, True, True), \
-            ooxcb.VoidCookie())
-
-    def rotate_properties(self, window, atoms_len, delta, atoms):
-        window = window.get_internal()
-        atoms = atoms.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxIHh", window, atoms_len, delta))
-        buf.write(make_array(atoms, "I"))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 114, True, False), \
             ooxcb.VoidCookie())
 
     def force_screen_saver_checked(self, mode):
@@ -2233,7 +2243,8 @@ class xprotoExtension(ooxcb.Extension):
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 115, True, False), \
             ooxcb.VoidCookie())
 
-    def set_pointer_mapping(self, map_len, map):
+    def set_pointer_mapping(self, map):
+        map_len = len(map)
         buf = StringIO.StringIO()
         buf.write(pack("=xBxx", map_len))
         buf.write(make_array(map, "B"))
@@ -2241,7 +2252,8 @@ class xprotoExtension(ooxcb.Extension):
             SetPointerMappingCookie(),
             SetPointerMappingReply)
 
-    def set_pointer_mapping_unchecked(self, map_len, map):
+    def set_pointer_mapping_unchecked(self, map):
+        map_len = len(map)
         buf = StringIO.StringIO()
         buf.write(pack("=xBxx", map_len))
         buf.write(make_array(map, "B"))
@@ -2410,6 +2422,42 @@ class BadFont(ooxcb.ProtocolException):
 class Cursor(ooxcb.Resource):
     def __init__(self, conn, xid):
         ooxcb.Resource.__init__(self, conn, xid)
+
+    def free_checked(self):
+        cursor = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxI", cursor))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 95, True, True), \
+            ooxcb.VoidCookie())
+
+    def free(self):
+        cursor = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxI", cursor))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 95, True, False), \
+            ooxcb.VoidCookie())
+
+    def recolor_checked(self, fore_red, fore_green, fore_blue, back_red, back_green, back_blue):
+        cursor = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxIHHHHHH", cursor, fore_red, fore_green, fore_blue, back_red, back_green, back_blue))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 96, True, True), \
+            ooxcb.VoidCookie())
+
+    def recolor(self, fore_red, fore_green, fore_blue, back_red, back_green, back_blue):
+        cursor = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxIHHHHHH", cursor, fore_red, fore_green, fore_blue, back_red, back_green, back_blue))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 96, True, False), \
+            ooxcb.VoidCookie())
+
+    @classmethod
+    def create(cls, conn, source, mask, fore_red, fore_green, fore_blue, back_red, back_green, back_blue, x, y):
+        cid = conn.generate_id()
+        cursor = cls(conn, cid)
+        conn.core.create_cursor_checked(cursor, source, mask, fore_red, fore_green, fore_blue, back_red, back_green, back_blue, x, y).check()
+        conn.add_to_cache(cid, cursor)
+        return cursor
 
     @classmethod
     def create_glyph(cls, conn, source_font, mask_font, source_char, mask_char, fore_red, fore_green, fore_blue, back_red, back_green, back_blue):
@@ -4402,6 +4450,30 @@ class Window(Drawable):
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 83, False, False), \
             ListInstalledColormapsCookie(),
             ListInstalledColormapsReply)
+
+    def rotate_properties_checked(self, atoms, delta):
+        atoms_ = []
+        for atom in atoms_:
+            atoms.append(atom.get_internal())
+        atoms_len = len(atoms_)
+        window = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxIHh", window, atoms_len, delta))
+        buf.write(make_array(atoms, "I"))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 114, True, True), \
+            ooxcb.VoidCookie())
+
+    def rotate_properties(self, atoms, delta):
+        atoms_ = []
+        for atom in atoms_:
+            atoms.append(atom.get_internal())
+        atoms_len = len(atoms_)
+        window = self.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxIHh", window, atoms_len, delta))
+        buf.write(make_array(atoms, "I"))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 114, True, False), \
+            ooxcb.VoidCookie())
 
     @classmethod
     def create(cls, conn, parent, depth, visual, x=0, y=0, width=640, height=480, border_width=0, _class=WindowClass.InputOutput, **values):
