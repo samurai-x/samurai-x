@@ -290,6 +290,17 @@ Requests:
             - 'buf.write(make_array(item, "B") + "\x00")'
             - !dedent
 
+    # Fontable objects
+    QueryFont:
+        name: query
+        subject: font
+
+    QueryTextExtents:
+        subject: font
+        precode: ["string_len = len(string)"]
+        arguments: ["string"]
+        do_not_xize: ["string"]
+
     # Atom objects
     GetAtomName:
         subject: atom
@@ -354,8 +365,8 @@ Requests:
     SetInputFocus:
         subject: focus
         defaults:
-            revert_to: 1 # TODO: well, 1 is InputFocus.PointerRoot, but Python gets angry if InputFocus isn't defined before set_input_focus, so that's a workaround.
-            time: 0 # TODO: CurrentTime?
+            revert_to: InputFocus.PointerRoot
+            time: Time.CurrentTime
 
     UnmapWindow:
         subject: window
@@ -467,7 +478,7 @@ Requests:
             owner_events: True
             pointer_mode: GrabMode.Async
             keyboard_mode: GrabMode.Async
-            time: 0 # TODO: CurrentTime
+            time: Time.CurrentTime
             confine_to: 'None'
             cursor: 'None'
         precode:
@@ -478,7 +489,7 @@ Requests:
 
     UngrabPointer:
         defaults:
-            time: 0 # TODO: CurrentTime
+            time: Time.CurrentTime
 
     GrabKeyboard:
         subject: grab_window
@@ -486,7 +497,7 @@ Requests:
             owner_events: True
             pointer_mode: GrabMode.Async
             keyboard_mode: GrabMode.Async
-            time: 0 # TODO: CurrentTime
+            time: Time.CurrentTime
 
     UngrabKeyboard:
         defaults:
@@ -740,18 +751,6 @@ Requests:
     CloseFont:
         name: close
         subject: font
-
-    QueryFont:
-        name: query
-        subject: font
-        # TODO: that can also be a GContext method.
-
-    QueryTextExtents:
-        # TODO: not working.
-        subject: font
-        precode: ["string_len = len(string)"]
-        arguments: ["string"]
-        do_not_xize: ["string"]
 
     # Drawable objects
     GetGeometry:

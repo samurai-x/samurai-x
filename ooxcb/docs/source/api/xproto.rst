@@ -2031,10 +2031,10 @@ ooxcb.xproto
     .. method:: intern_atom_unchecked(self, name, only_if_exists=False)
 
 
-    .. method:: ungrab_pointer_checked(self, time=0)
+    .. method:: ungrab_pointer_checked(self, time=Time.CurrentTime)
 
 
-    .. method:: ungrab_pointer(self, time=0)
+    .. method:: ungrab_pointer(self, time=Time.CurrentTime)
 
 
     .. method:: change_active_pointer_grab_checked(self, cursor, time, event_mask)
@@ -2914,10 +2914,10 @@ ooxcb.xproto
     .. method:: send_event(self, event_mask, event, propagate=False)
 
 
-    .. method:: grab_pointer(self, event_mask, owner_events=True, pointer_mode=GrabMode.Async, keyboard_mode=GrabMode.Async, confine_to=None, cursor=None, time=0)
+    .. method:: grab_pointer(self, event_mask, owner_events=True, pointer_mode=GrabMode.Async, keyboard_mode=GrabMode.Async, confine_to=None, cursor=None, time=Time.CurrentTime)
 
 
-    .. method:: grab_pointer_unchecked(self, event_mask, owner_events=True, pointer_mode=GrabMode.Async, keyboard_mode=GrabMode.Async, confine_to=None, cursor=None, time=0)
+    .. method:: grab_pointer_unchecked(self, event_mask, owner_events=True, pointer_mode=GrabMode.Async, keyboard_mode=GrabMode.Async, confine_to=None, cursor=None, time=Time.CurrentTime)
 
 
     .. method:: grab_button_checked(self, event_mask, button, modifiers, owner_events=True, pointer_mode=GrabMode.Async, keyboard_mode=GrabMode.Async, confine_to=XNone, cursor=XNone)
@@ -2932,10 +2932,10 @@ ooxcb.xproto
     .. method:: ungrab_button(self, button, modifiers)
 
 
-    .. method:: grab_keyboard(self, owner_events=True, time=0, pointer_mode=GrabMode.Async, keyboard_mode=GrabMode.Async)
+    .. method:: grab_keyboard(self, owner_events=True, time=Time.CurrentTime, pointer_mode=GrabMode.Async, keyboard_mode=GrabMode.Async)
 
 
-    .. method:: grab_keyboard_unchecked(self, owner_events=True, time=0, pointer_mode=GrabMode.Async, keyboard_mode=GrabMode.Async)
+    .. method:: grab_keyboard_unchecked(self, owner_events=True, time=Time.CurrentTime, pointer_mode=GrabMode.Async, keyboard_mode=GrabMode.Async)
 
 
     .. method:: grab_key_checked(self, key, modifiers, owner_events=True, pointer_mode=GrabMode.Async, keyboard_mode=GrabMode.Async)
@@ -2968,10 +2968,10 @@ ooxcb.xproto
     .. method:: translate_coordinates_unchecked(self, dst_window, src_x, src_y)
 
 
-    .. method:: set_input_focus_checked(self, revert_to=1, time=0)
+    .. method:: set_input_focus_checked(self, revert_to=InputFocus.PointerRoot, time=Time.CurrentTime)
 
 
-    .. method:: set_input_focus(self, revert_to=1, time=0)
+    .. method:: set_input_focus(self, revert_to=InputFocus.PointerRoot, time=Time.CurrentTime)
 
 
     .. method:: clear_area_checked(self, x, y, width, height, exposures=False)

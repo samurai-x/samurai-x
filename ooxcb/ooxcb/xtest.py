@@ -22,6 +22,10 @@ MAJOR_VERSION = 2
 MINOR_VERSION = 1
 key = ooxcb.ExtensionKey("XTEST")
 
+class Cursor(object):
+    _None = 0
+    Current = 1
+
 class GetVersionReply(ooxcb.Reply):
     def __init__(self, conn):
         ooxcb.Reply.__init__(self, conn)
@@ -117,10 +121,6 @@ class CompareCursorReply(ooxcb.Reply):
 
 class CompareCursorCookie(ooxcb.Cookie):
     pass
-
-class Cursor(object):
-    _None = 0
-    Current = 1
 
 class GetVersionCookie(ooxcb.Cookie):
     pass

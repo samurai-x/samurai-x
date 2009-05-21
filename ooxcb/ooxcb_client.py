@@ -550,6 +550,7 @@ def py_enum(self, name):
         count += 1
 
     ALL[cls.name] = cls
+    cls.is_enum = True
 
 def py_simple(self, name):
     '''
@@ -1021,8 +1022,9 @@ def generate_docs():
 
 def generate_all():
     # print all items, sorted ascending by their `order` attribute.
-    # default is 100.
-    for item in sorted(ALL.itervalues(), key=lambda item: getattr(item, 'order', 100)):
+    # default is 100. but enums come first!
+    enum_sorted = sorted(ALL.itervalues(), key=lambda item: int(not hasattr(item, 'is_enum')))
+    for item in sorted(enum_sorted, key=lambda item: getattr(item, 'order', 100)):
         map(py, item.generate_code())
     # and last but not least: the events, errors, and registring!
     py('_events = {')

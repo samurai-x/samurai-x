@@ -69,6 +69,434 @@ class Drawable(ooxcb.Resource):
             QueryBestSizeCookie(),
             QueryBestSizeReply)
 
+class PropMode(object):
+    Replace = 0
+    Prepend = 1
+    Append = 2
+
+class HostMode(object):
+    Insert = 0
+    Delete = 1
+
+class FontDraw(object):
+    LeftToRight = 0
+    RightToLeft = 1
+
+class VisualClass(object):
+    StaticGray = 0
+    GrayScale = 1
+    StaticColor = 2
+    PseudoColor = 3
+    TrueColor = 4
+    DirectColor = 5
+
+class Exposures(object):
+    NotAllowed = 0
+    Allowed = 1
+    Default = 2
+
+class ButtonIndex(object):
+    Any = 0
+    _1 = 1
+    _2 = 2
+    _3 = 3
+    _4 = 4
+    _5 = 5
+
+class ConfigWindow(object):
+    X = 1
+    Y = 2
+    Width = 4
+    Height = 8
+    BorderWidth = 16
+    Sibling = 32
+    StackMode = 64
+
+class GetPropertyType(object):
+    Any = 0
+
+class AccessControl(object):
+    Disable = 0
+    Enable = 1
+
+class Blanking(object):
+    NotPreferred = 0
+    Preferred = 1
+    Default = 2
+
+class QueryShapeOf(object):
+    LargestCursor = 0
+    FastestTile = 1
+    FastestStipple = 2
+
+class WindowClass(object):
+    CopyFromParent = 0
+    InputOutput = 1
+    InputOnly = 2
+
+class GX(object):
+    clear = 0
+    _and = 1
+    andReverse = 2
+    copy = 3
+    andInverted = 4
+    noop = 5
+    xor = 6
+    _or = 7
+    nor = 8
+    equiv = 9
+    invert = 10
+    orReverse = 11
+    copyInverted = 12
+    orInverted = 13
+    nand = 14
+    set = 15
+
+class Motion(object):
+    Normal = 0
+    Hint = 1
+
+class GC(object):
+    Function = 1
+    PlaneMask = 2
+    Foreground = 4
+    Background = 8
+    LineWidth = 16
+    LineStyle = 32
+    CapStyle = 64
+    JoinStyle = 128
+    FillStyle = 256
+    FillRule = 512
+    Tile = 1024
+    Stipple = 2048
+    TileStippleOriginX = 4096
+    TileStippleOriginY = 8192
+    Font = 16384
+    SubwindowMode = 32768
+    GraphicsExposures = 65536
+    ClipOriginX = 131072
+    ClipOriginY = 262144
+    ClipMask = 524288
+    DashOffset = 1048576
+    DashList = 2097152
+    ArcMode = 4194304
+
+class Kill(object):
+    AllTemporary = 0
+
+class CapStyle(object):
+    NotLast = 0
+    Butt = 1
+    Round = 2
+    Projecting = 3
+
+class FillRule(object):
+    EvenOdd = 0
+    Winding = 1
+
+class GrabMode(object):
+    Sync = 0
+    Async = 1
+
+class ColormapAlloc(object):
+    _None = 0
+    All = 1
+
+class ModMask(object):
+    Shift = 1
+    Lock = 2
+    Control = 4
+    _1 = 8
+    _2 = 16
+    _3 = 32
+    _4 = 64
+    _5 = 128
+    Any = 32768
+
+class Visibility(object):
+    Unobscured = 0
+    PartiallyObscured = 1
+    FullyObscured = 2
+
+class FillStyle(object):
+    Solid = 0
+    Tiled = 1
+    Stippled = 2
+    OpaqueStippled = 3
+
+class LedMode(object):
+    Off = 0
+    On = 1
+
+class SubwindowMode(object):
+    ClipByChildren = 0
+    IncludeInferiors = 1
+
+class Circulate(object):
+    RaiseLowest = 0
+    LowerHighest = 1
+
+class AutoRepeatMode(object):
+    Off = 0
+    On = 1
+    Default = 2
+
+class BackingStore(object):
+    NotUseful = 0
+    WhenMapped = 1
+    Always = 2
+
+class StackMode(object):
+    Above = 0
+    Below = 1
+    TopIf = 2
+    BottomIf = 3
+    Opposite = 4
+
+class ArcMode(object):
+    Chord = 0
+    PieSlice = 1
+
+class BackPixmap(object):
+    _None = 0
+    ParentRelative = 1
+
+class Place(object):
+    OnTop = 0
+    OnBottom = 1
+
+class Grab(object):
+    Any = 0
+
+class Property(object):
+    NewValue = 0
+    Delete = 1
+
+class MappingStatus(object):
+    Success = 0
+    Busy = 1
+    Failure = 2
+
+class KeyButMask(object):
+    Shift = 1
+    Lock = 2
+    Control = 4
+    Mod1 = 8
+    Mod2 = 16
+    Mod3 = 32
+    Mod4 = 64
+    Mod5 = 128
+    Button1 = 256
+    Button2 = 512
+    Button3 = 1024
+    Button4 = 2048
+    Button5 = 4096
+
+class ColormapState(object):
+    Uninstalled = 0
+    Installed = 1
+
+class ColorFlag(object):
+    Red = 1
+    Green = 2
+    Blue = 4
+
+class Allow(object):
+    AsyncPointer = 0
+    SyncPointer = 1
+    ReplayPointer = 2
+    AsyncKeyboard = 3
+    SyncKeyboard = 4
+    ReplayKeyboard = 5
+    AsyncBoth = 6
+    SyncBoth = 7
+
+class NotifyDetail(object):
+    Ancestor = 0
+    Virtual = 1
+    Inferior = 2
+    Nonlinear = 3
+    NonlinearVirtual = 4
+    Pointer = 5
+    PointerRoot = 6
+    _None = 7
+
+class ClipOrdering(object):
+    Unsorted = 0
+    YSorted = 1
+    YXSorted = 2
+    YXBanded = 3
+
+class ImageOrder(object):
+    LSBFirst = 0
+    MSBFirst = 1
+
+class MapIndex(object):
+    Shift = 0
+    Lock = 1
+    Control = 2
+    _1 = 3
+    _2 = 4
+    _3 = 5
+    _4 = 6
+    _5 = 7
+
+class JoinStyle(object):
+    Miter = 0
+    Round = 1
+    Bevel = 2
+
+class Gravity(object):
+    BitForget = 0
+    WinUnmap = 0
+    NorthWest = 1
+    North = 2
+    NorthEast = 3
+    West = 4
+    Center = 5
+    East = 6
+    SouthWest = 7
+    South = 8
+    SouthEast = 9
+    Static = 10
+
+class Time(object):
+    CurrentTime = 0
+
+class CW(object):
+    BackPixmap = 1
+    BackPixel = 2
+    BorderPixmap = 4
+    BorderPixel = 8
+    BitGravity = 16
+    WinGravity = 32
+    BackingStore = 64
+    BackingPlanes = 128
+    BackingPixel = 256
+    OverrideRedirect = 512
+    SaveUnder = 1024
+    EventMask = 2048
+    DontPropagate = 4096
+    Colormap = 8192
+    Cursor = 16384
+
+class KB(object):
+    KeyClickPercent = 1
+    BellPercent = 2
+    BellPitch = 4
+    BellDuration = 8
+    Led = 16
+    LedMode = 32
+    Key = 64
+    AutoRepeatMode = 128
+
+class Family(object):
+    Internet = 0
+    DECnet = 1
+    Chaos = 2
+    ServerInterpreted = 5
+    Internet6 = 6
+
+class EventMask(object):
+    NoEvent = 0
+    KeyPress = 1
+    KeyRelease = 2
+    ButtonPress = 4
+    ButtonRelease = 8
+    EnterWindow = 16
+    LeaveWindow = 32
+    PointerMotion = 64
+    PointerMotionHint = 128
+    Button1Motion = 256
+    Button2Motion = 512
+    Button3Motion = 1024
+    Button4Motion = 2048
+    Button5Motion = 4096
+    ButtonMotion = 8192
+    KeymapState = 16384
+    Exposure = 32768
+    VisibilityChange = 65536
+    StructureNotify = 131072
+    ResizeRedirect = 262144
+    SubstructureNotify = 524288
+    SubstructureRedirect = 1048576
+    FocusChange = 2097152
+    PropertyChange = 4194304
+    ColorMapChange = 8388608
+    OwnerGrabButton = 16777216
+
+class CoordMode(object):
+    Origin = 0
+    Previous = 1
+
+class ImageFormat(object):
+    XYBitmap = 0
+    XYPixmap = 1
+    ZPixmap = 2
+
+class GrabStatus(object):
+    Success = 0
+    AlreadyGrabbed = 1
+    InvalidTime = 2
+    NotViewable = 3
+    Frozen = 4
+
+class LineStyle(object):
+    Solid = 0
+    OnOffDash = 1
+    DoubleDash = 2
+
+class InputFocus(object):
+    _None = 0
+    PointerRoot = 1
+    Parent = 2
+
+class SendEventDest(object):
+    PointerWindow = 0
+    ItemFocus = 1
+
+class Mapping(object):
+    Modifier = 0
+    Keyboard = 1
+    Pointer = 2
+
+class ScreenSaver(object):
+    Reset = 0
+    Active = 1
+
+class CloseDown(object):
+    DestroyAll = 0
+    RetainPermanent = 1
+    RetainTemporary = 2
+
+class MapState(object):
+    Unmapped = 0
+    Unviewable = 1
+    Viewable = 2
+
+class ButtonMask(object):
+    _1 = 256
+    _2 = 512
+    _3 = 1024
+    _4 = 2048
+    _5 = 4096
+    Any = 32768
+
+class PolyShape(object):
+    Complex = 0
+    Nonconvex = 1
+    Convex = 2
+
+class SetMode(object):
+    Insert = 0
+    Delete = 1
+
+class NotifyMode(object):
+    Normal = 0
+    Grab = 1
+    Ungrab = 2
+    WhileGrabbed = 3
+
 class GetModifierMappingCookie(ooxcb.Cookie):
     pass
 
@@ -92,15 +520,6 @@ class TranslateCoordinatesReply(ooxcb.Reply):
     def build(self, stream):
         count = 0
         stream.write(pack("=xBxxxxxxIHH", self.same_screen, self.child.get_internal(), self.dst_x, self.dst_y))
-
-class PropMode(object):
-    Replace = 0
-    Prepend = 1
-    Append = 2
-
-class HostMode(object):
-    Insert = 0
-    Delete = 1
 
 class QueryBestSizeCookie(ooxcb.Cookie):
     pass
@@ -138,10 +557,6 @@ class GraphicsExposureEvent(ooxcb.Event):
     def build(self, stream):
         count = 0
         stream.write(pack("=BxxxIHHHHHHBxxx", self.response_type, self.drawable.get_internal(), self.x, self.y, self.width, self.height, self.minor_opcode, self.count, self.major_opcode))
-
-class FontDraw(object):
-    LeftToRight = 0
-    RightToLeft = 1
 
 class ClientMessageData(ooxcb.Union):
     def __init__(self, conn):
@@ -260,14 +675,6 @@ class Rgb(ooxcb.Struct):
 class QueryTreeCookie(ooxcb.Cookie):
     pass
 
-class VisualClass(object):
-    StaticGray = 0
-    GrayScale = 1
-    StaticColor = 2
-    PseudoColor = 3
-    TrueColor = 4
-    DirectColor = 5
-
 class GetWindowAttributesReply(ooxcb.Reply):
     def __init__(self, conn):
         ooxcb.Reply.__init__(self, conn)
@@ -314,11 +721,6 @@ class GetWindowAttributesReply(ooxcb.Reply):
 class AllocColorCookie(ooxcb.Cookie):
     pass
 
-class Exposures(object):
-    NotAllowed = 0
-    Allowed = 1
-    Default = 2
-
 class AllocError(ooxcb.Error):
     def __init__(self, conn):
         ooxcb.Error.__init__(self, conn)
@@ -337,14 +739,6 @@ class AllocError(ooxcb.Error):
     def build(self, stream):
         count = 0
         stream.write(pack("=xxxxIHBx", self.bad_value, self.minor_opcode, self.major_opcode))
-
-class ButtonIndex(object):
-    Any = 0
-    _1 = 1
-    _2 = 2
-    _3 = 3
-    _4 = 4
-    _5 = 5
 
 class Colormap(ooxcb.Resource):
     def __init__(self, conn, xid):
@@ -605,15 +999,6 @@ class SetModifierMappingReply(ooxcb.Reply):
         count = 0
         stream.write(pack("=xBxxxxxx", self.status))
 
-class ConfigWindow(object):
-    X = 1
-    Y = 2
-    Width = 4
-    Height = 8
-    BorderWidth = 16
-    Sibling = 32
-    StackMode = 64
-
 class GrabPointerReply(ooxcb.Reply):
     def __init__(self, conn):
         ooxcb.Reply.__init__(self, conn)
@@ -672,9 +1057,6 @@ class GContextError(ooxcb.Error):
     def build(self, stream):
         count = 0
         stream.write(pack("=xxxxIHBx", self.bad_value, self.minor_opcode, self.major_opcode))
-
-class GetPropertyType(object):
-    Any = 0
 
 class Coloritem(ooxcb.Struct):
     def __init__(self, conn):
@@ -785,17 +1167,8 @@ class LengthError(ooxcb.Error):
         count = 0
         stream.write(pack("=xxxxIHBx", self.bad_value, self.minor_opcode, self.major_opcode))
 
-class AccessControl(object):
-    Disable = 0
-    Enable = 1
-
 class ListFontsWithInfoCookie(ooxcb.Cookie):
     pass
-
-class Blanking(object):
-    NotPreferred = 0
-    Preferred = 1
-    Default = 2
 
 class Fontable(ooxcb.Resource):
     def __init__(self, conn, xid):
@@ -840,11 +1213,6 @@ class Fontable(ooxcb.Resource):
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 48, False, False), \
             QueryTextExtentsCookie(),
             QueryTextExtentsReply)
-
-class QueryShapeOf(object):
-    LargestCursor = 0
-    FastestTile = 1
-    FastestStipple = 2
 
 class ConfigureNotifyEvent(ooxcb.Event):
     event_name = "on_configure_notify"
@@ -948,11 +1316,6 @@ class Setup(ooxcb.Struct):
         build_list(self.conn, stream, self.pixmap_formats, Format)
         build_list(self.conn, stream, self.roots, Screen)
 
-class WindowClass(object):
-    CopyFromParent = 0
-    InputOutput = 1
-    InputOnly = 2
-
 class SelectionClearEvent(ooxcb.Event):
     event_name = "on_selection_clear"
     event_target_class = ooxcb.Connection
@@ -976,53 +1339,6 @@ class SelectionClearEvent(ooxcb.Event):
     def build(self, stream):
         count = 0
         stream.write(pack("=BxxxIII", self.response_type, self.time, self.owner.get_internal(), self.selection.get_internal()))
-
-class GX(object):
-    clear = 0
-    _and = 1
-    andReverse = 2
-    copy = 3
-    andInverted = 4
-    noop = 5
-    xor = 6
-    _or = 7
-    nor = 8
-    equiv = 9
-    invert = 10
-    orReverse = 11
-    copyInverted = 12
-    orInverted = 13
-    nand = 14
-    set = 15
-
-class Motion(object):
-    Normal = 0
-    Hint = 1
-
-class GC(object):
-    Function = 1
-    PlaneMask = 2
-    Foreground = 4
-    Background = 8
-    LineWidth = 16
-    LineStyle = 32
-    CapStyle = 64
-    JoinStyle = 128
-    FillStyle = 256
-    FillRule = 512
-    Tile = 1024
-    Stipple = 2048
-    TileStippleOriginX = 4096
-    TileStippleOriginY = 8192
-    Font = 16384
-    SubwindowMode = 32768
-    GraphicsExposures = 65536
-    ClipOriginX = 131072
-    ClipOriginY = 262144
-    ClipMask = 524288
-    DashOffset = 1048576
-    DashList = 2097152
-    ArcMode = 4194304
 
 class GetSelectionOwnerCookie(ooxcb.Cookie):
     pass
@@ -1212,9 +1528,6 @@ class Arc(ooxcb.Struct):
         arc.angle2 = angle2
         return arc
 
-class Kill(object):
-    AllTemporary = 0
-
 class QueryFontCookie(ooxcb.Cookie):
     pass
 
@@ -1357,12 +1670,6 @@ class ListExtensionsReply(ooxcb.Reply):
         stream.write(pack("=xBxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", self.names_len))
         count += 32
         build_list(self.conn, stream, self.names, Str)
-
-class CapStyle(object):
-    NotLast = 0
-    Butt = 1
-    Round = 2
-    Projecting = 3
 
 class AllocNamedColorCookie(ooxcb.Cookie):
     pass
@@ -1533,14 +1840,6 @@ class TranslateCoordinatesCookie(ooxcb.Cookie):
 class BadRequest(ooxcb.ProtocolException):
     pass
 
-class FillRule(object):
-    EvenOdd = 0
-    Winding = 1
-
-class GrabMode(object):
-    Sync = 0
-    Async = 1
-
 class GetKeyboardControlCookie(ooxcb.Cookie):
     pass
 
@@ -1548,10 +1847,6 @@ class WMState(object):
     Withdrawn = 0
     Normal = 1
     Iconic = 3
-
-class ColormapAlloc(object):
-    _None = 0
-    All = 1
 
 class FontError(ooxcb.Error):
     def __init__(self, conn):
@@ -1571,17 +1866,6 @@ class FontError(ooxcb.Error):
     def build(self, stream):
         count = 0
         stream.write(pack("=xxxxIHBx", self.bad_value, self.minor_opcode, self.major_opcode))
-
-class ModMask(object):
-    Shift = 1
-    Lock = 2
-    Control = 4
-    _1 = 8
-    _2 = 16
-    _3 = 32
-    _4 = 64
-    _5 = 128
-    Any = 32768
 
 class Setuprequest(ooxcb.Struct):
     def __init__(self, conn):
@@ -1618,21 +1902,6 @@ class Setuprequest(ooxcb.Struct):
         build_list(self.conn, stream, self.authorization_protocol_name, 'B')
         build_list(self.conn, stream, self.authorization_protocol_data, 'B')
 
-class Visibility(object):
-    Unobscured = 0
-    PartiallyObscured = 1
-    FullyObscured = 2
-
-class FillStyle(object):
-    Solid = 0
-    Tiled = 1
-    Stippled = 2
-    OpaqueStippled = 3
-
-class LedMode(object):
-    Off = 0
-    On = 1
-
 class KeymapNotifyEvent(ooxcb.Event):
     event_name = "on_keymap_notify"
     event_target_class = ooxcb.Connection
@@ -1661,31 +1930,6 @@ class BadIDChoice(ooxcb.ProtocolException):
 
 class GetKeyboardMappingCookie(ooxcb.Cookie):
     pass
-
-class SubwindowMode(object):
-    ClipByChildren = 0
-    IncludeInferiors = 1
-
-class Circulate(object):
-    RaiseLowest = 0
-    LowerHighest = 1
-
-class AutoRepeatMode(object):
-    Off = 0
-    On = 1
-    Default = 2
-
-class BackingStore(object):
-    NotUseful = 0
-    WhenMapped = 1
-    Always = 2
-
-class StackMode(object):
-    Above = 0
-    Below = 1
-    TopIf = 2
-    BottomIf = 3
-    Opposite = 4
 
 class AllocColorPlanesCookie(ooxcb.Cookie):
     pass
@@ -1719,14 +1963,6 @@ class Visualtype(ooxcb.Struct):
     def build(self, stream):
         count = 0
         stream.write(pack("=IBBHIIIxxxx", self.visual_id, self._class, self.bits_per_rgb_value, self.colormap_entries, self.red_mask, self.green_mask, self.blue_mask))
-
-class ArcMode(object):
-    Chord = 0
-    PieSlice = 1
-
-class BackPixmap(object):
-    _None = 0
-    ParentRelative = 1
 
 class BadFont(ooxcb.ProtocolException):
     pass
@@ -1779,10 +2015,6 @@ class Cursor(ooxcb.Resource):
         conn.add_to_cache(cid, cursor)
         return cursor
 
-class Place(object):
-    OnTop = 0
-    OnBottom = 1
-
 class GrabPointerCookie(ooxcb.Cookie):
     pass
 
@@ -1791,13 +2023,6 @@ class BadValue(ooxcb.ProtocolException):
 
 class GetInputFocusCookie(ooxcb.Cookie):
     pass
-
-class Grab(object):
-    Any = 0
-
-class Property(object):
-    NewValue = 0
-    Delete = 1
 
 class DrawableError(ooxcb.Error):
     def __init__(self, conn):
@@ -1821,11 +2046,6 @@ class DrawableError(ooxcb.Error):
 class AllocColorCellsCookie(ooxcb.Cookie):
     pass
 
-class MappingStatus(object):
-    Success = 0
-    Busy = 1
-    Failure = 2
-
 class SetPointerMappingCookie(ooxcb.Cookie):
     pass
 
@@ -1845,21 +2065,6 @@ class Point(ooxcb.Struct):
     def build(self, stream):
         count = 0
         stream.write(pack("=hh", self.x, self.y))
-
-class KeyButMask(object):
-    Shift = 1
-    Lock = 2
-    Control = 4
-    Mod1 = 8
-    Mod2 = 16
-    Mod3 = 32
-    Mod4 = 64
-    Mod5 = 128
-    Button1 = 256
-    Button2 = 512
-    Button3 = 1024
-    Button4 = 2048
-    Button5 = 4096
 
 class BadColormap(ooxcb.ProtocolException):
     pass
@@ -1891,17 +2096,8 @@ class NoExposureEvent(ooxcb.Event):
 class BadPixmap(ooxcb.ProtocolException):
     pass
 
-class ColormapState(object):
-    Uninstalled = 0
-    Installed = 1
-
 class ListPropertiesCookie(ooxcb.Cookie):
     pass
-
-class ColorFlag(object):
-    Red = 1
-    Green = 2
-    Blue = 4
 
 class BadGContext(ooxcb.ProtocolException):
     pass
@@ -1911,16 +2107,6 @@ class GetGeometryCookie(ooxcb.Cookie):
 
 class BadDrawable(ooxcb.ProtocolException):
     pass
-
-class Allow(object):
-    AsyncPointer = 0
-    SyncPointer = 1
-    ReplayPointer = 2
-    AsyncKeyboard = 3
-    SyncKeyboard = 4
-    ReplayKeyboard = 5
-    AsyncBoth = 6
-    SyncBoth = 7
 
 class AllocNamedColorReply(ooxcb.Reply):
     def __init__(self, conn):
@@ -2041,16 +2227,6 @@ class ColormapError(ooxcb.Error):
         count = 0
         stream.write(pack("=xxxxIHBx", self.bad_value, self.minor_opcode, self.major_opcode))
 
-class NotifyDetail(object):
-    Ancestor = 0
-    Virtual = 1
-    Inferior = 2
-    Nonlinear = 3
-    NonlinearVirtual = 4
-    Pointer = 5
-    PointerRoot = 6
-    _None = 7
-
 class AccessError(ooxcb.Error):
     def __init__(self, conn):
         ooxcb.Error.__init__(self, conn)
@@ -2116,12 +2292,6 @@ class KeyReleaseEvent(ooxcb.Event):
 class QueryTextExtentsCookie(ooxcb.Cookie):
     pass
 
-class ClipOrdering(object):
-    Unsorted = 0
-    YSorted = 1
-    YXSorted = 2
-    YXBanded = 3
-
 class Rectangle(ooxcb.Struct):
     def __init__(self, conn):
         ooxcb.Struct.__init__(self, conn)
@@ -2151,10 +2321,6 @@ class Rectangle(ooxcb.Struct):
         rect.width = width
         rect.height = height
         return rect
-
-class ImageOrder(object):
-    LSBFirst = 0
-    MSBFirst = 1
 
 class ListFontsCookie(ooxcb.Cookie):
     pass
@@ -2547,16 +2713,6 @@ class ButtonReleaseEvent(ooxcb.Event):
         count = 0
         stream.write(pack("=BBxxIIIIhhhhHBx", self.response_type, self.detail, self.time, self.root.get_internal(), self.event.get_internal(), self.child.get_internal(), self.root_x, self.root_y, self.event_x, self.event_y, self.state, self.same_screen))
 
-class MapIndex(object):
-    Shift = 0
-    Lock = 1
-    Control = 2
-    _1 = 3
-    _2 = 4
-    _3 = 5
-    _4 = 6
-    _5 = 7
-
 class Charinfo(ooxcb.Struct):
     def __init__(self, conn):
         ooxcb.Struct.__init__(self, conn)
@@ -2623,13 +2779,13 @@ class xprotoExtension(ooxcb.Extension):
             InternAtomCookie(),
             InternAtomReply)
 
-    def ungrab_pointer_checked(self, time=0):
+    def ungrab_pointer_checked(self, time=Time.CurrentTime):
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", time))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 27, True, True), \
             ooxcb.VoidCookie())
 
-    def ungrab_pointer(self, time=0):
+    def ungrab_pointer(self, time=Time.CurrentTime):
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", time))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 27, True, False), \
@@ -3370,25 +3526,6 @@ class GetPointerControlCookie(ooxcb.Cookie):
 class GetPropertyCookie(ooxcb.Cookie):
     pass
 
-class JoinStyle(object):
-    Miter = 0
-    Round = 1
-    Bevel = 2
-
-class Gravity(object):
-    BitForget = 0
-    WinUnmap = 0
-    NorthWest = 1
-    North = 2
-    NorthEast = 3
-    West = 4
-    Center = 5
-    East = 6
-    SouthWest = 7
-    South = 8
-    SouthEast = 9
-    Static = 10
-
 class GetAtomNameCookie(ooxcb.Cookie):
     pass
 
@@ -3429,9 +3566,6 @@ class Str(ooxcb.Struct):
         struct.name = string
         struct.name_len = len(string)
         return struct
-
-class Time(object):
-    CurrentTime = 0
 
 class AllocColorPlanesReply(ooxcb.Reply):
     def __init__(self, conn):
@@ -3483,38 +3617,11 @@ class CirculateNotifyEvent(ooxcb.Event):
         count = 0
         stream.write(pack("=BxxxIIxxxxBxxx", self.response_type, self.event.get_internal(), self.window.get_internal(), self.place))
 
-class CW(object):
-    BackPixmap = 1
-    BackPixel = 2
-    BorderPixmap = 4
-    BorderPixel = 8
-    BitGravity = 16
-    WinGravity = 32
-    BackingStore = 64
-    BackingPlanes = 128
-    BackingPixel = 256
-    OverrideRedirect = 512
-    SaveUnder = 1024
-    EventMask = 2048
-    DontPropagate = 4096
-    Colormap = 8192
-    Cursor = 16384
-
 class QueryExtensionCookie(ooxcb.Cookie):
     pass
 
 class GetWindowAttributesCookie(ooxcb.Cookie):
     pass
-
-class KB(object):
-    KeyClickPercent = 1
-    BellPercent = 2
-    BellPitch = 4
-    BellDuration = 8
-    Led = 16
-    LedMode = 32
-    Key = 64
-    AutoRepeatMode = 128
 
 class GetMotionEventsReply(ooxcb.Reply):
     def __init__(self, conn):
@@ -3555,41 +3662,6 @@ class ListFontsReply(ooxcb.Reply):
         stream.write(pack("=xxxxxxxxHxxxxxxxxxxxxxxxxxxxxxx", self.names_len))
         count += 32
         build_list(self.conn, stream, self.names, Str)
-
-class Family(object):
-    Internet = 0
-    DECnet = 1
-    Chaos = 2
-    ServerInterpreted = 5
-    Internet6 = 6
-
-class EventMask(object):
-    NoEvent = 0
-    KeyPress = 1
-    KeyRelease = 2
-    ButtonPress = 4
-    ButtonRelease = 8
-    EnterWindow = 16
-    LeaveWindow = 32
-    PointerMotion = 64
-    PointerMotionHint = 128
-    Button1Motion = 256
-    Button2Motion = 512
-    Button3Motion = 1024
-    Button4Motion = 2048
-    Button5Motion = 4096
-    ButtonMotion = 8192
-    KeymapState = 16384
-    Exposure = 32768
-    VisibilityChange = 65536
-    StructureNotify = 131072
-    ResizeRedirect = 262144
-    SubstructureNotify = 524288
-    SubstructureRedirect = 1048576
-    FocusChange = 2097152
-    PropertyChange = 4194304
-    ColorMapChange = 8388608
-    OwnerGrabButton = 16777216
 
 class InternAtomReply(ooxcb.Reply):
     def __init__(self, conn):
@@ -4274,7 +4346,7 @@ class Window(Drawable):
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 25, True, False), \
             ooxcb.VoidCookie())
 
-    def grab_pointer(self, event_mask, owner_events=True, pointer_mode=GrabMode.Async, keyboard_mode=GrabMode.Async, confine_to=None, cursor=None, time=0):
+    def grab_pointer(self, event_mask, owner_events=True, pointer_mode=GrabMode.Async, keyboard_mode=GrabMode.Async, confine_to=None, cursor=None, time=Time.CurrentTime):
         if confine_to is None:
             confine_to = XNone
         if cursor is None:
@@ -4288,7 +4360,7 @@ class Window(Drawable):
             GrabPointerCookie(),
             GrabPointerReply)
 
-    def grab_pointer_unchecked(self, event_mask, owner_events=True, pointer_mode=GrabMode.Async, keyboard_mode=GrabMode.Async, confine_to=None, cursor=None, time=0):
+    def grab_pointer_unchecked(self, event_mask, owner_events=True, pointer_mode=GrabMode.Async, keyboard_mode=GrabMode.Async, confine_to=None, cursor=None, time=Time.CurrentTime):
         if confine_to is None:
             confine_to = XNone
         if cursor is None:
@@ -4334,7 +4406,7 @@ class Window(Drawable):
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 29, True, False), \
             ooxcb.VoidCookie())
 
-    def grab_keyboard(self, owner_events=True, time=0, pointer_mode=GrabMode.Async, keyboard_mode=GrabMode.Async):
+    def grab_keyboard(self, owner_events=True, time=Time.CurrentTime, pointer_mode=GrabMode.Async, keyboard_mode=GrabMode.Async):
         grab_window = self.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxIIBBxx", owner_events, grab_window, time, pointer_mode, keyboard_mode))
@@ -4342,7 +4414,7 @@ class Window(Drawable):
             GrabKeyboardCookie(),
             GrabKeyboardReply)
 
-    def grab_keyboard_unchecked(self, owner_events=True, time=0, pointer_mode=GrabMode.Async, keyboard_mode=GrabMode.Async):
+    def grab_keyboard_unchecked(self, owner_events=True, time=Time.CurrentTime, pointer_mode=GrabMode.Async, keyboard_mode=GrabMode.Async):
         grab_window = self.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxIIBBxx", owner_events, grab_window, time, pointer_mode, keyboard_mode))
@@ -4428,14 +4500,14 @@ class Window(Drawable):
             TranslateCoordinatesCookie(),
             TranslateCoordinatesReply)
 
-    def set_input_focus_checked(self, revert_to=1, time=0):
+    def set_input_focus_checked(self, revert_to=InputFocus.PointerRoot, time=Time.CurrentTime):
         focus = self.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxII", revert_to, focus, time))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 42, True, True), \
             ooxcb.VoidCookie())
 
-    def set_input_focus(self, revert_to=1, time=0):
+    def set_input_focus(self, revert_to=InputFocus.PointerRoot, time=Time.CurrentTime):
         focus = self.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxII", revert_to, focus, time))
@@ -4554,22 +4626,6 @@ class Window(Drawable):
     def create_toplevel_on_screen(cls, conn, screen, *args, **kwargs):
         return cls.create(conn, screen.root, screen.root_depth, screen.root_visual, *args, **kwargs)
 
-class CoordMode(object):
-    Origin = 0
-    Previous = 1
-
-class ImageFormat(object):
-    XYBitmap = 0
-    XYPixmap = 1
-    ZPixmap = 2
-
-class GrabStatus(object):
-    Success = 0
-    AlreadyGrabbed = 1
-    InvalidTime = 2
-    NotViewable = 3
-    Frozen = 4
-
 class Timecoord(ooxcb.Struct):
     def __init__(self, conn):
         ooxcb.Struct.__init__(self, conn)
@@ -4589,11 +4645,6 @@ class Timecoord(ooxcb.Struct):
         count = 0
         stream.write(pack("=Ihh", self.time, self.x, self.y))
 
-class LineStyle(object):
-    Solid = 0
-    OnOffDash = 1
-    DoubleDash = 2
-
 class QueryBestSizeReply(ooxcb.Reply):
     def __init__(self, conn):
         ooxcb.Reply.__init__(self, conn)
@@ -4610,11 +4661,6 @@ class QueryBestSizeReply(ooxcb.Reply):
     def build(self, stream):
         count = 0
         stream.write(pack("=xxxxxxxxHH", self.width, self.height))
-
-class InputFocus(object):
-    _None = 0
-    PointerRoot = 1
-    Parent = 2
 
 class VisibilityNotifyEvent(ooxcb.Event):
     event_name = "on_visibility_notify"
@@ -4661,10 +4707,6 @@ class FocusOutEvent(ooxcb.Event):
     def build(self, stream):
         count = 0
         stream.write(pack("=BBxxIBxxx", self.response_type, self.detail, self.event.get_internal(), self.mode))
-
-class SendEventDest(object):
-    PointerWindow = 0
-    ItemFocus = 1
 
 class Format(ooxcb.Struct):
     def __init__(self, conn):
@@ -4827,11 +4869,6 @@ class CreateNotifyEvent(ooxcb.Event):
     def build(self, stream):
         count = 0
         stream.write(pack("=BxxxIIhhHHHBx", self.response_type, self.parent.get_internal(), self.window.get_internal(), self.x, self.y, self.width, self.height, self.border_width, self.override_redirect))
-
-class Mapping(object):
-    Modifier = 0
-    Keyboard = 1
-    Pointer = 2
 
 class ResizeRequestEvent(ooxcb.Event):
     event_name = "on_resize_request"
@@ -4997,15 +5034,6 @@ class Atom(ooxcb.Resource):
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 24, True, False), \
             ooxcb.VoidCookie())
 
-class ScreenSaver(object):
-    Reset = 0
-    Active = 1
-
-class CloseDown(object):
-    DestroyAll = 0
-    RetainPermanent = 1
-    RetainTemporary = 2
-
 class SetPointerMappingReply(ooxcb.Reply):
     def __init__(self, conn):
         ooxcb.Reply.__init__(self, conn)
@@ -5162,11 +5190,6 @@ class SelectionRequestEvent(ooxcb.Event):
 class BadWindow(ooxcb.ProtocolException):
     pass
 
-class MapState(object):
-    Unmapped = 0
-    Unviewable = 1
-    Viewable = 2
-
 class Depth(ooxcb.Struct):
     def __init__(self, conn):
         ooxcb.Struct.__init__(self, conn)
@@ -5193,14 +5216,6 @@ class Depth(ooxcb.Struct):
 
 class ListExtensionsCookie(ooxcb.Cookie):
     pass
-
-class ButtonMask(object):
-    _1 = 256
-    _2 = 512
-    _3 = 1024
-    _4 = 2048
-    _5 = 4096
-    Any = 32768
 
 class CursorError(ooxcb.Error):
     def __init__(self, conn):
@@ -6050,11 +6065,6 @@ class SelectionNotifyEvent(ooxcb.Event):
         count = 0
         stream.write(pack("=BxxxIIIII", self.response_type, self.time, self.requestor.get_internal(), self.selection.get_internal(), self.target.get_internal(), self.property.get_internal()))
 
-class PolyShape(object):
-    Complex = 0
-    Nonconvex = 1
-    Convex = 2
-
 class SetModifierMappingCookie(ooxcb.Cookie):
     pass
 
@@ -6094,16 +6104,6 @@ class WindowError(ooxcb.Error):
     def build(self, stream):
         count = 0
         stream.write(pack("=xxxxIHBx", self.bad_value, self.minor_opcode, self.major_opcode))
-
-class SetMode(object):
-    Insert = 0
-    Delete = 1
-
-class NotifyMode(object):
-    Normal = 0
-    Grab = 1
-    Ungrab = 2
-    WhileGrabbed = 3
 
 class PropertyNotifyEvent(ooxcb.Event):
     event_name = "on_property_notify"
