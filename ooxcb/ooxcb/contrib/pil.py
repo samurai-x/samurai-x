@@ -28,11 +28,6 @@
     Image instances.
 """
 
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from StringIO import StringIO
-
 from PIL import Image
 
 from ooxcb.xproto import ImageFormat, Window
@@ -89,7 +84,7 @@ def get_pil_image(drawable, x=0, y=0, width=None, height=None):
            0xffffffff # to get all bits (this should be big enough)
            ).reply()
     data = ''.join(map(chr, reply.data))
-    return Image.fromstring("RGBX", (width - x, height - y),
+    return Image.frombuffer("RGBX", (width - x, height - y),
             data, "raw", "BGRX").convert("RGB")
 
 def mixin():
