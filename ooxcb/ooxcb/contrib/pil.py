@@ -23,6 +23,11 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+"""
+    This module contains functions for putting and getting images as PIL
+    Image instances.
+"""
+
 try:
     from cStringIO import StringIO
 except ImportError:
@@ -64,11 +69,14 @@ def get_pil_image(drawable, x=0, y=0, width=None, height=None):
 
         :Parameters:
             `x`: int
+                x offset
             `y`: int
+                y offset
             `width`: int or None
                 set to drawable's width if None
             `height`: int or None
                 set to drawable's height if None
+
     """
     if (width is None or height is None):
         geom = drawable.get_geometry().reply()

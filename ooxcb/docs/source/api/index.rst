@@ -3,6 +3,7 @@ ooxcb api documentation
 
 .. toctree::
 
+    contrib/index.rst
     ooxcb.rst
     atoms.rst
     builder.rst
