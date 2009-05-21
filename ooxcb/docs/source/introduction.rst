@@ -25,9 +25,8 @@ comfortable to use. Because of that, we decided to write our own binding, based 
 The xpyb wrapper generator uses so-called interface files that describe the desired Python API of
 a specific extension - so we can create an API that is more comfortable and easy-to-use.
 However, somebody has to write these interface files, and depending on the size and complexity of
-the extension, that's a time-intensive job. At the moment, only the most important parts of the
-xproto (the core) extension. You can see the current state of the interface file
-`here <http://samurai-x.org/browser/ooxcb/xproto.i>`_ (yes, it's YAML!).
+the extension, that's a time-intensive job. At the moment, everything of the xproto extension
+(the core extension) is wrapped, but some parts need testing.
 
 Additionally, ooxcb comes with a simple and powerful event dispatching system (stolen from `pyglet`_) -
 you don't have to use it necessarily, but it can make life much easier.
@@ -73,10 +72,9 @@ Here's a minimal example that displays a white window and exits if a mouse butto
 Is it usable?
 -------------
 
-As said above, much of the xproto extension is already wrapped, and ooxcb is relatively stable, so it
+As said above, the xproto extension is already wrapped, and ooxcb is relatively stable, so it
 should be possible to use it (we are already using it for samurai-x).
-If you stumble upon bugs or missing important functions, please report them on the
-`bug tracker <http://samurai-x.org/newticket>`_.
+If you stumble upon bugs, please report them on the `bug tracker <http://samurai-x.org/newticket>`_.
 
 .. _xcb: http://xcb.freedesktop.org
 .. _xpyb: http://cgit.freedesktop.org/xcb/xpyb/

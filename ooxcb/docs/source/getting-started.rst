@@ -120,8 +120,8 @@ requests will be delivered. So, change the lines above to:
     print conn.wait_for_event()
 
 As a convenience function, you can also use
-:meth:`ooxcb.conn.Connection.bunch` in a `with` stament. After the `with`
-block is executed, the connection will be flushed.
+:meth:`ooxcb.conn.Connection.bunch` in a `with` stament. After the execution
+of the `with` block, the connection gets flushed.
 
 ::
 
@@ -228,7 +228,7 @@ forget that. And don't forget to flush.
 Well, we have a very cool triangle now. But if we click on the tiny X to close
 the window, we get a very bad "IOError: I/O error on X server connection."
 exception. What can we do to avoid that?
-Ah, we could close if ... let's say if the user presses a button!
+Ah, we could close the window gracefully if the user presses a button!
 
 That's easy. Just register for the ButtonPress events ...
 
