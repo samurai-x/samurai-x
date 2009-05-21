@@ -157,7 +157,7 @@ Xizers:
         length_out: data_len
         seq_out: data
 
-    FontQtyPaths:
+    FontQtyPath:
         type: seq
         seq_in: path
         length_out: font_qty
@@ -238,6 +238,7 @@ Requests:
         arguments: ["max_names", "pattern"]
         precode:
             - !xizer "Pattern"
+        doc: ":note: Don't use this method, use :meth:`list_all_fonts_with_info` instead."
 
     QueryExtension:
         arguments: ["name"]
@@ -279,15 +280,15 @@ Requests:
         # is unused. WTF o_O
         arguments: ["path"]
         # TODO: No idea how what format `path` has. It doesn't seem to be
-        # len(s1) + s1 + \x00 + len(s2) + s2 + \x00 ... :/
-#        initcode:
-#            - !xizer "FontQtyPaths"
-#            - 'buf = StringIO.StringIO()'
-#            - 'buf.write(pack("=xxxxH", font_qty))'
-#            - 'for item in path:'
-#            - !indent
-#            - 'buf.write(pack("=H", len(item)) + array("B", item).tostring() + "\x00")'
-#            - !dedent
+        # len(s1) + s1 + len(s2) + s2 ... :/
+        initcode:
+            - !xizer "FontQtyPath"
+            - 'buf = StringIO.StringIO()'
+            - 'buf.write(pack("=xxxxHxx", font_qty))'
+            - 'for item in path:'
+            - !indent
+            - 'buf.write(make_array(item, "B") + "\x00")'
+            - !dedent
 
     # Atom objects
     GetAtomName:
@@ -783,6 +784,36 @@ Requests:
         name: recolor
 
 Classes:
+    xprotoExtension:
+        - method:
+            # ListFontsWithInfo sends multiple replies. That's a convenience
+            # function that returns all valid ListFontsWithInfoReply instances.
+            # Sometimes, a BadAtom error is raised, because the X Server
+            # delivered a strange atom value in the termination reply.
+            # That one is caught here.
+            name: list_all_fonts_with_info
+            arguments: ["max_names", "pattern"]
+            code:
+                - "cookie = self.list_fonts_with_info(max_names, pattern)"
+                - "ret = []"
+                - "while True:"
+                - !indent
+                - "try:"
+                - !indent
+                - "reply = cookie.reply()"
+                - !dedent
+                - "except BadAtom:"
+                - !indent
+                - "break"
+                - !dedent
+                - "if reply.name_len == 0:"
+                - !indent
+                - "break"
+                - !dedent
+                - "ret.append(reply)"
+                - !dedent
+                - "return ret"
+
     Drawable:
         - order: 99 # just before `Window` and `Pixmap`
 

@@ -1088,10 +1088,11 @@ else:
 print >>sys.stderr, 'Wrapping %s ...' % MODNAME
 
 EXTCLS = PyClass('%sExtension' % MODNAME)
+
 EXTCLS.new_attribute('header', '"%s"' % MODNAME)
 
 EXTCLS.base = 'ooxcb.Extension'
-ALL['%sExtenstion' % MODNAME] = EXTCLS
+ALL['%sExtension' % MODNAME] = EXTCLS
 
 try:
     ifile = open('%s.i' % MODNAME, 'r')

@@ -184,20 +184,6 @@ ooxcb.xproto
 
     .. attribute:: colormap
 
-.. class:: FillStyle
-
-    .. data:: Solid
-
-
-    .. data:: Tiled
-
-
-    .. data:: Stippled
-
-
-    .. data:: OpaqueStippled
-
-
 .. class:: AllocColorCookie
 
 .. class:: Exposures
@@ -1180,267 +1166,18 @@ ooxcb.xproto
     .. data:: FullyObscured
 
 
-.. class:: xprotoExtension
+.. class:: FillStyle
 
-    .. data:: header
+    .. data:: Solid
 
 
-    .. method:: create_window_checked(self, depth, wid, parent, x, y, width, height, border_width, _class, visual, value_mask, value_list)
+    .. data:: Tiled
 
 
-    .. method:: create_window(self, depth, wid, parent, x, y, width, height, border_width, _class, visual, value_mask, value_list)
+    .. data:: Stippled
 
 
-    .. method:: intern_atom(self, name, only_if_exists=False)
-
-
-    .. method:: intern_atom_unchecked(self, name, only_if_exists=False)
-
-
-    .. method:: ungrab_pointer_checked(self, time=0)
-
-
-    .. method:: ungrab_pointer(self, time=0)
-
-
-    .. method:: change_active_pointer_grab_checked(self, cursor, time, event_mask)
-
-
-    .. method:: change_active_pointer_grab(self, cursor, time, event_mask)
-
-
-    .. method:: ungrab_keyboard_checked(self, time=0)
-
-
-    .. method:: ungrab_keyboard(self, time=0)
-
-
-    .. method:: allow_events_checked(self, mode, time=0)
-
-
-    .. method:: allow_events(self, mode, time=0)
-
-
-    .. method:: grab_server_checked(self)
-
-
-    .. method:: grab_server(self)
-
-
-    .. method:: ungrab_server_checked(self)
-
-
-    .. method:: ungrab_server(self)
-
-
-    .. method:: warp_pointer_checked(self, src_window, dst_window, src_x, src_y, src_width, src_height, dst_x, dst_y)
-
-
-    .. method:: warp_pointer(self, src_window, dst_window, src_x, src_y, src_width, src_height, dst_x, dst_y)
-
-
-    .. method:: get_input_focus(self)
-
-
-    .. method:: get_input_focus_unchecked(self)
-
-
-    .. method:: query_keymap(self)
-
-
-    .. method:: query_keymap_unchecked(self)
-
-
-    .. method:: open_font_checked(self, fid, name)
-
-
-    .. method:: open_font(self, fid, name)
-
-
-    .. method:: list_fonts(self, max_names, pattern)
-
-
-    .. method:: list_fonts_unchecked(self, max_names, pattern)
-
-
-    .. method:: list_fonts_with_info(self, max_names, pattern)
-
-
-    .. method:: list_fonts_with_info_unchecked(self, max_names, pattern)
-
-
-    .. method:: set_font_path_checked(self, path)
-
-
-    .. method:: set_font_path(self, path)
-
-
-    .. method:: get_font_path(self)
-
-
-    .. method:: get_font_path_unchecked(self)
-
-
-    .. method:: create_pixmap_checked(self, depth, pid, drawable, width, height)
-
-
-    .. method:: create_pixmap(self, depth, pid, drawable, width, height)
-
-
-    .. method:: create_g_c_checked(self, cid, drawable, value_mask, value_list)
-
-
-    .. method:: create_g_c(self, cid, drawable, value_mask, value_list)
-
-
-    .. method:: create_colormap_checked(self, alloc, mid, window, visual)
-
-
-    .. method:: create_colormap(self, alloc, mid, window, visual)
-
-
-    .. method:: create_cursor_checked(self, cid, source, mask, fore_red, fore_green, fore_blue, back_red, back_green, back_blue, x, y)
-
-
-    .. method:: create_cursor(self, cid, source, mask, fore_red, fore_green, fore_blue, back_red, back_green, back_blue, x, y)
-
-
-    .. method:: create_glyph_cursor_checked(self, cid, source_font, mask_font, source_char, mask_char, fore_red, fore_green, fore_blue, back_red, back_green, back_blue)
-
-
-    .. method:: create_glyph_cursor(self, cid, source_font, mask_font, source_char, mask_char, fore_red, fore_green, fore_blue, back_red, back_green, back_blue)
-
-
-    .. method:: query_extension(self, name)
-
-
-    .. method:: query_extension_unchecked(self, name)
-
-
-    .. method:: list_extensions(self)
-
-
-    .. method:: list_extensions_unchecked(self)
-
-
-    .. method:: change_keyboard_mapping_checked(self, keycode_count, first_keycode, keysyms_per_keycode, keysyms)
-
-
-    .. method:: change_keyboard_mapping(self, keycode_count, first_keycode, keysyms_per_keycode, keysyms)
-
-
-    .. method:: get_keyboard_mapping(self, first_keycode, count)
-
-
-    .. method:: get_keyboard_mapping_unchecked(self, first_keycode, count)
-
-
-    .. method:: change_keyboard_control_checked(self, **values)
-
-
-    .. method:: change_keyboard_control(self, **values)
-
-
-    .. method:: get_keyboard_control(self)
-
-
-    .. method:: get_keyboard_control_unchecked(self)
-
-
-    .. method:: bell_checked(self, percent=0)
-
-
-    .. method:: bell(self, percent=0)
-
-
-    .. method:: change_pointer_control_checked(self, acceleration_numerator, acceleration_denominator, threshold, do_acceleration, do_threshold)
-
-
-    .. method:: change_pointer_control(self, acceleration_numerator, acceleration_denominator, threshold, do_acceleration, do_threshold)
-
-
-    .. method:: get_pointer_control(self)
-
-
-    .. method:: get_pointer_control_unchecked(self)
-
-
-    .. method:: set_screen_saver_checked(self, timeout, interval, prefer_blanking, allow_exposures)
-
-
-    .. method:: set_screen_saver(self, timeout, interval, prefer_blanking, allow_exposures)
-
-
-    .. method:: get_screen_saver(self)
-
-
-    .. method:: get_screen_saver_unchecked(self)
-
-
-    .. method:: change_hosts_checked(self, mode, family, address)
-
-
-    .. method:: change_hosts(self, mode, family, address)
-
-
-    .. method:: list_hosts(self)
-
-
-    .. method:: list_hosts_unchecked(self)
-
-
-    .. method:: set_access_control_checked(self, mode)
-
-
-    .. method:: set_access_control(self, mode)
-
-
-    .. method:: set_close_down_mode_checked(self, mode)
-
-
-    .. method:: set_close_down_mode(self, mode)
-
-
-    .. method:: kill_client_checked(self, resource)
-
-
-    .. method:: kill_client(self, resource)
-
-
-    .. method:: force_screen_saver_checked(self, mode)
-
-
-    .. method:: force_screen_saver(self, mode)
-
-
-    .. method:: set_pointer_mapping(self, map)
-
-
-    .. method:: set_pointer_mapping_unchecked(self, map)
-
-
-    .. method:: get_pointer_mapping(self)
-
-
-    .. method:: get_pointer_mapping_unchecked(self)
-
-
-    .. method:: set_modifier_mapping(self, keycodes_per_modifier, keycodes)
-
-
-    .. method:: set_modifier_mapping_unchecked(self, keycodes_per_modifier, keycodes)
-
-
-    .. method:: get_modifier_mapping(self)
-
-
-    .. method:: get_modifier_mapping_unchecked(self)
-
-
-    .. method:: no_operation_checked(self)
-
-
-    .. method:: no_operation(self)
+    .. data:: OpaqueStippled
 
 
 .. class:: LedMode
@@ -2276,6 +2013,272 @@ ooxcb.xproto
     .. attribute:: ascent
 
 .. class:: BadLength
+
+.. class:: xprotoExtension
+
+    .. data:: header
+
+
+    .. method:: create_window_checked(self, depth, wid, parent, x, y, width, height, border_width, _class, visual, value_mask, value_list)
+
+
+    .. method:: create_window(self, depth, wid, parent, x, y, width, height, border_width, _class, visual, value_mask, value_list)
+
+
+    .. method:: intern_atom(self, name, only_if_exists=False)
+
+
+    .. method:: intern_atom_unchecked(self, name, only_if_exists=False)
+
+
+    .. method:: ungrab_pointer_checked(self, time=0)
+
+
+    .. method:: ungrab_pointer(self, time=0)
+
+
+    .. method:: change_active_pointer_grab_checked(self, cursor, time, event_mask)
+
+
+    .. method:: change_active_pointer_grab(self, cursor, time, event_mask)
+
+
+    .. method:: ungrab_keyboard_checked(self, time=0)
+
+
+    .. method:: ungrab_keyboard(self, time=0)
+
+
+    .. method:: allow_events_checked(self, mode, time=0)
+
+
+    .. method:: allow_events(self, mode, time=0)
+
+
+    .. method:: grab_server_checked(self)
+
+
+    .. method:: grab_server(self)
+
+
+    .. method:: ungrab_server_checked(self)
+
+
+    .. method:: ungrab_server(self)
+
+
+    .. method:: warp_pointer_checked(self, src_window, dst_window, src_x, src_y, src_width, src_height, dst_x, dst_y)
+
+
+    .. method:: warp_pointer(self, src_window, dst_window, src_x, src_y, src_width, src_height, dst_x, dst_y)
+
+
+    .. method:: get_input_focus(self)
+
+
+    .. method:: get_input_focus_unchecked(self)
+
+
+    .. method:: query_keymap(self)
+
+
+    .. method:: query_keymap_unchecked(self)
+
+
+    .. method:: open_font_checked(self, fid, name)
+
+
+    .. method:: open_font(self, fid, name)
+
+
+    .. method:: list_fonts(self, max_names, pattern)
+
+
+    .. method:: list_fonts_unchecked(self, max_names, pattern)
+
+
+    .. method:: list_fonts_with_info(self, max_names, pattern)
+
+
+    .. method:: list_fonts_with_info_unchecked(self, max_names, pattern)
+
+
+    .. method:: set_font_path_checked(self, path)
+
+
+    .. method:: set_font_path(self, path)
+
+
+    .. method:: get_font_path(self)
+
+
+    .. method:: get_font_path_unchecked(self)
+
+
+    .. method:: create_pixmap_checked(self, depth, pid, drawable, width, height)
+
+
+    .. method:: create_pixmap(self, depth, pid, drawable, width, height)
+
+
+    .. method:: create_g_c_checked(self, cid, drawable, value_mask, value_list)
+
+
+    .. method:: create_g_c(self, cid, drawable, value_mask, value_list)
+
+
+    .. method:: create_colormap_checked(self, alloc, mid, window, visual)
+
+
+    .. method:: create_colormap(self, alloc, mid, window, visual)
+
+
+    .. method:: create_cursor_checked(self, cid, source, mask, fore_red, fore_green, fore_blue, back_red, back_green, back_blue, x, y)
+
+
+    .. method:: create_cursor(self, cid, source, mask, fore_red, fore_green, fore_blue, back_red, back_green, back_blue, x, y)
+
+
+    .. method:: create_glyph_cursor_checked(self, cid, source_font, mask_font, source_char, mask_char, fore_red, fore_green, fore_blue, back_red, back_green, back_blue)
+
+
+    .. method:: create_glyph_cursor(self, cid, source_font, mask_font, source_char, mask_char, fore_red, fore_green, fore_blue, back_red, back_green, back_blue)
+
+
+    .. method:: query_extension(self, name)
+
+
+    .. method:: query_extension_unchecked(self, name)
+
+
+    .. method:: list_extensions(self)
+
+
+    .. method:: list_extensions_unchecked(self)
+
+
+    .. method:: change_keyboard_mapping_checked(self, keycode_count, first_keycode, keysyms_per_keycode, keysyms)
+
+
+    .. method:: change_keyboard_mapping(self, keycode_count, first_keycode, keysyms_per_keycode, keysyms)
+
+
+    .. method:: get_keyboard_mapping(self, first_keycode, count)
+
+
+    .. method:: get_keyboard_mapping_unchecked(self, first_keycode, count)
+
+
+    .. method:: change_keyboard_control_checked(self, **values)
+
+
+    .. method:: change_keyboard_control(self, **values)
+
+
+    .. method:: get_keyboard_control(self)
+
+
+    .. method:: get_keyboard_control_unchecked(self)
+
+
+    .. method:: bell_checked(self, percent=0)
+
+
+    .. method:: bell(self, percent=0)
+
+
+    .. method:: change_pointer_control_checked(self, acceleration_numerator, acceleration_denominator, threshold, do_acceleration, do_threshold)
+
+
+    .. method:: change_pointer_control(self, acceleration_numerator, acceleration_denominator, threshold, do_acceleration, do_threshold)
+
+
+    .. method:: get_pointer_control(self)
+
+
+    .. method:: get_pointer_control_unchecked(self)
+
+
+    .. method:: set_screen_saver_checked(self, timeout, interval, prefer_blanking, allow_exposures)
+
+
+    .. method:: set_screen_saver(self, timeout, interval, prefer_blanking, allow_exposures)
+
+
+    .. method:: get_screen_saver(self)
+
+
+    .. method:: get_screen_saver_unchecked(self)
+
+
+    .. method:: change_hosts_checked(self, mode, family, address)
+
+
+    .. method:: change_hosts(self, mode, family, address)
+
+
+    .. method:: list_hosts(self)
+
+
+    .. method:: list_hosts_unchecked(self)
+
+
+    .. method:: set_access_control_checked(self, mode)
+
+
+    .. method:: set_access_control(self, mode)
+
+
+    .. method:: set_close_down_mode_checked(self, mode)
+
+
+    .. method:: set_close_down_mode(self, mode)
+
+
+    .. method:: kill_client_checked(self, resource)
+
+
+    .. method:: kill_client(self, resource)
+
+
+    .. method:: force_screen_saver_checked(self, mode)
+
+
+    .. method:: force_screen_saver(self, mode)
+
+
+    .. method:: set_pointer_mapping(self, map)
+
+
+    .. method:: set_pointer_mapping_unchecked(self, map)
+
+
+    .. method:: get_pointer_mapping(self)
+
+
+    .. method:: get_pointer_mapping_unchecked(self)
+
+
+    .. method:: set_modifier_mapping(self, keycodes_per_modifier, keycodes)
+
+
+    .. method:: set_modifier_mapping_unchecked(self, keycodes_per_modifier, keycodes)
+
+
+    .. method:: get_modifier_mapping(self)
+
+
+    .. method:: get_modifier_mapping_unchecked(self)
+
+
+    .. method:: no_operation_checked(self)
+
+
+    .. method:: no_operation(self)
+
+
+    .. method:: list_all_fonts_with_info(self, max_names, pattern)
+
 
 .. class:: ButtonPressEvent
 

@@ -311,12 +311,6 @@ class GetWindowAttributesReply(ooxcb.Reply):
         count = 0
         stream.write(pack("=xBxxxxxxIHBBIIBBBBIIIHxx", self.backing_store, self.visual, self._class, self.bit_gravity, self.win_gravity, self.backing_planes, self.backing_pixel, self.save_under, self.map_is_installed, self.map_state, self.override_redirect, self.colormap.get_internal(), self.all_event_masks, self.your_event_mask, self.do_not_propagate_mask))
 
-class FillStyle(object):
-    Solid = 0
-    Tiled = 1
-    Stippled = 2
-    OpaqueStippled = 3
-
 class AllocColorCookie(ooxcb.Cookie):
     pass
 
@@ -1629,697 +1623,11 @@ class Visibility(object):
     PartiallyObscured = 1
     FullyObscured = 2
 
-class xprotoExtension(ooxcb.Extension):
-    header = "xproto"
-    def create_window_checked(self, depth, wid, parent, x, y, width, height, border_width, _class, visual, value_mask, value_list):
-        wid = wid.get_internal()
-        parent = parent.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xBxxIIhhHHHHII", depth, wid, parent, x, y, width, height, border_width, _class, visual, value_mask))
-        buf.write(make_array(value_list, "I"))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 1, True, True), \
-            ooxcb.VoidCookie())
-
-    def create_window(self, depth, wid, parent, x, y, width, height, border_width, _class, visual, value_mask, value_list):
-        wid = wid.get_internal()
-        parent = parent.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xBxxIIhhHHHHII", depth, wid, parent, x, y, width, height, border_width, _class, visual, value_mask))
-        buf.write(make_array(value_list, "I"))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 1, True, False), \
-            ooxcb.VoidCookie())
-
-    def intern_atom(self, name, only_if_exists=False):
-        name_len = len(name)
-        buf = StringIO.StringIO()
-        buf.write(pack("=xBxxHxx", only_if_exists, name_len))
-        buf.write(make_array(name, "B"))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 16, False, True), \
-            InternAtomCookie(),
-            InternAtomReply)
-
-    def intern_atom_unchecked(self, name, only_if_exists=False):
-        name_len = len(name)
-        buf = StringIO.StringIO()
-        buf.write(pack("=xBxxHxx", only_if_exists, name_len))
-        buf.write(make_array(name, "B"))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 16, False, False), \
-            InternAtomCookie(),
-            InternAtomReply)
-
-    def ungrab_pointer_checked(self, time=0):
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxI", time))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 27, True, True), \
-            ooxcb.VoidCookie())
-
-    def ungrab_pointer(self, time=0):
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxI", time))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 27, True, False), \
-            ooxcb.VoidCookie())
-
-    def change_active_pointer_grab_checked(self, cursor, time, event_mask):
-        cursor = cursor.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxIIHxx", cursor, time, event_mask))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 30, True, True), \
-            ooxcb.VoidCookie())
-
-    def change_active_pointer_grab(self, cursor, time, event_mask):
-        cursor = cursor.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxIIHxx", cursor, time, event_mask))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 30, True, False), \
-            ooxcb.VoidCookie())
-
-    def ungrab_keyboard_checked(self, time=0):
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxI", time))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 32, True, True), \
-            ooxcb.VoidCookie())
-
-    def ungrab_keyboard(self, time=0):
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxI", time))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 32, True, False), \
-            ooxcb.VoidCookie())
-
-    def allow_events_checked(self, mode, time=0):
-        buf = StringIO.StringIO()
-        buf.write(pack("=xBxxI", mode, time))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 35, True, True), \
-            ooxcb.VoidCookie())
-
-    def allow_events(self, mode, time=0):
-        buf = StringIO.StringIO()
-        buf.write(pack("=xBxxI", mode, time))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 35, True, False), \
-            ooxcb.VoidCookie())
-
-    def grab_server_checked(self):
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxx", ))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 36, True, True), \
-            ooxcb.VoidCookie())
-
-    def grab_server(self):
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxx", ))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 36, True, False), \
-            ooxcb.VoidCookie())
-
-    def ungrab_server_checked(self):
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxx", ))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 37, True, True), \
-            ooxcb.VoidCookie())
-
-    def ungrab_server(self):
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxx", ))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 37, True, False), \
-            ooxcb.VoidCookie())
-
-    def warp_pointer_checked(self, src_window, dst_window, src_x, src_y, src_width, src_height, dst_x, dst_y):
-        if src_w is None:
-            src_w = XNone
-        if dest_w is None:
-            dest_w = XNone
-        src_window = src_window.get_internal()
-        dst_window = dst_window.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxIIhhHHhh", src_window, dst_window, src_x, src_y, src_width, src_height, dst_x, dst_y))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 41, True, True), \
-            ooxcb.VoidCookie())
-
-    def warp_pointer(self, src_window, dst_window, src_x, src_y, src_width, src_height, dst_x, dst_y):
-        if src_w is None:
-            src_w = XNone
-        if dest_w is None:
-            dest_w = XNone
-        src_window = src_window.get_internal()
-        dst_window = dst_window.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxIIhhHHhh", src_window, dst_window, src_x, src_y, src_width, src_height, dst_x, dst_y))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 41, True, False), \
-            ooxcb.VoidCookie())
-
-    def get_input_focus(self):
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxx", ))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 43, False, True), \
-            GetInputFocusCookie(),
-            GetInputFocusReply)
-
-    def get_input_focus_unchecked(self):
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxx", ))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 43, False, False), \
-            GetInputFocusCookie(),
-            GetInputFocusReply)
-
-    def query_keymap(self):
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxx", ))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 44, False, True), \
-            QueryKeymapCookie(),
-            QueryKeymapReply)
-
-    def query_keymap_unchecked(self):
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxx", ))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 44, False, False), \
-            QueryKeymapCookie(),
-            QueryKeymapReply)
-
-    def open_font_checked(self, fid, name):
-        name_len = len(name)
-        fid = fid.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxIHxx", fid, name_len))
-        buf.write(make_array(name, "B"))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 45, True, True), \
-            ooxcb.VoidCookie())
-
-    def open_font(self, fid, name):
-        name_len = len(name)
-        fid = fid.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxIHxx", fid, name_len))
-        buf.write(make_array(name, "B"))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 45, True, False), \
-            ooxcb.VoidCookie())
-
-    def list_fonts(self, max_names, pattern):
-        pattern_len = len(pattern)
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxHH", max_names, pattern_len))
-        buf.write(make_array(pattern, "B"))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 49, False, True), \
-            ListFontsCookie(),
-            ListFontsReply)
-
-    def list_fonts_unchecked(self, max_names, pattern):
-        pattern_len = len(pattern)
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxHH", max_names, pattern_len))
-        buf.write(make_array(pattern, "B"))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 49, False, False), \
-            ListFontsCookie(),
-            ListFontsReply)
-
-    def list_fonts_with_info(self, max_names, pattern):
-        pattern_len = len(pattern)
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxHH", max_names, pattern_len))
-        buf.write(make_array(pattern, "B"))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 50, False, True), \
-            ListFontsWithInfoCookie(),
-            ListFontsWithInfoReply)
-
-    def list_fonts_with_info_unchecked(self, max_names, pattern):
-        pattern_len = len(pattern)
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxHH", max_names, pattern_len))
-        buf.write(make_array(pattern, "B"))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 50, False, False), \
-            ListFontsWithInfoCookie(),
-            ListFontsWithInfoReply)
-
-    def set_font_path_checked(self, path):
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxH", font_qty))
-        buf.write(make_array(path, "B"))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 51, True, True), \
-            ooxcb.VoidCookie())
-
-    def set_font_path(self, path):
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxH", font_qty))
-        buf.write(make_array(path, "B"))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 51, True, False), \
-            ooxcb.VoidCookie())
-
-    def get_font_path(self):
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxx", ))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 52, False, True), \
-            GetFontPathCookie(),
-            GetFontPathReply)
-
-    def get_font_path_unchecked(self):
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxx", ))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 52, False, False), \
-            GetFontPathCookie(),
-            GetFontPathReply)
-
-    def create_pixmap_checked(self, depth, pid, drawable, width, height):
-        pid = pid.get_internal()
-        drawable = drawable.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xBxxIIHH", depth, pid, drawable, width, height))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 53, True, True), \
-            ooxcb.VoidCookie())
-
-    def create_pixmap(self, depth, pid, drawable, width, height):
-        pid = pid.get_internal()
-        drawable = drawable.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xBxxIIHH", depth, pid, drawable, width, height))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 53, True, False), \
-            ooxcb.VoidCookie())
-
-    def create_g_c_checked(self, cid, drawable, value_mask, value_list):
-        cid = cid.get_internal()
-        drawable = drawable.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxIII", cid, drawable, value_mask))
-        buf.write(make_array(value_list, "I"))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 55, True, True), \
-            ooxcb.VoidCookie())
-
-    def create_g_c(self, cid, drawable, value_mask, value_list):
-        cid = cid.get_internal()
-        drawable = drawable.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxIII", cid, drawable, value_mask))
-        buf.write(make_array(value_list, "I"))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 55, True, False), \
-            ooxcb.VoidCookie())
-
-    def create_colormap_checked(self, alloc, mid, window, visual):
-        mid = mid.get_internal()
-        window = window.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xBxxIII", alloc, mid, window, visual))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 78, True, True), \
-            ooxcb.VoidCookie())
-
-    def create_colormap(self, alloc, mid, window, visual):
-        mid = mid.get_internal()
-        window = window.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xBxxIII", alloc, mid, window, visual))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 78, True, False), \
-            ooxcb.VoidCookie())
-
-    def create_cursor_checked(self, cid, source, mask, fore_red, fore_green, fore_blue, back_red, back_green, back_blue, x, y):
-        if mask is None:
-            mask = XNone
-        cid = cid.get_internal()
-        source = source.get_internal()
-        mask = mask.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxIIIHHHHHHHH", cid, source, mask, fore_red, fore_green, fore_blue, back_red, back_green, back_blue, x, y))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 93, True, True), \
-            ooxcb.VoidCookie())
-
-    def create_cursor(self, cid, source, mask, fore_red, fore_green, fore_blue, back_red, back_green, back_blue, x, y):
-        if mask is None:
-            mask = XNone
-        cid = cid.get_internal()
-        source = source.get_internal()
-        mask = mask.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxIIIHHHHHHHH", cid, source, mask, fore_red, fore_green, fore_blue, back_red, back_green, back_blue, x, y))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 93, True, False), \
-            ooxcb.VoidCookie())
-
-    def create_glyph_cursor_checked(self, cid, source_font, mask_font, source_char, mask_char, fore_red, fore_green, fore_blue, back_red, back_green, back_blue):
-        cid = cid.get_internal()
-        source_font = source_font.get_internal()
-        mask_font = mask_font.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxIIIHHHHHHHH", cid, source_font, mask_font, source_char, mask_char, fore_red, fore_green, fore_blue, back_red, back_green, back_blue))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 94, True, True), \
-            ooxcb.VoidCookie())
-
-    def create_glyph_cursor(self, cid, source_font, mask_font, source_char, mask_char, fore_red, fore_green, fore_blue, back_red, back_green, back_blue):
-        cid = cid.get_internal()
-        source_font = source_font.get_internal()
-        mask_font = mask_font.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxIIIHHHHHHHH", cid, source_font, mask_font, source_char, mask_char, fore_red, fore_green, fore_blue, back_red, back_green, back_blue))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 94, True, False), \
-            ooxcb.VoidCookie())
-
-    def query_extension(self, name):
-        name_len = len(name)
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxHxx", name_len))
-        buf.write(make_array(name, "B"))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 98, False, True), \
-            QueryExtensionCookie(),
-            QueryExtensionReply)
-
-    def query_extension_unchecked(self, name):
-        name_len = len(name)
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxHxx", name_len))
-        buf.write(make_array(name, "B"))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 98, False, False), \
-            QueryExtensionCookie(),
-            QueryExtensionReply)
-
-    def list_extensions(self):
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxx", ))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 99, False, True), \
-            ListExtensionsCookie(),
-            ListExtensionsReply)
-
-    def list_extensions_unchecked(self):
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxx", ))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 99, False, False), \
-            ListExtensionsCookie(),
-            ListExtensionsReply)
-
-    def change_keyboard_mapping_checked(self, keycode_count, first_keycode, keysyms_per_keycode, keysyms):
-        buf = StringIO.StringIO()
-        buf.write(pack("=xBxxBB", keycode_count, first_keycode, keysyms_per_keycode))
-        buf.write(make_array(keysyms, "I"))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 100, True, True), \
-            ooxcb.VoidCookie())
-
-    def change_keyboard_mapping(self, keycode_count, first_keycode, keysyms_per_keycode, keysyms):
-        buf = StringIO.StringIO()
-        buf.write(pack("=xBxxBB", keycode_count, first_keycode, keysyms_per_keycode))
-        buf.write(make_array(keysyms, "I"))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 100, True, False), \
-            ooxcb.VoidCookie())
-
-    def get_keyboard_mapping(self, first_keycode, count):
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxBB", first_keycode, count))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 101, False, True), \
-            GetKeyboardMappingCookie(),
-            GetKeyboardMappingReply)
-
-    def get_keyboard_mapping_unchecked(self, first_keycode, count):
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxBB", first_keycode, count))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 101, False, False), \
-            GetKeyboardMappingCookie(),
-            GetKeyboardMappingReply)
-
-    def change_keyboard_control_checked(self, **values):
-        value_mask, value_list = 0, []
-        if "key_click_percent" in values:
-            value_mask |= 1
-            value_list.append(values["key_click_percent"])
-        if "bell_percent" in values:
-            value_mask |= 2
-            value_list.append(values["bell_percent"])
-        if "bell_pitch" in values:
-            value_mask |= 4
-            value_list.append(values["bell_pitch"])
-        if "bell_duration" in values:
-            value_mask |= 8
-            value_list.append(values["bell_duration"])
-        if "led" in values:
-            value_mask |= 16
-            value_list.append(values["led"])
-        if "led_mode" in values:
-            value_mask |= 32
-            value_list.append(values["led_mode"])
-        if "key" in values:
-            value_mask |= 64
-            value_list.append(values["key"])
-        if "auto_repeat_mode" in values:
-            value_mask |= 128
-            value_list.append(values["auto_repeat_mode"])
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxI", value_mask))
-        buf.write(make_array(value_list, "I"))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 102, True, True), \
-            ooxcb.VoidCookie())
-
-    def change_keyboard_control(self, **values):
-        value_mask, value_list = 0, []
-        if "key_click_percent" in values:
-            value_mask |= 1
-            value_list.append(values["key_click_percent"])
-        if "bell_percent" in values:
-            value_mask |= 2
-            value_list.append(values["bell_percent"])
-        if "bell_pitch" in values:
-            value_mask |= 4
-            value_list.append(values["bell_pitch"])
-        if "bell_duration" in values:
-            value_mask |= 8
-            value_list.append(values["bell_duration"])
-        if "led" in values:
-            value_mask |= 16
-            value_list.append(values["led"])
-        if "led_mode" in values:
-            value_mask |= 32
-            value_list.append(values["led_mode"])
-        if "key" in values:
-            value_mask |= 64
-            value_list.append(values["key"])
-        if "auto_repeat_mode" in values:
-            value_mask |= 128
-            value_list.append(values["auto_repeat_mode"])
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxI", value_mask))
-        buf.write(make_array(value_list, "I"))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 102, True, False), \
-            ooxcb.VoidCookie())
-
-    def get_keyboard_control(self):
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxx", ))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 103, False, True), \
-            GetKeyboardControlCookie(),
-            GetKeyboardControlReply)
-
-    def get_keyboard_control_unchecked(self):
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxx", ))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 103, False, False), \
-            GetKeyboardControlCookie(),
-            GetKeyboardControlReply)
-
-    def bell_checked(self, percent=0):
-        buf = StringIO.StringIO()
-        buf.write(pack("=xbxx", percent))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 104, True, True), \
-            ooxcb.VoidCookie())
-
-    def bell(self, percent=0):
-        buf = StringIO.StringIO()
-        buf.write(pack("=xbxx", percent))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 104, True, False), \
-            ooxcb.VoidCookie())
-
-    def change_pointer_control_checked(self, acceleration_numerator, acceleration_denominator, threshold, do_acceleration, do_threshold):
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxhhhBB", acceleration_numerator, acceleration_denominator, threshold, do_acceleration, do_threshold))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 105, True, True), \
-            ooxcb.VoidCookie())
-
-    def change_pointer_control(self, acceleration_numerator, acceleration_denominator, threshold, do_acceleration, do_threshold):
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxhhhBB", acceleration_numerator, acceleration_denominator, threshold, do_acceleration, do_threshold))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 105, True, False), \
-            ooxcb.VoidCookie())
-
-    def get_pointer_control(self):
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxx", ))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 106, False, True), \
-            GetPointerControlCookie(),
-            GetPointerControlReply)
-
-    def get_pointer_control_unchecked(self):
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxx", ))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 106, False, False), \
-            GetPointerControlCookie(),
-            GetPointerControlReply)
-
-    def set_screen_saver_checked(self, timeout, interval, prefer_blanking, allow_exposures):
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxhhBB", timeout, interval, prefer_blanking, allow_exposures))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 107, True, True), \
-            ooxcb.VoidCookie())
-
-    def set_screen_saver(self, timeout, interval, prefer_blanking, allow_exposures):
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxhhBB", timeout, interval, prefer_blanking, allow_exposures))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 107, True, False), \
-            ooxcb.VoidCookie())
-
-    def get_screen_saver(self):
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxx", ))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 108, False, True), \
-            GetScreenSaverCookie(),
-            GetScreenSaverReply)
-
-    def get_screen_saver_unchecked(self):
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxx", ))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 108, False, False), \
-            GetScreenSaverCookie(),
-            GetScreenSaverReply)
-
-    def change_hosts_checked(self, mode, family, address):
-        address_len = len(address)
-        buf = StringIO.StringIO()
-        buf.write(pack("=xBxxBxH", mode, family, address_len))
-        buf.write(make_array(address, "B"))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 109, True, True), \
-            ooxcb.VoidCookie())
-
-    def change_hosts(self, mode, family, address):
-        address_len = len(address)
-        buf = StringIO.StringIO()
-        buf.write(pack("=xBxxBxH", mode, family, address_len))
-        buf.write(make_array(address, "B"))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 109, True, False), \
-            ooxcb.VoidCookie())
-
-    def list_hosts(self):
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxx", ))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 110, False, True), \
-            ListHostsCookie(),
-            ListHostsReply)
-
-    def list_hosts_unchecked(self):
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxx", ))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 110, False, False), \
-            ListHostsCookie(),
-            ListHostsReply)
-
-    def set_access_control_checked(self, mode):
-        buf = StringIO.StringIO()
-        buf.write(pack("=xBxx", mode))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 111, True, True), \
-            ooxcb.VoidCookie())
-
-    def set_access_control(self, mode):
-        buf = StringIO.StringIO()
-        buf.write(pack("=xBxx", mode))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 111, True, False), \
-            ooxcb.VoidCookie())
-
-    def set_close_down_mode_checked(self, mode):
-        buf = StringIO.StringIO()
-        buf.write(pack("=xBxx", mode))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 112, True, True), \
-            ooxcb.VoidCookie())
-
-    def set_close_down_mode(self, mode):
-        buf = StringIO.StringIO()
-        buf.write(pack("=xBxx", mode))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 112, True, False), \
-            ooxcb.VoidCookie())
-
-    def kill_client_checked(self, resource):
-        resource = resource.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxI", resource))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 113, True, True), \
-            ooxcb.VoidCookie())
-
-    def kill_client(self, resource):
-        resource = resource.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxI", resource))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 113, True, False), \
-            ooxcb.VoidCookie())
-
-    def force_screen_saver_checked(self, mode):
-        buf = StringIO.StringIO()
-        buf.write(pack("=xBxx", mode))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 115, True, True), \
-            ooxcb.VoidCookie())
-
-    def force_screen_saver(self, mode):
-        buf = StringIO.StringIO()
-        buf.write(pack("=xBxx", mode))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 115, True, False), \
-            ooxcb.VoidCookie())
-
-    def set_pointer_mapping(self, map):
-        map_len = len(map)
-        buf = StringIO.StringIO()
-        buf.write(pack("=xBxx", map_len))
-        buf.write(make_array(map, "B"))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 116, False, True), \
-            SetPointerMappingCookie(),
-            SetPointerMappingReply)
-
-    def set_pointer_mapping_unchecked(self, map):
-        map_len = len(map)
-        buf = StringIO.StringIO()
-        buf.write(pack("=xBxx", map_len))
-        buf.write(make_array(map, "B"))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 116, False, False), \
-            SetPointerMappingCookie(),
-            SetPointerMappingReply)
-
-    def get_pointer_mapping(self):
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxx", ))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 117, False, True), \
-            GetPointerMappingCookie(),
-            GetPointerMappingReply)
-
-    def get_pointer_mapping_unchecked(self):
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxx", ))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 117, False, False), \
-            GetPointerMappingCookie(),
-            GetPointerMappingReply)
-
-    def set_modifier_mapping(self, keycodes_per_modifier, keycodes):
-        buf = StringIO.StringIO()
-        buf.write(pack("=xBxx", keycodes_per_modifier))
-        buf.write(make_array(keycodes, "B"))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 118, False, True), \
-            SetModifierMappingCookie(),
-            SetModifierMappingReply)
-
-    def set_modifier_mapping_unchecked(self, keycodes_per_modifier, keycodes):
-        buf = StringIO.StringIO()
-        buf.write(pack("=xBxx", keycodes_per_modifier))
-        buf.write(make_array(keycodes, "B"))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 118, False, False), \
-            SetModifierMappingCookie(),
-            SetModifierMappingReply)
-
-    def get_modifier_mapping(self):
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxx", ))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 119, False, True), \
-            GetModifierMappingCookie(),
-            GetModifierMappingReply)
-
-    def get_modifier_mapping_unchecked(self):
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxx", ))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 119, False, False), \
-            GetModifierMappingCookie(),
-            GetModifierMappingReply)
-
-    def no_operation_checked(self):
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxx", ))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 127, True, True), \
-            ooxcb.VoidCookie())
-
-    def no_operation(self):
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxx", ))
-        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 127, True, False), \
-            ooxcb.VoidCookie())
+class FillStyle(object):
+    Solid = 0
+    Tiled = 1
+    Stippled = 2
+    OpaqueStippled = 3
 
 class LedMode(object):
     Off = 0
@@ -3276,6 +2584,715 @@ class Charinfo(ooxcb.Struct):
 
 class BadLength(ooxcb.ProtocolException):
     pass
+
+class xprotoExtension(ooxcb.Extension):
+    header = "xproto"
+    def create_window_checked(self, depth, wid, parent, x, y, width, height, border_width, _class, visual, value_mask, value_list):
+        wid = wid.get_internal()
+        parent = parent.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xBxxIIhhHHHHII", depth, wid, parent, x, y, width, height, border_width, _class, visual, value_mask))
+        buf.write(make_array(value_list, "I"))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 1, True, True), \
+            ooxcb.VoidCookie())
+
+    def create_window(self, depth, wid, parent, x, y, width, height, border_width, _class, visual, value_mask, value_list):
+        wid = wid.get_internal()
+        parent = parent.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xBxxIIhhHHHHII", depth, wid, parent, x, y, width, height, border_width, _class, visual, value_mask))
+        buf.write(make_array(value_list, "I"))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 1, True, False), \
+            ooxcb.VoidCookie())
+
+    def intern_atom(self, name, only_if_exists=False):
+        name_len = len(name)
+        buf = StringIO.StringIO()
+        buf.write(pack("=xBxxHxx", only_if_exists, name_len))
+        buf.write(make_array(name, "B"))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 16, False, True), \
+            InternAtomCookie(),
+            InternAtomReply)
+
+    def intern_atom_unchecked(self, name, only_if_exists=False):
+        name_len = len(name)
+        buf = StringIO.StringIO()
+        buf.write(pack("=xBxxHxx", only_if_exists, name_len))
+        buf.write(make_array(name, "B"))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 16, False, False), \
+            InternAtomCookie(),
+            InternAtomReply)
+
+    def ungrab_pointer_checked(self, time=0):
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxI", time))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 27, True, True), \
+            ooxcb.VoidCookie())
+
+    def ungrab_pointer(self, time=0):
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxI", time))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 27, True, False), \
+            ooxcb.VoidCookie())
+
+    def change_active_pointer_grab_checked(self, cursor, time, event_mask):
+        cursor = cursor.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxIIHxx", cursor, time, event_mask))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 30, True, True), \
+            ooxcb.VoidCookie())
+
+    def change_active_pointer_grab(self, cursor, time, event_mask):
+        cursor = cursor.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxIIHxx", cursor, time, event_mask))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 30, True, False), \
+            ooxcb.VoidCookie())
+
+    def ungrab_keyboard_checked(self, time=0):
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxI", time))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 32, True, True), \
+            ooxcb.VoidCookie())
+
+    def ungrab_keyboard(self, time=0):
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxI", time))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 32, True, False), \
+            ooxcb.VoidCookie())
+
+    def allow_events_checked(self, mode, time=0):
+        buf = StringIO.StringIO()
+        buf.write(pack("=xBxxI", mode, time))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 35, True, True), \
+            ooxcb.VoidCookie())
+
+    def allow_events(self, mode, time=0):
+        buf = StringIO.StringIO()
+        buf.write(pack("=xBxxI", mode, time))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 35, True, False), \
+            ooxcb.VoidCookie())
+
+    def grab_server_checked(self):
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxx", ))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 36, True, True), \
+            ooxcb.VoidCookie())
+
+    def grab_server(self):
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxx", ))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 36, True, False), \
+            ooxcb.VoidCookie())
+
+    def ungrab_server_checked(self):
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxx", ))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 37, True, True), \
+            ooxcb.VoidCookie())
+
+    def ungrab_server(self):
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxx", ))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 37, True, False), \
+            ooxcb.VoidCookie())
+
+    def warp_pointer_checked(self, src_window, dst_window, src_x, src_y, src_width, src_height, dst_x, dst_y):
+        if src_w is None:
+            src_w = XNone
+        if dest_w is None:
+            dest_w = XNone
+        src_window = src_window.get_internal()
+        dst_window = dst_window.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxIIhhHHhh", src_window, dst_window, src_x, src_y, src_width, src_height, dst_x, dst_y))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 41, True, True), \
+            ooxcb.VoidCookie())
+
+    def warp_pointer(self, src_window, dst_window, src_x, src_y, src_width, src_height, dst_x, dst_y):
+        if src_w is None:
+            src_w = XNone
+        if dest_w is None:
+            dest_w = XNone
+        src_window = src_window.get_internal()
+        dst_window = dst_window.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxIIhhHHhh", src_window, dst_window, src_x, src_y, src_width, src_height, dst_x, dst_y))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 41, True, False), \
+            ooxcb.VoidCookie())
+
+    def get_input_focus(self):
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxx", ))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 43, False, True), \
+            GetInputFocusCookie(),
+            GetInputFocusReply)
+
+    def get_input_focus_unchecked(self):
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxx", ))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 43, False, False), \
+            GetInputFocusCookie(),
+            GetInputFocusReply)
+
+    def query_keymap(self):
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxx", ))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 44, False, True), \
+            QueryKeymapCookie(),
+            QueryKeymapReply)
+
+    def query_keymap_unchecked(self):
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxx", ))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 44, False, False), \
+            QueryKeymapCookie(),
+            QueryKeymapReply)
+
+    def open_font_checked(self, fid, name):
+        name_len = len(name)
+        fid = fid.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxIHxx", fid, name_len))
+        buf.write(make_array(name, "B"))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 45, True, True), \
+            ooxcb.VoidCookie())
+
+    def open_font(self, fid, name):
+        name_len = len(name)
+        fid = fid.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxIHxx", fid, name_len))
+        buf.write(make_array(name, "B"))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 45, True, False), \
+            ooxcb.VoidCookie())
+
+    def list_fonts(self, max_names, pattern):
+        pattern_len = len(pattern)
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxHH", max_names, pattern_len))
+        buf.write(make_array(pattern, "B"))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 49, False, True), \
+            ListFontsCookie(),
+            ListFontsReply)
+
+    def list_fonts_unchecked(self, max_names, pattern):
+        pattern_len = len(pattern)
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxHH", max_names, pattern_len))
+        buf.write(make_array(pattern, "B"))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 49, False, False), \
+            ListFontsCookie(),
+            ListFontsReply)
+
+    def list_fonts_with_info(self, max_names, pattern):
+        pattern_len = len(pattern)
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxHH", max_names, pattern_len))
+        buf.write(make_array(pattern, "B"))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 50, False, True), \
+            ListFontsWithInfoCookie(),
+            ListFontsWithInfoReply)
+
+    def list_fonts_with_info_unchecked(self, max_names, pattern):
+        pattern_len = len(pattern)
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxHH", max_names, pattern_len))
+        buf.write(make_array(pattern, "B"))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 50, False, False), \
+            ListFontsWithInfoCookie(),
+            ListFontsWithInfoReply)
+
+    def set_font_path_checked(self, path):
+        font_qty = len(path)
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxHxx", font_qty))
+        for item in path:
+            buf.write(make_array(item, "B") + "\x00")
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 51, True, True), \
+            ooxcb.VoidCookie())
+
+    def set_font_path(self, path):
+        font_qty = len(path)
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxHxx", font_qty))
+        for item in path:
+            buf.write(make_array(item, "B") + "\x00")
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 51, True, False), \
+            ooxcb.VoidCookie())
+
+    def get_font_path(self):
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxx", ))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 52, False, True), \
+            GetFontPathCookie(),
+            GetFontPathReply)
+
+    def get_font_path_unchecked(self):
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxx", ))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 52, False, False), \
+            GetFontPathCookie(),
+            GetFontPathReply)
+
+    def create_pixmap_checked(self, depth, pid, drawable, width, height):
+        pid = pid.get_internal()
+        drawable = drawable.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xBxxIIHH", depth, pid, drawable, width, height))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 53, True, True), \
+            ooxcb.VoidCookie())
+
+    def create_pixmap(self, depth, pid, drawable, width, height):
+        pid = pid.get_internal()
+        drawable = drawable.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xBxxIIHH", depth, pid, drawable, width, height))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 53, True, False), \
+            ooxcb.VoidCookie())
+
+    def create_g_c_checked(self, cid, drawable, value_mask, value_list):
+        cid = cid.get_internal()
+        drawable = drawable.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxIII", cid, drawable, value_mask))
+        buf.write(make_array(value_list, "I"))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 55, True, True), \
+            ooxcb.VoidCookie())
+
+    def create_g_c(self, cid, drawable, value_mask, value_list):
+        cid = cid.get_internal()
+        drawable = drawable.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxIII", cid, drawable, value_mask))
+        buf.write(make_array(value_list, "I"))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 55, True, False), \
+            ooxcb.VoidCookie())
+
+    def create_colormap_checked(self, alloc, mid, window, visual):
+        mid = mid.get_internal()
+        window = window.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xBxxIII", alloc, mid, window, visual))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 78, True, True), \
+            ooxcb.VoidCookie())
+
+    def create_colormap(self, alloc, mid, window, visual):
+        mid = mid.get_internal()
+        window = window.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xBxxIII", alloc, mid, window, visual))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 78, True, False), \
+            ooxcb.VoidCookie())
+
+    def create_cursor_checked(self, cid, source, mask, fore_red, fore_green, fore_blue, back_red, back_green, back_blue, x, y):
+        if mask is None:
+            mask = XNone
+        cid = cid.get_internal()
+        source = source.get_internal()
+        mask = mask.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxIIIHHHHHHHH", cid, source, mask, fore_red, fore_green, fore_blue, back_red, back_green, back_blue, x, y))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 93, True, True), \
+            ooxcb.VoidCookie())
+
+    def create_cursor(self, cid, source, mask, fore_red, fore_green, fore_blue, back_red, back_green, back_blue, x, y):
+        if mask is None:
+            mask = XNone
+        cid = cid.get_internal()
+        source = source.get_internal()
+        mask = mask.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxIIIHHHHHHHH", cid, source, mask, fore_red, fore_green, fore_blue, back_red, back_green, back_blue, x, y))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 93, True, False), \
+            ooxcb.VoidCookie())
+
+    def create_glyph_cursor_checked(self, cid, source_font, mask_font, source_char, mask_char, fore_red, fore_green, fore_blue, back_red, back_green, back_blue):
+        cid = cid.get_internal()
+        source_font = source_font.get_internal()
+        mask_font = mask_font.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxIIIHHHHHHHH", cid, source_font, mask_font, source_char, mask_char, fore_red, fore_green, fore_blue, back_red, back_green, back_blue))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 94, True, True), \
+            ooxcb.VoidCookie())
+
+    def create_glyph_cursor(self, cid, source_font, mask_font, source_char, mask_char, fore_red, fore_green, fore_blue, back_red, back_green, back_blue):
+        cid = cid.get_internal()
+        source_font = source_font.get_internal()
+        mask_font = mask_font.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxIIIHHHHHHHH", cid, source_font, mask_font, source_char, mask_char, fore_red, fore_green, fore_blue, back_red, back_green, back_blue))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 94, True, False), \
+            ooxcb.VoidCookie())
+
+    def query_extension(self, name):
+        name_len = len(name)
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxHxx", name_len))
+        buf.write(make_array(name, "B"))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 98, False, True), \
+            QueryExtensionCookie(),
+            QueryExtensionReply)
+
+    def query_extension_unchecked(self, name):
+        name_len = len(name)
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxHxx", name_len))
+        buf.write(make_array(name, "B"))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 98, False, False), \
+            QueryExtensionCookie(),
+            QueryExtensionReply)
+
+    def list_extensions(self):
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxx", ))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 99, False, True), \
+            ListExtensionsCookie(),
+            ListExtensionsReply)
+
+    def list_extensions_unchecked(self):
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxx", ))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 99, False, False), \
+            ListExtensionsCookie(),
+            ListExtensionsReply)
+
+    def change_keyboard_mapping_checked(self, keycode_count, first_keycode, keysyms_per_keycode, keysyms):
+        buf = StringIO.StringIO()
+        buf.write(pack("=xBxxBB", keycode_count, first_keycode, keysyms_per_keycode))
+        buf.write(make_array(keysyms, "I"))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 100, True, True), \
+            ooxcb.VoidCookie())
+
+    def change_keyboard_mapping(self, keycode_count, first_keycode, keysyms_per_keycode, keysyms):
+        buf = StringIO.StringIO()
+        buf.write(pack("=xBxxBB", keycode_count, first_keycode, keysyms_per_keycode))
+        buf.write(make_array(keysyms, "I"))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 100, True, False), \
+            ooxcb.VoidCookie())
+
+    def get_keyboard_mapping(self, first_keycode, count):
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxBB", first_keycode, count))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 101, False, True), \
+            GetKeyboardMappingCookie(),
+            GetKeyboardMappingReply)
+
+    def get_keyboard_mapping_unchecked(self, first_keycode, count):
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxBB", first_keycode, count))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 101, False, False), \
+            GetKeyboardMappingCookie(),
+            GetKeyboardMappingReply)
+
+    def change_keyboard_control_checked(self, **values):
+        value_mask, value_list = 0, []
+        if "key_click_percent" in values:
+            value_mask |= 1
+            value_list.append(values["key_click_percent"])
+        if "bell_percent" in values:
+            value_mask |= 2
+            value_list.append(values["bell_percent"])
+        if "bell_pitch" in values:
+            value_mask |= 4
+            value_list.append(values["bell_pitch"])
+        if "bell_duration" in values:
+            value_mask |= 8
+            value_list.append(values["bell_duration"])
+        if "led" in values:
+            value_mask |= 16
+            value_list.append(values["led"])
+        if "led_mode" in values:
+            value_mask |= 32
+            value_list.append(values["led_mode"])
+        if "key" in values:
+            value_mask |= 64
+            value_list.append(values["key"])
+        if "auto_repeat_mode" in values:
+            value_mask |= 128
+            value_list.append(values["auto_repeat_mode"])
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxI", value_mask))
+        buf.write(make_array(value_list, "I"))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 102, True, True), \
+            ooxcb.VoidCookie())
+
+    def change_keyboard_control(self, **values):
+        value_mask, value_list = 0, []
+        if "key_click_percent" in values:
+            value_mask |= 1
+            value_list.append(values["key_click_percent"])
+        if "bell_percent" in values:
+            value_mask |= 2
+            value_list.append(values["bell_percent"])
+        if "bell_pitch" in values:
+            value_mask |= 4
+            value_list.append(values["bell_pitch"])
+        if "bell_duration" in values:
+            value_mask |= 8
+            value_list.append(values["bell_duration"])
+        if "led" in values:
+            value_mask |= 16
+            value_list.append(values["led"])
+        if "led_mode" in values:
+            value_mask |= 32
+            value_list.append(values["led_mode"])
+        if "key" in values:
+            value_mask |= 64
+            value_list.append(values["key"])
+        if "auto_repeat_mode" in values:
+            value_mask |= 128
+            value_list.append(values["auto_repeat_mode"])
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxI", value_mask))
+        buf.write(make_array(value_list, "I"))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 102, True, False), \
+            ooxcb.VoidCookie())
+
+    def get_keyboard_control(self):
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxx", ))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 103, False, True), \
+            GetKeyboardControlCookie(),
+            GetKeyboardControlReply)
+
+    def get_keyboard_control_unchecked(self):
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxx", ))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 103, False, False), \
+            GetKeyboardControlCookie(),
+            GetKeyboardControlReply)
+
+    def bell_checked(self, percent=0):
+        buf = StringIO.StringIO()
+        buf.write(pack("=xbxx", percent))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 104, True, True), \
+            ooxcb.VoidCookie())
+
+    def bell(self, percent=0):
+        buf = StringIO.StringIO()
+        buf.write(pack("=xbxx", percent))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 104, True, False), \
+            ooxcb.VoidCookie())
+
+    def change_pointer_control_checked(self, acceleration_numerator, acceleration_denominator, threshold, do_acceleration, do_threshold):
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxhhhBB", acceleration_numerator, acceleration_denominator, threshold, do_acceleration, do_threshold))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 105, True, True), \
+            ooxcb.VoidCookie())
+
+    def change_pointer_control(self, acceleration_numerator, acceleration_denominator, threshold, do_acceleration, do_threshold):
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxhhhBB", acceleration_numerator, acceleration_denominator, threshold, do_acceleration, do_threshold))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 105, True, False), \
+            ooxcb.VoidCookie())
+
+    def get_pointer_control(self):
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxx", ))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 106, False, True), \
+            GetPointerControlCookie(),
+            GetPointerControlReply)
+
+    def get_pointer_control_unchecked(self):
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxx", ))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 106, False, False), \
+            GetPointerControlCookie(),
+            GetPointerControlReply)
+
+    def set_screen_saver_checked(self, timeout, interval, prefer_blanking, allow_exposures):
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxhhBB", timeout, interval, prefer_blanking, allow_exposures))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 107, True, True), \
+            ooxcb.VoidCookie())
+
+    def set_screen_saver(self, timeout, interval, prefer_blanking, allow_exposures):
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxhhBB", timeout, interval, prefer_blanking, allow_exposures))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 107, True, False), \
+            ooxcb.VoidCookie())
+
+    def get_screen_saver(self):
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxx", ))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 108, False, True), \
+            GetScreenSaverCookie(),
+            GetScreenSaverReply)
+
+    def get_screen_saver_unchecked(self):
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxx", ))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 108, False, False), \
+            GetScreenSaverCookie(),
+            GetScreenSaverReply)
+
+    def change_hosts_checked(self, mode, family, address):
+        address_len = len(address)
+        buf = StringIO.StringIO()
+        buf.write(pack("=xBxxBxH", mode, family, address_len))
+        buf.write(make_array(address, "B"))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 109, True, True), \
+            ooxcb.VoidCookie())
+
+    def change_hosts(self, mode, family, address):
+        address_len = len(address)
+        buf = StringIO.StringIO()
+        buf.write(pack("=xBxxBxH", mode, family, address_len))
+        buf.write(make_array(address, "B"))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 109, True, False), \
+            ooxcb.VoidCookie())
+
+    def list_hosts(self):
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxx", ))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 110, False, True), \
+            ListHostsCookie(),
+            ListHostsReply)
+
+    def list_hosts_unchecked(self):
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxx", ))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 110, False, False), \
+            ListHostsCookie(),
+            ListHostsReply)
+
+    def set_access_control_checked(self, mode):
+        buf = StringIO.StringIO()
+        buf.write(pack("=xBxx", mode))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 111, True, True), \
+            ooxcb.VoidCookie())
+
+    def set_access_control(self, mode):
+        buf = StringIO.StringIO()
+        buf.write(pack("=xBxx", mode))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 111, True, False), \
+            ooxcb.VoidCookie())
+
+    def set_close_down_mode_checked(self, mode):
+        buf = StringIO.StringIO()
+        buf.write(pack("=xBxx", mode))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 112, True, True), \
+            ooxcb.VoidCookie())
+
+    def set_close_down_mode(self, mode):
+        buf = StringIO.StringIO()
+        buf.write(pack("=xBxx", mode))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 112, True, False), \
+            ooxcb.VoidCookie())
+
+    def kill_client_checked(self, resource):
+        resource = resource.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxI", resource))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 113, True, True), \
+            ooxcb.VoidCookie())
+
+    def kill_client(self, resource):
+        resource = resource.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxI", resource))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 113, True, False), \
+            ooxcb.VoidCookie())
+
+    def force_screen_saver_checked(self, mode):
+        buf = StringIO.StringIO()
+        buf.write(pack("=xBxx", mode))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 115, True, True), \
+            ooxcb.VoidCookie())
+
+    def force_screen_saver(self, mode):
+        buf = StringIO.StringIO()
+        buf.write(pack("=xBxx", mode))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 115, True, False), \
+            ooxcb.VoidCookie())
+
+    def set_pointer_mapping(self, map):
+        map_len = len(map)
+        buf = StringIO.StringIO()
+        buf.write(pack("=xBxx", map_len))
+        buf.write(make_array(map, "B"))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 116, False, True), \
+            SetPointerMappingCookie(),
+            SetPointerMappingReply)
+
+    def set_pointer_mapping_unchecked(self, map):
+        map_len = len(map)
+        buf = StringIO.StringIO()
+        buf.write(pack("=xBxx", map_len))
+        buf.write(make_array(map, "B"))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 116, False, False), \
+            SetPointerMappingCookie(),
+            SetPointerMappingReply)
+
+    def get_pointer_mapping(self):
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxx", ))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 117, False, True), \
+            GetPointerMappingCookie(),
+            GetPointerMappingReply)
+
+    def get_pointer_mapping_unchecked(self):
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxx", ))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 117, False, False), \
+            GetPointerMappingCookie(),
+            GetPointerMappingReply)
+
+    def set_modifier_mapping(self, keycodes_per_modifier, keycodes):
+        buf = StringIO.StringIO()
+        buf.write(pack("=xBxx", keycodes_per_modifier))
+        buf.write(make_array(keycodes, "B"))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 118, False, True), \
+            SetModifierMappingCookie(),
+            SetModifierMappingReply)
+
+    def set_modifier_mapping_unchecked(self, keycodes_per_modifier, keycodes):
+        buf = StringIO.StringIO()
+        buf.write(pack("=xBxx", keycodes_per_modifier))
+        buf.write(make_array(keycodes, "B"))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 118, False, False), \
+            SetModifierMappingCookie(),
+            SetModifierMappingReply)
+
+    def get_modifier_mapping(self):
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxx", ))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 119, False, True), \
+            GetModifierMappingCookie(),
+            GetModifierMappingReply)
+
+    def get_modifier_mapping_unchecked(self):
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxx", ))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 119, False, False), \
+            GetModifierMappingCookie(),
+            GetModifierMappingReply)
+
+    def no_operation_checked(self):
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxx", ))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 127, True, True), \
+            ooxcb.VoidCookie())
+
+    def no_operation(self):
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxx", ))
+        return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 127, True, False), \
+            ooxcb.VoidCookie())
+
+    def list_all_fonts_with_info(self, max_names, pattern):
+        cookie = self.list_fonts_with_info(max_names, pattern)
+        ret = []
+        while True:
+            try:
+                reply = cookie.reply()
+            except BadAtom:
+                break
+            if reply.name_len == 0:
+                break
+            ret.append(reply)
+        return ret
 
 class ButtonPressEvent(ooxcb.Event):
     event_name = "on_button_press"
