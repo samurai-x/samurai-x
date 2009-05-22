@@ -53,11 +53,11 @@ def main():
             # The xcb manual says:
             # Note: the angles are expressed in units of 1/64 of a degree, so
             # to have an angle of 90 degrees, starting at 0, angle1 = 0 and
-            # angle2 = 90 << 6.
+            # angle2 = 90 * 64.
             # Positive angles indicate counterclockwise motion,
             # while negative angles indicate clockwise motion.
             gc.poly_arc(win,
-                    [Arc.create(conn, 200, 200, 300, 300, 0, 90 << 6)])
+                    [Arc.create(conn, 200, 200, 300, 300, 0, 90 * 64)])
             # And now a filled poly!
             gc.fill_poly(win,
                     [(410, 410), (440, 410), (420, 440), (400, 425)],
