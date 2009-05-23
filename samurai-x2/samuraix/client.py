@@ -116,6 +116,7 @@ class Client(SXObject):
                     EventMask.StructureNotify |
                     EventMask.PropertyChange
         )
+        self.grab_focus_button()
 
         self.all_clients.append(self)
         self.window_2_client_map[self.window] = self
@@ -123,6 +124,49 @@ class Client(SXObject):
         self.apply_normal_hints()
         self.window.map()
         self.conn.flush()
+
+    def grab_focus_button(self):
+        """
+            grab the focus button. As default, this is the left mouse button.
+            The focus button ensures that a window is focused if the
+            user clicks somewhere into it. Then the focus button
+            is ungrabbed. When the client is unfocused, the
+            focus button is grabbed again.
+        """
+        self.window.grab_button(EventMask.ButtonPress,
+                xproto.ButtonIndex._1,
+                xproto.ModMask.Any,
+                False,
+                # synchronous because we call `allow_events` in
+                # `on_button_press`.
+                xproto.GrabMode.Sync,
+                xproto.GrabMode.Sync
+                )
+
+    def ungrab_focus_button(self):
+        """
+            ungrab the focus button. This happens when
+            the client is getting focused.
+        """
+        self.window.ungrab_button(xproto.ButtonIndex._1, xproto.ModMask.Any)
+
+    def on_button_press(self, evt):
+        """
+            Event handler: A button was pressed inside the window. We receive
+            that because we grabbed the button in :meth:`grab_focus_button`.
+            Focus the client (the focus button is ungrabbed in :meth:`focus`)
+            and resend the event.
+        """
+        log.debug('Receiving button press event for foreign window')
+        if not self.is_focused():
+            # That is the most important line. Here we remove the active
+            # grab that has been activated, and resend the button press
+            # event. So, if the user clicks inside a window, this click
+            # doesn't get "lost", but is handled by the window, after
+            # it got focused. That is what most users would expect.
+            # TODO: should we do that configurable?
+            self.conn.core.allow_events(xproto.Allow.ReplayPointer)
+            self.screen.focus(self)
 
     def __repr__(self):
         return '<Client at 0x%x for %s>' % (id(self), repr(self.window))
@@ -166,7 +210,7 @@ class Client(SXObject):
         """
             handler for _NET_WM_STATE.
 
-            That updates `self.state` and dispatches 
+            That updates `self.state` and dispatches
             the 'on_handle_net_wm_state' event at least
             one time (or two, if two atoms were specified)
         """
@@ -225,7 +269,7 @@ class Client(SXObject):
         else:
             log.warning('Cannot handle _NET_WM_STATE thingy %s :(',
                     atom.get_name().reply().name.to_string())
-        
+
     def process_netwm_client_message(self, evt):
         """
             process an EWMH / NETWM client message event.
@@ -407,6 +451,7 @@ class Client(SXObject):
             Focus the client. Do not call that, use
             `Screen.focus` instead.
         """
+        self.ungrab_focus_button()
         # grab the input focus
         self.window.set_input_focus()
         # set it abvoe
@@ -420,6 +465,7 @@ class Client(SXObject):
             Blur / Unfocus the client.
             Do not call, use `Screen.focus`.
         """
+        self.grab_focus_button()
         self.dispatch_event('on_blur', self)
 
     def get_window_title(self):
