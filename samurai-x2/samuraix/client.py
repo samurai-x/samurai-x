@@ -333,8 +333,10 @@ class Client(SXObject):
     def update_geom(self, geom):
         """
             *geom* is the new geometry of the actor(!) window.
+            Dispatches 'on_updated_geom'.
         """
         self.geom = geom
+        self.dispatch_event('on_updated_geom', self)
 
     def apply_normal_hints(self, hints=None, geom=None):
         """
@@ -502,3 +504,4 @@ Client.register_event_type('on_focus')
 Client.register_event_type('on_blur')
 Client.register_event_type('on_handle_net_wm_state')
 Client.register_event_type('on_removed')
+Client.register_event_type('on_updated_geom')

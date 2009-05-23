@@ -118,6 +118,7 @@ class ClientData(object):
 
         self.client.push_handlers(
                 on_focus=self.on_focus,
+                on_updated_geom=self.on_updated_geom,
                 )
 
         self.client.actor.push_handlers(
@@ -156,6 +157,17 @@ class ClientData(object):
             self.client.actor.unmap()
             self.client.conn.flush()
 
+    def on_updated_geom(self, client):
+        """
+            Event handler: called when the client's geom
+            attribute changed. Resize the surface and
+            redraw.
+        """
+        log.debug('Got on_updated_geom, redrawing')
+        cairo.cairo_xcb_surface_set_size(self.surface,
+                client.geom.width, client.geom.height)
+        self.redraw()
+
     def screen_on_configure_notify(self, evt):
         if not self._obsolete:
             if evt.window is self.client.window:
@@ -182,18 +194,18 @@ class ClientData(object):
 
     def redraw(self):
         log.debug('Redrawing, active=%s, obsolete=%s' % (self._active, self._obsolete))
-        self.client.actor.clear_area(0, 0, self.client.geom.width, self.client.geom.height)
 
         extents = cairo.cairo_text_extents_t()
 
         window_title = self.client.get_window_title().encode('utf-8') # <- TODO: is that too expensive?
 
-        cairo.cairo_set_operator(self.cr, cairo.CAIRO_OPERATOR_OVER)
-
         bg_color = hex_to_cairo_color(config['cairodeco.color'])
         cairo.cairo_set_source_rgba(self.cr,
                 bg_color[0], bg_color[1], bg_color[2], 1)
+        cairo.cairo_set_operator(self.cr, cairo.CAIRO_OPERATOR_SOURCE)
         cairo.cairo_paint(self.cr)
+
+        cairo.cairo_set_operator(self.cr, cairo.CAIRO_OPERATOR_OVER)
 
         fg_color = hex_to_cairo_color(config['cairodeco.title.color'])
         cairo.cairo_set_source_rgba(self.cr, fg_color[0], fg_color[1], fg_color[2], 1)
@@ -212,7 +224,9 @@ class ClientData(object):
             x = (width - extents.x_advance) / 2
 
 
-        cairo.cairo_move_to(self.cr, x, config['cairodeco.height'] - (config['cairodeco.height'] - extents.height) / 2.0)
+        cairo.cairo_move_to(self.cr,
+                x,
+                config['cairodeco.height'] - (config['cairodeco.height'] - extents.height) / 2.0)
         self.client.conn.flush()
 
     def actor_on_configure_notify(self, evt):
