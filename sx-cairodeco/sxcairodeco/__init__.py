@@ -81,6 +81,15 @@ def compute_actor_geom(geom):
     geom.y = max(0, geom.y - config['cairodeco.height'])
     geom.height = max(1, geom.height + config['cairodeco.height'])
 
+def hex_to_cairo_color(color):
+    """
+        convert a color in hexadecimal form (e.g. '#ff00ee').
+        return a 3-element tuple of (R, G, B), where R, G
+        and B are 0..255.
+    """
+    color = color.lstrip('#')
+    return tuple(int(p, 16) for p in (color[:2], color[2:4], color[4:]))
+
 class ClientData(object):
     def __init__(self, plugin, screen, client):
         self.plugin = plugin
@@ -177,13 +186,17 @@ class ClientData(object):
 
         extents = cairo.cairo_text_extents_t()
 
-        window_title = self.client.get_window_title() # <- TODO: is that too expensive?
+        window_title = self.client.get_window_title().encode('utf-8') # <- TODO: is that too expensive?
 
         cairo.cairo_set_operator(self.cr, cairo.CAIRO_OPERATOR_OVER)
-        cairo.cairo_set_source_rgba(self.cr, config['cairodeco.color'][0], config['cairodeco.color'][1], config['cairodeco.color'][2], 1)
+
+        bg_color = hex_to_cairo_color(config['cairodeco.color'])
+        cairo.cairo_set_source_rgba(self.cr,
+                bg_color[0], bg_color[1], bg_color[2], 1)
         cairo.cairo_paint(self.cr)
 
-        cairo.cairo_set_source_rgba(self.cr, config['cairodeco.title.color'][0], config['cairodeco.title.color'][1], config['cairodeco.title.color'][2], 1)
+        fg_color = hex_to_cairo_color(config['cairodeco.title.color'])
+        cairo.cairo_set_source_rgba(self.cr, fg_color[0], fg_color[1], fg_color[2], 1)
 
         cairo.cairo_show_text(self.cr, window_title)
         cairo.cairo_text_extents(self.cr, window_title, extents)
