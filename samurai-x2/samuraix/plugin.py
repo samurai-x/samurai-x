@@ -44,9 +44,7 @@ class Plugin(object):
     def attach_data_to(self, obj, data):
         """
             Attaches *data* to the object *obj*, identified by
-            :data:`key`. That's just a shortcut for
-
-            ::
+            :data:`key`. That's just a shortcut for::
 
                 obj.attach_data(self.key, data)
 
@@ -56,11 +54,20 @@ class Plugin(object):
     def get_data(self, obj):
         """
             Get the formerly attached data from *obj*, identified by
-            :data:`key`. That's just a shortcut for
-
-            ::
+            :data:`key`. That's just a shortcut for::
 
                 return obj.data[self.key]
 
         """
         return obj.data[self.key]
+
+    def remove_data(self, obj):
+        """
+            remove the formerly attached data from *obj*, identified
+            by :data:`key`. That's just a shortcut for::
+
+                del obj.data[self.key]
+
+        """
+        del obj.data[self.key]
+

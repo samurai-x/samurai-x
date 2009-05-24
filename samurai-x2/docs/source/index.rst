@@ -12,6 +12,7 @@ Contents:
 
     intro.rst
     client.rst
+    plugins/index.rst
     api/index.rst
 
 Indices and tables

@@ -276,6 +276,7 @@ class ClientData(object):
         self.client.screen.root.remove_handlers(
                 on_configure_notify=self.screen_on_configure_notify
                 )
+        self.plugin.remove_data(self.client)
         del self.client
 
 class SXDeco(Plugin):

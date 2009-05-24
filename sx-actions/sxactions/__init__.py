@@ -30,12 +30,12 @@ import subprocess
 
 from samuraix.plugin import Plugin
 
-class UnsuitableAction(Exception):
+class ActionsNotMatching(Exception):
     pass
 
 class ActionInfo(dict):
     def __missing__(self, key):
-        raise UnsuitableAction('The action and its emitter are unsuitable.') # TODO: more helpful message
+        raise ActionsNotMatching('The action and its emitter are unsuitable.') # TODO: more helpful message
 
 def parse_emission(line):
     """
@@ -75,7 +75,7 @@ def parse_emission(line):
             if char in ' \t:=':
                 break
             py += char
-        try:    
+        try:
             py = int(py)
         except ValueError:
             pass
@@ -149,9 +149,9 @@ class SXActions(Plugin):
 
             Parameters:
                 `message`: str
-                    (optional)
+
         """
-        log.debug(info.get('message', 'Debug message ...'))
+        log.debug(info['message'])
 
     def register(self, ident, action):
         """
@@ -166,7 +166,7 @@ class SXActions(Plugin):
                 def my_action(info)
 
             `info` is an `Info` instance. If you
-            try to access a non-existing item 
+            try to access a non-existing item
             (so the action and the emitter do not fit),
             it will print an error message to the user.
         """
