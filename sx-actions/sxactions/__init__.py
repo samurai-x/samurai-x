@@ -30,19 +30,25 @@ import subprocess
 
 from samuraix.plugin import Plugin
 
-class ActionsNotMatching(Exception):
-    pass
-
 class ActionInfo(dict):
+    """
+        a dictionary that prints an error to the log if someone
+        tries to access an item that does not exist.
+        Use that for your own action parameters dictionary!
+    """
     def __missing__(self, key):
-        raise ActionsNotMatching('The action and its emitter are unsuitable.') # TODO: more helpful message
+        log.error(
+                'The action emitter does not provide the parameter "%s"; ' % key + \
+                'either the emitter and the action handler are not compatible, or' + \
+                'you don\'t provide a necessary information in your action emission line.')
 
 def parse_emission(line):
     """
-        parse an action emission line.
+        parse an action emission line::
 
-        "foo.bar a=4 slurp='bla\tbla'" would result in
-        ('foo.bar', {'a':4, 'slurp': 'bla\tbla'}).
+            parse_emission("foo.bar a=4 slurp='bla\tbla'")
+            # => ('foo.bar', {'a':4, 'slurp': 'bla\tbla'})
+
     """
     gen = iter(line)
 
@@ -116,6 +122,15 @@ def parse_emission(line):
     return name, kwargs
 
 class SXActions(Plugin):
+    """
+        A plugin implementing the 'actions' key.
+
+        Such a class should provide the following methods:
+
+         * :meth:`emit`
+         * :meth:`register`
+
+    """
     key = 'actions'
 
     def __init__(self, app):
@@ -155,20 +170,18 @@ class SXActions(Plugin):
 
     def register(self, ident, action):
         """
-            add an action an user can connect
-            to. `ident` is a, preferable dotted,
-            name to identify the action.
-            `action` is a callable taking one
-            argument:
+            add an action an user can connect to. *ident* is a,
+            preferable dotted, name to identify the action.
+            *action* is a callable taking one argument:
 
             ::
 
-                def my_action(info)
+                def handler(info)
 
-            `info` is an `Info` instance. If you
-            try to access a non-existing item
-            (so the action and the emitter do not fit),
-            it will print an error message to the user.
+            `info` is an :class:`ActionInfo` instance. If you try
+            to access a non-existing item (so the action and the
+            emitter do not fit), it will print an error message to
+            the log.
         """
         self.actions[ident] = action
 
@@ -176,7 +189,7 @@ class SXActions(Plugin):
         """
             emit the action specified by the emission line `line`.
             `info` will be updated with the information from the
-            emission line!
+            emission line.
         """
         ident, kwargs = parse_emission(line)
         info.update(kwargs)
