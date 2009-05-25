@@ -35,7 +35,7 @@
 config = {
     'core.plugin_paths': ['~/.samuraix/plugins'],
     'core.plugins': ['sxactions', 'sxdesktops', 'sxbind',
-        'sxcairodeco', 'sxmoveresize', 'sxtiling'],
+        'sxcairodeco', 'sxmoveresize', 'sxtiling', 'sxclientbuttons'],
 
     'desktops.desktops':
         [('one', {'layout': 'floating'}),
@@ -53,6 +53,11 @@ config = {
     'decoration.bindings': {
             '1': 'moveresize.move',
             '3': 'moveresize.resize',
+        },
+    'clientbuttons.bindings': {
+            '1': 'clientbuttons.focus',
+            'Meta+1': 'moveresize.move',
+            'Meta+3': 'moveresize.resize',
         },
     'cairodeco.height': 15,
     'cairodeco.title.position': "center", # one of "left", "center" or "right"
