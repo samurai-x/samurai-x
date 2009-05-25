@@ -68,22 +68,18 @@ def parse_keystroke(s):
     parts = s.split('+')
     modifiers = parts[:-1]
     key = parts[-1]
-
     # create modmask
     for mod in modifiers:
         try:
             modmask |= MODIFIERS[mod.lower()]
         except KeyError:
             log.error('Unknown modifier: "%s"' % mod)
-
     # get keysym
     try:
         keysym = getattr(keysymdef, 'XK_%s' % key)
     except AttributeError:
         log.error('Unknown key: "%s"' % key)
-
     return modmask, keysym
-
 
 class SXBind(Plugin):
     key = 'bind'
@@ -95,18 +91,38 @@ class SXBind(Plugin):
         app.push_handlers(self)
 
     def on_ready(self, config):
+        """
+            Event handler: everything's ready, setup the event handlers.
+        """
         self.setup_handlers()
 
     def on_load_config(self, config):
-        for keystroke, action in config.get('bind.keys', {}).iteritems():
-            self.bind_keystroke(keystroke, action)
-        self.app.conn.flush()
+        """
+            Event handler: (re-)load the configuration.
+        """
+        with self.app.conn.bunch():
+            # first, ungrab all existing key bindings. That is
+            # necessary for a proper configuration reloading.
+            for modifiers, keycode in self.bindings.iteritems():
+                for screen in self.app.screens:
+                    screen.ungrab_key(keycode, modifiers)
+            # Then, bind the keys.
+            self.bindings = {}
+            for keystroke, action in config.get('bind.keys', {}).iteritems():
+                self.bind_keystroke(keystroke, action)
 
     def setup_handlers(self):
+        """
+            setup the `on_key_press` handlers for the root window.
+        """
         for screen in self.app.screens:
             screen.root.push_handlers(on_key_press=self.on_key_press)
 
     def on_key_press(self, event):
+        """
+            Event handler: if it is a bound key, emit the corresponding
+            action line. If it is not, print a warning to the log.
+        """
         key = (event.state, event.detail)
         if key in self.bindings:
             info = ActionInfo(screen=self.app.get_screen_by_root(event.root)) # TODO: no additional info? :/
@@ -117,13 +133,20 @@ class SXBind(Plugin):
 
     def bind_key_to_action(self, modifiers, keycode, line):
         """
-            TODO: support keysyms
+            if the modifiers in the mask *modifiers* are pressed down,
+            and the key with the keycode *keycode* is pressed down,
+            emit the action line *line*.
         """
         self.bindings[(modifiers, keycode)] = line
         for screen in self.app.screens:
             screen.root.grab_key(keycode, modifiers)
 
     def bind_keystroke(self, keystroke, line):
+        """
+            bind the keystroke *keystroke* to the action line *line*.
+            *keystroke* has to be in the format that is described
+            under :func:`parse_keystroke`.
+        """
         modifiers, keysym = parse_keystroke(keystroke)
         keycode = self.app.conn.keysyms.get_keycode(keysym)
 

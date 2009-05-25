@@ -1,5 +1,7 @@
 .. _sx-actions:
 
+.. currentmodule:: sxactions
+
 sx-actions
 ==========
 
@@ -77,3 +79,65 @@ There are some predefined actions:
     :Parameters:
         `message`: str
 
+How to use it in your plugin
+----------------------------
+
+Registering an action handler
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you want to provide an action handler, you have to think of
+a nice name for your action first. It would be nice if you'd
+choose a dotted name, with the key of your plugin as the first
+element. For example, if your plugin is `sx-webbrowser`, and
+you want to register an action that opens a webbrowser,
+a nice name for it would be `webbrowser.open`.
+
+After that, you need a Python callable that takes one argument.
+That will most likely be a function or a method::
+
+    def open_webbrowser_action(info)
+
+*info* is a dictionary containing the parameters the user provided
+in his action emission line and, maybe, some additional information
+provided by the emitting plugin.
+
+Let's say your `webbrowser.open` action takes one parameter that
+the user has to specify in his emission line: *url*, the address
+to point to. The *info* dictionary contains it.
+
+Now you can write your handler function (note that we import the
+:mod:`webbrowser` module from the Python standard library)::
+
+    import webbrowser
+
+    def open_webbrowser_action(info):
+        webbrowser.open(info['url'])
+
+Fine. Now you just have to register your handler function (you need
+a reference to the samurai-x2 :class:`samuraix.appl.App`)::
+
+    app.plugins['actions'].register('webbrowser.open', open_webbrowser_action)
+
+Now, the user is able to emit your action!
+
+Emitting actions
+~~~~~~~~~~~~~~~~
+
+If you have a plugin that deals with events and you want to make it possible
+to connect these events to actions, you can just use sx-actions this way::
+
+    from sxactions import ActionInfo
+
+    # ...
+    info = ActionInfo(parameter=some_value, some_other_parameter=some_other_value)
+    app.plugins['actions'].emit(action_line, info)
+
+The connection of events to action lines (and the storing of action lines) is
+the responsibility of your plugin.
+
+API documentation
+-----------------
+
+.. automodule:: sxactions
+    :members:
+    :undoc-members:

@@ -18,6 +18,12 @@ import sys, os
 # absolute, like shown here.
 sys.path.append(os.path.abspath('../..')) # add samuraix
 sys.path.append(os.path.abspath('../../../ooxcb')) # add ooxcb as well
+# add plugins
+sys.path.extend(map(os.path.abspath,
+    [
+        '../../../sx-actions',
+        '../../../sx-bind'
+    ]))
 
 # General configuration
 # ---------------------
