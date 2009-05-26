@@ -61,6 +61,7 @@ Predefined actions
 There are some predefined actions:
 
 .. function:: spawn(cmdline)
+    :module:
 
     spawns an application.
 
@@ -69,10 +70,12 @@ There are some predefined actions:
             the command line of the application to launch
 
 .. function:: quit()
+    :module:
 
     quits samurai-x2 gracefully.
 
 .. function:: log(message)
+    :module:
 
     logs the message *message* into the log (debug level)
 
