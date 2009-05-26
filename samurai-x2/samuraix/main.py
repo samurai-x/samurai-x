@@ -59,7 +59,7 @@ log = logging.getLogger(__name__)
 import samuraix
 from .logformatter import FDFormatter
 
-def configure_logging(file_level=logging.DEBUG, console_level=logging.DEBUG):
+def configure_logging(options, file_level=logging.DEBUG, console_level=logging.DEBUG):
     """
         Set up the logging for the client.
 
@@ -80,6 +80,12 @@ def configure_logging(file_level=logging.DEBUG, console_level=logging.DEBUG):
             '[%(asctime)s %(levelname)s %(name)s %(lineno)d] %(message)s')
     lastlog.setFormatter(formatter)
     logging.getLogger('').addHandler(lastlog)
+
+    for setting in options.logging_levels.split(','):
+        setting = setting.strip()
+        name, level = setting.split(':')
+        logger = logging.getLogger(name)
+        logger.setLevel(getattr(logging, level))
 
     log.info('logging everything to %s' % logfile)
 
@@ -135,6 +141,10 @@ def parse_options():
             action='store_true',
             default=False)
 
+    parser.add_option('-l', '--logging', dest='logging_levels',
+            help='set a logging handler to a specific debug level', 
+    )
+
     options, args = parser.parse_args()
     return options
 
@@ -162,7 +172,7 @@ def run(app_func=None):
         print pkg_resources.resource_string('samuraix', 'defaultconfig.py')
         return
 
-    configure_logging()
+    configure_logging(options)
 
     cfg = load_user_config(options.configfile)
     load_config(cfg)
