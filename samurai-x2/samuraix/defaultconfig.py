@@ -34,8 +34,16 @@
 
 config = {
     'core.plugin_paths': ['~/.samuraix/plugins'],
-    'core.plugins': ['sxactions', 'sxdesktops', 'sxbind',
-        'sxcairodeco', 'sxmoveresize', 'sxtiling', 'sxclientbuttons'],
+    'core.plugins': [
+        'sxactions', 
+        'sxdesktops', 
+        'sxbind',
+        'sxcairodeco', 
+        'sxmoveresize', 
+        'sxtiling', 
+        'sxclientbuttons',
+        'sxfocus',
+    ],
 
     'desktops.desktops':
         [('one', {'layout': 'floating'}),
@@ -55,7 +63,6 @@ config = {
             '3': 'moveresize.resize',
         },
     'clientbuttons.bindings': {
-            '1': 'clientbuttons.focus',
             'Meta+1': 'moveresize.move',
             'Meta+3': 'moveresize.resize',
         },
