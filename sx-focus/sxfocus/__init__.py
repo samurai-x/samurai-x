@@ -52,6 +52,13 @@ class SXFocus(Plugin):
         #    self.bindings[buttonstroke] = action
         self.focus_method = 'regular'
 
+    def on_ready(self, app):
+        for screen in app.screens:
+            screen.push_handlers(self)
+
+            for client in screen.clients:
+                self.on_new_client(screen, client)
+
     def on_new_client(self, screen, client):
         # grab the specific button and modifier to allow the app to keep working!
 
@@ -86,6 +93,8 @@ class SXFocus(Plugin):
 
         client.window.push_handlers(
                 on_button_press=on_button_press,
+        )
+        client.push_handlers(
                 on_focus=on_focus,
                 on_blur=on_blur,
         )
