@@ -42,7 +42,6 @@ config = {
         'sxmoveresize', 
         'sxtiling', 
         'sxclientbuttons',
-        'sxfocus',
     ],
 
     'desktops.desktops':
