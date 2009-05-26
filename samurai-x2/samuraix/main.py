@@ -81,8 +81,15 @@ def configure_logging(options, file_level=logging.DEBUG, console_level=logging.D
     lastlog.setFormatter(formatter)
     logging.getLogger('').addHandler(lastlog)
 
-    for setting in options.logging_levels.split(','):
+    # parse logging levels string, format is:
+    #   <logger_name>:<level_name>[,<logger_name2>:<level_name2>[,...]]
+    # where logger_name is the name of a logger eg samuraix.main
+    # and level_name is a name as described in the logging module
+    # such as DEBUG/INFO/ERROR
+    for setting in getattr(options, 'logging_levels', '').split(','):
         setting = setting.strip()
+        if not setting: 
+            continue
         name, level = setting.split(':')
         logger = logging.getLogger(name)
         logger.setLevel(getattr(logging, level))
@@ -143,6 +150,7 @@ def parse_options():
 
     parser.add_option('-l', '--logging', dest='logging_levels',
             help='set a logging handler to a specific debug level', 
+            default='',
     )
 
     options, args = parser.parse_args()
