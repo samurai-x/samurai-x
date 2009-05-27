@@ -404,7 +404,7 @@ class Client(SXObject):
                 [xproto.WMState.Normal, 0]) # TODO: icon window?
         self.conn.flush()
 
-    def focus(self):
+    def focus(self, bring_forward=True):
         """
             Focus the client. Do not call that, use
             `Screen.focus` instead.
@@ -412,7 +412,8 @@ class Client(SXObject):
         # grab the input focus
         self.window.set_input_focus()
         # set it abvoe
-        self.actor.configure(stack_mode=xproto.StackMode.Above)
+        if bring_forward:
+            self.actor.configure(stack_mode=xproto.StackMode.Above)
         self.conn.flush()
         # TODO: grab buttons etc
         self.dispatch_event('on_focus', self)
