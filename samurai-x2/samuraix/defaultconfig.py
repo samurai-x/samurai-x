@@ -57,6 +57,7 @@ config = {
             'META+X': 'spawn cmdline="xterm -bg \'#cc0000\'"',
             'META+g': 'spawn cmdline="gimp"',
             'Meta+Q': 'quit',
+            'Meta+R': 'restart',
         },
     'decoration.bindings': {
             '1': 'moveresize.move',

@@ -103,9 +103,9 @@ class SXBind(Plugin):
         with self.app.conn.bunch():
             # first, ungrab all existing key bindings. That is
             # necessary for a proper configuration reloading.
-            for modifiers, keycode in self.bindings.iteritems():
+            for modifiers, keycode in self.bindings.iterkeys():
                 for screen in self.app.screens:
-                    screen.ungrab_key(keycode, modifiers)
+                    screen.root.ungrab_key(keycode, modifiers)
             # Then, bind the keys.
             self.bindings = {}
             for keystroke, action in config.get('bind.keys', {}).iteritems():

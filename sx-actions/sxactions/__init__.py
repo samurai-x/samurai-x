@@ -139,6 +139,7 @@ class SXActions(Plugin):
                 'spawn': self.action_spawn,
                 'quit': self.action_quit,
                 'log': self.action_log,
+                'restart': self.action_restart,
                 } # TODO: dotted names?
 
     def action_spawn(self, info):
@@ -157,6 +158,12 @@ class SXActions(Plugin):
             quit samurai-x.
         """
         self.app.stop()
+
+    def action_restart(self, info):
+        """
+            restart samurai-x.
+        """
+        self.app.restart()
 
     def action_log(self, info):
         """

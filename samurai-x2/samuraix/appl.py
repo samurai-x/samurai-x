@@ -54,16 +54,24 @@ class App(SXObject):
         """
         SXObject.__init__(self)
 
+        # if the app is restarting
+        self.restarting = False
+
         self.conn = None
         self.synchronous_check = False
-        self.cursors = None
+        # timeout used when select'ing
+        self.select_timeout = 1.0
+
+        self._reset()
+
+    def _reset(self):
+        """ reset variables that should be at there defaults before a restart """
         self.running = False
+        self.cursors = None
         self.screens = []
         self.plugins = None
         # filehandles used when select'ing 
         self.fds = {'read': {}, 'write': {}, 'error': {}}
-        # timeout used when select'ing
-        self.select_timeout = 1.0
 
     def add_fd_handler(self, which_list, fd, callback):
         assert which_list in ('read', 'write', 'error')
@@ -96,6 +104,8 @@ class App(SXObject):
                    DISPLAY environment variable?
 
         """
+        log.info('init')
+
         self.conn = ooxcb.connect()
 
         # add the xcb file handles to the list of handles we select 
@@ -163,7 +173,27 @@ class App(SXObject):
         log.info('stopping')
         self.running = False
 
+    def restart(self):
+        log.info('restarting')
+        self.restarting = True
+        self.stop()
+        
     def run(self):
+        """
+            Start the reset loop. This loops calling self._run() and 
+            checking after that if this is a restart calls the relevant 
+            functions to reset the application or returns ending the "run" 
+        """
+        while True:
+            self._run()
+            if self.restarting:
+                self._reset()
+                self.init()
+                self.restarting = False
+            else:
+                break
+
+    def _run(self):
         """
             Start the mainloop. It uses `select` to poll the file descriptor
             for events and dispatches them.
