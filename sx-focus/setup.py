@@ -27,7 +27,7 @@ from setuptools import setup, find_packages
 import sys, os
 
 setup(name='sx-focus',
-    description="focus handling",
+    description="plugin for various styles of mouse focusing",
     license='BSD',
     packages=['sxfocus'],
     entry_points="""

@@ -29,17 +29,22 @@ log = logging.getLogger(__name__)
 from samuraix import config
 from samuraix.plugin import Plugin
 
-from sxcairodeco import parse_buttonstroke
-
 from ooxcb.xproto import EventMask
 from ooxcb import xproto
 
 from sxactions import ActionInfo
 
-class ClickToFocus(object):
+class FocusStyle(object):
     def __init__(self, plugin, client):
         self.plugin = plugin
         self.client = client
+
+
+class ClickToFocus(FocusStyle):
+    def __init__(self, plugin, client):
+        FocusStyle.__init__(self, plugin, client)
+        client.push_handlers(self)
+        client.window.push_handlers(self)
 
     def bind_focus(self):
         self.client.window.grab_button(EventMask.ButtonPress,
@@ -73,18 +78,36 @@ class ClickToFocus(object):
         self.bind_focus()
 
 
-class MouseFocus(object):
-    pass
+class SloppyFocus(ClickToFocus):
+    def __init__(self, plugin, client):
+        ClickToFocus.__init__(self, plugin, client)
+        client.actor.change_attributes(
+                event_mask=client.actor.get_attributes().reply().your_event_mask | EventMask.EnterWindow | EventMask.LeaveWindow)
+
+        client.actor.push_handlers(self)
     
+    def on_enter_notify(self, evt):
+        self.client.focus(bring_forward=False)
+        # do we need this? im not sure...
+        #self.client.conn.core.allow_events(xproto.Allow.ReplayPointer)
+
+
+class SloppyFocusWithAutoRaise(SloppyFocus):
+    def on_enter_notify(self, evt):
+        self.client.focus(bring_forward=True)
+        # do we need this? im not sure...
+        #self.client.conn.core.allow_events(xproto.Allow.ReplayPointer)
 
 
 class SXFocus(Plugin):
-    """ Plugin to allow binding mouse actions to actions """
+    """ Plugin for various styles of mouse focusing """
 
     key = 'focus'
 
     styles = {
-        'click to focus': ClickToFocus,
+        'click': ClickToFocus,
+        'sloppy': SloppyFocus, 
+        'sloppy-autoraise': SloppyFocusWithAutoRaise, 
     }
 
     def __init__(self, app):
@@ -92,10 +115,7 @@ class SXFocus(Plugin):
         app.push_handlers(self)
 
     def on_load_config(self, config):
-        #for stroke, action in config.get('clientbuttons.bindings', {}).iteritems():
-        #    buttonstroke = parse_buttonstroke(stroke)
-        #    self.bindings[buttonstroke] = action
-        self.focus_method = self.styles[config.get('focus.style', 'click to focus')]
+        self.focus_method = self.styles[config.get('focus.style', 'click')]
 
     def on_ready(self, app):
         for screen in app.screens:
@@ -105,16 +125,10 @@ class SXFocus(Plugin):
                 self.on_new_client(screen, client)
 
     def on_new_client(self, screen, client):
-        # grab the specific button and modifier to allow the app to keep working!
-
         style = self.focus_method(self, client)
-        client.window.push_handlers(style)
-        client.push_handlers(style)
 
     def on_unmanage_client(self, screen, client):
-        # tidy up properly
-        #for modifier, button in self.bindings.iterkeys():
-        #    client.window.ungrab_button(button, modifier)
+        # TODO.. tidy up properly
         pass
 
         
