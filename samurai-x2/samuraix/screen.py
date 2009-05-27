@@ -322,9 +322,12 @@ class Screen(SXObject):
             log.debug('Screen. I am focusing %s %s %s' % (client, client.window, client.actor))
         else:
             log.debug('Screen. I am focusing nothing.')
-        if self.focused_client is not None:
-            self.focused_client.blur()
+        # set the new focused client before calling `blur`. A client's
+        # "on_blur" event handlers can use `Client.is_focused` then.
+        old_client = self.focused_client
         self.focused_client = client
+        if old_client is not None:
+            old_client.blur()
         # set the hint
         self.update_active_window()
         if client is not None:
