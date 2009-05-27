@@ -59,6 +59,18 @@ class App(SXObject):
         self.running = False
         self.screens = []
         self.plugins = None
+        # filehandles used when select'ing 
+        self.fds = {'read': {}, 'write': {}, 'error': {}}
+        # timeout used when select'ing
+        self.select_timeout = 1.0
+
+    def add_fd_handler(self, which_list, fd, callback):
+        assert which_list in ('read', 'write', 'error')
+        self.fds[which_list][fd] = callback
+
+    def remove_fd_handler(self, which_list, fd):
+        assert which_list in ('read', 'write', 'error')
+        del self.fds[which_list][fd]
 
     def init(self):
         """
@@ -83,6 +95,11 @@ class App(SXObject):
 
         """
         self.conn = ooxcb.connect()
+
+        # add the xcb file handles to the list of handles we select 
+        fd = self.conn.get_file_descriptor()
+        self.add_fd_handler('read', fd, self.do_xcb_events) 
+
         self.cursors = ooxcb.cursors.Cursors(self.conn)
 
         self.conn.push_handlers(self)
@@ -151,8 +168,6 @@ class App(SXObject):
         """
         self.running = True
 
-        fd = self.conn.get_file_descriptor()
-
         # process any events that are waiting first
         while True:
             try:
@@ -170,7 +185,12 @@ class App(SXObject):
         while self.running:
             log.debug('selecting...')
             try:
-                select([fd], [], [fd], 1.0)
+                rready, wready, xready = select(
+                        self.fds['read'].keys(),
+                        self.fds['write'].keys(),
+                        self.fds['error'].keys(),
+                        self.select_timeout
+                )
             except Exception, e:
                 # error 4 is when a signal has been caught
                 if e.args[0] == 4:
@@ -178,24 +198,33 @@ class App(SXObject):
                 else:
                     log.exception(str((e, type(e), dir(e), e.args)))
                     raise
-
-            # might as well process all events in the queue...
-            while True:
-                try:
-                    ev = self.conn.poll_for_event()
-                except Exception, e:
-                    log.exception(e)
-                else:
-                    if ev is None:
-                        break
-                    try:
-                        log.debug('Dispatching %s to %s.' %
-                                (ev.event_name, ev.event_target))
-                        ev.dispatch()
-                    except Exception, e:
-                        log.exception(e)
+            else:
+                # should catch errors in these?
+                for fd in rready:
+                    self.fds['read'][fd]()
+                for fd in wready:
+                    self.fds['write'][fd]()
+                for fd in xready:
+                    self.fds['error'][fd]()
 
         self.conn.disconnect()
+
+    def do_xcb_events(self):
+        # might as well process all events in the queue...
+        while True:
+            try:
+                ev = self.conn.poll_for_event()
+            except Exception, e:
+                log.exception(e)
+            else:
+                if ev is None:
+                    break
+                try:
+                    log.debug('Dispatching %s to %s.' %
+                            (ev.event_name, ev.event_target))
+                    ev.dispatch()
+                except Exception, e:
+                    log.exception(e)
 
     def get_screen_by_root(self, root):
         """
