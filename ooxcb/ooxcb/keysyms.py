@@ -81,7 +81,7 @@ def convert_case(sym):
 
     enc = sym >> 8
 
-    if sym == 0: # latin1
+    if enc == 0: # latin1
         if ((sym >= keysymdef.XK_A) and (sym <= keysymdef.XK_Z)):
             lower += (keysymdef.XK_a - keysymdef.XK_A)
         elif ((sym >= keysymdef.XK_a) and (sym <= keysymdef.XK_z)):
@@ -96,7 +96,7 @@ def convert_case(sym):
             lower += (keysymdef.XK_oslash - keysymdef.XK_Ooblique)
         elif ((sym >= keysymdef.XK_oslash) and (sym <= keysymdef.XK_thorn)):
             upper -= (keysymdef.XK_oslash - keysymdef.XK_Ooblique)
-    elif sym == 1: # latin2
+    elif enc == 1: # latin2
         # Assume the KeySym is a legal value (ignore discontinuities)
         if (sym == keysymdef.XK_Aogonek):
             lower = keysymdef.XK_aogonek
@@ -118,7 +118,7 @@ def convert_case(sym):
             lower += (keysymdef.XK_racute - keysymdef.XK_Racute)
         elif (sym >= keysymdef.XK_racute and sym <= keysymdef.XK_tcedilla):
             upper -= (keysymdef.XK_racute - keysymdef.XK_Racute)
-    elif sym == 2: # latin3
+    elif enc == 2: # latin3
         # Assume the KeySym is a legal value (ignore discontinuities)
         if (sym >= keysymdef.XK_Hstroke and sym <= keysymdef.XK_Hcircumflex):
             lower += (keysymdef.XK_hstroke - keysymdef.XK_Hstroke)
@@ -134,7 +134,7 @@ def convert_case(sym):
         elif (sym >= keysymdef.XK_cabovedot
                 and sym <= keysymdef.XK_scircumflex):
             upper -= (keysymdef.XK_cabovedot - keysymdef.XK_Cabovedot)
-    elif sym == 3: # latin4
+    elif enc == 3: # latin4
         # Assume the KeySym is a legal value (ignore discontinuities)
         if (sym >= keysymdef.XK_Rcedilla and sym <= keysymdef.XK_Tslash):
             lower += (keysymdef.XK_rcedilla - keysymdef.XK_Rcedilla)
@@ -148,7 +148,7 @@ def convert_case(sym):
             lower += (keysymdef.XK_amacron - keysymdef.XK_Amacron)
         elif (sym >= keysymdef.XK_amacron and sym <= keysymdef.XK_umacron):
             upper -= (keysymdef.XK_amacron - keysymdef.XK_Amacron)
-    elif sym == 6: # cyrillic
+    elif enc == 6: # cyrillic
         # Assume the KeySym is a legal value (ignore discontinuities)
         if (sym >= keysymdef.XK_Serbian_DJE
                 and sym <= keysymdef.XK_Serbian_DZE):
@@ -162,7 +162,7 @@ def convert_case(sym):
         elif (sym >= keysymdef.XK_Cyrillic_yu
                 and sym <= keysymdef.XK_Cyrillic_hardsign):
             upper += (keysymdef.XK_Cyrillic_YU - keysymdef.XK_Cyrillic_yu)
-    elif sym == 7: # greek
+    elif enc == 7: # greek
         if (sym >= keysymdef.XK_Greek_ALPHAaccent
                 and sym <= keysymdef.XK_Greek_OMEGAaccent):
             lower += (keysymdef.XK_Greek_alphaaccent -
@@ -180,7 +180,7 @@ def convert_case(sym):
                 and sym <= keysymdef.XK_Greek_omega and
                 sym != keysymdef.XK_Greek_finalsmallsigma):
             upper -= (keysymdef.XK_Greek_alpha - keysymdef.XK_Greek_ALPHA)
-    elif sym == 0x14: # armenian
+    elif enc == 0x14: # armenian
         if (sym >= keysymdef.XK_Armenian_AYB
                 and sym <= keysymdef.XK_Armenian_fe):
             lower = sym | 1
@@ -215,7 +215,7 @@ class Keysyms(object):
         """
         for j in xrange(self._reply.keysyms_per_keycode):
             for keycode in xrange(self.conn.get_setup().min_keycode,
-                    self.conn.get_setup().max_keycode):
+                    self.conn.get_setup().max_keycode + 1):
 
                 if self.get_keysym(keycode, j) == keysym:
                     return keycode
@@ -242,7 +242,7 @@ class Keysyms(object):
                     per -= 1
                 if per < 3:
                     col -= 2
-            if (per < (col|1) or keysyms[col | 1] == NO_SYMBOL):
+            if (per <= (col|1) or keysyms[col | 1] == NO_SYMBOL):
                 lsym, usym = convert_case(keysyms[col & ~1])
                 if not col & 1:
                     return lsym

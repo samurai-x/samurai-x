@@ -45,7 +45,7 @@ class SamuraiLogger(logging.Logger):
     def exception(self, exc):
         """
             Improved exception logger.
-            
+
             :param exc: An Exception instance
         """
         type_, value, tb = sys.exc_info()
@@ -88,7 +88,7 @@ def configure_logging(options, file_level=logging.DEBUG, console_level=logging.D
     # such as DEBUG/INFO/ERROR
     for setting in getattr(options, 'logging_levels', '').split(','):
         setting = setting.strip()
-        if not setting: 
+        if not setting:
             continue
         name, level = setting.split(':')
         logger = logging.getLogger(name)
@@ -100,7 +100,7 @@ def load_config(config=None):
     """
         Sets :attr:`samuraix.config` to the desired configuration dictionary.
         If *config* is None, it will load :mod:`samuraix.defaultconfig`.
-        If *config* is callable, it will call it and use the return value 
+        If *config* is callable, it will call it and use the return value
         instead.
     """
     if config is None:
@@ -139,17 +139,22 @@ def parse_options():
         arguments are ignored, since we aren't accepting any.
     """
     parser = OptionParser(SXWM_USAGE)
-    parser.add_option('-c', '--config', dest='configfile', 
+    parser.add_option('-c', '--config', dest='configfile',
             help='use samuraix configuration from FILE (default: %default)', metavar='FILE',
             default='~/.samuraix/config')
 
-    parser.add_option('', '--default-config', dest='print_default_config', 
+    parser.add_option('', '--default-config', dest='print_default_config',
             help='print the default configuration to stdout',
             action='store_true',
             default=False)
 
+    parser.add_option('-s', '--synchronous-check', dest='synchronous_check',
+            help='turn on synchronous checks (useful for debugging)',
+            action='store_true',
+            default=False)
+
     parser.add_option('-l', '--logging', dest='logging_levels',
-            help='set a logging handler to a specific debug level', 
+            help='set a logging handler to a specific debug level',
             default='',
     )
 
@@ -165,9 +170,9 @@ def run(app_func=None):
         it will just print the defaultconfig.py file and quit.
         If not, it configures the logging and loads the configuration.
         Then :attr:`samuraix.app` is set to an instance of *app_func*,
-        or, if *app_func* is None, to an instance of 
+        or, if *app_func* is None, to an instance of
         :class:`samuraix.appl.App`.
-        After that, :meth:`samuraix.appl.App.init` and 
+        After that, :meth:`samuraix.appl.App.init` and
         :meth:`samuraix.appl.App.run` are called.
 
         :param app_func: A callable returning an application instance and
@@ -190,6 +195,7 @@ def run(app_func=None):
         app_func = App
 
     samuraix.app = app = app_func()
+    app.synchronous_check = options.synchronous_check
 
     try:
         app.init()

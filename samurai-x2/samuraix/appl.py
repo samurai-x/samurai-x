@@ -55,6 +55,7 @@ class App(SXObject):
         SXObject.__init__(self)
 
         self.conn = None
+        self.synchronous_check = False
         self.cursors = None
         self.running = False
         self.screens = []
@@ -75,7 +76,8 @@ class App(SXObject):
     def init(self):
         """
             This method establishes a connection to the X server and turns on
-            the synchronous checks (that means that you get X exceptions
+            the synchronous checks if self.synchronous_check is True
+            (that means that you get X exceptions
             synchronously). The rest:
 
              * It loads all plugins and checks if there is a plugin providing
@@ -99,6 +101,9 @@ class App(SXObject):
         # add the xcb file handles to the list of handles we select 
         fd = self.conn.get_file_descriptor()
         self.add_fd_handler('read', fd, self.do_xcb_events) 
+
+        if self.synchronous_check:
+            self.conn.synchronous_check = True
 
         self.cursors = ooxcb.cursors.Cursors(self.conn)
 

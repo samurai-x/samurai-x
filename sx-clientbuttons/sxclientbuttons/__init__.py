@@ -81,8 +81,9 @@ class SXClientButtons(Plugin):
         client.window.push_handlers(on_button_press=on_button_press)
 
     def on_unmanage_client(self, screen, client):
-        # tidy up properly
-        for modifier, button in self.bindings.iterkeys():
-            client.window.ungrab_button(button, modifier)
+        # tidy up properly, but only if the window exists
+        if client.window.valid:
+            for modifier, button in self.bindings.iterkeys():
+                client.window.ungrab_button(button, modifier)
 
-        
+

@@ -35,12 +35,12 @@
 config = {
     'core.plugin_paths': ['~/.samuraix/plugins'],
     'core.plugins': [
-        'sxactions', 
-        'sxdesktops', 
+        'sxactions',
+        'sxdesktops',
         'sxbind',
-        'sxcairodeco', 
-        'sxmoveresize', 
-        'sxtiling', 
+        'sxcairodeco',
+        'sxmoveresize',
+        'sxtiling',
         'sxclientbuttons',
         'sxfocus',
     ],
@@ -69,6 +69,7 @@ config = {
     'cairodeco.height': 15,
     'cairodeco.title.position': "center", # one of "left", "center" or "right"
     'cairodeco.color': '#cc0000',
-    'cairodeco.title.color': '#ffffff'
+    'cairodeco.title.color': '#ffffff',
+    'cairodeco.title.inactive_color': '#000000',
 }
 
