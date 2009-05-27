@@ -324,9 +324,10 @@ class Screen(SXObject):
             log.debug('Screen. I am focusing nothing.')
         # set the new focused client before calling `blur`. A client's
         # "on_blur" event handlers can use `Client.is_focused` then.
+        # Only call `blur` if the client's window is valid (ie not already destroyed)
         old_client = self.focused_client
         self.focused_client = client
-        if old_client is not None:
+        if (old_client is not None and old_client.window.valid):
             old_client.blur()
         # set the hint
         self.update_active_window()

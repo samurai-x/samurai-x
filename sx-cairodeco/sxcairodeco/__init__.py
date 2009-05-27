@@ -119,6 +119,7 @@ class ClientData(object):
         self.client.push_handlers(
                 on_focus=self.on_focus,
                 on_updated_geom=self.on_updated_geom,
+                on_blur=self.on_blur,
                 )
 
         self.client.actor.push_handlers(
@@ -141,11 +142,11 @@ class ClientData(object):
 
     def on_focus(self, client):
         if (self._active and not self._obsolete):
-            # Seems like we are getting strange errors if we
-            # redraw here. Fortunately it isn't really
-            # necessary. However, TODO: find out why.
-            #self.redraw()
-            pass
+            self.redraw()
+
+    def on_blur(self, client):
+        if (self._active and not self._obsolete):
+            self.redraw()
 
     def on_expose(self, evt):
         if (self._active and not self._obsolete):
@@ -199,7 +200,13 @@ class ClientData(object):
 
         window_title = self.client.get_window_title().encode('utf-8') # <- TODO: is that too expensive?
 
-        bg_color = hex_to_cairo_color(config['cairodeco.color'])
+        if self.client.is_focused():
+            bg_color = hex_to_cairo_color(config['cairodeco.color'])
+            fg_color = hex_to_cairo_color(config['cairodeco.title.color'])
+        else:
+            bg_color = hex_to_cairo_color(config.get('cairodeco.inactive_color', config['cairodeco.color']))
+            fg_color = hex_to_cairo_color(config.get('cairodeco.title.inactive_color', config['cairodeco.title.color']))
+
         cairo.cairo_set_source_rgba(self.cr,
                 bg_color[0], bg_color[1], bg_color[2], 1)
         cairo.cairo_set_operator(self.cr, cairo.CAIRO_OPERATOR_SOURCE)
@@ -207,7 +214,6 @@ class ClientData(object):
 
         cairo.cairo_set_operator(self.cr, cairo.CAIRO_OPERATOR_OVER)
 
-        fg_color = hex_to_cairo_color(config['cairodeco.title.color'])
         cairo.cairo_set_source_rgba(self.cr, fg_color[0], fg_color[1], fg_color[2], 1)
 
         cairo.cairo_show_text(self.cr, window_title)
