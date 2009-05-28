@@ -70,7 +70,7 @@ class SXClientButtons(Plugin):
 
         # grab the specific button and modifier to allow the app to keep working!
         for modifier, button in self.bindings.iterkeys():
-            client.window.grab_button(EventMask.ButtonPress,
+            client.actor.grab_button(EventMask.ButtonPress,
                 button,
                 modifier,
                 False,
@@ -78,12 +78,12 @@ class SXClientButtons(Plugin):
                 xproto.GrabMode.Sync
             )
 
-        client.window.push_handlers(on_button_press=on_button_press)
+        client.actor.push_handlers(on_button_press=on_button_press)
 
     def on_unmanage_client(self, screen, client):
         # tidy up properly, but only if the window exists
         if client.window.valid:
             for modifier, button in self.bindings.iterkeys():
-                client.window.ungrab_button(button, modifier)
+                client.actor.ungrab_button(button, modifier)
 
 
