@@ -135,7 +135,6 @@ class ScreenData(EventDispatcher):
 
         self.screen.push_handlers(self)
         self.install_handlers()
-        self.scan()
 
     def msg_current_desktop(self, evt):
         """
@@ -148,19 +147,31 @@ class ScreenData(EventDispatcher):
                 self.screen.conn.atoms['_NET_CURRENT_DESKTOP'],
                 self.msg_current_desktop)
 
-    def scan(self):
-        """
-            scan the screen for already existing clients which are not
-            catched by the `on_new_client` event handler
-        """
-        map(self.active_desktop.add_client, self.screen.clients)
-
     def on_new_client(self, screen, client):
-        #data = ClientData(self.active_desktop, client)
-        #...attach_data_to(client, data)
-        self.active_desktop.add_client(client)
+        self.add_client(client)
+
+    def add_client(self, client):
+        """
+            add a client. if the window as a _NET_WM_DESKTOP example,
+            respect it, otherwise place it on the active desktop.
+        """
+        desktop = self.active_desktop
+        reply = client.window.get_property('_NET_WM_DESKTOP', 'CARDINAL').reply()
+        if reply.exists:
+            # has a property like this
+            desktop_idx = reply.value[0]
+            if desktop_idx < len(self.desktops):
+                # we have this desktop!
+                log.debug('Placing %s on desktop %d' % (client, desktop_idx))
+                desktop = self.desktops[desktop_idx]
+            elif desktop_idx == 0xffffffff:
+                # it wants to place it on all desktops ... TODO
+                log.warning('%s wants to be placed on all desktops, not implemented yet' % client)
+        # so, either the window doesn't have this property
+        # or we don't have this desktop index, so place it on the active desktop
+        desktop.add_client(client)
+        desktop.rearrange()
         # TODO: focus it?
-        self.active_desktop.rearrange()
 
     def on_unmanage_client(self, screen, client):
         for desktop in self.desktops:
