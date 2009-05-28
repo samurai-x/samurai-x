@@ -28,6 +28,7 @@ log = logging.getLogger(__name__)
 
 import subprocess
 
+import samuraix.main
 from samuraix.plugin import Plugin
 
 class ActionInfo(dict):
@@ -163,7 +164,7 @@ class SXActions(Plugin):
         """
             restart samurai-x.
         """
-        self.app.restart()
+        samuraix.main.restart()
 
     def action_log(self, info):
         """

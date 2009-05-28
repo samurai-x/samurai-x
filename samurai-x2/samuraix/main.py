@@ -66,11 +66,12 @@ def configure_logging(options, file_level=logging.DEBUG, console_level=logging.D
         :param file_level: level of logging for files
         :param console_level: level of logging for the console
     """
-
     console = logging.StreamHandler()
     console.setLevel(console_level)
     formatter = FDFormatter('[%(asctime)s %(levelname)s %(name)s] %(message)s')
     console.setFormatter(formatter)
+    # reset the handlers incase its a restart
+    logging.getLogger('').handlers = []
     logging.getLogger('').addHandler(console)
     logging.root.setLevel(logging.DEBUG)
     logfile = 'lastrun.log'
@@ -161,7 +162,21 @@ def parse_options():
     options, args = parser.parse_args()
     return options
 
+
 def run(app_func=None):
+    while samuraix.restarting:
+        log.info('restart loop')
+        samuraix.restarting = False
+        run_app(app_func=app_func)
+
+
+def restart():
+    log.info('restart')
+    samuraix.restarting = True
+    samuraix.app.stop()
+
+
+def run_app(app_func=None):
     """
         Run samurai-x. That's also the setuptools entrypoint for the `sx-wm`
         console script.
