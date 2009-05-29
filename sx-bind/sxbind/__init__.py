@@ -81,6 +81,7 @@ def parse_keystroke(s):
         log.error('Unknown key: "%s"' % key)
     return modmask, keysym
 
+
 class SXBind(Plugin):
     key = 'bind'
 
@@ -90,16 +91,12 @@ class SXBind(Plugin):
 
         app.push_handlers(self)
 
-    def on_ready(self, config):
+    def on_ready(self, app):
         """
             Event handler: everything's ready, setup the event handlers.
         """
         self.setup_handlers()
 
-    def on_load_config(self, config):
-        """
-            Event handler: (re-)load the configuration.
-        """
         with self.app.conn.bunch():
             # first, ungrab all existing key bindings. That is
             # necessary for a proper configuration reloading.
@@ -108,8 +105,14 @@ class SXBind(Plugin):
                     screen.root.ungrab_key(keycode, modifiers)
             # Then, bind the keys.
             self.bindings = {}
-            for keystroke, action in config.get('bind.keys', {}).iteritems():
+            for keystroke, action in self.config.iteritems():
                 self.bind_keystroke(keystroke, action)
+
+    def on_load_config(self, config):
+        """
+            Event handler: (re-)load the configuration.
+        """
+        self.config = config.get('bind.keys', {})
 
     def setup_handlers(self):
         """

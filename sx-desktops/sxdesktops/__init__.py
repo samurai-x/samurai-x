@@ -29,6 +29,7 @@ log = logging.getLogger(__name__)
 from samuraix.plugin import Plugin
 from ooxcb.list import List
 from ooxcb.eventsys import EventDispatcher
+from samuraix.base import SXObject
 
 def cycle_indices(current, offset, length):
     """
@@ -36,6 +37,7 @@ def cycle_indices(current, offset, length):
         by `offset` indices.
     """
     return ((current or length) + offset) % length
+
 
 class FocusStack(list):
     def move_to_top(self, client):
@@ -73,19 +75,16 @@ class FocusStack(list):
                 return True
         return False
 
-class Desktop(EventDispatcher):
-    def __init__(self, plugin, screen, name, layouter, idx):
-        EventDispatcher.__init__(self)
+class Desktop(SXObject):
+    def __init__(self, plugin, screen, name, idx, config):
+        SXObject.__init__(self)
 
         self.plugin = plugin
         self.screen = screen
         self.name = name
-        self.layouter = layouter
         self.clients = FocusStack() # maybe weak references are a good idea.
         self.idx = idx
-
-    def register(self, info):
-        self.layouter.register_desktop(self, info)
+        self.config = config
 
     def __repr__(self):
         return '<Desktop "%s">' % self.name
@@ -234,19 +233,12 @@ class ScreenData(EventDispatcher):
 
 ScreenData.register_event_type('on_change_desktop')
 
+
 class ClientData(object):
     def __init__(self, desktop, client):
         self.client = client
         self.desktop = desktop
 
-class Layouter(object):
-    def register_desktop(self, desktop, info):
-        raise NotImplementedError()
-
-class FloatingLayouter(Layouter):
-    """ just do nothing. no layout is floating layout. """
-    def register_desktop(self, desktop, info):
-        pass
 
 class SXDesktops(Plugin):
     # atm, every screen has the same amount of desktops
@@ -255,9 +247,6 @@ class SXDesktops(Plugin):
     def __init__(self, app):
         self.app = app
         self.config = {}
-        self.layouters = {
-                'floating': FloatingLayouter()
-                }
 
         app.push_handlers(self)
         app.plugins['actions'].register('desktops.cycle', self.action_cycle)
@@ -269,42 +258,41 @@ class SXDesktops(Plugin):
         #self.names = config.get('desktops.names', ['one desktop'])
         self.config = config.get('desktops.desktops', {})
 
-    def on_ready(self, app):
-        self.create_desktops(app.screens, self.config)
+    #def on_ready(self, app):
+    #    print "sxdesktps read"
+    #    self.create_desktops(app.screens, self.config)
 
-    def register_layouter(self, name, layouter):
-        self.layouters[name] = layouter
+    def on_new_screen(self, app, screen):
+        self.create_desktop(screen)
 
-    def create_desktops(self, screens, config):
-        for screen in screens:
-            # TODO: every screen has the same desktops?
-            desktops = []
-            for idx, (name, info) in enumerate(self.config):
-                desktop = Desktop(self, screen, name,
-                        self.layouters[info.get('layout', 'floating')], idx)
-                desktop.register(info)
-                desktops.append(desktop)
-            self.attach_data_to(screen, ScreenData(screen, desktops))
+    def create_desktop(self, screen):
+        # TODO: every screen has the same desktops?
+        desktops = []
+        for idx, (name, info) in enumerate(self.config):
+            desktop = Desktop(self, screen, name, idx, info)
+            desktops.append(desktop)
+        self.attach_data_to(screen, ScreenData(screen, desktops))
+        print "++", screen.data
 
-            screen.root.change_property('_NET_NUMBER_OF_DESKTOPS', 'CARDINAL',
-                    32, [len(desktops)])
+        screen.root.change_property('_NET_NUMBER_OF_DESKTOPS', 'CARDINAL',
+                32, [len(desktops)])
 
-            # We don't support large desktops here.
-            # But that could be added by a plugin.
-            root_geom = screen.get_geometry()
-            screen.root.change_property('_NET_DESKTOP_GEOMETRY',
-                    'CARDINAL', 32,
-                    [root_geom.width, root_geom.height])
-            screen.root.change_property('_NET_DESKTOP_VIEWPORT',
-                    'CARDINAL', 32, [0, 0])
-            screen.root.change_property('_NET_DESKTOP_NAMES',
-                    'UTF8_STRING', 8,
-                    List.from_stringlist(
-                        (desktop.name for desktop in desktops)
-                    )
-            )
+        # We don't support large desktops here.
+        # But that could be added by a plugin.
+        root_geom = screen.get_geometry()
+        screen.root.change_property('_NET_DESKTOP_GEOMETRY',
+                'CARDINAL', 32,
+                [root_geom.width, root_geom.height])
+        screen.root.change_property('_NET_DESKTOP_VIEWPORT',
+                'CARDINAL', 32, [0, 0])
+        screen.root.change_property('_NET_DESKTOP_NAMES',
+                'UTF8_STRING', 8,
+                List.from_stringlist(
+                    (desktop.name for desktop in desktops)
+                )
+        )
 
-            # TODO: support _NET_WORKAREA, maybe _NET_SHOWING_DESKTOP?
+        # TODO: support _NET_WORKAREA, maybe _NET_SHOWING_DESKTOP?
 
     def action_cycle(self, info):
         """

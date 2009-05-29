@@ -40,9 +40,9 @@ config = {
         'sxbind',
         'sxcairodeco',
         'sxmoveresize',
-        'sxtiling',
         'sxclientbuttons',
         'sxfocus',
+        'sxlayoutmgr',
     ],
 
     'desktops.desktops':

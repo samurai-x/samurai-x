@@ -116,6 +116,8 @@ class App(SXObject):
         self.plugins.setup()
         self.plugins.require_key('desktops') # we need a desktop manager plugin
 
+        self.reload_config()
+
         setup = self.conn.get_setup()
 
         log.debug("found %d screens" % setup.roots_len)
@@ -129,7 +131,6 @@ class App(SXObject):
         signal.signal(signal.SIGTERM, self.stop)
         signal.signal(signal.SIGHUP, self.stop)
 
-        self.reload_config()
         self.dispatch_event('on_ready', self)
 
         # scan the screens after everything is done.

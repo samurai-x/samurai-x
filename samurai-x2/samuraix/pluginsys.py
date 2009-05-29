@@ -111,6 +111,7 @@ class PluginLoader(dict):
             except KeyError:
                 log.error("The plugin '%s' couldn't be found!" % name)
             else:
+                log.info("Loading plugin '%s'...", name)
                 cls = ep.load()
                 self[cls.key] = cls(self.app)
 

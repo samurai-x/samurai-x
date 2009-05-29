@@ -30,9 +30,12 @@ from samuraix.client import Client
 from samuraix.plugin import Plugin
 from samuraix.rect import Rect
 
+from sxlayoutmgr import Layout
+
+
 class TilingDesktop(object):
-    def __init__(self, plugin, desktop):
-        self.plugin = plugin
+    def __init__(self, desktop):
+        self.desktop = desktop
         self.screen = desktop.screen
         self.screen.root.push_handlers(
                 on_configure_request=self.on_configure_request
@@ -90,6 +93,7 @@ class TilingDesktop(object):
                     cnt += 1
             self.plugin.app.conn.flush()
 
+
 class SXTiling(Plugin):
     key = 'tiling'
     # requires a desktops plugin ...
@@ -97,16 +101,5 @@ class SXTiling(Plugin):
     def __init__(self, app):
         Plugin.__init__(self)
 
-        self.app = app
-        self.desktops = []
+        app.plugins['layoutmgr'].register(TilingDesktop)
 
-        self.app.push_handlers(self)
-
-        self.app.plugins['desktops'].register_layouter('tiling', self)
-
-    def on_load_config(self, config):
-        self.desktops = []
-
-    def register_desktop(self, desktop, info):
-        # no additional information needed ... yet.
-        self.desktops.append(TilingDesktop(self, desktop))
