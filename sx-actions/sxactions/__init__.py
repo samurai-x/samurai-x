@@ -40,8 +40,8 @@ class ActionInfo(dict):
     def __missing__(self, key):
         log.error(
                 'The action emitter does not provide the parameter "%s"; ' % key + \
-                'either the emitter and the action handler are not compatible, or' + \
-                'you don\'t provide a necessary information in your action emission line.')
+                'either the emitter and the action handler are not compatible, or ' + \
+                'you don\'t provide a required information in your action emission line.')
 
 def parse_emission(line):
     """
@@ -198,7 +198,11 @@ class SXActions(Plugin):
             emit the action specified by the emission line `line`.
             `info` will be updated with the information from the
             emission line.
+            If *info* is not already an instance of :class:`ActionInfo`,
+            such an instance with the contents if *info* will be created.
         """
+        if not isinstance(info, ActionInfo):
+            info = ActionInfo(**info)
         ident, kwargs = parse_emission(line)
         info.update(kwargs)
         return self.actions[ident](info)
