@@ -31,8 +31,6 @@ from samuraix.plugin import Plugin
 from ooxcb import keysymdef
 from ooxcb.xproto import ModMask
 
-from sxactions import ActionInfo
-
 MODIFIERS = {
         # TODO: I am not sure about the
         # following four modifiers.
@@ -125,7 +123,7 @@ class SXBind(Plugin):
         """
         key = (event.state, event.detail)
         if key in self.bindings:
-            info = ActionInfo(screen=self.app.get_screen_by_root(event.root)) # TODO: no additional info? :/
+            info = {'screen': self.app.get_screen_by_root(event.root)} # TODO: no additional info? :/
             # ... call the action
             self.app.plugins['actions'].emit(self.bindings[key], info)
         else:
