@@ -33,12 +33,13 @@ class VertLayout(Layout):
     name = 'vert'
 
     def layout(self):
-        geom = self.desktop.screen.get_geometry()
-        h = geom.height / len(self.desktop.clients)
-        t = 0 
-        for client in self.desktop.clients:
-            client.actor.configure(x=0, y=t, width=geom.width, height=h)
-            t += h
+        if self.desktop.clients:
+            geom = self.desktop.screen.get_geometry()
+            h = geom.height / len(self.desktop.clients)
+            t = 0 
+            for client in self.desktop.clients:
+                client.actor.configure(x=0, y=t, width=geom.width, height=h)
+                t += h
 
 
 class HorizLayout(Layout):
@@ -47,12 +48,13 @@ class HorizLayout(Layout):
     name = 'horiz'
 
     def layout(self):
-        geom = self.desktop.screen.get_geometry()
-        w = geom.width / len(self.desktop.clients)
-        t = 0 
-        for client in self.desktop.clients:
-            client.actor.configure(x=t, y=0, width=w, height=geom.height)
-            t += w
+        if self.desktop.clients:
+            geom = self.desktop.screen.get_geometry()
+            w = geom.width / len(self.desktop.clients)
+            t = 0 
+            for client in self.desktop.clients:
+                client.actor.configure(x=t, y=0, width=w, height=geom.height)
+                t += w
 
 
 class SXLayoutMgr(Plugin):

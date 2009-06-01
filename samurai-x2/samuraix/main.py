@@ -34,8 +34,10 @@ import traceback
 import logging
 import pkg_resources
 from optparse import OptionParser
+from tempfile import gettempdir
 
 SXWM_USAGE = '''sx-wm [options] '''
+DEFAULT_LOGFILE = os.path.join(gettempdir(), 'sx.lastrun.log')
 
 class SamuraiLogger(logging.Logger):
     """
@@ -74,8 +76,7 @@ def configure_logging(options, file_level=logging.DEBUG, console_level=logging.D
     logging.getLogger('').handlers = []
     logging.getLogger('').addHandler(console)
     logging.root.setLevel(logging.DEBUG)
-    logfile = 'lastrun.log'
-    lastlog = logging.FileHandler(logfile, 'w')
+    lastlog = logging.FileHandler(options.logfile, 'w')
     lastlog.setLevel(file_level)
     formatter = logging.Formatter(
             '[%(asctime)s %(levelname)s %(name)s %(lineno)d] %(message)s')
@@ -95,7 +96,7 @@ def configure_logging(options, file_level=logging.DEBUG, console_level=logging.D
         logger = logging.getLogger(name)
         logger.setLevel(getattr(logging, level))
 
-    log.info('logging everything to %s' % logfile)
+    log.info('logging everything to %s' % options.logfile)
 
 def load_config(config=None):
     """
@@ -141,8 +142,12 @@ def parse_options():
     """
     parser = OptionParser(SXWM_USAGE)
     parser.add_option('-c', '--config', dest='configfile',
-            help='use samuraix configuration from FILE (default: %default)', metavar='FILE',
+            help='use samurai-x2 configuration from FILE (default: %default)', metavar='FILE',
             default='~/.samuraix/config')
+
+    parser.add_option('-f', '--logfile', dest='logfile',
+            help='save the samurai-x2 log file to FILE', metavar='FILE',
+            default=DEFAULT_LOGFILE)
 
     parser.add_option('', '--default-config', dest='print_default_config',
             help='print the default configuration to stdout',

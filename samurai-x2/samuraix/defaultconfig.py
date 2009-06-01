@@ -46,8 +46,8 @@ config = {
     ],
 
     'desktops.desktops':
-        [('one', {'layout': 'floating'}),
-         ('two', {'layout': 'tiling'})]
+        [('one', {'layout': 'vert'}),
+         ('two', {'layout': 'horz'})]
     ,
     'bind.keys': {
             'Meta+n': 'desktops.cycle offset=1',

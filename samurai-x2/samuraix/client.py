@@ -140,6 +140,7 @@ class Client(SXObject):
             after *self.actor* is set.
             That's not so nice.
         """
+        self.actor.valid = True
         self.actor.push_handlers(on_configure_notify=self.actor_on_configure_notify)
 
     def msg_active_window(self, evt):
