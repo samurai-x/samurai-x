@@ -283,6 +283,7 @@ class ClientData(object):
                 on_configure_notify=self.screen_on_configure_notify
                 )
         self.plugin.remove_data(self.client)
+        self.client.actor.valid = False
         del self.client
 
 class SXDeco(Plugin):
