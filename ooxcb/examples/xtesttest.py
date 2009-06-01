@@ -8,12 +8,12 @@ import ooxcb
 import ooxcb.xproto
 import ooxcb.xtest
 from ooxcb.constant import KeyPress, KeyRelease, MotionNotify
-from ooxcb.keysymdef import XK_B
+from ooxcb.keysymdef import keysyms
 
 conn = ooxcb.connect()
 
 # fetch the keycode of the 'b' key
-keycode = conn.keysyms.get_keycode(XK_B)
+keycode = conn.keysyms.get_keycode(keysyms["b"])
 
 with conn.bunch():
     # simulate a 'b' key press

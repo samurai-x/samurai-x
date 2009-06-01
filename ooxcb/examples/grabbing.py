@@ -28,7 +28,7 @@ root.grab_button(
 # we want to terminate this application.
 # We need a keycode for grab_key. Since keycodes are hardware-dependent,
 # we'll get the keycode of a hardware-independent keysym here.
-keycode = conn.keysyms.get_keycode(keysymdef.XK_X)
+keycode = conn.keysyms.get_keycode(keysymdef.keysyms["X"])
 root.grab_key(keycode, xproto.ModMask.Control)
 
 @root.event

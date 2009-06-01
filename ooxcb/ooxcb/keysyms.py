@@ -82,107 +82,107 @@ def convert_case(sym):
     enc = sym >> 8
 
     if enc == 0: # latin1
-        if ((sym >= keysymdef.XK_A) and (sym <= keysymdef.XK_Z)):
-            lower += (keysymdef.XK_a - keysymdef.XK_A)
-        elif ((sym >= keysymdef.XK_a) and (sym <= keysymdef.XK_z)):
-            upper -= (keysymdef.XK_a - keysymdef.XK_A)
-        elif ((sym >= keysymdef.XK_Agrave)
-                and (sym <= keysymdef.XK_Odiaeresis)):
-            lower += (keysymdef.XK_agrave - keysymdef.XK_Agrave)
-        elif ((sym >= keysymdef.XK_agrave)
-                and (sym <= keysymdef.XK_odiaeresis)):
-            upper -= (keysymdef.XK_agrave - keysymdef.XK_Agrave)
-        elif ((sym >= keysymdef.XK_Ooblique) and (sym <= keysymdef.XK_Thorn)):
-            lower += (keysymdef.XK_oslash - keysymdef.XK_Ooblique)
-        elif ((sym >= keysymdef.XK_oslash) and (sym <= keysymdef.XK_thorn)):
-            upper -= (keysymdef.XK_oslash - keysymdef.XK_Ooblique)
+        if ((sym >= keysymdef.keysyms["A"]) and (sym <= keysymdef.keysyms["Z"])):
+            lower += (keysymdef.keysyms["a"] - keysymdef.keysyms["A"])
+        elif ((sym >= keysymdef.keysyms["a"]) and (sym <= keysymdef.keysyms["z"])):
+            upper -= (keysymdef.keysyms["a"] - keysymdef.keysyms["A"])
+        elif ((sym >= keysymdef.keysyms["Agrave"])
+                and (sym <= keysymdef.keysyms["Odiaeresis"])):
+            lower += (keysymdef.keysyms["agrave"] - keysymdef.keysyms["Agrave"])
+        elif ((sym >= keysymdef.keysyms["agrave"])
+                and (sym <= keysymdef.keysyms["odiaeresis"])):
+            upper -= (keysymdef.keysyms["agrave"] - keysymdef.keysyms["Agrave"])
+        elif ((sym >= keysymdef.keysyms["Ooblique"]) and (sym <= keysymdef.keysyms["Thorn"])):
+            lower += (keysymdef.keysyms["oslash"] - keysymdef.keysyms["Ooblique"])
+        elif ((sym >= keysymdef.keysyms["oslash"]) and (sym <= keysymdef.keysyms["thorn"])):
+            upper -= (keysymdef.keysyms["oslash"] - keysymdef.keysyms["Ooblique"])
     elif enc == 1: # latin2
         # Assume the KeySym is a legal value (ignore discontinuities)
-        if (sym == keysymdef.XK_Aogonek):
-            lower = keysymdef.XK_aogonek
-        elif (sym >= keysymdef.XK_Lstroke and sym <= keysymdef.XK_Sacute):
-            lower += (keysymdef.XK_lstroke - keysymdef.XK_Lstroke)
-        elif (sym >= keysymdef.XK_Scaron and sym <= keysymdef.XK_Zacute):
-            lower += (keysymdef.XK_scaron - keysymdef.XK_Scaron)
-        elif (sym >= keysymdef.XK_Zcaron and sym <= keysymdef.XK_Zabovedot):
-            lower += (keysymdef.XK_zcaron - keysymdef.XK_Zcaron)
-        elif (sym == keysymdef.XK_aogonek):
-            upper = keysymdef.XK_Aogonek
-        elif (sym >= keysymdef.XK_lstroke and sym <= keysymdef.XK_sacute):
-            upper -= (keysymdef.XK_lstroke - keysymdef.XK_Lstroke)
-        elif (sym >= keysymdef.XK_scaron and sym <= keysymdef.XK_zacute):
-            upper -= (keysymdef.XK_scaron - keysymdef.XK_Scaron)
-        elif (sym >= keysymdef.XK_zcaron and sym <= keysymdef.XK_zabovedot):
-            upper -= (keysymdef.XK_zcaron - keysymdef.XK_Zcaron)
-        elif (sym >= keysymdef.XK_Racute and sym <= keysymdef.XK_Tcedilla):
-            lower += (keysymdef.XK_racute - keysymdef.XK_Racute)
-        elif (sym >= keysymdef.XK_racute and sym <= keysymdef.XK_tcedilla):
-            upper -= (keysymdef.XK_racute - keysymdef.XK_Racute)
+        if (sym == keysymdef.keysyms["Aogonek"]):
+            lower = keysymdef.keysyms["aogonek"]
+        elif (sym >= keysymdef.keysyms["Lstroke"] and sym <= keysymdef.keysyms["Sacute"]):
+            lower += (keysymdef.keysyms["lstroke"] - keysymdef.keysyms["Lstroke"])
+        elif (sym >= keysymdef.keysyms["Scaron"] and sym <= keysymdef.keysyms["Zacute"]):
+            lower += (keysymdef.keysyms["scaron"] - keysymdef.keysyms["Scaron"])
+        elif (sym >= keysymdef.keysyms["Zcaron"] and sym <= keysymdef.keysyms["Zabovedot"]):
+            lower += (keysymdef.keysyms["zcaron"] - keysymdef.keysyms["Zcaron"])
+        elif (sym == keysymdef.keysyms["aogonek"]):
+            upper = keysymdef.keysyms["Aogonek"]
+        elif (sym >= keysymdef.keysyms["lstroke"] and sym <= keysymdef.keysyms["sacute"]):
+            upper -= (keysymdef.keysyms["lstroke"] - keysymdef.keysyms["Lstroke"])
+        elif (sym >= keysymdef.keysyms["scaron"] and sym <= keysymdef.keysyms["zacute"]):
+            upper -= (keysymdef.keysyms["scaron"] - keysymdef.keysyms["Scaron"])
+        elif (sym >= keysymdef.keysyms["zcaron"] and sym <= keysymdef.keysyms["zabovedot"]):
+            upper -= (keysymdef.keysyms["zcaron"] - keysymdef.keysyms["Zcaron"])
+        elif (sym >= keysymdef.keysyms["Racute"] and sym <= keysymdef.keysyms["Tcedilla"]):
+            lower += (keysymdef.keysyms["racute"] - keysymdef.keysyms["Racute"])
+        elif (sym >= keysymdef.keysyms["racute"] and sym <= keysymdef.keysyms["tcedilla"]):
+            upper -= (keysymdef.keysyms["racute"] - keysymdef.keysyms["Racute"])
     elif enc == 2: # latin3
         # Assume the KeySym is a legal value (ignore discontinuities)
-        if (sym >= keysymdef.XK_Hstroke and sym <= keysymdef.XK_Hcircumflex):
-            lower += (keysymdef.XK_hstroke - keysymdef.XK_Hstroke)
-        elif (sym >= keysymdef.XK_Gbreve and sym <= keysymdef.XK_Jcircumflex):
-            lower += (keysymdef.XK_gbreve - keysymdef.XK_Gbreve)
-        elif (sym >= keysymdef.XK_hstroke and sym <= keysymdef.XK_hcircumflex):
-            upper -= (keysymdef.XK_hstroke - keysymdef.XK_Hstroke)
-        elif (sym >= keysymdef.XK_gbreve and sym <= keysymdef.XK_jcircumflex):
-            upper -= (keysymdef.XK_gbreve - keysymdef.XK_Gbreve)
-        elif (sym >= keysymdef.XK_Cabovedot
-                and sym <= keysymdef.XK_Scircumflex):
-            lower += (keysymdef.XK_cabovedot - keysymdef.XK_Cabovedot)
-        elif (sym >= keysymdef.XK_cabovedot
-                and sym <= keysymdef.XK_scircumflex):
-            upper -= (keysymdef.XK_cabovedot - keysymdef.XK_Cabovedot)
+        if (sym >= keysymdef.keysyms["Hstroke"] and sym <= keysymdef.keysyms["Hcircumflex"]):
+            lower += (keysymdef.keysyms["hstroke"] - keysymdef.keysyms["Hstroke"])
+        elif (sym >= keysymdef.keysyms["Gbreve"] and sym <= keysymdef.keysyms["Jcircumflex"]):
+            lower += (keysymdef.keysyms["gbreve"] - keysymdef.keysyms["Gbreve"])
+        elif (sym >= keysymdef.keysyms["hstroke"] and sym <= keysymdef.keysyms["hcircumflex"]):
+            upper -= (keysymdef.keysyms["hstroke"] - keysymdef.keysyms["Hstroke"])
+        elif (sym >= keysymdef.keysyms["gbreve"] and sym <= keysymdef.keysyms["jcircumflex"]):
+            upper -= (keysymdef.keysyms["gbreve"] - keysymdef.keysyms["Gbreve"])
+        elif (sym >= keysymdef.keysyms["Cabovedot"]
+                and sym <= keysymdef.keysyms["Scircumflex"]):
+            lower += (keysymdef.keysyms["cabovedot"] - keysymdef.keysyms["Cabovedot"])
+        elif (sym >= keysymdef.keysyms["cabovedot"]
+                and sym <= keysymdef.keysyms["scircumflex"]):
+            upper -= (keysymdef.keysyms["cabovedot"] - keysymdef.keysyms["Cabovedot"])
     elif enc == 3: # latin4
         # Assume the KeySym is a legal value (ignore discontinuities)
-        if (sym >= keysymdef.XK_Rcedilla and sym <= keysymdef.XK_Tslash):
-            lower += (keysymdef.XK_rcedilla - keysymdef.XK_Rcedilla)
-        elif (sym >= keysymdef.XK_rcedilla and sym <= keysymdef.XK_tslash):
-            upper -= (keysymdef.XK_rcedilla - keysymdef.XK_Rcedilla)
-        elif (sym == keysymdef.XK_ENG):
-            lower = keysymdef.XK_eng
-        elif (sym == keysymdef.XK_eng):
-            upper = keysymdef.XK_ENG
-        elif (sym >= keysymdef.XK_Amacron and sym <= keysymdef.XK_Umacron):
-            lower += (keysymdef.XK_amacron - keysymdef.XK_Amacron)
-        elif (sym >= keysymdef.XK_amacron and sym <= keysymdef.XK_umacron):
-            upper -= (keysymdef.XK_amacron - keysymdef.XK_Amacron)
+        if (sym >= keysymdef.keysyms["Rcedilla"] and sym <= keysymdef.keysyms["Tslash"]):
+            lower += (keysymdef.keysyms["rcedilla"] - keysymdef.keysyms["Rcedilla"])
+        elif (sym >= keysymdef.keysyms["rcedilla"] and sym <= keysymdef.keysyms["tslash"]):
+            upper -= (keysymdef.keysyms["rcedilla"] - keysymdef.keysyms["Rcedilla"])
+        elif (sym == keysymdef.keysyms["ENG"]):
+            lower = keysymdef.keysyms["eng"]
+        elif (sym == keysymdef.keysyms["eng"]):
+            upper = keysymdef.keysyms["ENG"]
+        elif (sym >= keysymdef.keysyms["Amacron"] and sym <= keysymdef.keysyms["Umacron"]):
+            lower += (keysymdef.keysyms["amacron"] - keysymdef.keysyms["Amacron"])
+        elif (sym >= keysymdef.keysyms["amacron"] and sym <= keysymdef.keysyms["umacron"]):
+            upper -= (keysymdef.keysyms["amacron"] - keysymdef.keysyms["Amacron"])
     elif enc == 6: # cyrillic
         # Assume the KeySym is a legal value (ignore discontinuities)
-        if (sym >= keysymdef.XK_Serbian_DJE
-                and sym <= keysymdef.XK_Serbian_DZE):
-            lower -= (keysymdef.XK_Serbian_DJE - keysymdef.XK_Serbian_dje)
-        elif (sym >= keysymdef.XK_Serbian_dje
-                and sym <= keysymdef.XK_Serbian_dze):
-            upper += (keysymdef.XK_Serbian_DJE - keysymdef.XK_Serbian_dje)
-        elif (sym >= keysymdef.XK_Cyrillic_YU
-                and sym <= keysymdef.XK_Cyrillic_HARDSIGN):
-            lower -= (keysymdef.XK_Cyrillic_YU - keysymdef.XK_Cyrillic_yu)
-        elif (sym >= keysymdef.XK_Cyrillic_yu
-                and sym <= keysymdef.XK_Cyrillic_hardsign):
-            upper += (keysymdef.XK_Cyrillic_YU - keysymdef.XK_Cyrillic_yu)
+        if (sym >= keysymdef.keysyms["Serbian_DJE"]
+                and sym <= keysymdef.keysyms["Serbian_DZE"]):
+            lower -= (keysymdef.keysyms["Serbian_DJE"] - keysymdef.keysyms["Serbian_dje"])
+        elif (sym >= keysymdef.keysyms["Serbian_dje"]
+                and sym <= keysymdef.keysyms["Serbian_dze"]):
+            upper += (keysymdef.keysyms["Serbian_DJE"] - keysymdef.keysyms["Serbian_dje"])
+        elif (sym >= keysymdef.keysyms["Cyrillic_YU"]
+                and sym <= keysymdef.keysyms["Cyrillic_HARDSIGN"]):
+            lower -= (keysymdef.keysyms["Cyrillic_YU"] - keysymdef.keysyms["Cyrillic_yu"])
+        elif (sym >= keysymdef.keysyms["Cyrillic_yu"]
+                and sym <= keysymdef.keysyms["Cyrillic_hardsign"]):
+            upper += (keysymdef.keysyms["Cyrillic_YU"] - keysymdef.keysyms["Cyrillic_yu"])
     elif enc == 7: # greek
-        if (sym >= keysymdef.XK_Greek_ALPHAaccent
-                and sym <= keysymdef.XK_Greek_OMEGAaccent):
-            lower += (keysymdef.XK_Greek_alphaaccent -
-                    keysymdef.XK_Greek_ALPHAaccent)
-        elif (sym >= keysymdef.XK_Greek_alphaaccent
-                and sym <= keysymdef.XK_Greek_omegaaccent and
-            sym != keysymdef.XK_Greek_iotaaccentdieresis and
-            sym != keysymdef.XK_Greek_upsilonaccentdieresis):
-            upper -= (keysymdef.XK_Greek_alphaaccent -
-                    keysymdef.XK_Greek_ALPHAaccent)
-        elif (sym >= keysymdef.XK_Greek_ALPHA
-                and sym <= keysymdef.XK_Greek_OMEGA):
-            lower += (keysymdef.XK_Greek_alpha - keysymdef.XK_Greek_ALPHA)
-        elif (sym >= keysymdef.XK_Greek_alpha
-                and sym <= keysymdef.XK_Greek_omega and
-                sym != keysymdef.XK_Greek_finalsmallsigma):
-            upper -= (keysymdef.XK_Greek_alpha - keysymdef.XK_Greek_ALPHA)
+        if (sym >= keysymdef.keysyms["Greek_ALPHAaccent"]
+                and sym <= keysymdef.keysyms["Greek_OMEGAaccent"]):
+            lower += (keysymdef.keysyms["Greek_alphaaccent"] -
+                    keysymdef.keysyms["Greek_ALPHAaccent"])
+        elif (sym >= keysymdef.keysyms["Greek_alphaaccent"]
+                and sym <= keysymdef.keysyms["Greek_omegaaccent"] and
+            sym != keysymdef.keysyms["Greek_iotaaccentdieresis"] and
+            sym != keysymdef.keysyms["Greek_upsilonaccentdieresis"]):
+            upper -= (keysymdef.keysyms["Greek_alphaaccent"] -
+                    keysymdef.keysyms["Greek_ALPHAaccent"])
+        elif (sym >= keysymdef.keysyms["Greek_ALPHA"]
+                and sym <= keysymdef.keysyms["Greek_OMEGA"]):
+            lower += (keysymdef.keysyms["Greek_alpha"] - keysymdef.keysyms["Greek_ALPHA"])
+        elif (sym >= keysymdef.keysyms["Greek_alpha"]
+                and sym <= keysymdef.keysyms["Greek_omega"] and
+                sym != keysymdef.keysyms["Greek_finalsmallsigma"]):
+            upper -= (keysymdef.keysyms["Greek_alpha"] - keysymdef.keysyms["Greek_ALPHA"])
     elif enc == 0x14: # armenian
-        if (sym >= keysymdef.XK_Armenian_AYB
-                and sym <= keysymdef.XK_Armenian_fe):
+        if (sym >= keysymdef.keysyms["Armenian_AYB"]
+                and sym <= keysymdef.keysyms["Armenian_fe"]):
             lower = sym | 1
             upper = sym & ~1
     return lower, upper
@@ -259,21 +259,10 @@ X_KEYS = ['Home', 'Left', 'Up', 'Right', 'Down', 'Page_Up',
 
 def keysym_to_str(keysym):
     """
-        convert a keysym to its equivalent character and return it.
-        Should work for most keys.
-
-        Ported from awesome's keygrabber.c:keysym_to_str
+        convert a keysym to its equivalent character or
+        key description and return it.
+        Returns an empty for an unknown keysym.
+        That's just a shortcut for :mod:`ooxcb.keysymdef`.
     """
-    # first, check the X keys
-    for xkey in X_KEYS:
-        if keysym == getattr(keysymdef, 'XK_%s' % xkey):
-            return xkey
-    # then check KP_Space
-    if keysym == keysymdef.XK_KP_Space:
-        return ' '
-    # then check the hyphen
-    elif keysym == keysymdef.XK_hyphen:
-        return '-'
-    # it must be a char, return it
-    return chr(keysym & 0x7F)
+    return keysymdef.names.get(keysym, '')
 

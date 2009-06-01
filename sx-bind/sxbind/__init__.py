@@ -76,8 +76,8 @@ def parse_keystroke(s):
             log.error('Unknown modifier: "%s"' % mod)
     # get keysym
     try:
-        keysym = getattr(keysymdef, 'XK_%s' % key)
-    except AttributeError:
+        keysym = keysymdef.keysyms[key]
+    except KeyError:
         log.error('Unknown key: "%s"' % key)
     return modmask, keysym
 
