@@ -2,7 +2,13 @@ from ooxcb.eventsys import EventDispatcher
 
 from ooxcb.contrib import cairo
 
+import ooxcb
+
+from ooxcb import xproto
+
 from ctypes import byref
+
+from samuraix.rect import Rect
 
 
 class Window(EventDispatcher):
@@ -16,6 +22,8 @@ class Window(EventDispatcher):
         self.height = height 
 
         self.style = style
+
+        self.parent = None
 
         self.push_handlers(**kwargs)
 
@@ -40,8 +48,12 @@ class Window(EventDispatcher):
                 x < self.rx + self.rwidth and 
                 y < self.ry + self.rheight)
 
+    def grab_input(self, control=None):
+        self.parent.grab_input(control or self)
+
 
 Window.register_event_type('on_button_press')
+Window.register_event_type('on_key_press')
 
 
 class Layouter(object):
@@ -100,6 +112,14 @@ class Container(Window):
 
             #cairo.cairo_set_matrix(cr, byref(matrix))
 
+    def add_child(self, child):
+        assert child.parent is None
+        child.parent = self
+        self.children.append(child)
+
+    def add_children(self, children):
+        [self.add_child(child) for child in children]
+
     def on_button_press(self, event):
         local_x, local_y = event.event_x - self.rx, event.event_y - self.ry
 
@@ -109,24 +129,68 @@ class Container(Window):
 
 
 class TopLevelContainer(Container):
-    def __init__(self, x=None, y=None, **kwargs):
+    def __init__(self, window, visual_type, **kwargs):
         Container.__init__(self, **kwargs)
-        self.x = x
-        self.y = y        
+        self.window = window
+        self.visual_type = visual_type
 
-        assert None not in (self.x, self.y, self.width, self.height)
+        geom = window.get_geometry().reply()
+        self.width = geom.width
+        self.height = geom.height
+
+        self.focused_control = None
+
+        window.push_handlers(
+                on_property_notify=self.on_window_property_notify,
+                on_configure_notify=self.on_window_configure_notify,
+                on_button_press=self.on_button_press,
+                on_key_press=self.on_window_key_press,
+        )
+
+    def recreate_surface(self):
+        # create a surface for this window
+        self.surface = cairo.cairo_xcb_surface_create(
+                self.window.conn, 
+                self.window,
+                self.visual_type,
+                self.width, self.height)
+        
+        # and a cairo context
+        self.cr = cairo.cairo_create(self.surface)
+
+    def on_window_property_notify(self, event):
+        print event 
+
+    def on_window_key_press(self, event):
+        print self, "key press", event
+        if self.focused_control is not None:
+            self.focused_control.dispatch_event('on_key_press', event)
+
+    def on_window_configure_notify(self, event):
+        rect = Rect.from_object(event)
+        self.width = rect.width
+        self.height = rect.height 
+        self.recreate_surface()
+        self.layout()
+        self.render()
 
     def layout(self):
-        self.rx = self.x
-        self.ry = self.y
+        self.rx = 0
+        self.ry = 0
         self.rwidth = self.width
         self.rheight = self.height
         Container.layout(self)
 
-    def render(self, cr):
-        cairo.cairo_save(cr)
-        Container.render(self, cr)
-        cairo.cairo_restore(cr)
+    def render(self):
+        cairo.cairo_save(self.cr)
+        Container.render(self, self.cr)
+        cairo.cairo_restore(self.cr)
+
+    def grab_input(self, control=None):
+        if control is None:
+            control = self
+        print self, "focused_control", control
+        self.focused_control = control
 
 
 class Label(Window):
@@ -148,4 +212,15 @@ class Label(Window):
 
 
 class Input(Label):
-    pass
+    def on_key_press(self, event):
+        if event.detail == 0:
+            return 
+        shift = int((event.state & xproto.ModMask.Shift) or (event.state & xproto.ModMask.Lock))
+        print self, event.detail, event.state, event.conn, shift
+        k = ooxcb.keysyms.keysym_to_str(event.conn.keysyms.get_keysym(event.detail, shift))
+        print k
+
+    def on_button_press(self, event):
+        print self, "button_press"
+        self.grab_input()
+        

@@ -25,21 +25,29 @@ with conn.bunch():
                 | xproto.EventMask.ButtonPress
                 | xproto.EventMask.PointerMotion
                 | xproto.EventMask.KeyPress
+                | xproto.EventMask.PropertyChange
+                | xproto.EventMask.StructureNotify
             )
     )
     win.map()
 
-    # create a surface for this window
-    surface = cairo.cairo_xcb_surface_create(conn, win,
-            visualtype,
-            width, height)
+    ## create a surface for this window
+    #surface = cairo.cairo_xcb_surface_create(conn, win,
+    #        visualtype,
+    #        width, height)
     
-    # and a cairo context
-    cr = cairo.cairo_create(surface)
+    ## and a cairo context
+    #cr = cairo.cairo_create(surface)
     #cairo.cairo_set_operator(cr, cairo.CAIRO_OPERATOR_SOURCE)
     #cairo.cairo_set_source_surface(cr, surface, 0, 0)
     #cairo.cairo_set_source_rgba(cr, 255, 0, 0, 0)
 
+@win.event
+def on_key_press(event):
+    if event.detail == 9:
+        global running 
+        running = False
+        print event.detail, event.state
 
 def debug_func(x):
     def f(event):
@@ -48,8 +56,8 @@ def debug_func(x):
 
 
 widget = ui.TopLevelContainer(
-        x=20, y=20,
-        width=420, height=20, 
+        win,
+        visualtype,
         style={
             'background': (0.2, 0.2, 0.2),
             'border': {
@@ -67,14 +75,15 @@ label_style = {
     }
 }
 
-widget.children.extend([
-    ui.Label(text="but 1", style=label_style, on_button_press=debug_func(90)),
-    ui.Label(text="but 2", style=label_style, on_button_press=debug_func(91)),
-    ui.Label(text="but 3", style=label_style, on_button_press=debug_func(92)),
+widget.add_children([
+    ui.Label(text="but 1", style=label_style, on_button_press=debug_func('but1')),
+    ui.Label(text="but 2", style=label_style, on_button_press=debug_func('but2')),
+    ui.Input(text="but 3", style=label_style, on_button_press=debug_func('but3')),
 ])
 widget.layout()
 
 
+"""
 widget2 = ui.TopLevelContainer(
         x=100, y=100,
         width=60, height=220, 
@@ -99,29 +108,25 @@ label_style = {
 widget2.children.extend([
     ui.Label(text="but 1", style=label_style, on_button_press=debug_func(10)),
     ui.Label(text="but 2", style=label_style, on_button_press=debug_func(11)),
-    ui.Label(text="but 3", style=label_style, on_button_press=debug_func(12)),
+    ui.Input(text="but 3", style=label_style, on_button_press=debug_func(12)),
 ])
 widget2.layout()
-
+"""
 
 @win.event
 def on_expose(event):
-    widget.render(cr)
-    widget2.render(cr)
+    widget.render()
+    #widget2.render(cr)
+#
+#    conn.flush()
 
-    conn.flush()
+#@win.event
+#def on_button_press(event):
+#    if widget.hit(event.event_x, event.event_y):
+#        widget.dispatch_event('on_button_press', event)
+#    #if widget2.hit(event.event_x, event.event_y):
+#    #    widget2.dispatch_event('on_button_press', event)
 
-@win.event
-def on_button_press(event):
-    if widget.hit(event.event_x, event.event_y):
-        widget.dispatch_event('on_button_press', event)
-    if widget2.hit(event.event_x, event.event_y):
-        widget2.dispatch_event('on_button_press', event)
-
-@win.event
-def on_key_press(event):
-    global running 
-    running = False
 
 #@win.event
 #def on_motion_notify(event):
