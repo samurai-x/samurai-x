@@ -64,6 +64,7 @@ class SXLayoutMgr(Plugin):
         self.layouters = {}
         self.register(MaxLayout)
         self.register(VertLayout)
+        self.register(HorizLayout)
 
         self.app = app
         app.push_handlers(self)
