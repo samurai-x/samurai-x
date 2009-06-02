@@ -58,7 +58,7 @@ config = {
             'META+g': 'spawn cmdline="gimp"',
             'Meta+Q': 'quit',
             'Meta+R': 'restart',
-            'Meta+L': 'layoutmgr.set_layout name="horiz"',
+            'Meta+L': 'layoutmgr.cycle',
         },
     'decoration.bindings': {
             '1': 'moveresize.move',

@@ -1,4 +1,5 @@
 from samuraix.plugin import Plugin
+from samuraix.util import OrderedDict
 from samuraix import app
 
 import logging
@@ -66,7 +67,7 @@ class SXLayoutMgr(Plugin):
     key = 'layoutmgr'
 
     def __init__(self, app):
-        self.layouters = {}
+        self.layouters = OrderedDict()
         self.register(MaxLayout)
         self.register(VertLayout)
         self.register(HorizLayout)
@@ -75,7 +76,10 @@ class SXLayoutMgr(Plugin):
         app.push_handlers(self)
 
         # register actions
-        app.plugins['actions'].register('layoutmgr.set_layout', self.action_set_layout)
+        app.plugins['actions'].register('layoutmgr.set_layout',
+                self.action_set_layout)
+        app.plugins['actions'].register('layoutmgr.cycle',
+                self.action_cycle)
 
     def action_set_layout(self, info):
         """
@@ -90,6 +94,27 @@ class SXLayoutMgr(Plugin):
                 info['screen'].data['desktops'].active_desktop,
                 self.layouters[info['name']]
                 )
+
+    def action_cycle(self, info):
+        """
+            cycle the layouts for the current desktop
+            parameters:
+                `offset`: int
+                    offset to cycle, defaults to +1
+            needed:
+                `screen`
+        """
+        offset = info.get('offset', 1)
+        desktop = info['screen'].data['desktops'].active_desktop
+        layouter_cls = self.get_data(desktop).__class__
+        current_name = getattr(layouter_cls, 'name', layouter_cls.__name__)
+
+        keys = self.layouters.keys()
+        length = len(keys)
+        index = keys.index(current_name)
+        new_index = ((index or length) + offset) % length
+        new_layouter_cls = self.layouters[keys[new_index]]
+        self.attach_layouter(desktop, new_layouter_cls)
 
     def register(self, layouter_cls):
         name = getattr(layouter_cls, 'name', layouter_cls.__name__)
