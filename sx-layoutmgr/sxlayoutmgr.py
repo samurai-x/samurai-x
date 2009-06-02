@@ -1,4 +1,5 @@
-from samuraix.plugin import Plugin 
+from samuraix.plugin import Plugin
+from samuraix import app
 
 import logging
 log = logging.getLogger(__name__)
@@ -25,6 +26,7 @@ class MaxLayout(Layout):
         geom = self.desktop.screen.get_geometry()
         client = self.desktop.clients.current()
         client.actor.configure(x=geom.x, y=geom.y, width=geom.width, height=geom.height)
+        app.conn.flush()
 
 
 class VertLayout(Layout):
@@ -40,6 +42,7 @@ class VertLayout(Layout):
             for client in self.desktop.clients:
                 client.actor.configure(x=0, y=t, width=geom.width, height=h)
                 t += h
+            app.conn.flush()
 
 
 class HorizLayout(Layout):
@@ -49,12 +52,14 @@ class HorizLayout(Layout):
 
     def layout(self):
         if self.desktop.clients:
+            log.warning('YEEX, LAYOUTER %s' % repr(self.desktop.clients))
             geom = self.desktop.screen.get_geometry()
             w = geom.width / len(self.desktop.clients)
             t = 0 
             for client in self.desktop.clients:
                 client.actor.configure(x=t, y=0, width=w, height=geom.height)
                 t += w
+            app.conn.flush()
 
 
 class SXLayoutMgr(Plugin):
@@ -68,6 +73,23 @@ class SXLayoutMgr(Plugin):
 
         self.app = app
         app.push_handlers(self)
+
+        # register actions
+        app.plugins['actions'].register('layoutmgr.set_layout', self.action_set_layout)
+
+    def action_set_layout(self, info):
+        """
+            set the layout of the current desktop.
+            parameters:
+                `name`: str
+                    identifier of the layout
+            needed:
+                `screen`
+        """
+        self.attach_layouter(
+                info['screen'].data['desktops'].active_desktop,
+                self.layouters[info['name']]
+                )
 
     def register(self, layouter_cls):
         name = getattr(layouter_cls, 'name', layouter_cls.__name__)
@@ -89,9 +111,21 @@ class SXLayoutMgr(Plugin):
                     continue
                 layouter_cls = self.layouters.get(layouter_name)
                 if not layouter_cls:
-                    log.error('cant find layouter %s', layouter_name)
-                    continue
-                log.debug('attached %s', layouter_cls)
-                self.attach_data_to(desktop, layouter_cls(desktop))
-                #desktop.push_handlers(on_rearrange=self.on_rearrange)
-        
+                    log.error('cant find layouter %s', name)
+                    return
+                self.attach_layouter(desktop, layouter_cls)
+
+    def attach_layouter(self, desktop, layouter_cls):
+        """
+            attach the layouter class *layouter_cls* to *desktop*.
+            That will overwrite any layouter that was
+            attached before.
+        """
+        if self.has_data(desktop):
+            self.remove_data(desktop)
+        log.debug('attached %s', layouter_cls)
+        layouter = layouter_cls(desktop)
+        self.attach_data_to(desktop, layouter)
+        #desktop.push_handlers(on_rearrange=self.on_rearrange)
+        # rearrange it automatically
+        layouter.layout()

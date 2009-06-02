@@ -71,3 +71,10 @@ class Plugin(object):
         """
         del obj.data[self.key]
 
+    def has_data(self, obj):
+        """
+            does the plugin have any data attached to *obj*?
+            return True or False.
+        """
+        return self.key in obj.data
+
