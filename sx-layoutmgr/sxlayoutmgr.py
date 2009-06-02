@@ -20,6 +20,12 @@ class Layout(object):
     def layout(self):
         raise NotImplemented()
 
+class FloatingLayout(Layout):
+    """ do nothing. """
+    name = 'floating'
+
+    def layout(self):
+        pass
 
 class MaxLayout(Layout):
     """ make the focused window fill the screen """
@@ -70,6 +76,7 @@ class SXLayoutMgr(Plugin):
 
     def __init__(self, app):
         self.layouters = OrderedDict()
+        self.register(FloatingLayout)
         self.register(MaxLayout)
         self.register(VertLayout)
         self.register(HorizLayout)

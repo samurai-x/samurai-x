@@ -46,7 +46,7 @@ config = {
     ],
 
     'desktops.desktops':
-        [('one', {'layout': 'vert'}),
+        [('one', {'layout': 'floating'}),
          ('two', {'layout': 'horiz'})]
     ,
     'bind.keys': {
