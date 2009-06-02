@@ -75,12 +75,25 @@ def ewmh_get_current_desktop(screen):
     else:
         return reply.value[0]
 
+def ewmh_get_desktop(window):
+    """
+        return the desktop of the window or None
+        if the _NET_WM_DESKTOP property is not set.
+        0xffffffff is returned if the window wants to be
+        visible on all desktops (according to the ewmh spec)
+    """
+    reply = window.get_property('_NET_WM_DESKTOP', 'CARDINAL').reply()
+    if not reply.exists:
+        return None
+    else:
+        return reply.value[0]
+
 def mixin():
     """
         mix em all
     """
     from ooxcb.util import mixin_functions
-    from ooxcb.xproto import Screen
+    from ooxcb.xproto import Screen, Window
     
     mixin_functions((
         ewmh_get_client_list,
@@ -88,3 +101,6 @@ def mixin():
         ewmh_get_number_of_desktops,
         ewmh_get_current_desktop,
         ), Screen)
+    mixin_functions((
+        ewmh_get_desktop,
+        ), Window)

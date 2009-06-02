@@ -178,9 +178,17 @@ class ClientData(object):
 
     def on_map_notify(self, evt):
         if not self._obsolete:
-            self._active = True
-            self.client.actor.map()
-            self.client.conn.flush()
+            # check if we are on the correct desktop!
+            current = self.client.screen.info.ewmh_get_current_desktop()
+            desktop = self.client.window.ewmh_get_desktop()
+            if (current is None or current == desktop):
+                self._active = True
+                self.client.actor.map()
+                self.client.conn.flush()
+            else:
+                log.info('ignoring map notify event, is on invisible desktop '
+                        '(current desktop=%s, window\'s desktop=%s)' % \
+                                (current, desktop))
 
     def on_button_press(self, evt):
         self.plugin.emit_action(self.client, evt)
