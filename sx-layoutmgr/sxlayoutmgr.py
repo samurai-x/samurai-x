@@ -11,6 +11,9 @@ class Layout(object):
         self.desktop = desktop    
         desktop.push_handlers(self)
 
+    def detach(self):
+        self.desktop.remove_handlers(self)
+
     def on_rearrange(self, desktop):
         self.layout()
 
@@ -53,7 +56,6 @@ class HorizLayout(Layout):
 
     def layout(self):
         if self.desktop.clients:
-            log.warning('YEEX, LAYOUTER %s' % repr(self.desktop.clients))
             geom = self.desktop.screen.get_geometry()
             w = geom.width / len(self.desktop.clients)
             t = 0 
@@ -147,6 +149,7 @@ class SXLayoutMgr(Plugin):
             attached before.
         """
         if self.has_data(desktop):
+            self.get_data(desktop).detach()
             self.remove_data(desktop)
         log.debug('attached %s', layouter_cls)
         layouter = layouter_cls(desktop)
