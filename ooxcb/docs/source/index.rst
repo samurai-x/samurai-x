@@ -8,7 +8,7 @@ Welcome to ooxcb's documentation!
 Contents:
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 3
 
     introduction.rst
     getting-started.rst
