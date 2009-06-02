@@ -169,6 +169,7 @@ def parse_options():
 
 
 def run(app_func=None):
+    setup_ooxcb()
     while samuraix.restarting:
         log.info('restart loop')
         samuraix.restarting = False
@@ -180,6 +181,15 @@ def restart():
     samuraix.restarting = True
     samuraix.app.stop()
 
+def setup_ooxcb():
+    """
+        configure all required mixins
+    """
+    import ooxcb.contrib.icccm
+    import ooxcb.contrib.ewmh
+
+    ooxcb.contrib.icccm.mixin()
+    ooxcb.contrib.ewmh.mixin()
 
 def run_app(app_func=None):
     """

@@ -121,7 +121,6 @@ class Client(SXObject):
         self.window_2_client_map[self.window] = self
 
         self.apply_normal_hints()
-        self.window.map()
         self.conn.flush()
 
     def __repr__(self):
@@ -142,6 +141,11 @@ class Client(SXObject):
         """
         self.actor.valid = True
         self.actor.push_handlers(on_configure_notify=self.actor_on_configure_notify)
+        # map actor and window.
+        if self.actor is not self.window:
+            self.window.map()
+        # "unban" to get a valid WM_STATE property.
+        self.unban()
 
     def msg_active_window(self, evt):
         """
@@ -213,6 +217,21 @@ class Client(SXObject):
         if second is not None:
             self.dispatch_event('on_handle_net_wm_state',
                     second in self.state, second, source_indication)
+
+    def on_map_notify(self, evt):
+        """
+            window's event handler for map notify events
+        """
+        state = self.window.icccm_get_wm_state()
+        if not state:
+            log.warning('got map notify, but window does not have WM_STATE set')
+            return
+        # Iconic -> Normal
+        if state.state == xproto.WMState.Iconic:
+            # TODO: what about checking for the correct desktop?
+            self.unban()
+        else:
+            log.debug('map notify with unknown transition')
 
     def on_handle_net_wm_state(self, present, atom, source_indication):
         """
