@@ -1,9 +1,8 @@
-from ooxcb.eventsys import EventDispatcher
-
-from ooxcb.contrib import cairo
+import string
 
 import ooxcb
-
+from ooxcb.eventsys import EventDispatcher
+from ooxcb.contrib import cairo
 from ooxcb import xproto
 
 from ctypes import byref
@@ -12,6 +11,7 @@ from samuraix.rect import Rect
 
 
 class Window(EventDispatcher):
+
     def __init__(self, width=None, height=None, style=None, **kwargs):
         self.rx = None
         self.ry = None
@@ -27,20 +27,24 @@ class Window(EventDispatcher):
 
         self.push_handlers(**kwargs)
 
-    def render(self, surface):
+    def setup_clip(self, cr):
+        cairo.cairo_rectangle(cr, self.rx, self.ry, self.rwidth, self.rheight)
+        cairo.cairo_clip(cr)
+
+    def render(self, cr):
         assert None not in (self.rx, self.ry, self.rwidth, self.rheight)
 
         if 'background' in self.style and self.style['background'] is not None:
-            cairo.cairo_set_source_rgb(surface, *self.style['background'])
-            cairo.cairo_rectangle(surface, self.rx, self.ry, self.rwidth, self.rheight)
-            cairo.cairo_fill(surface)
+            cairo.cairo_set_source_rgb(cr, *self.style['background']['color'])
+            cairo.cairo_rectangle(cr, self.rx, self.ry, self.rwidth, self.rheight)
+            cairo.cairo_fill(cr)
 
         if ('border' in self.style and self.style['border'] != None
             and 'color' in self.style['border'] and self.style['border']['color'] != None
             ):
-            cairo.cairo_set_source_rgb(surface, *self.style['border']['color'])
-            cairo.cairo_rectangle(surface, self.rx, self.ry, self.rwidth, self.rheight)
-            cairo.cairo_stroke(surface)
+            cairo.cairo_set_source_rgb(cr, *self.style['border']['color'])
+            cairo.cairo_rectangle(cr, self.rx, self.ry, self.rwidth, self.rheight)
+            cairo.cairo_stroke(cr)
 
     def hit(self, x, y):
         return (x > self.rx and 
@@ -50,6 +54,9 @@ class Window(EventDispatcher):
 
     def grab_input(self, control=None):
         self.parent.grab_input(control or self)
+
+    def dirty(self, control=None):
+        self.parent.dirty(control or self)
 
 
 Window.register_event_type('on_button_press')
@@ -66,25 +73,47 @@ class Layouter(object):
 
 class VerticalLayouter(Layouter):
     def layout(self):
-        hplus = self.container.rheight / len(self.container.children)
-        y = 0
+        layout_style = self.container.get('layout')
+        if layout_style:
+            padding = layout_style.get('padding', 0)
+        else:
+            padding = 0
+        h = self.container.rheight - (2 * padding)
+        w = self.container.rwidth - (2 * padding)
+
+        hplus = w / len(self.container.children)
+        y = padding
         for child in self.container.children:
-            child.rx = 0
+            child.rx = padding
             child.ry = y
-            child.rwidth = self.container.width
+            child.rwidth = w
             child.rheight = hplus
             y += hplus
 
 
 class HorizontalLayouter(Layouter):
     def layout(self):
-        wplus = self.container.rwidth / len(self.container.children)
-        x = 0
+        layout_style = self.container.style.get('layout')
+        if layout_style:
+            padding = layout_style.get('padding', 0)
+        else:
+            padding = 0
+
+        h = self.container.rheight - (2 * padding)
+        w = self.container.rwidth - (2 * padding)
+
+        wplus = w / len(self.container.children)
+        x = padding
         for child in self.container.children:
-            child.rx = x
-            child.ry = 0
-            child.rwidth = wplus
-            child.rheight = self.container.height
+            child_layout_style = child.style.get('layout')
+            if child_layout_style:
+                margin = child_layout_style.get('margin', 0)
+            else:
+                margin = 0
+            child.rx = x + margin
+            child.ry = padding + margin
+            child.rwidth = wplus - (2 * margin)
+            child.rheight = h - (2 * margin)
             x += wplus
 
 
@@ -101,16 +130,13 @@ class Container(Window):
         Window.render(self, cr)
 
         if self.children:
-            #matrix = cairo.cairo_matrix_t() 
-            #cairo.cairo_get_matrix(cr, byref(matrix))    
             cairo.cairo_translate(cr, self.rx, self.ry)
 
             for child in self.children:
                 cairo.cairo_save(cr)
+                child.setup_clip(cr)
                 child.render(cr)
                 cairo.cairo_restore(cr)
-
-            #cairo.cairo_set_matrix(cr, byref(matrix))
 
     def add_child(self, child):
         assert child.parent is None
@@ -145,6 +171,7 @@ class TopLevelContainer(Container):
                 on_configure_notify=self.on_window_configure_notify,
                 on_button_press=self.on_button_press,
                 on_key_press=self.on_window_key_press,
+                on_expose=self.on_window_expose,
         )
 
     def recreate_surface(self):
@@ -158,11 +185,13 @@ class TopLevelContainer(Container):
         # and a cairo context
         self.cr = cairo.cairo_create(self.surface)
 
+    def on_window_expose(self, event):
+        self.render()
+
     def on_window_property_notify(self, event):
-        print event 
+        pass
 
     def on_window_key_press(self, event):
-        print self, "key press", event
         if self.focused_control is not None:
             self.focused_control.dispatch_event('on_key_press', event)
 
@@ -181,16 +210,23 @@ class TopLevelContainer(Container):
         self.rheight = self.height
         Container.layout(self)
 
-    def render(self):
+    def render(self, control=None):
         cairo.cairo_save(self.cr)
-        Container.render(self, self.cr)
+        if control is None:
+            Container.render(self, self.cr)
+        else:
+            control.setup_clip(self.cr)
+            control.render(self.cr)
         cairo.cairo_restore(self.cr)
+        self.window.conn.flush()
 
     def grab_input(self, control=None):
         if control is None:
             control = self
-        print self, "focused_control", control
         self.focused_control = control
+
+    def dirty(self, control=None):
+        self.render(control)
 
 
 class Label(Window):
@@ -201,13 +237,31 @@ class Label(Window):
     def render(self, cr):
         Window.render(self, cr)
 
+        if not self.text or not 'color' in self.style['text'] and self.style['text']['color']:
+            return 
+
         extents = cairo.cairo_text_extents_t()
         cairo.cairo_text_extents(cr, self.text, byref(extents))
 
-        cairo.cairo_move_to(cr, 
-                self.rx+(self.rwidth/2)-(extents.width/2), 
-                self.ry+(self.rheight/2)+(extents.height/2)
-        )
+        cairo.cairo_set_source_rgb(cr, *self.style['text']['color'])
+
+        align = self.style['text'].get('align', 'centre')
+        assert align in ('left', 'centre', 'right')
+        if align == 'centre':
+            cairo.cairo_move_to(cr, 
+                    self.rx+(self.rwidth/2)-(extents.width/2), 
+                    self.ry+(self.rheight/2)+(extents.height/2)
+            )
+        elif align == 'left':
+            cairo.cairo_move_to(cr,
+                    self.rx,
+                    self.ry+(self.rheight/2)+(extents.height/2)
+            )
+        elif align == 'right':
+            cairo.cairo_move_to(cr,
+                    self.rx+self.rwidth - extents.width,
+                    self.ry+(self.rheight/2)+(extents.height/2)
+            )
         cairo.cairo_show_text(cr, self.text)
 
 
@@ -216,11 +270,17 @@ class Input(Label):
         if event.detail == 0:
             return 
         shift = int((event.state & xproto.ModMask.Shift) or (event.state & xproto.ModMask.Lock))
-        print self, event.detail, event.state, event.conn, shift
         k = ooxcb.keysyms.keysym_to_str(event.conn.keysyms.get_keysym(event.detail, shift))
+        
         print k
 
+        if k == 'Return':
+            self.dispatch_event('on_return', self)    
+        elif k in string.printable:
+            self.text += k
+            self.dirty()
+
     def on_button_press(self, event):
-        print self, "button_press"
         self.grab_input()
         
+Input.register_event_type('on_return')

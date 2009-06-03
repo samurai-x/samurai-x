@@ -100,6 +100,7 @@ class PluginLoader(dict):
         """
         # get the names of all required plugins
         names = config.get('core.plugins', [])
+        log.debug('loading %s', names)
         # get all available entrypoints and create a dictionary mapping
         # an entrypoint's name to an entrypoint.
         entrypoints = list(pkg_resources.iter_entry_points('samuraix.plugin'))
