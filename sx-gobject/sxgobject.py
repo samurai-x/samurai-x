@@ -1,7 +1,9 @@
-from samuraix.plugin import Plugin 
+import logging
+log = logging.getLogger(__name__)
 
 import gobject
-import functools
+
+from samuraix.plugin import Plugin
 
 class SXGObject(Plugin):
     def __init__(self, app):
