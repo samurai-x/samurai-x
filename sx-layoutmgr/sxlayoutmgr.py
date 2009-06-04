@@ -2,6 +2,8 @@ from samuraix.plugin import Plugin
 from samuraix.util import OrderedDict
 from samuraix import app
 
+from ooxcb import xproto
+
 import logging
 log = logging.getLogger(__name__)
 
@@ -25,7 +27,11 @@ class FloatingLayout(Layout):
     name = 'floating'
 
     def layout(self):
-        pass
+        # raise the currently focused window to the top
+        if self.desktop.clients:
+            self.desktop.clients.current() \
+                    .actor.configure(stack_mode=xproto.StackMode.Above)
+            app.conn.flush()
 
 class MaxLayout(Layout):
     """ make the focused window fill the screen """

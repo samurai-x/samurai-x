@@ -229,7 +229,7 @@ class Client(SXObject):
         # Iconic -> Normal
         if state.state == xproto.WMState.Iconic:
             # TODO: what about checking for the correct desktop?
-            self.unban()
+            self.user_unban()
         else:
             log.debug('map notify with unknown transition')
 
@@ -239,9 +239,9 @@ class Client(SXObject):
         """
         if atom == self.conn.atoms['_NET_WM_STATE_HIDDEN']:
             if present:
-                self.ban()
+                self.user_ban()
             else:
-                self.unban()
+                self.user_unban()
         else:
             log.warning('Cannot handle _NET_WM_STATE thingy %s :(',
                     atom.get_name().reply().name.to_string())
@@ -404,6 +404,12 @@ class Client(SXObject):
                 [state, 0]) # TODO: icon window?
         self.conn.flush()
 
+    def user_ban(self, withdrawn=True):
+        """
+            That does nothing except call :meth:`ban`.
+        """
+        self.ban(withdrawn)
+
     def iconify(self):
         """
             same as `self.ban(False)`
@@ -423,6 +429,14 @@ class Client(SXObject):
                 32,
                 [xproto.WMState.Normal, 0]) # TODO: icon window?
         self.conn.flush()
+
+    def user_unban(self):
+        """
+            map the actor window, as requested by the user.
+            This will focus the actor.
+        """
+        self.unban()
+        self.screen.focus(self)
 
     def focus(self, bring_forward=True):
         """
