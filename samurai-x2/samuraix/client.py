@@ -132,6 +132,24 @@ class Client(SXObject):
         """
         return self.screen.focused_client is self
 
+    def add_net_wm_state(self, name):
+        """
+            add the atom with the name *name* to the list
+            of states for _NET_WM_STATE.
+        """
+        self.state.add(self.conn.atoms[name])
+
+    def remove_net_wm_state(self, name):
+        """
+            remove the atom with the name *name* from the list
+            of states for _NET_WM_STATE.
+            Catch errors.
+        """
+        try:
+            self.state.remove(self.conn.atoms[name])
+        except KeyError:
+            pass
+
     def init(self):
         """
             Initialize the actor.
@@ -151,9 +169,16 @@ class Client(SXObject):
         """
             Handler for the _NET_ACTIVE_WINDOW client message.
 
+            If the window is banned (WM_STATE is not WMState.Normal),
+            it is unbanned.
+
             If it is called on an unmanaged window, it will not
             be handled - that's what we want.
+
+            :todo: check if it's on the correct desktop
         """
+        if self.window.icccm_get_wm_state().state != xproto.WMState.Normal:
+            self.user_unban()
         self.screen.focus(self)
 
     def msg_change_state(self, evt):
@@ -402,6 +427,8 @@ class Client(SXObject):
                 'CARDINAL',
                 32,
                 [state, 0]) # TODO: icon window?
+        self.add_net_wm_state('_NET_WM_STATE_HIDDEN')
+        self.update_net_wm_state()
         self.conn.flush()
 
     def user_ban(self, withdrawn=True):
@@ -428,6 +455,8 @@ class Client(SXObject):
                 'CARDINAL',
                 32,
                 [xproto.WMState.Normal, 0]) # TODO: icon window?
+        self.remove_net_wm_state('_NET_WM_STATE_HIDDEN')
+        self.update_net_wm_state()
         self.conn.flush()
 
     def user_unban(self):
