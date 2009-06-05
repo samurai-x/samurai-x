@@ -1,6 +1,7 @@
 import os
 import wsgiref
 from wsgiref import simple_server
+import mimetypes
 
 import samuraix
 from samuraix.plugin import Plugin
@@ -27,7 +28,10 @@ def render(templatename, **kwargs):
     return template.render(**kwargs)
 
 
-class App(object):
+class WSGIApp(object):
+    def __init__(self, app):
+        self.app = app 
+
     def __call__(self, environ, start_response):
         req = Request(environ)
         if req.environ['REMOTE_ADDR'] != '127.0.0.1':
@@ -41,9 +45,20 @@ class App(object):
         return resp(environ, start_response)
 
     def process(self, request):
+        fn = request.environ['PATH_INFO'][1:]
+        if not fn:
+            fn = 'index.html'
+        if fn.endswith('.html'):
+            content_type="text/html"
+            body = render(fn, app=self.app)
+        else:
+            ffn = os.path.join(template_dir, fn)
+            content_type = mimetypes.guess_type(ffn)[0]
+            body = open(ffn).read()
+            
         return Response(
-                content_type="text/html", 
-                body=render('index.html'),
+                content_type=content_type, 
+                body=body,
         )
 
 
@@ -58,7 +73,10 @@ class SXWeb(Plugin):
 
     def on_ready(self, app):
         log.info('serving on port %s', self.port)
-        self.httpd = simple_server.make_server('', self.port, App())
+        
+        wsgiapp = WSGIApp(app)
+
+        self.httpd = simple_server.make_server('', self.port, wsgiapp)
         app.add_fd_handler('read', self.httpd.socket, self.httpd.handle_request)
 
 
