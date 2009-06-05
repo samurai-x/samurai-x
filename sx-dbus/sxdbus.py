@@ -48,10 +48,6 @@ class SXDBus(Plugin):
     def __init__(self, app):
         log.info('DBUS ----------------------------')
 
-        from dbus.mainloop.glib import DBusGMainLoop
-
-        DBusGMainLoop(set_as_default=True)
-
         dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 
         session_bus = dbus.SessionBus()
