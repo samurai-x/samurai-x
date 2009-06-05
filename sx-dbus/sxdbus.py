@@ -19,8 +19,8 @@ class SomeObject(dbus.service.Object):
                          in_signature='s', out_signature='as')
     def HelloWorld(self, hello_message):
         print (str(hello_message))
-        return ["Hello", " from example-service.py", "with unique name",
-                session_bus.get_unique_name()]
+        return ["Hello", " from example-service.py", "with unique name"]
+        #        session_bus.get_unique_name()]
 
     @dbus.service.method("com.example.SampleInterface",
                          in_signature='', out_signature='')
@@ -50,7 +50,12 @@ class SXDBus(Plugin):
 
         dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 
-        session_bus = dbus.SessionBus()
-        name = dbus.service.BusName("com.example.SampleService", session_bus)
-        object = SomeObject(session_bus, '/SomeObject')
+        self.session_bus = dbus.SessionBus()
+        self.name = dbus.service.BusName("com.example.SampleService", self.session_bus)
+        self.object = SomeObject(self.session_bus, '/SomeObject')
 
+
+if __name__ == '__main__':
+    plugin = SXDBus(None)
+    mainloop = gobject.MainLoop()
+    mainloop.run()
