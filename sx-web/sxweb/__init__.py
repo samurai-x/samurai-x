@@ -64,6 +64,8 @@ class WSGIApp(object):
 
 class SXWeb(Plugin):
 
+    key = 'web'
+
     def __init__(self, app):
         self.app = app
         app.push_handlers(self)

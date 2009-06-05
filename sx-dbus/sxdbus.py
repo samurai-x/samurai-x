@@ -45,6 +45,8 @@ class SomeObject(dbus.service.Object):
 
 
 class SXDBus(Plugin):
+    key = 'dbus'
+
     def __init__(self, app):
         log.info('DBUS ----------------------------')
 
