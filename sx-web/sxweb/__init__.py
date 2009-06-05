@@ -1,15 +1,31 @@
-from samuraix.plugin import Plugin
-import samuraix
-import cgi, sys
-from pprint import pformat
+import os
 import wsgiref
 from wsgiref import simple_server
+
+import samuraix
+from samuraix.plugin import Plugin
+
+from webob import Request, Response
+from webob import exc
+
+from mako.template import Template
+from mako.lookup import TemplateLookup
 
 import logging
 log = logging.getLogger(__name__)
 
-from webob import Request, Response
-from webob import exc
+template_dir = os.path.join(os.path.dirname(__file__), 'templates')
+
+template_lookup = TemplateLookup(
+        directories=[template_dir], 
+        module_directory='/tmp/mako_modules',
+)
+
+
+def render(templatename, **kwargs):
+    template = template_lookup.get_template(templatename)
+    return template.render(**kwargs)
+
 
 class App(object):
     def __call__(self, environ, start_response):
@@ -25,7 +41,10 @@ class App(object):
         return resp(environ, start_response)
 
     def process(self, request):
-        return Response(content_type="text/html", body="hello!")
+        return Response(
+                content_type="text/html", 
+                body=render('index.html'),
+        )
 
 
 class SXWeb(Plugin):
