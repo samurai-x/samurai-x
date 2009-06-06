@@ -53,7 +53,7 @@ If you want to run it on another X server, launch it with the
 
     DISPLAY=:1 ./sx-wm
 
-If you want to turn of synchronous checks (each X request is
+If you want to turn on synchronous checks (each X request is
 checked immediately, so you get more detailed tracebacks), run::
 
     ./sx-wm -s
