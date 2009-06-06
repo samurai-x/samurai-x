@@ -5,15 +5,21 @@ import gobject
 
 from samuraix.plugin import Plugin
 
+def _make_handler(fn):
+    def h(source, cb_condition):
+        ret = fn()
+        if ret is None:
+            ret = True
+        return ret
+    return h
+
 class SXGObject(Plugin):
+    key = 'gobject'
+
     def __init__(self, app):
         self.app = app
         self.app.stop = lambda *args: self.mainloop.quit()
         app.run = self.run
-        # exchange the handler
-        fd = app.conn.get_file_descriptor()
-        app.remove_fd_handler('read', fd)
-        app.add_fd_handler('read', fd, self.do_xcb_events)
 
     def run(self):
         app = self.app
@@ -42,13 +48,8 @@ class SXGObject(Plugin):
         mainloop = self.mainloop = gobject.MainLoop()
         for typ, cond in (('read', gobject.IO_IN), ('write', gobject.IO_OUT), ('error', gobject.IO_ERR)):
             for fd in app.fds[typ].keys():
-                gobject.io_add_watch(fd, cond, app.fds[typ][fd])
-
+                gobject.io_add_watch(fd, cond, _make_handler(app.fds[typ][fd]))
         mainloop.run()
 
         app.conn.disconnect()
-
-    def do_xcb_events(self, source, cb_condition):
-        self.app.do_xcb_events()
-        return True
 
