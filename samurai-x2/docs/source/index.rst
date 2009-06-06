@@ -11,6 +11,7 @@ Contents:
     :maxdepth: 2
 
     intro.rst
+    getting-started.rst
     client.rst
     plugins/index.rst
     api/index.rst
