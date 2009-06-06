@@ -174,6 +174,8 @@ class TopLevelContainer(Container):
                 on_expose=self.on_window_expose,
         )
 
+        self.recreate_surface()
+
     def recreate_surface(self):
         # create a surface for this window
         self.surface = cairo.cairo_xcb_surface_create(
