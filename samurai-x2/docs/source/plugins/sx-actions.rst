@@ -21,10 +21,14 @@ An action handler is just a callable that takes one argument::
 
     def handler(info)
 
-*info* is a dictionary containing information about the situation in which the
+*info* is a dictionary (i.e. a :class:`ActionInfo` instance)
+containing information about the situation in which the
 action is emitted. It can also contain information the user provided in the
 so-called action line. We call that *info* dictionary the "parameter dictionary".
 It contains parameters.
+
+If the handler tries to access items that do not exist in the *info*, a
+warning is printed to the log.
 
 For example, let's say you want to spawn a firefox instance pointing
 to http://www.python.org when the user presses Meta+F.
@@ -129,14 +133,22 @@ Emitting actions
 If you have a plugin that deals with events and you want to make it possible
 to connect these events to actions, you can just use sx-actions this way::
 
-    from sxactions import ActionInfo
-
     # ...
-    info = ActionInfo(parameter=some_value, some_other_parameter=some_other_value)
+    info = {"parameter": some_value, "some_other_parameter": some_other_value}
     app.plugins['actions'].emit(action_line, info)
 
 The connection of events to action lines (and the storing of action lines) is
 the responsibility of your plugin.
+
+D-Bus interface
+---------------
+
+If a plugin providing the *dbus* key is available, sx-actions registers the
+following D-Bus methods:
+
+.. method:: org.samuraix.ActionsInterface.action(action_line)
+
+    Emit the action *action_line*.
 
 API documentation
 -----------------

@@ -35,7 +35,9 @@ class ActionInfo(dict):
     """
         a dictionary that prints an error to the log if someone
         tries to access an item that does not exist.
-        Use that for your own action parameters dictionary!
+        You can use that for your own action parameters dictionary,
+        but you don't have to do necessarily, :meth:`SXActions.emit`
+        will create an :class:`ActionInfo` instance lazily.
     """
     def __missing__(self, key):
         log.error(
