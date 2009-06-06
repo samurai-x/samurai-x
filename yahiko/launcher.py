@@ -10,7 +10,6 @@ from ooxcb import xproto
 from ooxcb.contrib import cairo
 
 from yahiko import ui
-from yahiko.ui import style
 
 conn = ooxcb.connect()
 screen = conn.setup.roots[conn.pref_screen]
