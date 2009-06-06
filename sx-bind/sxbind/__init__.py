@@ -58,10 +58,11 @@ def parse_keystroke(s):
         Return (modifiers, keysym), extracted from the string `s`.
 
         It has to contain several modifiers and keysym names,
-        joined together with a '+':
+        joined together with a '+'::
 
-        CTRL+A
-        MOD4+q
+            CTRL+A
+            MOD4+q
+
     """
     modmask, keysym = 0, 0
 
