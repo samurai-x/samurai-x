@@ -248,6 +248,7 @@ class Screen(SXObject):
             self.focus(client)
 
         self.update_client_list()
+        self.dispatch_event('on_after_new_client', self, client)
         return client
 
     def unmanage(self, client):
@@ -389,4 +390,5 @@ class Screen(SXObject):
                 [s.get_internal() for s in supported]) # TODO: nicer conversion
 
 Screen.register_event_type('on_new_client')
+Screen.register_event_type('on_after_new_client')
 Screen.register_event_type('on_unmanage_client')

@@ -26,6 +26,7 @@
 import logging
 log = logging.getLogger(__name__)
 
+from samuraix import config
 from samuraix.plugin import Plugin
 from ooxcb.list import List
 from ooxcb.eventsys import EventDispatcher
@@ -146,8 +147,16 @@ class ScreenData(EventDispatcher):
                 self.screen.conn.atoms['_NET_CURRENT_DESKTOP'],
                 self.msg_current_desktop)
 
-    def on_new_client(self, screen, client):
+    # we have a handler for on_after_new_client here. This event
+    # is dispatched after the client has been initialized
+    # and the actor has been set. This ensures that the input
+    # focus is set correctly. It wouldn't work if the client
+    # was focused in a on_new_client handler.
+    def on_after_new_client(self, screen, client):
         self.add_client(client)
+        # should the new client be focused automatically?
+        if config.get('desktops.autofocus', True):
+            screen.focus(client)
 
     def add_client(self, client):
         """
