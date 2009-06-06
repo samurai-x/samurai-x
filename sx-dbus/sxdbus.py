@@ -9,50 +9,37 @@ from samuraix.plugin import Plugin
 import logging 
 log = logging.getLogger(__name__)
 
-class DemoException(dbus.DBusException):
-    _dbus_error_name = 'com.example.DemoException'
 
+class ControlObject(dbus.service.Object):
+    def __init__(self, app, conn=None, object_path=None, bus_name=None):
+        self.app = app 
 
-class SomeObject(dbus.service.Object):
-
-    @dbus.service.method("com.example.SampleInterface",
-                         in_signature='s', out_signature='as')
-    def HelloWorld(self, hello_message):
-        print (str(hello_message))
-        return ["Hello", " from example-service.py", "with unique name"]
-        #        session_bus.get_unique_name()]
-
-    @dbus.service.method("com.example.SampleInterface",
-                         in_signature='', out_signature='')
-    def RaiseException(self):
-        raise DemoException('The RaiseException method does what you might '
-                            'expect')
-
-    @dbus.service.method("com.example.SampleInterface",
-                         in_signature='', out_signature='(ss)')
-    def GetTuple(self):
-        return ("Hello Tuple", " from example-service.py")
-
-    @dbus.service.method("com.example.SampleInterface",
-                         in_signature='', out_signature='a{ss}')
-    def GetDict(self):
-        return {"first": "Hello Dict", "second": " from example-service.py"}
-
-    @dbus.service.method("com.example.SampleInterface",
-                         in_signature='', out_signature='')
-    def Exit(self):
-        mainloop.quit()
+        dbus.service.Object.__init__(self, 
+                conn=conn, 
+                object_path=object_path, 
+                bus_name=bus_name,
+        )
+        
+    @dbus.service.method("org.samuraix.ControlInterface", 
+                         in_signature='s', out_signature='')
+    def action(self, action):   
+        self.app.plugins['actions'].emit(action, {})
 
 
 class SXDBus(Plugin):
+    key = 'dbus'
+
     def __init__(self, app):
         log.info('DBUS ----------------------------')
 
         dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 
         self.session_bus = dbus.SessionBus()
-        self.name = dbus.service.BusName("com.example.SampleService", self.session_bus)
-        self.object = SomeObject(self.session_bus, '/SomeObject')
+        self.name = dbus.service.BusName("org.samuraix.ControlService", self.session_bus)
+        self.object = ControlObject(app, 
+                conn=self.session_bus, 
+                object_path='/ControlObject',
+        )
 
 
 if __name__ == '__main__':

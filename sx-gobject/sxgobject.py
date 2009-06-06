@@ -43,6 +43,7 @@ class SXGObject(Plugin):
         for typ, cond in (('read', gobject.IO_IN), ('write', gobject.IO_OUT), ('error', gobject.IO_ERR)):
             for fd in app.fds[typ].keys():
                 gobject.io_add_watch(fd, cond, app.fds[typ][fd])
+
         mainloop.run()
 
         app.conn.disconnect()
