@@ -350,7 +350,12 @@ class Client(SXObject):
         apply_style = True
         if hints is None:
             values = self.window.get_property('WM_NORMAL_HINTS', 'WM_SIZE_HINTS').reply().value
-            hints = SizeHints.from_values(values)
+            try:
+                hints = SizeHints.from_values(values)
+            except KeyError, e:
+                # missing value? just ignore it, invalid size hints then.
+                log.warning('invalid size hints received: "%s"' % e)
+                return
         if geom is None:
             geom = self.geom.copy()
 
