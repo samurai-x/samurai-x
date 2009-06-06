@@ -84,9 +84,9 @@ def prompt_return(sender):
 
     bus = dbus.SessionBus()
 
-    remote_object = bus.get_object("org.samuraix.ControlService",
-                                   "/ControlObject")
-    iface = dbus.Interface(remote_object, "org.samuraix.ControlInterface")
+    remote_object = bus.get_object("org.samuraix",
+                                   "/actions")
+    iface = dbus.Interface(remote_object, "org.samuraix.ActionsInterface")
     iface.action('spawn cmdline="%s"' % sender.text)
 
 

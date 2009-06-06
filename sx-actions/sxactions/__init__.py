@@ -143,6 +143,17 @@ class SXActions(Plugin):
                 'restart': self.action_restart,
                 } # TODO: dotted names?
 
+        app.push_handlers(on_ready=self.on_ready)
+
+    def on_ready(self, app):
+        if 'dbus' in app.plugins:
+            import sxactions.dbusobj
+            import functools
+            app.plugins['dbus'].register(
+                    'actions', 
+                    functools.partial(sxactions.dbusobj.ActionsObject, self),
+            )
+
     def action_spawn(self, info):
         """
             spawn an application.

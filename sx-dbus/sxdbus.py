@@ -51,6 +51,7 @@ class SXDBus(Plugin):
         self.register('dbus', functools.partial(DBusObject, app))
 
     def register(self, name, cls, path=None):
+        log.info('registering %s: %s', name, cls)
         self.objects[name] = cls(
                 conn=self.session_bus, 
                 object_path=path or ("/%s" % name),
