@@ -14,8 +14,8 @@ from yahiko import ui
 conn = ooxcb.connect()
 screen = conn.setup.roots[conn.pref_screen]
 visualtype = screen.get_root_visual_type()
-width = 640
-height = 480
+width = 300
+height = 25
 running = True
 
 with conn.bunch():

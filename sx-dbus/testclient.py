@@ -6,10 +6,9 @@ import dbus
 def main():
     bus = dbus.SessionBus()
 
-    remote_object = bus.get_object("org.samuraix.ControlService",
-                                   "/ControlObject")
-    iface = dbus.Interface(remote_object, "org.samuraix.ControlInterface")
-    iface.action(sys.argv[1])
+    remote_object = bus.get_object("org.samuraix", "/dbus")
+    iface = dbus.Interface(remote_object, "org.samuraix.DBusInterface")
+    print iface.hello(sys.argv[1])
 
 
 
