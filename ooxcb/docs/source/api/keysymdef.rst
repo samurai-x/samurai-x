@@ -1,1990 +1,2018 @@
 ooxcb.keysymdef
 ===============
 
-.. automodule:: ooxcb.keysymdef
-    :members:
+.. module:: ooxcb.keysymdef
 
-    :mod:`ooxcb.keysymdef` contains many, many keysym constants, stolen from the xlib.
+`ooxcb.keysymdef` contains two dictionaries: `keysyms` and `names`.
 
-    .. data:: XK_0
-              XK_1
-              XK_2
-              XK_3
-              XK_3270_AltCursor
-              XK_3270_Attn
-              XK_3270_BackTab
-              XK_3270_ChangeScreen
-              XK_3270_Copy
-              XK_3270_CursorBlink
-              XK_3270_CursorSelect
-              XK_3270_DeleteWord
-              XK_3270_Duplicate
-              XK_3270_Enter
-              XK_3270_EraseEOF
-              XK_3270_EraseInput
-              XK_3270_ExSelect
-              XK_3270_FieldMark
-              XK_3270_Ident
-              XK_3270_Jump
-              XK_3270_KeyClick
-              XK_3270_Left2
-              XK_3270_PA1
-              XK_3270_PA2
-              XK_3270_PA3
-              XK_3270_Play
-              XK_3270_PrintScreen
-              XK_3270_Quit
-              XK_3270_Record
-              XK_3270_Reset
-              XK_3270_Right2
-              XK_3270_Rule
-              XK_3270_Setup
-              XK_3270_Test
-              XK_4
-              XK_5
-              XK_6
-              XK_7
-              XK_8
-              XK_9
-              XK_A
-              XK_AE
-              XK_Aacute
-              XK_Abelowdot
-              XK_Abreve
-              XK_Abreveacute
-              XK_Abrevebelowdot
-              XK_Abrevegrave
-              XK_Abrevehook
-              XK_Abrevetilde
-              XK_AccessX_Enable
-              XK_AccessX_Feedback_Enable
-              XK_Acircumflex
-              XK_Acircumflexacute
-              XK_Acircumflexbelowdot
-              XK_Acircumflexgrave
-              XK_Acircumflexhook
-              XK_Acircumflextilde
-              XK_Adiaeresis
-              XK_Agrave
-              XK_Ahook
-              XK_Alt_L
-              XK_Alt_R
-              XK_Amacron
-              XK_Aogonek
-              XK_Arabic_0
-              XK_Arabic_1
-              XK_Arabic_2
-              XK_Arabic_3
-              XK_Arabic_4
-              XK_Arabic_5
-              XK_Arabic_6
-              XK_Arabic_7
-              XK_Arabic_8
-              XK_Arabic_9
-              XK_Arabic_ain
-              XK_Arabic_alef
-              XK_Arabic_alefmaksura
-              XK_Arabic_beh
-              XK_Arabic_comma
-              XK_Arabic_dad
-              XK_Arabic_dal
-              XK_Arabic_damma
-              XK_Arabic_dammatan
-              XK_Arabic_ddal
-              XK_Arabic_farsi_yeh
-              XK_Arabic_fatha
-              XK_Arabic_fathatan
-              XK_Arabic_feh
-              XK_Arabic_fullstop
-              XK_Arabic_gaf
-              XK_Arabic_ghain
-              XK_Arabic_ha
-              XK_Arabic_hah
-              XK_Arabic_hamza
-              XK_Arabic_hamza_above
-              XK_Arabic_hamza_below
-              XK_Arabic_hamzaonalef
-              XK_Arabic_hamzaonwaw
-              XK_Arabic_hamzaonyeh
-              XK_Arabic_hamzaunderalef
-              XK_Arabic_heh
-              XK_Arabic_heh_doachashmee
-              XK_Arabic_heh_goal
-              XK_Arabic_jeem
-              XK_Arabic_jeh
-              XK_Arabic_kaf
-              XK_Arabic_kasra
-              XK_Arabic_kasratan
-              XK_Arabic_keheh
-              XK_Arabic_khah
-              XK_Arabic_lam
-              XK_Arabic_madda_above
-              XK_Arabic_maddaonalef
-              XK_Arabic_meem
-              XK_Arabic_noon
-              XK_Arabic_noon_ghunna
-              XK_Arabic_peh
-              XK_Arabic_percent
-              XK_Arabic_qaf
-              XK_Arabic_question_mark
-              XK_Arabic_ra
-              XK_Arabic_rreh
-              XK_Arabic_sad
-              XK_Arabic_seen
-              XK_Arabic_semicolon
-              XK_Arabic_shadda
-              XK_Arabic_sheen
-              XK_Arabic_sukun
-              XK_Arabic_superscript_alef
-              XK_Arabic_switch
-              XK_Arabic_tah
-              XK_Arabic_tatweel
-              XK_Arabic_tcheh
-              XK_Arabic_teh
-              XK_Arabic_tehmarbuta
-              XK_Arabic_thal
-              XK_Arabic_theh
-              XK_Arabic_tteh
-              XK_Arabic_veh
-              XK_Arabic_waw
-              XK_Arabic_yeh
-              XK_Arabic_yeh_baree
-              XK_Arabic_zah
-              XK_Arabic_zain
-              XK_Aring
-              XK_Armenian_AT
-              XK_Armenian_AYB
-              XK_Armenian_BEN
-              XK_Armenian_CHA
-              XK_Armenian_DA
-              XK_Armenian_DZA
-              XK_Armenian_E
-              XK_Armenian_FE
-              XK_Armenian_GHAT
-              XK_Armenian_GIM
-              XK_Armenian_HI
-              XK_Armenian_HO
-              XK_Armenian_INI
-              XK_Armenian_JE
-              XK_Armenian_KE
-              XK_Armenian_KEN
-              XK_Armenian_KHE
-              XK_Armenian_LYUN
-              XK_Armenian_MEN
-              XK_Armenian_NU
-              XK_Armenian_O
-              XK_Armenian_PE
-              XK_Armenian_PYUR
-              XK_Armenian_RA
-              XK_Armenian_RE
-              XK_Armenian_SE
-              XK_Armenian_SHA
-              XK_Armenian_TCHE
-              XK_Armenian_TO
-              XK_Armenian_TSA
-              XK_Armenian_TSO
-              XK_Armenian_TYUN
-              XK_Armenian_VEV
-              XK_Armenian_VO
-              XK_Armenian_VYUN
-              XK_Armenian_YECH
-              XK_Armenian_ZA
-              XK_Armenian_ZHE
-              XK_Armenian_accent
-              XK_Armenian_amanak
-              XK_Armenian_apostrophe
-              XK_Armenian_at
-              XK_Armenian_ayb
-              XK_Armenian_ben
-              XK_Armenian_but
-              XK_Armenian_cha
-              XK_Armenian_da
-              XK_Armenian_dza
-              XK_Armenian_e
-              XK_Armenian_exclam
-              XK_Armenian_fe
-              XK_Armenian_full_stop
-              XK_Armenian_ghat
-              XK_Armenian_gim
-              XK_Armenian_hi
-              XK_Armenian_ho
-              XK_Armenian_hyphen
-              XK_Armenian_ini
-              XK_Armenian_je
-              XK_Armenian_ke
-              XK_Armenian_ken
-              XK_Armenian_khe
-              XK_Armenian_ligature_ew
-              XK_Armenian_lyun
-              XK_Armenian_men
-              XK_Armenian_nu
-              XK_Armenian_o
-              XK_Armenian_paruyk
-              XK_Armenian_pe
-              XK_Armenian_pyur
-              XK_Armenian_question
-              XK_Armenian_ra
-              XK_Armenian_re
-              XK_Armenian_se
-              XK_Armenian_separation_mark
-              XK_Armenian_sha
-              XK_Armenian_shesht
-              XK_Armenian_tche
-              XK_Armenian_to
-              XK_Armenian_tsa
-              XK_Armenian_tso
-              XK_Armenian_tyun
-              XK_Armenian_verjaket
-              XK_Armenian_vev
-              XK_Armenian_vo
-              XK_Armenian_vyun
-              XK_Armenian_yech
-              XK_Armenian_yentamna
-              XK_Armenian_za
-              XK_Armenian_zhe
-              XK_Atilde
-              XK_AudibleBell_Enable
-              XK_B
-              XK_Babovedot
-              XK_BackSpace
-              XK_Begin
-              XK_BounceKeys_Enable
-              XK_Break
-              XK_Byelorussian_SHORTU
-              XK_Byelorussian_shortu
-              XK_C
-              XK_Cabovedot
-              XK_Cacute
-              XK_Cancel
-              XK_Caps_Lock
-              XK_Ccaron
-              XK_Ccedilla
-              XK_Ccircumflex
-              XK_Clear
-              XK_Codeinput
-              XK_ColonSign
-              XK_Control_L
-              XK_Control_R
-              XK_CruzeiroSign
-              XK_Cyrillic_A
-              XK_Cyrillic_BE
-              XK_Cyrillic_CHE
-              XK_Cyrillic_CHE_descender
-              XK_Cyrillic_CHE_vertstroke
-              XK_Cyrillic_DE
-              XK_Cyrillic_DZHE
-              XK_Cyrillic_E
-              XK_Cyrillic_EF
-              XK_Cyrillic_EL
-              XK_Cyrillic_EM
-              XK_Cyrillic_EN
-              XK_Cyrillic_EN_descender
-              XK_Cyrillic_ER
-              XK_Cyrillic_ES
-              XK_Cyrillic_GHE
-              XK_Cyrillic_GHE_bar
-              XK_Cyrillic_HA
-              XK_Cyrillic_HARDSIGN
-              XK_Cyrillic_HA_descender
-              XK_Cyrillic_I
-              XK_Cyrillic_IE
-              XK_Cyrillic_IO
-              XK_Cyrillic_I_macron
-              XK_Cyrillic_JE
-              XK_Cyrillic_KA
-              XK_Cyrillic_KA_descender
-              XK_Cyrillic_KA_vertstroke
-              XK_Cyrillic_LJE
-              XK_Cyrillic_NJE
-              XK_Cyrillic_O
-              XK_Cyrillic_O_bar
-              XK_Cyrillic_PE
-              XK_Cyrillic_SCHWA
-              XK_Cyrillic_SHA
-              XK_Cyrillic_SHCHA
-              XK_Cyrillic_SHHA
-              XK_Cyrillic_SHORTI
-              XK_Cyrillic_SOFTSIGN
-              XK_Cyrillic_TE
-              XK_Cyrillic_TSE
-              XK_Cyrillic_U
-              XK_Cyrillic_U_macron
-              XK_Cyrillic_U_straight
-              XK_Cyrillic_U_straight_bar
-              XK_Cyrillic_VE
-              XK_Cyrillic_YA
-              XK_Cyrillic_YERU
-              XK_Cyrillic_YU
-              XK_Cyrillic_ZE
-              XK_Cyrillic_ZHE
-              XK_Cyrillic_ZHE_descender
-              XK_Cyrillic_a
-              XK_Cyrillic_be
-              XK_Cyrillic_che
-              XK_Cyrillic_che_descender
-              XK_Cyrillic_che_vertstroke
-              XK_Cyrillic_de
-              XK_Cyrillic_dzhe
-              XK_Cyrillic_e
-              XK_Cyrillic_ef
-              XK_Cyrillic_el
-              XK_Cyrillic_em
-              XK_Cyrillic_en
-              XK_Cyrillic_en_descender
-              XK_Cyrillic_er
-              XK_Cyrillic_es
-              XK_Cyrillic_ghe
-              XK_Cyrillic_ghe_bar
-              XK_Cyrillic_ha
-              XK_Cyrillic_ha_descender
-              XK_Cyrillic_hardsign
-              XK_Cyrillic_i
-              XK_Cyrillic_i_macron
-              XK_Cyrillic_ie
-              XK_Cyrillic_io
-              XK_Cyrillic_je
-              XK_Cyrillic_ka
-              XK_Cyrillic_ka_descender
-              XK_Cyrillic_ka_vertstroke
-              XK_Cyrillic_lje
-              XK_Cyrillic_nje
-              XK_Cyrillic_o
-              XK_Cyrillic_o_bar
-              XK_Cyrillic_pe
-              XK_Cyrillic_schwa
-              XK_Cyrillic_sha
-              XK_Cyrillic_shcha
-              XK_Cyrillic_shha
-              XK_Cyrillic_shorti
-              XK_Cyrillic_softsign
-              XK_Cyrillic_te
-              XK_Cyrillic_tse
-              XK_Cyrillic_u
-              XK_Cyrillic_u_macron
-              XK_Cyrillic_u_straight
-              XK_Cyrillic_u_straight_bar
-              XK_Cyrillic_ve
-              XK_Cyrillic_ya
-              XK_Cyrillic_yeru
-              XK_Cyrillic_yu
-              XK_Cyrillic_ze
-              XK_Cyrillic_zhe
-              XK_Cyrillic_zhe_descender
-              XK_D
-              XK_Dabovedot
-              XK_Dcaron
-              XK_Delete
-              XK_DongSign
-              XK_Down
-              XK_Dstroke
-              XK_E
-              XK_ENG
-              XK_ETH
-              XK_Eabovedot
-              XK_Eacute
-              XK_Ebelowdot
-              XK_Ecaron
-              XK_Ecircumflex
-              XK_Ecircumflexacute
-              XK_Ecircumflexbelowdot
-              XK_Ecircumflexgrave
-              XK_Ecircumflexhook
-              XK_Ecircumflextilde
-              XK_EcuSign
-              XK_Ediaeresis
-              XK_Egrave
-              XK_Ehook
-              XK_Eisu_Shift
-              XK_Eisu_toggle
-              XK_Emacron
-              XK_End
-              XK_Eogonek
-              XK_Escape
-              XK_Eth
-              XK_Etilde
-              XK_EuroSign
-              XK_Execute
-              XK_F
-              XK_F1
-              XK_F10
-              XK_F11
-              XK_F12
-              XK_F13
-              XK_F14
-              XK_F15
-              XK_F16
-              XK_F17
-              XK_F18
-              XK_F19
-              XK_F2
-              XK_F20
-              XK_F21
-              XK_F22
-              XK_F23
-              XK_F24
-              XK_F25
-              XK_F26
-              XK_F27
-              XK_F28
-              XK_F29
-              XK_F3
-              XK_F30
-              XK_F31
-              XK_F32
-              XK_F33
-              XK_F34
-              XK_F35
-              XK_F4
-              XK_F5
-              XK_F6
-              XK_F7
-              XK_F8
-              XK_F9
-              XK_FFrancSign
-              XK_Fabovedot
-              XK_Farsi_0
-              XK_Farsi_1
-              XK_Farsi_2
-              XK_Farsi_3
-              XK_Farsi_4
-              XK_Farsi_5
-              XK_Farsi_6
-              XK_Farsi_7
-              XK_Farsi_8
-              XK_Farsi_9
-              XK_Farsi_yeh
-              XK_Find
-              XK_First_Virtual_Screen
-              XK_G
-              XK_Gabovedot
-              XK_Gbreve
-              XK_Gcaron
-              XK_Gcedilla
-              XK_Gcircumflex
-              XK_Georgian_an
-              XK_Georgian_ban
-              XK_Georgian_can
-              XK_Georgian_char
-              XK_Georgian_chin
-              XK_Georgian_cil
-              XK_Georgian_don
-              XK_Georgian_en
-              XK_Georgian_fi
-              XK_Georgian_gan
-              XK_Georgian_ghan
-              XK_Georgian_hae
-              XK_Georgian_har
-              XK_Georgian_he
-              XK_Georgian_hie
-              XK_Georgian_hoe
-              XK_Georgian_in
-              XK_Georgian_jhan
-              XK_Georgian_jil
-              XK_Georgian_kan
-              XK_Georgian_khar
-              XK_Georgian_las
-              XK_Georgian_man
-              XK_Georgian_nar
-              XK_Georgian_on
-              XK_Georgian_par
-              XK_Georgian_phar
-              XK_Georgian_qar
-              XK_Georgian_rae
-              XK_Georgian_san
-              XK_Georgian_shin
-              XK_Georgian_tan
-              XK_Georgian_tar
-              XK_Georgian_un
-              XK_Georgian_vin
-              XK_Georgian_we
-              XK_Georgian_xan
-              XK_Georgian_zen
-              XK_Georgian_zhar
-              XK_Greek_ALPHA
-              XK_Greek_ALPHAaccent
-              XK_Greek_BETA
-              XK_Greek_CHI
-              XK_Greek_DELTA
-              XK_Greek_EPSILON
-              XK_Greek_EPSILONaccent
-              XK_Greek_ETA
-              XK_Greek_ETAaccent
-              XK_Greek_GAMMA
-              XK_Greek_IOTA
-              XK_Greek_IOTAaccent
-              XK_Greek_IOTAdiaeresis
-              XK_Greek_IOTAdieresis
-              XK_Greek_KAPPA
-              XK_Greek_LAMBDA
-              XK_Greek_LAMDA
-              XK_Greek_MU
-              XK_Greek_NU
-              XK_Greek_OMEGA
-              XK_Greek_OMEGAaccent
-              XK_Greek_OMICRON
-              XK_Greek_OMICRONaccent
-              XK_Greek_PHI
-              XK_Greek_PI
-              XK_Greek_PSI
-              XK_Greek_RHO
-              XK_Greek_SIGMA
-              XK_Greek_TAU
-              XK_Greek_THETA
-              XK_Greek_UPSILON
-              XK_Greek_UPSILONaccent
-              XK_Greek_UPSILONdieresis
-              XK_Greek_XI
-              XK_Greek_ZETA
-              XK_Greek_accentdieresis
-              XK_Greek_alpha
-              XK_Greek_alphaaccent
-              XK_Greek_beta
-              XK_Greek_chi
-              XK_Greek_delta
-              XK_Greek_epsilon
-              XK_Greek_epsilonaccent
-              XK_Greek_eta
-              XK_Greek_etaaccent
-              XK_Greek_finalsmallsigma
-              XK_Greek_gamma
-              XK_Greek_horizbar
-              XK_Greek_iota
-              XK_Greek_iotaaccent
-              XK_Greek_iotaaccentdieresis
-              XK_Greek_iotadieresis
-              XK_Greek_kappa
-              XK_Greek_lambda
-              XK_Greek_lamda
-              XK_Greek_mu
-              XK_Greek_nu
-              XK_Greek_omega
-              XK_Greek_omegaaccent
-              XK_Greek_omicron
-              XK_Greek_omicronaccent
-              XK_Greek_phi
-              XK_Greek_pi
-              XK_Greek_psi
-              XK_Greek_rho
-              XK_Greek_sigma
-              XK_Greek_switch
-              XK_Greek_tau
-              XK_Greek_theta
-              XK_Greek_upsilon
-              XK_Greek_upsilonaccent
-              XK_Greek_upsilonaccentdieresis
-              XK_Greek_upsilondieresis
-              XK_Greek_xi
-              XK_Greek_zeta
-              XK_H
-              XK_Hangul
-              XK_Hangul_A
-              XK_Hangul_AE
-              XK_Hangul_AraeA
-              XK_Hangul_AraeAE
-              XK_Hangul_Banja
-              XK_Hangul_Cieuc
-              XK_Hangul_Codeinput
-              XK_Hangul_Dikeud
-              XK_Hangul_E
-              XK_Hangul_EO
-              XK_Hangul_EU
-              XK_Hangul_End
-              XK_Hangul_Hanja
-              XK_Hangul_Hieuh
-              XK_Hangul_I
-              XK_Hangul_Ieung
-              XK_Hangul_J_Cieuc
-              XK_Hangul_J_Dikeud
-              XK_Hangul_J_Hieuh
-              XK_Hangul_J_Ieung
-              XK_Hangul_J_Jieuj
-              XK_Hangul_J_Khieuq
-              XK_Hangul_J_Kiyeog
-              XK_Hangul_J_KiyeogSios
-              XK_Hangul_J_KkogjiDalrinIeung
-              XK_Hangul_J_Mieum
-              XK_Hangul_J_Nieun
-              XK_Hangul_J_NieunHieuh
-              XK_Hangul_J_NieunJieuj
-              XK_Hangul_J_PanSios
-              XK_Hangul_J_Phieuf
-              XK_Hangul_J_Pieub
-              XK_Hangul_J_PieubSios
-              XK_Hangul_J_Rieul
-              XK_Hangul_J_RieulHieuh
-              XK_Hangul_J_RieulKiyeog
-              XK_Hangul_J_RieulMieum
-              XK_Hangul_J_RieulPhieuf
-              XK_Hangul_J_RieulPieub
-              XK_Hangul_J_RieulSios
-              XK_Hangul_J_RieulTieut
-              XK_Hangul_J_Sios
-              XK_Hangul_J_SsangKiyeog
-              XK_Hangul_J_SsangSios
-              XK_Hangul_J_Tieut
-              XK_Hangul_J_YeorinHieuh
-              XK_Hangul_Jamo
-              XK_Hangul_Jeonja
-              XK_Hangul_Jieuj
-              XK_Hangul_Khieuq
-              XK_Hangul_Kiyeog
-              XK_Hangul_KiyeogSios
-              XK_Hangul_KkogjiDalrinIeung
-              XK_Hangul_Mieum
-              XK_Hangul_MultipleCandidate
-              XK_Hangul_Nieun
-              XK_Hangul_NieunHieuh
-              XK_Hangul_NieunJieuj
-              XK_Hangul_O
-              XK_Hangul_OE
-              XK_Hangul_PanSios
-              XK_Hangul_Phieuf
-              XK_Hangul_Pieub
-              XK_Hangul_PieubSios
-              XK_Hangul_PostHanja
-              XK_Hangul_PreHanja
-              XK_Hangul_PreviousCandidate
-              XK_Hangul_Rieul
-              XK_Hangul_RieulHieuh
-              XK_Hangul_RieulKiyeog
-              XK_Hangul_RieulMieum
-              XK_Hangul_RieulPhieuf
-              XK_Hangul_RieulPieub
-              XK_Hangul_RieulSios
-              XK_Hangul_RieulTieut
-              XK_Hangul_RieulYeorinHieuh
-              XK_Hangul_Romaja
-              XK_Hangul_SingleCandidate
-              XK_Hangul_Sios
-              XK_Hangul_Special
-              XK_Hangul_SsangDikeud
-              XK_Hangul_SsangJieuj
-              XK_Hangul_SsangKiyeog
-              XK_Hangul_SsangPieub
-              XK_Hangul_SsangSios
-              XK_Hangul_Start
-              XK_Hangul_SunkyeongeumMieum
-              XK_Hangul_SunkyeongeumPhieuf
-              XK_Hangul_SunkyeongeumPieub
-              XK_Hangul_Tieut
-              XK_Hangul_U
-              XK_Hangul_WA
-              XK_Hangul_WAE
-              XK_Hangul_WE
-              XK_Hangul_WEO
-              XK_Hangul_WI
-              XK_Hangul_YA
-              XK_Hangul_YAE
-              XK_Hangul_YE
-              XK_Hangul_YEO
-              XK_Hangul_YI
-              XK_Hangul_YO
-              XK_Hangul_YU
-              XK_Hangul_YeorinHieuh
-              XK_Hangul_switch
-              XK_Hankaku
-              XK_Hcircumflex
-              XK_Hebrew_switch
-              XK_Help
-              XK_Henkan
-              XK_Henkan_Mode
-              XK_Hiragana
-              XK_Hiragana_Katakana
-              XK_Home
-              XK_Hstroke
-              XK_Hyper_L
-              XK_Hyper_R
-              XK_I
-              XK_ISO_Center_Object
-              XK_ISO_Continuous_Underline
-              XK_ISO_Discontinuous_Underline
-              XK_ISO_Emphasize
-              XK_ISO_Enter
-              XK_ISO_Fast_Cursor_Down
-              XK_ISO_Fast_Cursor_Left
-              XK_ISO_Fast_Cursor_Right
-              XK_ISO_Fast_Cursor_Up
-              XK_ISO_First_Group
-              XK_ISO_First_Group_Lock
-              XK_ISO_Group_Latch
-              XK_ISO_Group_Lock
-              XK_ISO_Group_Shift
-              XK_ISO_Last_Group
-              XK_ISO_Last_Group_Lock
-              XK_ISO_Left_Tab
-              XK_ISO_Level2_Latch
-              XK_ISO_Level3_Latch
-              XK_ISO_Level3_Lock
-              XK_ISO_Level3_Shift
-              XK_ISO_Level5_Latch
-              XK_ISO_Level5_Lock
-              XK_ISO_Level5_Shift
-              XK_ISO_Lock
-              XK_ISO_Move_Line_Down
-              XK_ISO_Move_Line_Up
-              XK_ISO_Next_Group
-              XK_ISO_Next_Group_Lock
-              XK_ISO_Partial_Line_Down
-              XK_ISO_Partial_Line_Up
-              XK_ISO_Partial_Space_Left
-              XK_ISO_Partial_Space_Right
-              XK_ISO_Prev_Group
-              XK_ISO_Prev_Group_Lock
-              XK_ISO_Release_Both_Margins
-              XK_ISO_Release_Margin_Left
-              XK_ISO_Release_Margin_Right
-              XK_ISO_Set_Margin_Left
-              XK_ISO_Set_Margin_Right
-              XK_Iabovedot
-              XK_Iacute
-              XK_Ibelowdot
-              XK_Ibreve
-              XK_Icircumflex
-              XK_Idiaeresis
-              XK_Igrave
-              XK_Ihook
-              XK_Imacron
-              XK_Insert
-              XK_Iogonek
-              XK_Itilde
-              XK_J
-              XK_Jcircumflex
-              XK_K
-              XK_KP_0
-              XK_KP_1
-              XK_KP_2
-              XK_KP_3
-              XK_KP_4
-              XK_KP_5
-              XK_KP_6
-              XK_KP_7
-              XK_KP_8
-              XK_KP_9
-              XK_KP_Add
-              XK_KP_Begin
-              XK_KP_Decimal
-              XK_KP_Delete
-              XK_KP_Divide
-              XK_KP_Down
-              XK_KP_End
-              XK_KP_Enter
-              XK_KP_Equal
-              XK_KP_F1
-              XK_KP_F2
-              XK_KP_F3
-              XK_KP_F4
-              XK_KP_Home
-              XK_KP_Insert
-              XK_KP_Left
-              XK_KP_Multiply
-              XK_KP_Next
-              XK_KP_Page_Down
-              XK_KP_Page_Up
-              XK_KP_Prior
-              XK_KP_Right
-              XK_KP_Separator
-              XK_KP_Space
-              XK_KP_Subtract
-              XK_KP_Tab
-              XK_KP_Up
-              XK_Kana_Lock
-              XK_Kana_Shift
-              XK_Kanji
-              XK_Kanji_Bangou
-              XK_Katakana
-              XK_Kcedilla
-              XK_Korean_Won
-              XK_L
-              XK_L1
-              XK_L10
-              XK_L2
-              XK_L3
-              XK_L4
-              XK_L5
-              XK_L6
-              XK_L7
-              XK_L8
-              XK_L9
-              XK_Lacute
-              XK_Last_Virtual_Screen
-              XK_Lbelowdot
-              XK_Lcaron
-              XK_Lcedilla
-              XK_Left
-              XK_Linefeed
-              XK_LiraSign
-              XK_Lstroke
-              XK_M
-              XK_Mabovedot
-              XK_Macedonia_DSE
-              XK_Macedonia_GJE
-              XK_Macedonia_KJE
-              XK_Macedonia_dse
-              XK_Macedonia_gje
-              XK_Macedonia_kje
-              XK_Mae_Koho
-              XK_Massyo
-              XK_Menu
-              XK_Meta_L
-              XK_Meta_R
-              XK_MillSign
-              XK_Mode_switch
-              XK_MouseKeys_Accel_Enable
-              XK_MouseKeys_Enable
-              XK_Muhenkan
-              XK_Multi_key
-              XK_MultipleCandidate
-              XK_N
-              XK_Nacute
-              XK_NairaSign
-              XK_Ncaron
-              XK_Ncedilla
-              XK_NewSheqelSign
-              XK_Next
-              XK_Next_Virtual_Screen
-              XK_Ntilde
-              XK_Num_Lock
-              XK_O
-              XK_OE
-              XK_Oacute
-              XK_Obarred
-              XK_Obelowdot
-              XK_Ocaron
-              XK_Ocircumflex
-              XK_Ocircumflexacute
-              XK_Ocircumflexbelowdot
-              XK_Ocircumflexgrave
-              XK_Ocircumflexhook
-              XK_Ocircumflextilde
-              XK_Odiaeresis
-              XK_Odoubleacute
-              XK_Ograve
-              XK_Ohook
-              XK_Ohorn
-              XK_Ohornacute
-              XK_Ohornbelowdot
-              XK_Ohorngrave
-              XK_Ohornhook
-              XK_Ohorntilde
-              XK_Omacron
-              XK_Ooblique
-              XK_Oslash
-              XK_Otilde
-              XK_Overlay1_Enable
-              XK_Overlay2_Enable
-              XK_P
-              XK_Pabovedot
-              XK_Page_Down
-              XK_Page_Up
-              XK_Pause
-              XK_PesetaSign
-              XK_Pointer_Accelerate
-              XK_Pointer_Button1
-              XK_Pointer_Button2
-              XK_Pointer_Button3
-              XK_Pointer_Button4
-              XK_Pointer_Button5
-              XK_Pointer_Button_Dflt
-              XK_Pointer_DblClick1
-              XK_Pointer_DblClick2
-              XK_Pointer_DblClick3
-              XK_Pointer_DblClick4
-              XK_Pointer_DblClick5
-              XK_Pointer_DblClick_Dflt
-              XK_Pointer_DfltBtnNext
-              XK_Pointer_DfltBtnPrev
-              XK_Pointer_Down
-              XK_Pointer_DownLeft
-              XK_Pointer_DownRight
-              XK_Pointer_Drag1
-              XK_Pointer_Drag2
-              XK_Pointer_Drag3
-              XK_Pointer_Drag4
-              XK_Pointer_Drag5
-              XK_Pointer_Drag_Dflt
-              XK_Pointer_EnableKeys
-              XK_Pointer_Left
-              XK_Pointer_Right
-              XK_Pointer_Up
-              XK_Pointer_UpLeft
-              XK_Pointer_UpRight
-              XK_Prev_Virtual_Screen
-              XK_PreviousCandidate
-              XK_Print
-              XK_Prior
-              XK_Q
-              XK_R
-              XK_R1
-              XK_R10
-              XK_R11
-              XK_R12
-              XK_R13
-              XK_R14
-              XK_R15
-              XK_R2
-              XK_R3
-              XK_R4
-              XK_R5
-              XK_R6
-              XK_R7
-              XK_R8
-              XK_R9
-              XK_Racute
-              XK_Rcaron
-              XK_Rcedilla
-              XK_Redo
-              XK_RepeatKeys_Enable
-              XK_Return
-              XK_Right
-              XK_Romaji
-              XK_RupeeSign
-              XK_S
-              XK_SCHWA
-              XK_Sabovedot
-              XK_Sacute
-              XK_Scaron
-              XK_Scedilla
-              XK_Scircumflex
-              XK_Scroll_Lock
-              XK_Select
-              XK_Serbian_DJE
-              XK_Serbian_DZE
-              XK_Serbian_JE
-              XK_Serbian_LJE
-              XK_Serbian_NJE
-              XK_Serbian_TSHE
-              XK_Serbian_dje
-              XK_Serbian_dze
-              XK_Serbian_je
-              XK_Serbian_lje
-              XK_Serbian_nje
-              XK_Serbian_tshe
-              XK_Shift_L
-              XK_Shift_Lock
-              XK_Shift_R
-              XK_SingleCandidate
-              XK_SlowKeys_Enable
-              XK_StickyKeys_Enable
-              XK_Super_L
-              XK_Super_R
-              XK_Sys_Req
-              XK_T
-              XK_THORN
-              XK_Tab
-              XK_Tabovedot
-              XK_Tcaron
-              XK_Tcedilla
-              XK_Terminate_Server
-              XK_Thai_baht
-              XK_Thai_bobaimai
-              XK_Thai_chochan
-              XK_Thai_chochang
-              XK_Thai_choching
-              XK_Thai_chochoe
-              XK_Thai_dochada
-              XK_Thai_dodek
-              XK_Thai_fofa
-              XK_Thai_fofan
-              XK_Thai_hohip
-              XK_Thai_honokhuk
-              XK_Thai_khokhai
-              XK_Thai_khokhon
-              XK_Thai_khokhuat
-              XK_Thai_khokhwai
-              XK_Thai_khorakhang
-              XK_Thai_kokai
-              XK_Thai_lakkhangyao
-              XK_Thai_lekchet
-              XK_Thai_lekha
-              XK_Thai_lekhok
-              XK_Thai_lekkao
-              XK_Thai_leknung
-              XK_Thai_lekpaet
-              XK_Thai_leksam
-              XK_Thai_leksi
-              XK_Thai_leksong
-              XK_Thai_leksun
-              XK_Thai_lochula
-              XK_Thai_loling
-              XK_Thai_lu
-              XK_Thai_maichattawa
-              XK_Thai_maiek
-              XK_Thai_maihanakat
-              XK_Thai_maihanakat_maitho
-              XK_Thai_maitaikhu
-              XK_Thai_maitho
-              XK_Thai_maitri
-              XK_Thai_maiyamok
-              XK_Thai_moma
-              XK_Thai_ngongu
-              XK_Thai_nikhahit
-              XK_Thai_nonen
-              XK_Thai_nonu
-              XK_Thai_oang
-              XK_Thai_paiyannoi
-              XK_Thai_phinthu
-              XK_Thai_phophan
-              XK_Thai_phophung
-              XK_Thai_phosamphao
-              XK_Thai_popla
-              XK_Thai_rorua
-              XK_Thai_ru
-              XK_Thai_saraa
-              XK_Thai_saraaa
-              XK_Thai_saraae
-              XK_Thai_saraaimaimalai
-              XK_Thai_saraaimaimuan
-              XK_Thai_saraam
-              XK_Thai_sarae
-              XK_Thai_sarai
-              XK_Thai_saraii
-              XK_Thai_sarao
-              XK_Thai_sarau
-              XK_Thai_saraue
-              XK_Thai_sarauee
-              XK_Thai_sarauu
-              XK_Thai_sorusi
-              XK_Thai_sosala
-              XK_Thai_soso
-              XK_Thai_sosua
-              XK_Thai_thanthakhat
-              XK_Thai_thonangmontho
-              XK_Thai_thophuthao
-              XK_Thai_thothahan
-              XK_Thai_thothan
-              XK_Thai_thothong
-              XK_Thai_thothung
-              XK_Thai_topatak
-              XK_Thai_totao
-              XK_Thai_wowaen
-              XK_Thai_yoyak
-              XK_Thai_yoying
-              XK_Thorn
-              XK_Touroku
-              XK_Tslash
-              XK_U
-              XK_Uacute
-              XK_Ubelowdot
-              XK_Ubreve
-              XK_Ucircumflex
-              XK_Udiaeresis
-              XK_Udoubleacute
-              XK_Ugrave
-              XK_Uhook
-              XK_Uhorn
-              XK_Uhornacute
-              XK_Uhornbelowdot
-              XK_Uhorngrave
-              XK_Uhornhook
-              XK_Uhorntilde
-              XK_Ukrainian_GHE_WITH_UPTURN
-              XK_Ukrainian_I
-              XK_Ukrainian_IE
-              XK_Ukrainian_YI
-              XK_Ukrainian_ghe_with_upturn
-              XK_Ukrainian_i
-              XK_Ukrainian_ie
-              XK_Ukrainian_yi
-              XK_Ukranian_I
-              XK_Ukranian_JE
-              XK_Ukranian_YI
-              XK_Ukranian_i
-              XK_Ukranian_je
-              XK_Ukranian_yi
-              XK_Umacron
-              XK_Undo
-              XK_Uogonek
-              XK_Up
-              XK_Uring
-              XK_Utilde
-              XK_V
-              XK_VoidSymbol
-              XK_W
-              XK_Wacute
-              XK_Wcircumflex
-              XK_Wdiaeresis
-              XK_Wgrave
-              XK_WonSign
-              XK_X
-              XK_Xabovedot
-              XK_Y
-              XK_Yacute
-              XK_Ybelowdot
-              XK_Ycircumflex
-              XK_Ydiaeresis
-              XK_Ygrave
-              XK_Yhook
-              XK_Ytilde
-              XK_Z
-              XK_Zabovedot
-              XK_Zacute
-              XK_Zcaron
-              XK_Zen_Koho
-              XK_Zenkaku
-              XK_Zenkaku_Hankaku
-              XK_Zstroke
-              XK_a
-              XK_aacute
-              XK_abelowdot
-              XK_abovedot
-              XK_abreve
-              XK_abreveacute
-              XK_abrevebelowdot
-              XK_abrevegrave
-              XK_abrevehook
-              XK_abrevetilde
-              XK_acircumflex
-              XK_acircumflexacute
-              XK_acircumflexbelowdot
-              XK_acircumflexgrave
-              XK_acircumflexhook
-              XK_acircumflextilde
-              XK_acute
-              XK_adiaeresis
-              XK_ae
-              XK_agrave
-              XK_ahook
-              XK_amacron
-              XK_ampersand
-              XK_aogonek
-              XK_apostrophe
-              XK_approxeq
-              XK_approximate
-              XK_aring
-              XK_asciicircum
-              XK_asciitilde
-              XK_asterisk
-              XK_at
-              XK_atilde
-              XK_b
-              XK_babovedot
-              XK_backslash
-              XK_ballotcross
-              XK_bar
-              XK_because
-              XK_blank
-              XK_botintegral
-              XK_botleftparens
-              XK_botleftsqbracket
-              XK_botleftsummation
-              XK_botrightparens
-              XK_botrightsqbracket
-              XK_botrightsummation
-              XK_bott
-              XK_botvertsummationconnector
-              XK_braceleft
-              XK_braceright
-              XK_bracketleft
-              XK_bracketright
-              XK_braille_blank
-              XK_braille_dot_1
-              XK_braille_dot_10
-              XK_braille_dot_2
-              XK_braille_dot_3
-              XK_braille_dot_4
-              XK_braille_dot_5
-              XK_braille_dot_6
-              XK_braille_dot_7
-              XK_braille_dot_8
-              XK_braille_dot_9
-              XK_braille_dots_1
-              XK_braille_dots_12
-              XK_braille_dots_123
-              XK_braille_dots_1234
-              XK_braille_dots_12345
-              XK_braille_dots_123456
-              XK_braille_dots_1234567
-              XK_braille_dots_12345678
-              XK_braille_dots_1234568
-              XK_braille_dots_123457
-              XK_braille_dots_1234578
-              XK_braille_dots_123458
-              XK_braille_dots_12346
-              XK_braille_dots_123467
-              XK_braille_dots_1234678
-              XK_braille_dots_123468
-              XK_braille_dots_12347
-              XK_braille_dots_123478
-              XK_braille_dots_12348
-              XK_braille_dots_1235
-              XK_braille_dots_12356
-              XK_braille_dots_123567
-              XK_braille_dots_1235678
-              XK_braille_dots_123568
-              XK_braille_dots_12357
-              XK_braille_dots_123578
-              XK_braille_dots_12358
-              XK_braille_dots_1236
-              XK_braille_dots_12367
-              XK_braille_dots_123678
-              XK_braille_dots_12368
-              XK_braille_dots_1237
-              XK_braille_dots_12378
-              XK_braille_dots_1238
-              XK_braille_dots_124
-              XK_braille_dots_1245
-              XK_braille_dots_12456
-              XK_braille_dots_124567
-              XK_braille_dots_1245678
-              XK_braille_dots_124568
-              XK_braille_dots_12457
-              XK_braille_dots_124578
-              XK_braille_dots_12458
-              XK_braille_dots_1246
-              XK_braille_dots_12467
-              XK_braille_dots_124678
-              XK_braille_dots_12468
-              XK_braille_dots_1247
-              XK_braille_dots_12478
-              XK_braille_dots_1248
-              XK_braille_dots_125
-              XK_braille_dots_1256
-              XK_braille_dots_12567
-              XK_braille_dots_125678
-              XK_braille_dots_12568
-              XK_braille_dots_1257
-              XK_braille_dots_12578
-              XK_braille_dots_1258
-              XK_braille_dots_126
-              XK_braille_dots_1267
-              XK_braille_dots_12678
-              XK_braille_dots_1268
-              XK_braille_dots_127
-              XK_braille_dots_1278
-              XK_braille_dots_128
-              XK_braille_dots_13
-              XK_braille_dots_134
-              XK_braille_dots_1345
-              XK_braille_dots_13456
-              XK_braille_dots_134567
-              XK_braille_dots_1345678
-              XK_braille_dots_134568
-              XK_braille_dots_13457
-              XK_braille_dots_134578
-              XK_braille_dots_13458
-              XK_braille_dots_1346
-              XK_braille_dots_13467
-              XK_braille_dots_134678
-              XK_braille_dots_13468
-              XK_braille_dots_1347
-              XK_braille_dots_13478
-              XK_braille_dots_1348
-              XK_braille_dots_135
-              XK_braille_dots_1356
-              XK_braille_dots_13567
-              XK_braille_dots_135678
-              XK_braille_dots_13568
-              XK_braille_dots_1357
-              XK_braille_dots_13578
-              XK_braille_dots_1358
-              XK_braille_dots_136
-              XK_braille_dots_1367
-              XK_braille_dots_13678
-              XK_braille_dots_1368
-              XK_braille_dots_137
-              XK_braille_dots_1378
-              XK_braille_dots_138
-              XK_braille_dots_14
-              XK_braille_dots_145
-              XK_braille_dots_1456
-              XK_braille_dots_14567
-              XK_braille_dots_145678
-              XK_braille_dots_14568
-              XK_braille_dots_1457
-              XK_braille_dots_14578
-              XK_braille_dots_1458
-              XK_braille_dots_146
-              XK_braille_dots_1467
-              XK_braille_dots_14678
-              XK_braille_dots_1468
-              XK_braille_dots_147
-              XK_braille_dots_1478
-              XK_braille_dots_148
-              XK_braille_dots_15
-              XK_braille_dots_156
-              XK_braille_dots_1567
-              XK_braille_dots_15678
-              XK_braille_dots_1568
-              XK_braille_dots_157
-              XK_braille_dots_1578
-              XK_braille_dots_158
-              XK_braille_dots_16
-              XK_braille_dots_167
-              XK_braille_dots_1678
-              XK_braille_dots_168
-              XK_braille_dots_17
-              XK_braille_dots_178
-              XK_braille_dots_18
-              XK_braille_dots_2
-              XK_braille_dots_23
-              XK_braille_dots_234
-              XK_braille_dots_2345
-              XK_braille_dots_23456
-              XK_braille_dots_234567
-              XK_braille_dots_2345678
-              XK_braille_dots_234568
-              XK_braille_dots_23457
-              XK_braille_dots_234578
-              XK_braille_dots_23458
-              XK_braille_dots_2346
-              XK_braille_dots_23467
-              XK_braille_dots_234678
-              XK_braille_dots_23468
-              XK_braille_dots_2347
-              XK_braille_dots_23478
-              XK_braille_dots_2348
-              XK_braille_dots_235
-              XK_braille_dots_2356
-              XK_braille_dots_23567
-              XK_braille_dots_235678
-              XK_braille_dots_23568
-              XK_braille_dots_2357
-              XK_braille_dots_23578
-              XK_braille_dots_2358
-              XK_braille_dots_236
-              XK_braille_dots_2367
-              XK_braille_dots_23678
-              XK_braille_dots_2368
-              XK_braille_dots_237
-              XK_braille_dots_2378
-              XK_braille_dots_238
-              XK_braille_dots_24
-              XK_braille_dots_245
-              XK_braille_dots_2456
-              XK_braille_dots_24567
-              XK_braille_dots_245678
-              XK_braille_dots_24568
-              XK_braille_dots_2457
-              XK_braille_dots_24578
-              XK_braille_dots_2458
-              XK_braille_dots_246
-              XK_braille_dots_2467
-              XK_braille_dots_24678
-              XK_braille_dots_2468
-              XK_braille_dots_247
-              XK_braille_dots_2478
-              XK_braille_dots_248
-              XK_braille_dots_25
-              XK_braille_dots_256
-              XK_braille_dots_2567
-              XK_braille_dots_25678
-              XK_braille_dots_2568
-              XK_braille_dots_257
-              XK_braille_dots_2578
-              XK_braille_dots_258
-              XK_braille_dots_26
-              XK_braille_dots_267
-              XK_braille_dots_2678
-              XK_braille_dots_268
-              XK_braille_dots_27
-              XK_braille_dots_278
-              XK_braille_dots_28
-              XK_braille_dots_3
-              XK_braille_dots_34
-              XK_braille_dots_345
-              XK_braille_dots_3456
-              XK_braille_dots_34567
-              XK_braille_dots_345678
-              XK_braille_dots_34568
-              XK_braille_dots_3457
-              XK_braille_dots_34578
-              XK_braille_dots_3458
-              XK_braille_dots_346
-              XK_braille_dots_3467
-              XK_braille_dots_34678
-              XK_braille_dots_3468
-              XK_braille_dots_347
-              XK_braille_dots_3478
-              XK_braille_dots_348
-              XK_braille_dots_35
-              XK_braille_dots_356
-              XK_braille_dots_3567
-              XK_braille_dots_35678
-              XK_braille_dots_3568
-              XK_braille_dots_357
-              XK_braille_dots_3578
-              XK_braille_dots_358
-              XK_braille_dots_36
-              XK_braille_dots_367
-              XK_braille_dots_3678
-              XK_braille_dots_368
-              XK_braille_dots_37
-              XK_braille_dots_378
-              XK_braille_dots_38
-              XK_braille_dots_4
-              XK_braille_dots_45
-              XK_braille_dots_456
-              XK_braille_dots_4567
-              XK_braille_dots_45678
-              XK_braille_dots_4568
-              XK_braille_dots_457
-              XK_braille_dots_4578
-              XK_braille_dots_458
-              XK_braille_dots_46
-              XK_braille_dots_467
-              XK_braille_dots_4678
-              XK_braille_dots_468
-              XK_braille_dots_47
-              XK_braille_dots_478
-              XK_braille_dots_48
-              XK_braille_dots_5
-              XK_braille_dots_56
-              XK_braille_dots_567
-              XK_braille_dots_5678
-              XK_braille_dots_568
-              XK_braille_dots_57
-              XK_braille_dots_578
-              XK_braille_dots_58
-              XK_braille_dots_6
-              XK_braille_dots_67
-              XK_braille_dots_678
-              XK_braille_dots_68
-              XK_braille_dots_7
-              XK_braille_dots_78
-              XK_braille_dots_8
-              XK_breve
-              XK_brokenbar
-              XK_c
-              XK_cabovedot
-              XK_cacute
-              XK_careof
-              XK_caret
-              XK_caron
-              XK_ccaron
-              XK_ccedilla
-              XK_ccircumflex
-              XK_cedilla
-              XK_cent
-              XK_checkerboard
-              XK_checkmark
-              XK_circle
-              XK_club
-              XK_colon
-              XK_comma
-              XK_containsas
-              XK_copyright
-              XK_cr
-              XK_crossinglines
-              XK_cuberoot
-              XK_currency
-              XK_cursor
-              XK_d
-              XK_dabovedot
-              XK_dagger
-              XK_dcaron
-              XK_dead_abovecomma
-              XK_dead_abovedot
-              XK_dead_abovereversedcomma
-              XK_dead_abovering
-              XK_dead_acute
-              XK_dead_belowdot
-              XK_dead_breve
-              XK_dead_caron
-              XK_dead_cedilla
-              XK_dead_circumflex
-              XK_dead_dasia
-              XK_dead_diaeresis
-              XK_dead_doubleacute
-              XK_dead_grave
-              XK_dead_hook
-              XK_dead_horn
-              XK_dead_iota
-              XK_dead_macron
-              XK_dead_ogonek
-              XK_dead_psili
-              XK_dead_semivoiced_sound
-              XK_dead_stroke
-              XK_dead_tilde
-              XK_dead_voiced_sound
-              XK_decimalpoint
-              XK_degree
-              XK_diaeresis
-              XK_diamond
-              XK_digitspace
-              XK_dintegral
-              XK_division
-              XK_dollar
-              XK_doubbaselinedot
-              XK_doubleacute
-              XK_doubledagger
-              XK_doublelowquotemark
-              XK_downarrow
-              XK_downcaret
-              XK_downshoe
-              XK_downstile
-              XK_downtack
-              XK_dstroke
-              XK_e
-              XK_eabovedot
-              XK_eacute
-              XK_ebelowdot
-              XK_ecaron
-              XK_ecircumflex
-              XK_ecircumflexacute
-              XK_ecircumflexbelowdot
-              XK_ecircumflexgrave
-              XK_ecircumflexhook
-              XK_ecircumflextilde
-              XK_ediaeresis
-              XK_egrave
-              XK_ehook
-              XK_eightsubscript
-              XK_eightsuperior
-              XK_elementof
-              XK_ellipsis
-              XK_em3space
-              XK_em4space
-              XK_emacron
-              XK_emdash
-              XK_emfilledcircle
-              XK_emfilledrect
-              XK_emopencircle
-              XK_emopenrectangle
-              XK_emptyset
-              XK_emspace
-              XK_endash
-              XK_enfilledcircbullet
-              XK_enfilledsqbullet
-              XK_eng
-              XK_enopencircbullet
-              XK_enopensquarebullet
-              XK_enspace
-              XK_eogonek
-              XK_equal
-              XK_eth
-              XK_etilde
-              XK_exclam
-              XK_exclamdown
-              XK_f
-              XK_fabovedot
-              XK_femalesymbol
-              XK_ff
-              XK_figdash
-              XK_filledlefttribullet
-              XK_filledrectbullet
-              XK_filledrighttribullet
-              XK_filledtribulletdown
-              XK_filledtribulletup
-              XK_fiveeighths
-              XK_fivesixths
-              XK_fivesubscript
-              XK_fivesuperior
-              XK_fourfifths
-              XK_foursubscript
-              XK_foursuperior
-              XK_fourthroot
-              XK_function
-              XK_g
-              XK_gabovedot
-              XK_gbreve
-              XK_gcaron
-              XK_gcedilla
-              XK_gcircumflex
-              XK_grave
-              XK_greater
-              XK_greaterthanequal
-              XK_guillemotleft
-              XK_guillemotright
-              XK_h
-              XK_hairspace
-              XK_hcircumflex
-              XK_heart
-              XK_hebrew_aleph
-              XK_hebrew_ayin
-              XK_hebrew_bet
-              XK_hebrew_beth
-              XK_hebrew_chet
-              XK_hebrew_dalet
-              XK_hebrew_daleth
-              XK_hebrew_doublelowline
-              XK_hebrew_finalkaph
-              XK_hebrew_finalmem
-              XK_hebrew_finalnun
-              XK_hebrew_finalpe
-              XK_hebrew_finalzade
-              XK_hebrew_finalzadi
-              XK_hebrew_gimel
-              XK_hebrew_gimmel
-              XK_hebrew_he
-              XK_hebrew_het
-              XK_hebrew_kaph
-              XK_hebrew_kuf
-              XK_hebrew_lamed
-              XK_hebrew_mem
-              XK_hebrew_nun
-              XK_hebrew_pe
-              XK_hebrew_qoph
-              XK_hebrew_resh
-              XK_hebrew_samech
-              XK_hebrew_samekh
-              XK_hebrew_shin
-              XK_hebrew_taf
-              XK_hebrew_taw
-              XK_hebrew_tet
-              XK_hebrew_teth
-              XK_hebrew_waw
-              XK_hebrew_yod
-              XK_hebrew_zade
-              XK_hebrew_zadi
-              XK_hebrew_zain
-              XK_hebrew_zayin
-              XK_hexagram
-              XK_horizconnector
-              XK_horizlinescan1
-              XK_horizlinescan3
-              XK_horizlinescan5
-              XK_horizlinescan7
-              XK_horizlinescan9
-              XK_hstroke
-              XK_ht
-              XK_hyphen
-              XK_i
-              XK_iacute
-              XK_ibelowdot
-              XK_ibreve
-              XK_icircumflex
-              XK_identical
-              XK_idiaeresis
-              XK_idotless
-              XK_ifonlyif
-              XK_igrave
-              XK_ihook
-              XK_imacron
-              XK_implies
-              XK_includedin
-              XK_includes
-              XK_infinity
-              XK_integral
-              XK_intersection
-              XK_iogonek
-              XK_itilde
-              XK_j
-              XK_jcircumflex
-              XK_jot
-              XK_k
-              XK_kana_A
-              XK_kana_CHI
-              XK_kana_E
-              XK_kana_FU
-              XK_kana_HA
-              XK_kana_HE
-              XK_kana_HI
-              XK_kana_HO
-              XK_kana_HU
-              XK_kana_I
-              XK_kana_KA
-              XK_kana_KE
-              XK_kana_KI
-              XK_kana_KO
-              XK_kana_KU
-              XK_kana_MA
-              XK_kana_ME
-              XK_kana_MI
-              XK_kana_MO
-              XK_kana_MU
-              XK_kana_N
-              XK_kana_NA
-              XK_kana_NE
-              XK_kana_NI
-              XK_kana_NO
-              XK_kana_NU
-              XK_kana_O
-              XK_kana_RA
-              XK_kana_RE
-              XK_kana_RI
-              XK_kana_RO
-              XK_kana_RU
-              XK_kana_SA
-              XK_kana_SE
-              XK_kana_SHI
-              XK_kana_SO
-              XK_kana_SU
-              XK_kana_TA
-              XK_kana_TE
-              XK_kana_TI
-              XK_kana_TO
-              XK_kana_TSU
-              XK_kana_TU
-              XK_kana_U
-              XK_kana_WA
-              XK_kana_WO
-              XK_kana_YA
-              XK_kana_YO
-              XK_kana_YU
-              XK_kana_a
-              XK_kana_closingbracket
-              XK_kana_comma
-              XK_kana_conjunctive
-              XK_kana_e
-              XK_kana_fullstop
-              XK_kana_i
-              XK_kana_middledot
-              XK_kana_o
-              XK_kana_openingbracket
-              XK_kana_switch
-              XK_kana_tsu
-              XK_kana_tu
-              XK_kana_u
-              XK_kana_ya
-              XK_kana_yo
-              XK_kana_yu
-              XK_kappa
-              XK_kcedilla
-              XK_kra
-              XK_l
-              XK_lacute
-              XK_latincross
-              XK_lbelowdot
-              XK_lcaron
-              XK_lcedilla
-              XK_leftanglebracket
-              XK_leftarrow
-              XK_leftcaret
-              XK_leftdoublequotemark
-              XK_leftmiddlecurlybrace
-              XK_leftopentriangle
-              XK_leftpointer
-              XK_leftradical
-              XK_leftshoe
-              XK_leftsinglequotemark
-              XK_leftt
-              XK_lefttack
-              XK_less
-              XK_lessthanequal
-              XK_lf
-              XK_logicaland
-              XK_logicalor
-              XK_lowleftcorner
-              XK_lowrightcorner
-              XK_lstroke
-              XK_m
-              XK_mabovedot
-              XK_macron
-              XK_malesymbol
-              XK_maltesecross
-              XK_marker
-              XK_masculine
-              XK_minus
-              XK_minutes
-              XK_mu
-              XK_multiply
-              XK_musicalflat
-              XK_musicalsharp
-              XK_n
-              XK_nabla
-              XK_nacute
-              XK_ncaron
-              XK_ncedilla
-              XK_ninesubscript
-              XK_ninesuperior
-              XK_nl
-              XK_nobreakspace
-              XK_notapproxeq
-              XK_notelementof
-              XK_notequal
-              XK_notidentical
-              XK_notsign
-              XK_ntilde
-              XK_numbersign
-              XK_numerosign
-              XK_o
-              XK_oacute
-              XK_obarred
-              XK_obelowdot
-              XK_ocaron
-              XK_ocircumflex
-              XK_ocircumflexacute
-              XK_ocircumflexbelowdot
-              XK_ocircumflexgrave
-              XK_ocircumflexhook
-              XK_ocircumflextilde
-              XK_odiaeresis
-              XK_odoubleacute
-              XK_oe
-              XK_ogonek
-              XK_ograve
-              XK_ohook
-              XK_ohorn
-              XK_ohornacute
-              XK_ohornbelowdot
-              XK_ohorngrave
-              XK_ohornhook
-              XK_ohorntilde
-              XK_omacron
-              XK_oneeighth
-              XK_onefifth
-              XK_onehalf
-              XK_onequarter
-              XK_onesixth
-              XK_onesubscript
-              XK_onesuperior
-              XK_onethird
-              XK_ooblique
-              XK_openrectbullet
-              XK_openstar
-              XK_opentribulletdown
-              XK_opentribulletup
-              XK_ordfeminine
-              XK_oslash
-              XK_otilde
-              XK_overbar
-              XK_overline
-              XK_p
-              XK_pabovedot
-              XK_paragraph
-              XK_parenleft
-              XK_parenright
-              XK_partdifferential
-              XK_partialderivative
-              XK_percent
-              XK_period
-              XK_periodcentered
-              XK_phonographcopyright
-              XK_plus
-              XK_plusminus
-              XK_prescription
-              XK_prolongedsound
-              XK_punctspace
-              XK_q
-              XK_quad
-              XK_question
-              XK_questiondown
-              XK_quotedbl
-              XK_quoteleft
-              XK_quoteright
-              XK_r
-              XK_racute
-              XK_radical
-              XK_rcaron
-              XK_rcedilla
-              XK_registered
-              XK_rightanglebracket
-              XK_rightarrow
-              XK_rightcaret
-              XK_rightdoublequotemark
-              XK_rightmiddlecurlybrace
-              XK_rightmiddlesummation
-              XK_rightopentriangle
-              XK_rightpointer
-              XK_rightshoe
-              XK_rightsinglequotemark
-              XK_rightt
-              XK_righttack
-              XK_s
-              XK_sabovedot
-              XK_sacute
-              XK_scaron
-              XK_scedilla
-              XK_schwa
-              XK_scircumflex
-              XK_script_switch
-              XK_seconds
-              XK_section
-              XK_semicolon
-              XK_semivoicedsound
-              XK_seveneighths
-              XK_sevensubscript
-              XK_sevensuperior
-              XK_signaturemark
-              XK_signifblank
-              XK_similarequal
-              XK_singlelowquotemark
-              XK_sixsubscript
-              XK_sixsuperior
-              XK_slash
-              XK_soliddiamond
-              XK_space
-              XK_squareroot
-              XK_ssharp
-              XK_sterling
-              XK_stricteq
-              XK_t
-              XK_tabovedot
-              XK_tcaron
-              XK_tcedilla
-              XK_telephone
-              XK_telephonerecorder
-              XK_therefore
-              XK_thinspace
-              XK_thorn
-              XK_threeeighths
-              XK_threefifths
-              XK_threequarters
-              XK_threesubscript
-              XK_threesuperior
-              XK_tintegral
-              XK_topintegral
-              XK_topleftparens
-              XK_topleftradical
-              XK_topleftsqbracket
-              XK_topleftsummation
-              XK_toprightparens
-              XK_toprightsqbracket
-              XK_toprightsummation
-              XK_topt
-              XK_topvertsummationconnector
-              XK_trademark
-              XK_trademarkincircle
-              XK_tslash
-              XK_twofifths
-              XK_twosubscript
-              XK_twosuperior
-              XK_twothirds
-              XK_u
-              XK_uacute
-              XK_ubelowdot
-              XK_ubreve
-              XK_ucircumflex
-              XK_udiaeresis
-              XK_udoubleacute
-              XK_ugrave
-              XK_uhook
-              XK_uhorn
-              XK_uhornacute
-              XK_uhornbelowdot
-              XK_uhorngrave
-              XK_uhornhook
-              XK_uhorntilde
-              XK_umacron
-              XK_underbar
-              XK_underscore
-              XK_union
-              XK_uogonek
-              XK_uparrow
-              XK_upcaret
-              XK_upleftcorner
-              XK_uprightcorner
-              XK_upshoe
-              XK_upstile
-              XK_uptack
-              XK_uring
-              XK_utilde
-              XK_v
-              XK_variation
-              XK_vertbar
-              XK_vertconnector
-              XK_voicedsound
-              XK_vt
-              XK_w
-              XK_wacute
-              XK_wcircumflex
-              XK_wdiaeresis
-              XK_wgrave
-              XK_x
-              XK_xabovedot
-              XK_y
-              XK_yacute
-              XK_ybelowdot
-              XK_ycircumflex
-              XK_ydiaeresis
-              XK_yen
-              XK_ygrave
-              XK_yhook
-              XK_ytilde
-              XK_z
-              XK_zabovedot
-              XK_zacute
-              XK_zcaron
-              XK_zerosubscript
-              XK_zerosuperior
-              XK_zstroke
+`keysyms` maps names to keysym values, and `names` maps keysym values
+to names. So, if you want to get a keysym from a name, use `keysyms`,
+if you want it the other way, use `names`.
+
+The keysym values are:
+
+ * `0`
+ * `1`
+ * `2`
+ * `3`
+ * `3270_AltCursor`
+ * `3270_Attn`
+ * `3270_BackTab`
+ * `3270_ChangeScreen`
+ * `3270_Copy`
+ * `3270_CursorBlink`
+ * `3270_CursorSelect`
+ * `3270_DeleteWord`
+ * `3270_Duplicate`
+ * `3270_Enter`
+ * `3270_EraseEOF`
+ * `3270_EraseInput`
+ * `3270_ExSelect`
+ * `3270_FieldMark`
+ * `3270_Ident`
+ * `3270_Jump`
+ * `3270_KeyClick`
+ * `3270_Left2`
+ * `3270_PA1`
+ * `3270_PA2`
+ * `3270_PA3`
+ * `3270_Play`
+ * `3270_PrintScreen`
+ * `3270_Quit`
+ * `3270_Record`
+ * `3270_Reset`
+ * `3270_Right2`
+ * `3270_Rule`
+ * `3270_Setup`
+ * `3270_Test`
+ * `4`
+ * `5`
+ * `6`
+ * `7`
+ * `8`
+ * `9`
+ * `A`
+ * `AE`
+ * `Aacute`
+ * `Abelowdot`
+ * `Abreve`
+ * `Abreveacute`
+ * `Abrevebelowdot`
+ * `Abrevegrave`
+ * `Abrevehook`
+ * `Abrevetilde`
+ * `AccessX_Enable`
+ * `AccessX_Feedback_Enable`
+ * `Acircumflex`
+ * `Acircumflexacute`
+ * `Acircumflexbelowdot`
+ * `Acircumflexgrave`
+ * `Acircumflexhook`
+ * `Acircumflextilde`
+ * `Adiaeresis`
+ * `Agrave`
+ * `Ahook`
+ * `Alt_L`
+ * `Alt_R`
+ * `Amacron`
+ * `Aogonek`
+ * `Arabic_0`
+ * `Arabic_1`
+ * `Arabic_2`
+ * `Arabic_3`
+ * `Arabic_4`
+ * `Arabic_5`
+ * `Arabic_6`
+ * `Arabic_7`
+ * `Arabic_8`
+ * `Arabic_9`
+ * `Arabic_ain`
+ * `Arabic_alef`
+ * `Arabic_alefmaksura`
+ * `Arabic_beh`
+ * `Arabic_comma`
+ * `Arabic_dad`
+ * `Arabic_dal`
+ * `Arabic_damma`
+ * `Arabic_dammatan`
+ * `Arabic_ddal`
+ * `Arabic_farsi_yeh`
+ * `Arabic_fatha`
+ * `Arabic_fathatan`
+ * `Arabic_feh`
+ * `Arabic_fullstop`
+ * `Arabic_gaf`
+ * `Arabic_ghain`
+ * `Arabic_ha`
+ * `Arabic_hah`
+ * `Arabic_hamza`
+ * `Arabic_hamza_above`
+ * `Arabic_hamza_below`
+ * `Arabic_hamzaonalef`
+ * `Arabic_hamzaonwaw`
+ * `Arabic_hamzaonyeh`
+ * `Arabic_hamzaunderalef`
+ * `Arabic_heh`
+ * `Arabic_heh_doachashmee`
+ * `Arabic_heh_goal`
+ * `Arabic_jeem`
+ * `Arabic_jeh`
+ * `Arabic_kaf`
+ * `Arabic_kasra`
+ * `Arabic_kasratan`
+ * `Arabic_keheh`
+ * `Arabic_khah`
+ * `Arabic_lam`
+ * `Arabic_madda_above`
+ * `Arabic_maddaonalef`
+ * `Arabic_meem`
+ * `Arabic_noon`
+ * `Arabic_noon_ghunna`
+ * `Arabic_peh`
+ * `Arabic_percent`
+ * `Arabic_qaf`
+ * `Arabic_question_mark`
+ * `Arabic_ra`
+ * `Arabic_rreh`
+ * `Arabic_sad`
+ * `Arabic_seen`
+ * `Arabic_semicolon`
+ * `Arabic_shadda`
+ * `Arabic_sheen`
+ * `Arabic_sukun`
+ * `Arabic_superscript_alef`
+ * `Arabic_switch`
+ * `Arabic_tah`
+ * `Arabic_tatweel`
+ * `Arabic_tcheh`
+ * `Arabic_teh`
+ * `Arabic_tehmarbuta`
+ * `Arabic_thal`
+ * `Arabic_theh`
+ * `Arabic_tteh`
+ * `Arabic_veh`
+ * `Arabic_waw`
+ * `Arabic_yeh`
+ * `Arabic_yeh_baree`
+ * `Arabic_zah`
+ * `Arabic_zain`
+ * `Aring`
+ * `Armenian_AT`
+ * `Armenian_AYB`
+ * `Armenian_BEN`
+ * `Armenian_CHA`
+ * `Armenian_DA`
+ * `Armenian_DZA`
+ * `Armenian_E`
+ * `Armenian_FE`
+ * `Armenian_GHAT`
+ * `Armenian_GIM`
+ * `Armenian_HI`
+ * `Armenian_HO`
+ * `Armenian_INI`
+ * `Armenian_JE`
+ * `Armenian_KE`
+ * `Armenian_KEN`
+ * `Armenian_KHE`
+ * `Armenian_LYUN`
+ * `Armenian_MEN`
+ * `Armenian_NU`
+ * `Armenian_O`
+ * `Armenian_PE`
+ * `Armenian_PYUR`
+ * `Armenian_RA`
+ * `Armenian_RE`
+ * `Armenian_SE`
+ * `Armenian_SHA`
+ * `Armenian_TCHE`
+ * `Armenian_TO`
+ * `Armenian_TSA`
+ * `Armenian_TSO`
+ * `Armenian_TYUN`
+ * `Armenian_VEV`
+ * `Armenian_VO`
+ * `Armenian_VYUN`
+ * `Armenian_YECH`
+ * `Armenian_ZA`
+ * `Armenian_ZHE`
+ * `Armenian_accent`
+ * `Armenian_amanak`
+ * `Armenian_apostrophe`
+ * `Armenian_at`
+ * `Armenian_ayb`
+ * `Armenian_ben`
+ * `Armenian_but`
+ * `Armenian_cha`
+ * `Armenian_da`
+ * `Armenian_dza`
+ * `Armenian_e`
+ * `Armenian_exclam`
+ * `Armenian_fe`
+ * `Armenian_full_stop`
+ * `Armenian_ghat`
+ * `Armenian_gim`
+ * `Armenian_hi`
+ * `Armenian_ho`
+ * `Armenian_hyphen`
+ * `Armenian_ini`
+ * `Armenian_je`
+ * `Armenian_ke`
+ * `Armenian_ken`
+ * `Armenian_khe`
+ * `Armenian_ligature_ew`
+ * `Armenian_lyun`
+ * `Armenian_men`
+ * `Armenian_nu`
+ * `Armenian_o`
+ * `Armenian_paruyk`
+ * `Armenian_pe`
+ * `Armenian_pyur`
+ * `Armenian_question`
+ * `Armenian_ra`
+ * `Armenian_re`
+ * `Armenian_se`
+ * `Armenian_separation_mark`
+ * `Armenian_sha`
+ * `Armenian_shesht`
+ * `Armenian_tche`
+ * `Armenian_to`
+ * `Armenian_tsa`
+ * `Armenian_tso`
+ * `Armenian_tyun`
+ * `Armenian_verjaket`
+ * `Armenian_vev`
+ * `Armenian_vo`
+ * `Armenian_vyun`
+ * `Armenian_yech`
+ * `Armenian_yentamna`
+ * `Armenian_za`
+ * `Armenian_zhe`
+ * `Atilde`
+ * `AudibleBell_Enable`
+ * `B`
+ * `Babovedot`
+ * `BackSpace`
+ * `Begin`
+ * `BounceKeys_Enable`
+ * `Break`
+ * `Byelorussian_SHORTU`
+ * `Byelorussian_shortu`
+ * `C`
+ * `Cabovedot`
+ * `Cacute`
+ * `Cancel`
+ * `Caps_Lock`
+ * `Ccaron`
+ * `Ccedilla`
+ * `Ccircumflex`
+ * `Clear`
+ * `Codeinput`
+ * `ColonSign`
+ * `Control_L`
+ * `Control_R`
+ * `CruzeiroSign`
+ * `Cyrillic_A`
+ * `Cyrillic_BE`
+ * `Cyrillic_CHE`
+ * `Cyrillic_CHE_descender`
+ * `Cyrillic_CHE_vertstroke`
+ * `Cyrillic_DE`
+ * `Cyrillic_DZHE`
+ * `Cyrillic_E`
+ * `Cyrillic_EF`
+ * `Cyrillic_EL`
+ * `Cyrillic_EM`
+ * `Cyrillic_EN`
+ * `Cyrillic_EN_descender`
+ * `Cyrillic_ER`
+ * `Cyrillic_ES`
+ * `Cyrillic_GHE`
+ * `Cyrillic_GHE_bar`
+ * `Cyrillic_HA`
+ * `Cyrillic_HARDSIGN`
+ * `Cyrillic_HA_descender`
+ * `Cyrillic_I`
+ * `Cyrillic_IE`
+ * `Cyrillic_IO`
+ * `Cyrillic_I_macron`
+ * `Cyrillic_JE`
+ * `Cyrillic_KA`
+ * `Cyrillic_KA_descender`
+ * `Cyrillic_KA_vertstroke`
+ * `Cyrillic_LJE`
+ * `Cyrillic_NJE`
+ * `Cyrillic_O`
+ * `Cyrillic_O_bar`
+ * `Cyrillic_PE`
+ * `Cyrillic_SCHWA`
+ * `Cyrillic_SHA`
+ * `Cyrillic_SHCHA`
+ * `Cyrillic_SHHA`
+ * `Cyrillic_SHORTI`
+ * `Cyrillic_SOFTSIGN`
+ * `Cyrillic_TE`
+ * `Cyrillic_TSE`
+ * `Cyrillic_U`
+ * `Cyrillic_U_macron`
+ * `Cyrillic_U_straight`
+ * `Cyrillic_U_straight_bar`
+ * `Cyrillic_VE`
+ * `Cyrillic_YA`
+ * `Cyrillic_YERU`
+ * `Cyrillic_YU`
+ * `Cyrillic_ZE`
+ * `Cyrillic_ZHE`
+ * `Cyrillic_ZHE_descender`
+ * `Cyrillic_a`
+ * `Cyrillic_be`
+ * `Cyrillic_che`
+ * `Cyrillic_che_descender`
+ * `Cyrillic_che_vertstroke`
+ * `Cyrillic_de`
+ * `Cyrillic_dzhe`
+ * `Cyrillic_e`
+ * `Cyrillic_ef`
+ * `Cyrillic_el`
+ * `Cyrillic_em`
+ * `Cyrillic_en`
+ * `Cyrillic_en_descender`
+ * `Cyrillic_er`
+ * `Cyrillic_es`
+ * `Cyrillic_ghe`
+ * `Cyrillic_ghe_bar`
+ * `Cyrillic_ha`
+ * `Cyrillic_ha_descender`
+ * `Cyrillic_hardsign`
+ * `Cyrillic_i`
+ * `Cyrillic_i_macron`
+ * `Cyrillic_ie`
+ * `Cyrillic_io`
+ * `Cyrillic_je`
+ * `Cyrillic_ka`
+ * `Cyrillic_ka_descender`
+ * `Cyrillic_ka_vertstroke`
+ * `Cyrillic_lje`
+ * `Cyrillic_nje`
+ * `Cyrillic_o`
+ * `Cyrillic_o_bar`
+ * `Cyrillic_pe`
+ * `Cyrillic_schwa`
+ * `Cyrillic_sha`
+ * `Cyrillic_shcha`
+ * `Cyrillic_shha`
+ * `Cyrillic_shorti`
+ * `Cyrillic_softsign`
+ * `Cyrillic_te`
+ * `Cyrillic_tse`
+ * `Cyrillic_u`
+ * `Cyrillic_u_macron`
+ * `Cyrillic_u_straight`
+ * `Cyrillic_u_straight_bar`
+ * `Cyrillic_ve`
+ * `Cyrillic_ya`
+ * `Cyrillic_yeru`
+ * `Cyrillic_yu`
+ * `Cyrillic_ze`
+ * `Cyrillic_zhe`
+ * `Cyrillic_zhe_descender`
+ * `D`
+ * `Dabovedot`
+ * `Dcaron`
+ * `Delete`
+ * `DongSign`
+ * `Down`
+ * `Dstroke`
+ * `E`
+ * `ENG`
+ * `ETH`
+ * `Eabovedot`
+ * `Eacute`
+ * `Ebelowdot`
+ * `Ecaron`
+ * `Ecircumflex`
+ * `Ecircumflexacute`
+ * `Ecircumflexbelowdot`
+ * `Ecircumflexgrave`
+ * `Ecircumflexhook`
+ * `Ecircumflextilde`
+ * `EcuSign`
+ * `Ediaeresis`
+ * `Egrave`
+ * `Ehook`
+ * `Eisu_Shift`
+ * `Eisu_toggle`
+ * `Emacron`
+ * `End`
+ * `Eogonek`
+ * `Escape`
+ * `Eth`
+ * `Etilde`
+ * `EuroSign`
+ * `Execute`
+ * `F`
+ * `F1`
+ * `F10`
+ * `F11`
+ * `F12`
+ * `F13`
+ * `F14`
+ * `F15`
+ * `F16`
+ * `F17`
+ * `F18`
+ * `F19`
+ * `F2`
+ * `F20`
+ * `F21`
+ * `F22`
+ * `F23`
+ * `F24`
+ * `F25`
+ * `F26`
+ * `F27`
+ * `F28`
+ * `F29`
+ * `F3`
+ * `F30`
+ * `F31`
+ * `F32`
+ * `F33`
+ * `F34`
+ * `F35`
+ * `F4`
+ * `F5`
+ * `F6`
+ * `F7`
+ * `F8`
+ * `F9`
+ * `FFrancSign`
+ * `Fabovedot`
+ * `Farsi_0`
+ * `Farsi_1`
+ * `Farsi_2`
+ * `Farsi_3`
+ * `Farsi_4`
+ * `Farsi_5`
+ * `Farsi_6`
+ * `Farsi_7`
+ * `Farsi_8`
+ * `Farsi_9`
+ * `Farsi_yeh`
+ * `Find`
+ * `First_Virtual_Screen`
+ * `G`
+ * `Gabovedot`
+ * `Gbreve`
+ * `Gcaron`
+ * `Gcedilla`
+ * `Gcircumflex`
+ * `Georgian_an`
+ * `Georgian_ban`
+ * `Georgian_can`
+ * `Georgian_char`
+ * `Georgian_chin`
+ * `Georgian_cil`
+ * `Georgian_don`
+ * `Georgian_en`
+ * `Georgian_fi`
+ * `Georgian_gan`
+ * `Georgian_ghan`
+ * `Georgian_hae`
+ * `Georgian_har`
+ * `Georgian_he`
+ * `Georgian_hie`
+ * `Georgian_hoe`
+ * `Georgian_in`
+ * `Georgian_jhan`
+ * `Georgian_jil`
+ * `Georgian_kan`
+ * `Georgian_khar`
+ * `Georgian_las`
+ * `Georgian_man`
+ * `Georgian_nar`
+ * `Georgian_on`
+ * `Georgian_par`
+ * `Georgian_phar`
+ * `Georgian_qar`
+ * `Georgian_rae`
+ * `Georgian_san`
+ * `Georgian_shin`
+ * `Georgian_tan`
+ * `Georgian_tar`
+ * `Georgian_un`
+ * `Georgian_vin`
+ * `Georgian_we`
+ * `Georgian_xan`
+ * `Georgian_zen`
+ * `Georgian_zhar`
+ * `Greek_ALPHA`
+ * `Greek_ALPHAaccent`
+ * `Greek_BETA`
+ * `Greek_CHI`
+ * `Greek_DELTA`
+ * `Greek_EPSILON`
+ * `Greek_EPSILONaccent`
+ * `Greek_ETA`
+ * `Greek_ETAaccent`
+ * `Greek_GAMMA`
+ * `Greek_IOTA`
+ * `Greek_IOTAaccent`
+ * `Greek_IOTAdiaeresis`
+ * `Greek_IOTAdieresis`
+ * `Greek_KAPPA`
+ * `Greek_LAMBDA`
+ * `Greek_LAMDA`
+ * `Greek_MU`
+ * `Greek_NU`
+ * `Greek_OMEGA`
+ * `Greek_OMEGAaccent`
+ * `Greek_OMICRON`
+ * `Greek_OMICRONaccent`
+ * `Greek_PHI`
+ * `Greek_PI`
+ * `Greek_PSI`
+ * `Greek_RHO`
+ * `Greek_SIGMA`
+ * `Greek_TAU`
+ * `Greek_THETA`
+ * `Greek_UPSILON`
+ * `Greek_UPSILONaccent`
+ * `Greek_UPSILONdieresis`
+ * `Greek_XI`
+ * `Greek_ZETA`
+ * `Greek_accentdieresis`
+ * `Greek_alpha`
+ * `Greek_alphaaccent`
+ * `Greek_beta`
+ * `Greek_chi`
+ * `Greek_delta`
+ * `Greek_epsilon`
+ * `Greek_epsilonaccent`
+ * `Greek_eta`
+ * `Greek_etaaccent`
+ * `Greek_finalsmallsigma`
+ * `Greek_gamma`
+ * `Greek_horizbar`
+ * `Greek_iota`
+ * `Greek_iotaaccent`
+ * `Greek_iotaaccentdieresis`
+ * `Greek_iotadieresis`
+ * `Greek_kappa`
+ * `Greek_lambda`
+ * `Greek_lamda`
+ * `Greek_mu`
+ * `Greek_nu`
+ * `Greek_omega`
+ * `Greek_omegaaccent`
+ * `Greek_omicron`
+ * `Greek_omicronaccent`
+ * `Greek_phi`
+ * `Greek_pi`
+ * `Greek_psi`
+ * `Greek_rho`
+ * `Greek_sigma`
+ * `Greek_switch`
+ * `Greek_tau`
+ * `Greek_theta`
+ * `Greek_upsilon`
+ * `Greek_upsilonaccent`
+ * `Greek_upsilonaccentdieresis`
+ * `Greek_upsilondieresis`
+ * `Greek_xi`
+ * `Greek_zeta`
+ * `H`
+ * `Hangul`
+ * `Hangul_A`
+ * `Hangul_AE`
+ * `Hangul_AraeA`
+ * `Hangul_AraeAE`
+ * `Hangul_Banja`
+ * `Hangul_Cieuc`
+ * `Hangul_Codeinput`
+ * `Hangul_Dikeud`
+ * `Hangul_E`
+ * `Hangul_EO`
+ * `Hangul_EU`
+ * `Hangul_End`
+ * `Hangul_Hanja`
+ * `Hangul_Hieuh`
+ * `Hangul_I`
+ * `Hangul_Ieung`
+ * `Hangul_J_Cieuc`
+ * `Hangul_J_Dikeud`
+ * `Hangul_J_Hieuh`
+ * `Hangul_J_Ieung`
+ * `Hangul_J_Jieuj`
+ * `Hangul_J_Khieuq`
+ * `Hangul_J_Kiyeog`
+ * `Hangul_J_KiyeogSios`
+ * `Hangul_J_KkogjiDalrinIeung`
+ * `Hangul_J_Mieum`
+ * `Hangul_J_Nieun`
+ * `Hangul_J_NieunHieuh`
+ * `Hangul_J_NieunJieuj`
+ * `Hangul_J_PanSios`
+ * `Hangul_J_Phieuf`
+ * `Hangul_J_Pieub`
+ * `Hangul_J_PieubSios`
+ * `Hangul_J_Rieul`
+ * `Hangul_J_RieulHieuh`
+ * `Hangul_J_RieulKiyeog`
+ * `Hangul_J_RieulMieum`
+ * `Hangul_J_RieulPhieuf`
+ * `Hangul_J_RieulPieub`
+ * `Hangul_J_RieulSios`
+ * `Hangul_J_RieulTieut`
+ * `Hangul_J_Sios`
+ * `Hangul_J_SsangKiyeog`
+ * `Hangul_J_SsangSios`
+ * `Hangul_J_Tieut`
+ * `Hangul_J_YeorinHieuh`
+ * `Hangul_Jamo`
+ * `Hangul_Jeonja`
+ * `Hangul_Jieuj`
+ * `Hangul_Khieuq`
+ * `Hangul_Kiyeog`
+ * `Hangul_KiyeogSios`
+ * `Hangul_KkogjiDalrinIeung`
+ * `Hangul_Mieum`
+ * `Hangul_MultipleCandidate`
+ * `Hangul_Nieun`
+ * `Hangul_NieunHieuh`
+ * `Hangul_NieunJieuj`
+ * `Hangul_O`
+ * `Hangul_OE`
+ * `Hangul_PanSios`
+ * `Hangul_Phieuf`
+ * `Hangul_Pieub`
+ * `Hangul_PieubSios`
+ * `Hangul_PostHanja`
+ * `Hangul_PreHanja`
+ * `Hangul_PreviousCandidate`
+ * `Hangul_Rieul`
+ * `Hangul_RieulHieuh`
+ * `Hangul_RieulKiyeog`
+ * `Hangul_RieulMieum`
+ * `Hangul_RieulPhieuf`
+ * `Hangul_RieulPieub`
+ * `Hangul_RieulSios`
+ * `Hangul_RieulTieut`
+ * `Hangul_RieulYeorinHieuh`
+ * `Hangul_Romaja`
+ * `Hangul_SingleCandidate`
+ * `Hangul_Sios`
+ * `Hangul_Special`
+ * `Hangul_SsangDikeud`
+ * `Hangul_SsangJieuj`
+ * `Hangul_SsangKiyeog`
+ * `Hangul_SsangPieub`
+ * `Hangul_SsangSios`
+ * `Hangul_Start`
+ * `Hangul_SunkyeongeumMieum`
+ * `Hangul_SunkyeongeumPhieuf`
+ * `Hangul_SunkyeongeumPieub`
+ * `Hangul_Tieut`
+ * `Hangul_U`
+ * `Hangul_WA`
+ * `Hangul_WAE`
+ * `Hangul_WE`
+ * `Hangul_WEO`
+ * `Hangul_WI`
+ * `Hangul_YA`
+ * `Hangul_YAE`
+ * `Hangul_YE`
+ * `Hangul_YEO`
+ * `Hangul_YI`
+ * `Hangul_YO`
+ * `Hangul_YU`
+ * `Hangul_YeorinHieuh`
+ * `Hangul_switch`
+ * `Hankaku`
+ * `Hcircumflex`
+ * `Hebrew_switch`
+ * `Help`
+ * `Henkan`
+ * `Henkan_Mode`
+ * `Hiragana`
+ * `Hiragana_Katakana`
+ * `Home`
+ * `Hstroke`
+ * `Hyper_L`
+ * `Hyper_R`
+ * `I`
+ * `ISO_Center_Object`
+ * `ISO_Continuous_Underline`
+ * `ISO_Discontinuous_Underline`
+ * `ISO_Emphasize`
+ * `ISO_Enter`
+ * `ISO_Fast_Cursor_Down`
+ * `ISO_Fast_Cursor_Left`
+ * `ISO_Fast_Cursor_Right`
+ * `ISO_Fast_Cursor_Up`
+ * `ISO_First_Group`
+ * `ISO_First_Group_Lock`
+ * `ISO_Group_Latch`
+ * `ISO_Group_Lock`
+ * `ISO_Group_Shift`
+ * `ISO_Last_Group`
+ * `ISO_Last_Group_Lock`
+ * `ISO_Left_Tab`
+ * `ISO_Level2_Latch`
+ * `ISO_Level3_Latch`
+ * `ISO_Level3_Lock`
+ * `ISO_Level3_Shift`
+ * `ISO_Level5_Latch`
+ * `ISO_Level5_Lock`
+ * `ISO_Level5_Shift`
+ * `ISO_Lock`
+ * `ISO_Move_Line_Down`
+ * `ISO_Move_Line_Up`
+ * `ISO_Next_Group`
+ * `ISO_Next_Group_Lock`
+ * `ISO_Partial_Line_Down`
+ * `ISO_Partial_Line_Up`
+ * `ISO_Partial_Space_Left`
+ * `ISO_Partial_Space_Right`
+ * `ISO_Prev_Group`
+ * `ISO_Prev_Group_Lock`
+ * `ISO_Release_Both_Margins`
+ * `ISO_Release_Margin_Left`
+ * `ISO_Release_Margin_Right`
+ * `ISO_Set_Margin_Left`
+ * `ISO_Set_Margin_Right`
+ * `Iabovedot`
+ * `Iacute`
+ * `Ibelowdot`
+ * `Ibreve`
+ * `Icircumflex`
+ * `Idiaeresis`
+ * `Igrave`
+ * `Ihook`
+ * `Imacron`
+ * `Insert`
+ * `Iogonek`
+ * `Itilde`
+ * `J`
+ * `Jcircumflex`
+ * `K`
+ * `KP_0`
+ * `KP_1`
+ * `KP_2`
+ * `KP_3`
+ * `KP_4`
+ * `KP_5`
+ * `KP_6`
+ * `KP_7`
+ * `KP_8`
+ * `KP_9`
+ * `KP_Add`
+ * `KP_Begin`
+ * `KP_Decimal`
+ * `KP_Delete`
+ * `KP_Divide`
+ * `KP_Down`
+ * `KP_End`
+ * `KP_Enter`
+ * `KP_Equal`
+ * `KP_F1`
+ * `KP_F2`
+ * `KP_F3`
+ * `KP_F4`
+ * `KP_Home`
+ * `KP_Insert`
+ * `KP_Left`
+ * `KP_Multiply`
+ * `KP_Next`
+ * `KP_Page_Down`
+ * `KP_Page_Up`
+ * `KP_Prior`
+ * `KP_Right`
+ * `KP_Separator`
+ * `KP_Space`
+ * `KP_Subtract`
+ * `KP_Tab`
+ * `KP_Up`
+ * `Kana_Lock`
+ * `Kana_Shift`
+ * `Kanji`
+ * `Kanji_Bangou`
+ * `Katakana`
+ * `Kcedilla`
+ * `Korean_Won`
+ * `L`
+ * `L1`
+ * `L10`
+ * `L2`
+ * `L3`
+ * `L4`
+ * `L5`
+ * `L6`
+ * `L7`
+ * `L8`
+ * `L9`
+ * `Lacute`
+ * `Last_Virtual_Screen`
+ * `Lbelowdot`
+ * `Lcaron`
+ * `Lcedilla`
+ * `Left`
+ * `Linefeed`
+ * `LiraSign`
+ * `Lstroke`
+ * `M`
+ * `Mabovedot`
+ * `Macedonia_DSE`
+ * `Macedonia_GJE`
+ * `Macedonia_KJE`
+ * `Macedonia_dse`
+ * `Macedonia_gje`
+ * `Macedonia_kje`
+ * `Mae_Koho`
+ * `Massyo`
+ * `Menu`
+ * `Meta_L`
+ * `Meta_R`
+ * `MillSign`
+ * `Mode_switch`
+ * `MouseKeys_Accel_Enable`
+ * `MouseKeys_Enable`
+ * `Muhenkan`
+ * `Multi_key`
+ * `MultipleCandidate`
+ * `N`
+ * `Nacute`
+ * `NairaSign`
+ * `Ncaron`
+ * `Ncedilla`
+ * `NewSheqelSign`
+ * `Next`
+ * `Next_Virtual_Screen`
+ * `Ntilde`
+ * `Num_Lock`
+ * `O`
+ * `OE`
+ * `Oacute`
+ * `Obarred`
+ * `Obelowdot`
+ * `Ocaron`
+ * `Ocircumflex`
+ * `Ocircumflexacute`
+ * `Ocircumflexbelowdot`
+ * `Ocircumflexgrave`
+ * `Ocircumflexhook`
+ * `Ocircumflextilde`
+ * `Odiaeresis`
+ * `Odoubleacute`
+ * `Ograve`
+ * `Ohook`
+ * `Ohorn`
+ * `Ohornacute`
+ * `Ohornbelowdot`
+ * `Ohorngrave`
+ * `Ohornhook`
+ * `Ohorntilde`
+ * `Omacron`
+ * `Ooblique`
+ * `Oslash`
+ * `Otilde`
+ * `Overlay1_Enable`
+ * `Overlay2_Enable`
+ * `P`
+ * `Pabovedot`
+ * `Page_Down`
+ * `Page_Up`
+ * `Pause`
+ * `PesetaSign`
+ * `Pointer_Accelerate`
+ * `Pointer_Button1`
+ * `Pointer_Button2`
+ * `Pointer_Button3`
+ * `Pointer_Button4`
+ * `Pointer_Button5`
+ * `Pointer_Button_Dflt`
+ * `Pointer_DblClick1`
+ * `Pointer_DblClick2`
+ * `Pointer_DblClick3`
+ * `Pointer_DblClick4`
+ * `Pointer_DblClick5`
+ * `Pointer_DblClick_Dflt`
+ * `Pointer_DfltBtnNext`
+ * `Pointer_DfltBtnPrev`
+ * `Pointer_Down`
+ * `Pointer_DownLeft`
+ * `Pointer_DownRight`
+ * `Pointer_Drag1`
+ * `Pointer_Drag2`
+ * `Pointer_Drag3`
+ * `Pointer_Drag4`
+ * `Pointer_Drag5`
+ * `Pointer_Drag_Dflt`
+ * `Pointer_EnableKeys`
+ * `Pointer_Left`
+ * `Pointer_Right`
+ * `Pointer_Up`
+ * `Pointer_UpLeft`
+ * `Pointer_UpRight`
+ * `Prev_Virtual_Screen`
+ * `PreviousCandidate`
+ * `Print`
+ * `Prior`
+ * `Q`
+ * `R`
+ * `R1`
+ * `R10`
+ * `R11`
+ * `R12`
+ * `R13`
+ * `R14`
+ * `R15`
+ * `R2`
+ * `R3`
+ * `R4`
+ * `R5`
+ * `R6`
+ * `R7`
+ * `R8`
+ * `R9`
+ * `Racute`
+ * `Rcaron`
+ * `Rcedilla`
+ * `Redo`
+ * `RepeatKeys_Enable`
+ * `Return`
+ * `Right`
+ * `Romaji`
+ * `RupeeSign`
+ * `S`
+ * `SCHWA`
+ * `Sabovedot`
+ * `Sacute`
+ * `Scaron`
+ * `Scedilla`
+ * `Scircumflex`
+ * `Scroll_Lock`
+ * `Select`
+ * `Serbian_DJE`
+ * `Serbian_DZE`
+ * `Serbian_JE`
+ * `Serbian_LJE`
+ * `Serbian_NJE`
+ * `Serbian_TSHE`
+ * `Serbian_dje`
+ * `Serbian_dze`
+ * `Serbian_je`
+ * `Serbian_lje`
+ * `Serbian_nje`
+ * `Serbian_tshe`
+ * `Shift_L`
+ * `Shift_Lock`
+ * `Shift_R`
+ * `SingleCandidate`
+ * `SlowKeys_Enable`
+ * `StickyKeys_Enable`
+ * `Super_L`
+ * `Super_R`
+ * `Sys_Req`
+ * `T`
+ * `THORN`
+ * `Tab`
+ * `Tabovedot`
+ * `Tcaron`
+ * `Tcedilla`
+ * `Terminate_Server`
+ * `Thai_baht`
+ * `Thai_bobaimai`
+ * `Thai_chochan`
+ * `Thai_chochang`
+ * `Thai_choching`
+ * `Thai_chochoe`
+ * `Thai_dochada`
+ * `Thai_dodek`
+ * `Thai_fofa`
+ * `Thai_fofan`
+ * `Thai_hohip`
+ * `Thai_honokhuk`
+ * `Thai_khokhai`
+ * `Thai_khokhon`
+ * `Thai_khokhuat`
+ * `Thai_khokhwai`
+ * `Thai_khorakhang`
+ * `Thai_kokai`
+ * `Thai_lakkhangyao`
+ * `Thai_lekchet`
+ * `Thai_lekha`
+ * `Thai_lekhok`
+ * `Thai_lekkao`
+ * `Thai_leknung`
+ * `Thai_lekpaet`
+ * `Thai_leksam`
+ * `Thai_leksi`
+ * `Thai_leksong`
+ * `Thai_leksun`
+ * `Thai_lochula`
+ * `Thai_loling`
+ * `Thai_lu`
+ * `Thai_maichattawa`
+ * `Thai_maiek`
+ * `Thai_maihanakat`
+ * `Thai_maihanakat_maitho`
+ * `Thai_maitaikhu`
+ * `Thai_maitho`
+ * `Thai_maitri`
+ * `Thai_maiyamok`
+ * `Thai_moma`
+ * `Thai_ngongu`
+ * `Thai_nikhahit`
+ * `Thai_nonen`
+ * `Thai_nonu`
+ * `Thai_oang`
+ * `Thai_paiyannoi`
+ * `Thai_phinthu`
+ * `Thai_phophan`
+ * `Thai_phophung`
+ * `Thai_phosamphao`
+ * `Thai_popla`
+ * `Thai_rorua`
+ * `Thai_ru`
+ * `Thai_saraa`
+ * `Thai_saraaa`
+ * `Thai_saraae`
+ * `Thai_saraaimaimalai`
+ * `Thai_saraaimaimuan`
+ * `Thai_saraam`
+ * `Thai_sarae`
+ * `Thai_sarai`
+ * `Thai_saraii`
+ * `Thai_sarao`
+ * `Thai_sarau`
+ * `Thai_saraue`
+ * `Thai_sarauee`
+ * `Thai_sarauu`
+ * `Thai_sorusi`
+ * `Thai_sosala`
+ * `Thai_soso`
+ * `Thai_sosua`
+ * `Thai_thanthakhat`
+ * `Thai_thonangmontho`
+ * `Thai_thophuthao`
+ * `Thai_thothahan`
+ * `Thai_thothan`
+ * `Thai_thothong`
+ * `Thai_thothung`
+ * `Thai_topatak`
+ * `Thai_totao`
+ * `Thai_wowaen`
+ * `Thai_yoyak`
+ * `Thai_yoying`
+ * `Thorn`
+ * `Touroku`
+ * `Tslash`
+ * `U`
+ * `Uacute`
+ * `Ubelowdot`
+ * `Ubreve`
+ * `Ucircumflex`
+ * `Udiaeresis`
+ * `Udoubleacute`
+ * `Ugrave`
+ * `Uhook`
+ * `Uhorn`
+ * `Uhornacute`
+ * `Uhornbelowdot`
+ * `Uhorngrave`
+ * `Uhornhook`
+ * `Uhorntilde`
+ * `Ukrainian_GHE_WITH_UPTURN`
+ * `Ukrainian_I`
+ * `Ukrainian_IE`
+ * `Ukrainian_YI`
+ * `Ukrainian_ghe_with_upturn`
+ * `Ukrainian_i`
+ * `Ukrainian_ie`
+ * `Ukrainian_yi`
+ * `Ukranian_I`
+ * `Ukranian_JE`
+ * `Ukranian_YI`
+ * `Ukranian_i`
+ * `Ukranian_je`
+ * `Ukranian_yi`
+ * `Umacron`
+ * `Undo`
+ * `Uogonek`
+ * `Up`
+ * `Uring`
+ * `Utilde`
+ * `V`
+ * `VoidSymbol`
+ * `W`
+ * `Wacute`
+ * `Wcircumflex`
+ * `Wdiaeresis`
+ * `Wgrave`
+ * `WonSign`
+ * `X`
+ * `Xabovedot`
+ * `Y`
+ * `Yacute`
+ * `Ybelowdot`
+ * `Ycircumflex`
+ * `Ydiaeresis`
+ * `Ygrave`
+ * `Yhook`
+ * `Ytilde`
+ * `Z`
+ * `Zabovedot`
+ * `Zacute`
+ * `Zcaron`
+ * `Zen_Koho`
+ * `Zenkaku`
+ * `Zenkaku_Hankaku`
+ * `Zstroke`
+ * `a`
+ * `aacute`
+ * `abelowdot`
+ * `abovedot`
+ * `abreve`
+ * `abreveacute`
+ * `abrevebelowdot`
+ * `abrevegrave`
+ * `abrevehook`
+ * `abrevetilde`
+ * `acircumflex`
+ * `acircumflexacute`
+ * `acircumflexbelowdot`
+ * `acircumflexgrave`
+ * `acircumflexhook`
+ * `acircumflextilde`
+ * `acute`
+ * `adiaeresis`
+ * `ae`
+ * `agrave`
+ * `ahook`
+ * `amacron`
+ * `ampersand`
+ * `aogonek`
+ * `apostrophe`
+ * `approxeq`
+ * `approximate`
+ * `aring`
+ * `asciicircum`
+ * `asciitilde`
+ * `asterisk`
+ * `at`
+ * `atilde`
+ * `b`
+ * `babovedot`
+ * `backslash`
+ * `ballotcross`
+ * `bar`
+ * `because`
+ * `blank`
+ * `botintegral`
+ * `botleftparens`
+ * `botleftsqbracket`
+ * `botleftsummation`
+ * `botrightparens`
+ * `botrightsqbracket`
+ * `botrightsummation`
+ * `bott`
+ * `botvertsummationconnector`
+ * `braceleft`
+ * `braceright`
+ * `bracketleft`
+ * `bracketright`
+ * `braille_blank`
+ * `braille_dot_1`
+ * `braille_dot_10`
+ * `braille_dot_2`
+ * `braille_dot_3`
+ * `braille_dot_4`
+ * `braille_dot_5`
+ * `braille_dot_6`
+ * `braille_dot_7`
+ * `braille_dot_8`
+ * `braille_dot_9`
+ * `braille_dots_1`
+ * `braille_dots_12`
+ * `braille_dots_123`
+ * `braille_dots_1234`
+ * `braille_dots_12345`
+ * `braille_dots_123456`
+ * `braille_dots_1234567`
+ * `braille_dots_12345678`
+ * `braille_dots_1234568`
+ * `braille_dots_123457`
+ * `braille_dots_1234578`
+ * `braille_dots_123458`
+ * `braille_dots_12346`
+ * `braille_dots_123467`
+ * `braille_dots_1234678`
+ * `braille_dots_123468`
+ * `braille_dots_12347`
+ * `braille_dots_123478`
+ * `braille_dots_12348`
+ * `braille_dots_1235`
+ * `braille_dots_12356`
+ * `braille_dots_123567`
+ * `braille_dots_1235678`
+ * `braille_dots_123568`
+ * `braille_dots_12357`
+ * `braille_dots_123578`
+ * `braille_dots_12358`
+ * `braille_dots_1236`
+ * `braille_dots_12367`
+ * `braille_dots_123678`
+ * `braille_dots_12368`
+ * `braille_dots_1237`
+ * `braille_dots_12378`
+ * `braille_dots_1238`
+ * `braille_dots_124`
+ * `braille_dots_1245`
+ * `braille_dots_12456`
+ * `braille_dots_124567`
+ * `braille_dots_1245678`
+ * `braille_dots_124568`
+ * `braille_dots_12457`
+ * `braille_dots_124578`
+ * `braille_dots_12458`
+ * `braille_dots_1246`
+ * `braille_dots_12467`
+ * `braille_dots_124678`
+ * `braille_dots_12468`
+ * `braille_dots_1247`
+ * `braille_dots_12478`
+ * `braille_dots_1248`
+ * `braille_dots_125`
+ * `braille_dots_1256`
+ * `braille_dots_12567`
+ * `braille_dots_125678`
+ * `braille_dots_12568`
+ * `braille_dots_1257`
+ * `braille_dots_12578`
+ * `braille_dots_1258`
+ * `braille_dots_126`
+ * `braille_dots_1267`
+ * `braille_dots_12678`
+ * `braille_dots_1268`
+ * `braille_dots_127`
+ * `braille_dots_1278`
+ * `braille_dots_128`
+ * `braille_dots_13`
+ * `braille_dots_134`
+ * `braille_dots_1345`
+ * `braille_dots_13456`
+ * `braille_dots_134567`
+ * `braille_dots_1345678`
+ * `braille_dots_134568`
+ * `braille_dots_13457`
+ * `braille_dots_134578`
+ * `braille_dots_13458`
+ * `braille_dots_1346`
+ * `braille_dots_13467`
+ * `braille_dots_134678`
+ * `braille_dots_13468`
+ * `braille_dots_1347`
+ * `braille_dots_13478`
+ * `braille_dots_1348`
+ * `braille_dots_135`
+ * `braille_dots_1356`
+ * `braille_dots_13567`
+ * `braille_dots_135678`
+ * `braille_dots_13568`
+ * `braille_dots_1357`
+ * `braille_dots_13578`
+ * `braille_dots_1358`
+ * `braille_dots_136`
+ * `braille_dots_1367`
+ * `braille_dots_13678`
+ * `braille_dots_1368`
+ * `braille_dots_137`
+ * `braille_dots_1378`
+ * `braille_dots_138`
+ * `braille_dots_14`
+ * `braille_dots_145`
+ * `braille_dots_1456`
+ * `braille_dots_14567`
+ * `braille_dots_145678`
+ * `braille_dots_14568`
+ * `braille_dots_1457`
+ * `braille_dots_14578`
+ * `braille_dots_1458`
+ * `braille_dots_146`
+ * `braille_dots_1467`
+ * `braille_dots_14678`
+ * `braille_dots_1468`
+ * `braille_dots_147`
+ * `braille_dots_1478`
+ * `braille_dots_148`
+ * `braille_dots_15`
+ * `braille_dots_156`
+ * `braille_dots_1567`
+ * `braille_dots_15678`
+ * `braille_dots_1568`
+ * `braille_dots_157`
+ * `braille_dots_1578`
+ * `braille_dots_158`
+ * `braille_dots_16`
+ * `braille_dots_167`
+ * `braille_dots_1678`
+ * `braille_dots_168`
+ * `braille_dots_17`
+ * `braille_dots_178`
+ * `braille_dots_18`
+ * `braille_dots_2`
+ * `braille_dots_23`
+ * `braille_dots_234`
+ * `braille_dots_2345`
+ * `braille_dots_23456`
+ * `braille_dots_234567`
+ * `braille_dots_2345678`
+ * `braille_dots_234568`
+ * `braille_dots_23457`
+ * `braille_dots_234578`
+ * `braille_dots_23458`
+ * `braille_dots_2346`
+ * `braille_dots_23467`
+ * `braille_dots_234678`
+ * `braille_dots_23468`
+ * `braille_dots_2347`
+ * `braille_dots_23478`
+ * `braille_dots_2348`
+ * `braille_dots_235`
+ * `braille_dots_2356`
+ * `braille_dots_23567`
+ * `braille_dots_235678`
+ * `braille_dots_23568`
+ * `braille_dots_2357`
+ * `braille_dots_23578`
+ * `braille_dots_2358`
+ * `braille_dots_236`
+ * `braille_dots_2367`
+ * `braille_dots_23678`
+ * `braille_dots_2368`
+ * `braille_dots_237`
+ * `braille_dots_2378`
+ * `braille_dots_238`
+ * `braille_dots_24`
+ * `braille_dots_245`
+ * `braille_dots_2456`
+ * `braille_dots_24567`
+ * `braille_dots_245678`
+ * `braille_dots_24568`
+ * `braille_dots_2457`
+ * `braille_dots_24578`
+ * `braille_dots_2458`
+ * `braille_dots_246`
+ * `braille_dots_2467`
+ * `braille_dots_24678`
+ * `braille_dots_2468`
+ * `braille_dots_247`
+ * `braille_dots_2478`
+ * `braille_dots_248`
+ * `braille_dots_25`
+ * `braille_dots_256`
+ * `braille_dots_2567`
+ * `braille_dots_25678`
+ * `braille_dots_2568`
+ * `braille_dots_257`
+ * `braille_dots_2578`
+ * `braille_dots_258`
+ * `braille_dots_26`
+ * `braille_dots_267`
+ * `braille_dots_2678`
+ * `braille_dots_268`
+ * `braille_dots_27`
+ * `braille_dots_278`
+ * `braille_dots_28`
+ * `braille_dots_3`
+ * `braille_dots_34`
+ * `braille_dots_345`
+ * `braille_dots_3456`
+ * `braille_dots_34567`
+ * `braille_dots_345678`
+ * `braille_dots_34568`
+ * `braille_dots_3457`
+ * `braille_dots_34578`
+ * `braille_dots_3458`
+ * `braille_dots_346`
+ * `braille_dots_3467`
+ * `braille_dots_34678`
+ * `braille_dots_3468`
+ * `braille_dots_347`
+ * `braille_dots_3478`
+ * `braille_dots_348`
+ * `braille_dots_35`
+ * `braille_dots_356`
+ * `braille_dots_3567`
+ * `braille_dots_35678`
+ * `braille_dots_3568`
+ * `braille_dots_357`
+ * `braille_dots_3578`
+ * `braille_dots_358`
+ * `braille_dots_36`
+ * `braille_dots_367`
+ * `braille_dots_3678`
+ * `braille_dots_368`
+ * `braille_dots_37`
+ * `braille_dots_378`
+ * `braille_dots_38`
+ * `braille_dots_4`
+ * `braille_dots_45`
+ * `braille_dots_456`
+ * `braille_dots_4567`
+ * `braille_dots_45678`
+ * `braille_dots_4568`
+ * `braille_dots_457`
+ * `braille_dots_4578`
+ * `braille_dots_458`
+ * `braille_dots_46`
+ * `braille_dots_467`
+ * `braille_dots_4678`
+ * `braille_dots_468`
+ * `braille_dots_47`
+ * `braille_dots_478`
+ * `braille_dots_48`
+ * `braille_dots_5`
+ * `braille_dots_56`
+ * `braille_dots_567`
+ * `braille_dots_5678`
+ * `braille_dots_568`
+ * `braille_dots_57`
+ * `braille_dots_578`
+ * `braille_dots_58`
+ * `braille_dots_6`
+ * `braille_dots_67`
+ * `braille_dots_678`
+ * `braille_dots_68`
+ * `braille_dots_7`
+ * `braille_dots_78`
+ * `braille_dots_8`
+ * `breve`
+ * `brokenbar`
+ * `c`
+ * `cabovedot`
+ * `cacute`
+ * `careof`
+ * `caret`
+ * `caron`
+ * `ccaron`
+ * `ccedilla`
+ * `ccircumflex`
+ * `cedilla`
+ * `cent`
+ * `checkerboard`
+ * `checkmark`
+ * `circle`
+ * `club`
+ * `colon`
+ * `comma`
+ * `containsas`
+ * `copyright`
+ * `cr`
+ * `crossinglines`
+ * `cuberoot`
+ * `currency`
+ * `cursor`
+ * `d`
+ * `dabovedot`
+ * `dagger`
+ * `dcaron`
+ * `dead_A`
+ * `dead_E`
+ * `dead_I`
+ * `dead_O`
+ * `dead_U`
+ * `dead_a`
+ * `dead_abovecomma`
+ * `dead_abovedot`
+ * `dead_abovereversedcomma`
+ * `dead_abovering`
+ * `dead_acute`
+ * `dead_belowbreve`
+ * `dead_belowcircumflex`
+ * `dead_belowcomma`
+ * `dead_belowdiaeresis`
+ * `dead_belowdot`
+ * `dead_belowmacron`
+ * `dead_belowring`
+ * `dead_belowtilde`
+ * `dead_breve`
+ * `dead_capital_schwa`
+ * `dead_caron`
+ * `dead_cedilla`
+ * `dead_circumflex`
+ * `dead_currency`
+ * `dead_dasia`
+ * `dead_diaeresis`
+ * `dead_doubleacute`
+ * `dead_doublegrave`
+ * `dead_e`
+ * `dead_grave`
+ * `dead_hook`
+ * `dead_horn`
+ * `dead_i`
+ * `dead_invertedbreve`
+ * `dead_iota`
+ * `dead_macron`
+ * `dead_o`
+ * `dead_ogonek`
+ * `dead_perispomeni`
+ * `dead_psili`
+ * `dead_semivoiced_sound`
+ * `dead_small_schwa`
+ * `dead_stroke`
+ * `dead_tilde`
+ * `dead_u`
+ * `dead_voiced_sound`
+ * `decimalpoint`
+ * `degree`
+ * `diaeresis`
+ * `diamond`
+ * `digitspace`
+ * `dintegral`
+ * `division`
+ * `dollar`
+ * `doubbaselinedot`
+ * `doubleacute`
+ * `doubledagger`
+ * `doublelowquotemark`
+ * `downarrow`
+ * `downcaret`
+ * `downshoe`
+ * `downstile`
+ * `downtack`
+ * `dstroke`
+ * `e`
+ * `eabovedot`
+ * `eacute`
+ * `ebelowdot`
+ * `ecaron`
+ * `ecircumflex`
+ * `ecircumflexacute`
+ * `ecircumflexbelowdot`
+ * `ecircumflexgrave`
+ * `ecircumflexhook`
+ * `ecircumflextilde`
+ * `ediaeresis`
+ * `egrave`
+ * `ehook`
+ * `eightsubscript`
+ * `eightsuperior`
+ * `elementof`
+ * `ellipsis`
+ * `em3space`
+ * `em4space`
+ * `emacron`
+ * `emdash`
+ * `emfilledcircle`
+ * `emfilledrect`
+ * `emopencircle`
+ * `emopenrectangle`
+ * `emptyset`
+ * `emspace`
+ * `endash`
+ * `enfilledcircbullet`
+ * `enfilledsqbullet`
+ * `eng`
+ * `enopencircbullet`
+ * `enopensquarebullet`
+ * `enspace`
+ * `eogonek`
+ * `equal`
+ * `eth`
+ * `etilde`
+ * `exclam`
+ * `exclamdown`
+ * `f`
+ * `fabovedot`
+ * `femalesymbol`
+ * `ff`
+ * `figdash`
+ * `filledlefttribullet`
+ * `filledrectbullet`
+ * `filledrighttribullet`
+ * `filledtribulletdown`
+ * `filledtribulletup`
+ * `fiveeighths`
+ * `fivesixths`
+ * `fivesubscript`
+ * `fivesuperior`
+ * `fourfifths`
+ * `foursubscript`
+ * `foursuperior`
+ * `fourthroot`
+ * `function`
+ * `g`
+ * `gabovedot`
+ * `gbreve`
+ * `gcaron`
+ * `gcedilla`
+ * `gcircumflex`
+ * `grave`
+ * `greater`
+ * `greaterthanequal`
+ * `guillemotleft`
+ * `guillemotright`
+ * `h`
+ * `hairspace`
+ * `hcircumflex`
+ * `heart`
+ * `hebrew_aleph`
+ * `hebrew_ayin`
+ * `hebrew_bet`
+ * `hebrew_beth`
+ * `hebrew_chet`
+ * `hebrew_dalet`
+ * `hebrew_daleth`
+ * `hebrew_doublelowline`
+ * `hebrew_finalkaph`
+ * `hebrew_finalmem`
+ * `hebrew_finalnun`
+ * `hebrew_finalpe`
+ * `hebrew_finalzade`
+ * `hebrew_finalzadi`
+ * `hebrew_gimel`
+ * `hebrew_gimmel`
+ * `hebrew_he`
+ * `hebrew_het`
+ * `hebrew_kaph`
+ * `hebrew_kuf`
+ * `hebrew_lamed`
+ * `hebrew_mem`
+ * `hebrew_nun`
+ * `hebrew_pe`
+ * `hebrew_qoph`
+ * `hebrew_resh`
+ * `hebrew_samech`
+ * `hebrew_samekh`
+ * `hebrew_shin`
+ * `hebrew_taf`
+ * `hebrew_taw`
+ * `hebrew_tet`
+ * `hebrew_teth`
+ * `hebrew_waw`
+ * `hebrew_yod`
+ * `hebrew_zade`
+ * `hebrew_zadi`
+ * `hebrew_zain`
+ * `hebrew_zayin`
+ * `hexagram`
+ * `horizconnector`
+ * `horizlinescan1`
+ * `horizlinescan3`
+ * `horizlinescan5`
+ * `horizlinescan7`
+ * `horizlinescan9`
+ * `hstroke`
+ * `ht`
+ * `hyphen`
+ * `i`
+ * `iacute`
+ * `ibelowdot`
+ * `ibreve`
+ * `icircumflex`
+ * `identical`
+ * `idiaeresis`
+ * `idotless`
+ * `ifonlyif`
+ * `igrave`
+ * `ihook`
+ * `imacron`
+ * `implies`
+ * `includedin`
+ * `includes`
+ * `infinity`
+ * `integral`
+ * `intersection`
+ * `iogonek`
+ * `itilde`
+ * `j`
+ * `jcircumflex`
+ * `jot`
+ * `k`
+ * `kana_A`
+ * `kana_CHI`
+ * `kana_E`
+ * `kana_FU`
+ * `kana_HA`
+ * `kana_HE`
+ * `kana_HI`
+ * `kana_HO`
+ * `kana_HU`
+ * `kana_I`
+ * `kana_KA`
+ * `kana_KE`
+ * `kana_KI`
+ * `kana_KO`
+ * `kana_KU`
+ * `kana_MA`
+ * `kana_ME`
+ * `kana_MI`
+ * `kana_MO`
+ * `kana_MU`
+ * `kana_N`
+ * `kana_NA`
+ * `kana_NE`
+ * `kana_NI`
+ * `kana_NO`
+ * `kana_NU`
+ * `kana_O`
+ * `kana_RA`
+ * `kana_RE`
+ * `kana_RI`
+ * `kana_RO`
+ * `kana_RU`
+ * `kana_SA`
+ * `kana_SE`
+ * `kana_SHI`
+ * `kana_SO`
+ * `kana_SU`
+ * `kana_TA`
+ * `kana_TE`
+ * `kana_TI`
+ * `kana_TO`
+ * `kana_TSU`
+ * `kana_TU`
+ * `kana_U`
+ * `kana_WA`
+ * `kana_WO`
+ * `kana_YA`
+ * `kana_YO`
+ * `kana_YU`
+ * `kana_a`
+ * `kana_closingbracket`
+ * `kana_comma`
+ * `kana_conjunctive`
+ * `kana_e`
+ * `kana_fullstop`
+ * `kana_i`
+ * `kana_middledot`
+ * `kana_o`
+ * `kana_openingbracket`
+ * `kana_switch`
+ * `kana_tsu`
+ * `kana_tu`
+ * `kana_u`
+ * `kana_ya`
+ * `kana_yo`
+ * `kana_yu`
+ * `kappa`
+ * `kcedilla`
+ * `kra`
+ * `l`
+ * `lacute`
+ * `latincross`
+ * `lbelowdot`
+ * `lcaron`
+ * `lcedilla`
+ * `leftanglebracket`
+ * `leftarrow`
+ * `leftcaret`
+ * `leftdoublequotemark`
+ * `leftmiddlecurlybrace`
+ * `leftopentriangle`
+ * `leftpointer`
+ * `leftradical`
+ * `leftshoe`
+ * `leftsinglequotemark`
+ * `leftt`
+ * `lefttack`
+ * `less`
+ * `lessthanequal`
+ * `lf`
+ * `logicaland`
+ * `logicalor`
+ * `lowleftcorner`
+ * `lowrightcorner`
+ * `lstroke`
+ * `m`
+ * `mabovedot`
+ * `macron`
+ * `malesymbol`
+ * `maltesecross`
+ * `marker`
+ * `masculine`
+ * `minus`
+ * `minutes`
+ * `mu`
+ * `multiply`
+ * `musicalflat`
+ * `musicalsharp`
+ * `n`
+ * `nabla`
+ * `nacute`
+ * `ncaron`
+ * `ncedilla`
+ * `ninesubscript`
+ * `ninesuperior`
+ * `nl`
+ * `nobreakspace`
+ * `notapproxeq`
+ * `notelementof`
+ * `notequal`
+ * `notidentical`
+ * `notsign`
+ * `ntilde`
+ * `numbersign`
+ * `numerosign`
+ * `o`
+ * `oacute`
+ * `obarred`
+ * `obelowdot`
+ * `ocaron`
+ * `ocircumflex`
+ * `ocircumflexacute`
+ * `ocircumflexbelowdot`
+ * `ocircumflexgrave`
+ * `ocircumflexhook`
+ * `ocircumflextilde`
+ * `odiaeresis`
+ * `odoubleacute`
+ * `oe`
+ * `ogonek`
+ * `ograve`
+ * `ohook`
+ * `ohorn`
+ * `ohornacute`
+ * `ohornbelowdot`
+ * `ohorngrave`
+ * `ohornhook`
+ * `ohorntilde`
+ * `omacron`
+ * `oneeighth`
+ * `onefifth`
+ * `onehalf`
+ * `onequarter`
+ * `onesixth`
+ * `onesubscript`
+ * `onesuperior`
+ * `onethird`
+ * `ooblique`
+ * `openrectbullet`
+ * `openstar`
+ * `opentribulletdown`
+ * `opentribulletup`
+ * `ordfeminine`
+ * `oslash`
+ * `otilde`
+ * `overbar`
+ * `overline`
+ * `p`
+ * `pabovedot`
+ * `paragraph`
+ * `parenleft`
+ * `parenright`
+ * `partdifferential`
+ * `partialderivative`
+ * `percent`
+ * `period`
+ * `periodcentered`
+ * `phonographcopyright`
+ * `plus`
+ * `plusminus`
+ * `prescription`
+ * `prolongedsound`
+ * `punctspace`
+ * `q`
+ * `quad`
+ * `question`
+ * `questiondown`
+ * `quotedbl`
+ * `quoteleft`
+ * `quoteright`
+ * `r`
+ * `racute`
+ * `radical`
+ * `rcaron`
+ * `rcedilla`
+ * `registered`
+ * `rightanglebracket`
+ * `rightarrow`
+ * `rightcaret`
+ * `rightdoublequotemark`
+ * `rightmiddlecurlybrace`
+ * `rightmiddlesummation`
+ * `rightopentriangle`
+ * `rightpointer`
+ * `rightshoe`
+ * `rightsinglequotemark`
+ * `rightt`
+ * `righttack`
+ * `s`
+ * `sabovedot`
+ * `sacute`
+ * `scaron`
+ * `scedilla`
+ * `schwa`
+ * `scircumflex`
+ * `script_switch`
+ * `seconds`
+ * `section`
+ * `semicolon`
+ * `semivoicedsound`
+ * `seveneighths`
+ * `sevensubscript`
+ * `sevensuperior`
+ * `signaturemark`
+ * `signifblank`
+ * `similarequal`
+ * `singlelowquotemark`
+ * `sixsubscript`
+ * `sixsuperior`
+ * `slash`
+ * `soliddiamond`
+ * `space`
+ * `squareroot`
+ * `ssharp`
+ * `sterling`
+ * `stricteq`
+ * `t`
+ * `tabovedot`
+ * `tcaron`
+ * `tcedilla`
+ * `telephone`
+ * `telephonerecorder`
+ * `therefore`
+ * `thinspace`
+ * `thorn`
+ * `threeeighths`
+ * `threefifths`
+ * `threequarters`
+ * `threesubscript`
+ * `threesuperior`
+ * `tintegral`
+ * `topintegral`
+ * `topleftparens`
+ * `topleftradical`
+ * `topleftsqbracket`
+ * `topleftsummation`
+ * `toprightparens`
+ * `toprightsqbracket`
+ * `toprightsummation`
+ * `topt`
+ * `topvertsummationconnector`
+ * `trademark`
+ * `trademarkincircle`
+ * `tslash`
+ * `twofifths`
+ * `twosubscript`
+ * `twosuperior`
+ * `twothirds`
+ * `u`
+ * `uacute`
+ * `ubelowdot`
+ * `ubreve`
+ * `ucircumflex`
+ * `udiaeresis`
+ * `udoubleacute`
+ * `ugrave`
+ * `uhook`
+ * `uhorn`
+ * `uhornacute`
+ * `uhornbelowdot`
+ * `uhorngrave`
+ * `uhornhook`
+ * `uhorntilde`
+ * `umacron`
+ * `underbar`
+ * `underscore`
+ * `union`
+ * `uogonek`
+ * `uparrow`
+ * `upcaret`
+ * `upleftcorner`
+ * `uprightcorner`
+ * `upshoe`
+ * `upstile`
+ * `uptack`
+ * `uring`
+ * `utilde`
+ * `v`
+ * `variation`
+ * `vertbar`
+ * `vertconnector`
+ * `voicedsound`
+ * `vt`
+ * `w`
+ * `wacute`
+ * `wcircumflex`
+ * `wdiaeresis`
+ * `wgrave`
+ * `x`
+ * `xabovedot`
+ * `y`
+ * `yacute`
+ * `ybelowdot`
+ * `ycircumflex`
+ * `ydiaeresis`
+ * `yen`
+ * `ygrave`
+ * `yhook`
+ * `ytilde`
+ * `z`
+ * `zabovedot`
+ * `zacute`
+ * `zcaron`
+ * `zerosubscript`
+ * `zerosuperior`
+ * `zstroke`
