@@ -60,13 +60,13 @@ config = {
             'Meta+R': 'restart',
             'Meta+L': 'layoutmgr.cycle',
         },
-    'decoration.bindings': {
-            '1': 'moveresize.move',
-            '3': 'moveresize.resize',
-        },
     'clientbuttons.bindings': {
             'Meta+1': 'moveresize.move',
             'Meta+3': 'moveresize.resize',
+        },
+    'cairodeco.bindings': {
+            '1': 'moveresize.move',
+            '3': 'moveresize.resize',
         },
     'cairodeco.height': 15,
     'cairodeco.title.position': "center", # one of "left", "center" or "right"

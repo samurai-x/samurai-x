@@ -28,6 +28,8 @@ from UserDict import DictMixin
 import logging
 log = logging.getLogger(__name__)
 
+from ooxcb.xproto import ModMask
+
 class ClientMessageHandlers(object):
     """
         a little helper class for client message event handlers.
@@ -125,3 +127,22 @@ class OrderedDict(DictMixin):
         copyDict._keys = self._keys[:]
         return copyDict
 
+MODIFIERS = {
+        # TODO: I am not sure about the
+        # following four modifiers.
+        'alt': ModMask._1,
+        'numlock': ModMask._2,
+        'meta': ModMask._4,
+        'altgr': ModMask._5,
+
+        'shift': ModMask.Shift,
+        'lock': ModMask.Lock,
+        'ctrl': ModMask.Control,
+        'control': ModMask.Control,
+
+        'mod1': ModMask._1,
+        'mod2': ModMask._2,
+        'mod3': ModMask._3,
+        'mod4': ModMask._4,
+        'mod5': ModMask._5,
+        }

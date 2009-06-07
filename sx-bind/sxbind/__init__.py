@@ -28,30 +28,10 @@ from __future__ import with_statement
 import logging
 log = logging.getLogger(__name__)
 
+from samuraix.util import MODIFIERS
 from samuraix.plugin import Plugin
 
 from ooxcb import keysymdef
-from ooxcb.xproto import ModMask
-
-MODIFIERS = {
-        # TODO: I am not sure about the
-        # following four modifiers.
-        'alt': ModMask._1,
-        'numlock': ModMask._2,
-        'meta': ModMask._4,
-        'altgr': ModMask._5,
-
-        'shift': ModMask.Shift,
-        'lock': ModMask.Lock,
-        'ctrl': ModMask.Control,
-        'control': ModMask.Control,
-
-        'mod1': ModMask._1,
-        'mod2': ModMask._2,
-        'mod3': ModMask._3,
-        'mod4': ModMask._4,
-        'mod5': ModMask._5,
-        }
 
 def parse_keystroke(s):
     """
