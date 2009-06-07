@@ -41,10 +41,10 @@ def parse_buttonstroke(s):
         Return (modifiers, button id), extracted from the string `s`.
 
         It has to contain several modifiers and a button index,
-        joined together with a '+':
+        joined together with a '+'::
 
-        CTRL+1
-        MOD4+2
+            CTRL+1
+            MOD4+2
 
         1 is the left mouse button,
         2 the middle,

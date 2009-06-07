@@ -6,4 +6,5 @@ Plugins
 
     sx-actions.rst
     sx-bind.rst
+    sx-cairodeco.rst
 

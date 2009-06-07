@@ -22,7 +22,8 @@ sys.path.append(os.path.abspath('../../../ooxcb')) # add ooxcb as well
 sys.path.extend(map(os.path.abspath,
     [
         '../../../sx-actions',
-        '../../../sx-bind'
+        '../../../sx-bind',
+        '../../../sx-cairodeco',
     ]))
 
 # General configuration
