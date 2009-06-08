@@ -30,6 +30,7 @@
 
 import sys
 import os
+import imp
 import traceback
 import logging
 import pkg_resources
@@ -111,13 +112,13 @@ def load_config(config=None):
         config = config()
     samuraix.config = config
 
-def load_user_config(configfile):
+def load_user_config(configpath):
     """
         Tries to execute the Python configuration script. Returns
         its *config* member on success, None if there was an error
         reading the config file (e.g. if the file does not exist)
 
-        :param configfile: The filename of the configuration script
+        :param configpath: The filename of the configuration script
                            we should try to load.
 
         :note: Yes, the configuration file is a Python script, yes,
@@ -125,15 +126,12 @@ def load_user_config(configfile):
                the user that he knows what he does.
 
     """
-    configfile = os.path.normpath(os.path.expanduser(configfile))
-    log.info('reading config from %s...' % configfile)
-    locals = {}
-    try:
-        execfile(configfile, {}, locals)
-    except IOError, e:
-        log.warn('failed reading config file: %s - using defaultconfig' % e)
-        return None
-    return locals['config']
+    configpath = os.path.normpath(os.path.expanduser(configpath))
+    log.info('trying to import config from %s...' % configpath)
+    fp, pathname, description = imp.find_module('config', [configpath])
+    mod = imp.load_module('config', fp, pathname, description)
+    return getattr(mod, 'config')
+
 
 def parse_options():
     """
@@ -141,9 +139,9 @@ def parse_options():
         arguments are ignored, since we aren't accepting any.
     """
     parser = OptionParser(SXWM_USAGE)
-    parser.add_option('-c', '--config', dest='configfile',
-            help='use samurai-x2 configuration from FILE (default: %default)', metavar='FILE',
-            default='~/.samuraix/config')
+    parser.add_option('-c', '--config', dest='configpath',
+            help='use samurai-x2 configuration from PATH (default: %default)', metavar='FILE',
+            default='~/.samuraix/')
 
     parser.add_option('-f', '--logfile', dest='logfile',
             help='save the samurai-x2 log file to FILE', metavar='FILE',
@@ -217,7 +215,7 @@ def run_app(app_func=None):
 
     configure_logging(options)
 
-    cfg = load_user_config(options.configfile)
+    cfg = load_user_config(options.configpath)
     load_config(cfg)
 
     if app_func is None:
