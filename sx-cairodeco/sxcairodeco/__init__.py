@@ -29,11 +29,11 @@ log = logging.getLogger(__name__)
 from samuraix import config
 from samuraix.plugin import Plugin
 from samuraix.cairo_ext import create_surface
+from samuraix.util import MODIFIERS
 from samuraix.rect import Rect
 from ooxcb import xproto
 from ooxcb.contrib import cairo
 
-from sxbind import MODIFIERS # Oh no, we depend on sxbind! TODO? (maybe move into samuraix.contrib or something like that?)
 from sxactions import ActionInfo
 
 def parse_buttonstroke(s):
@@ -41,10 +41,10 @@ def parse_buttonstroke(s):
         Return (modifiers, button id), extracted from the string `s`.
 
         It has to contain several modifiers and a button index,
-        joined together with a '+':
+        joined together with a '+'::
 
-        CTRL+1
-        MOD4+2
+            CTRL+1
+            MOD4+2
 
         1 is the left mouse button,
         2 the middle,
@@ -307,7 +307,7 @@ class SXDeco(Plugin):
                 ]
 
     def on_load_config(self, config):
-        for stroke, action in config.get('decoration.bindings', {}).iteritems():
+        for stroke, action in config.get('cairodeco.bindings', {}).iteritems():
             self.bindings[parse_buttonstroke(stroke)] = action
 
     def on_ready(self, app):

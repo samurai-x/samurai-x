@@ -9,9 +9,9 @@ represented by a kind of wrapper class. In samurai-x2, that's the
 
 Because we wanted to be able to use samurai-x2 with or without a window
 decoration plugin, we decided to use an 'actor': A client has
-two attributes containing windows, :attr:`samuraix.client.Client.window` and
-:attr:`samuraix.client.Client.actor`. The former is *always* the foreign
-window, the latter is the decoration window: the actor. If there is no
+two attributes containing windows, :attr:`window <samuraix.client.Client.window>`
+and :attr:`actor <samuraix.client.Client.actor>`. The former is *always* the
+foreign window, the latter is the decoration window: the actor. If there is no
 decoration plugin activated, the actor window is the same as the foreign
 window. So it is possible to develop plugins without having to know if there
 is a decoration plugin enabled or not, you just have to take care of using
