@@ -128,10 +128,13 @@ def load_user_config(configpath):
     """
     configpath = os.path.normpath(os.path.expanduser(configpath))
     log.info('trying to import config from %s...' % configpath)
-    fp, pathname, description = imp.find_module('config', [configpath])
+    try:
+        fp, pathname, description = imp.find_module('config', [configpath])
+    except ImportError:
+        log.warning('%s/config.py not found - using default config' % configpath)
+        return None
     mod = imp.load_module('config', fp, pathname, description)
     return getattr(mod, 'config')
-
 
 def parse_options():
     """
