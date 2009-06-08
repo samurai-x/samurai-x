@@ -140,13 +140,20 @@ class Decorator(object):
                 style={
                     'background': {
                         'color': (0.2, 0.2, 0.2),
+                        'style': 'gradient',
+                        'fill-line': (0.0, 0.0, 0.0, 20.0),
+                        'fill-stops': [
+                            (0.0, 0.2, 0.2, 0.2),
+                            (0.3, 0.7, 0.7, 0.75),
+                            (1.0, 0.4, 0.4, 0.4),
+                        ],
                     },
                     'border': {
                         'color': (255, 255, 255),
                         'width': 1.0,
                     },
                     'layout': {
-                        'padding': 1,
+                        'padding': 5,
                     },
                 },
                 layouter=ui.VerticalLayouter,
@@ -157,7 +164,7 @@ class Decorator(object):
             height=20,
             style={
                 'text': {
-                    'color': (1, 1, 1),
+                    'color': (0, 0, 0),
                 }
             }
         )

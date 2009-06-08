@@ -46,7 +46,15 @@ class Window(EventDispatcher):
             return 
 
         if 'background' in self.style and self.style['background'] is not None:
-            cairo.cairo_set_source_rgb(cr, *self.style['background']['color'])
+            style = self.style['background'].get('style', 'fill')
+            assert style in ('fill', 'gradient')
+            if style == 'fill':
+                cairo.cairo_set_source_rgb(cr, *self.style['background']['color'])
+            elif style == 'gradient':
+                pat = cairo.cairo_pattern_create_linear(*self.style['background']['fill-line'])
+                for stop in self.style['background']['fill-stops']:
+                    cairo.cairo_pattern_add_color_stop_rgb(pat, *stop)
+                cairo.cairo_set_source(cr, pat)
             cairo.cairo_rectangle(cr, self.rx, self.ry, self.rwidth, self.rheight)
             cairo.cairo_fill(cr)
 
