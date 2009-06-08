@@ -61,9 +61,9 @@ def hex_to_cairo_color(color):
 
 
 class ClientWindow(ui.Window):
-    def __init__(self, window):
+    def __init__(self, window, **kwargs):
         self.window = window 
-        ui.Window.__init__(self)
+        ui.Window.__init__(self, **kwargs)
 
     def set_render_coords(self, x, y, width, height):
         ui.Window.set_render_coords(self, x, y, width, height)
@@ -142,15 +142,22 @@ class Decorator(object):
                 style={
                     'background.color': (0.2, 0.2, 0.2),
                     'background.style': 'gradient',
-                    'background.fill-line': (0.0, 0.0, 0.0, 20.0),
+                    'background.fill-line': (0.0, 0.0, 0.0, 200.0),
                     'background.fill-stops': [
                         (0.0, 0.2, 0.2, 0.2),
                         (0.7, 0.7, 0.7, 0.75),
                         (1.0, 0.4, 0.4, 0.4),
                     ],
-                    'border.color': (255, 255, 255),
-                    'border.width': 1.0,
-                    'layout.padding': 5,
+                    'border.color': (1, 1, 1),
+                    'border.style': 'gradient',
+                    'border.fill-line': (0.0, 0.0, 0.0, 200.0),
+                    'border.fill-stops': [
+                        (1.0, 0.2, 0.2, 0.2),
+                        (0.7, 0.7, 0.7, 0.75),
+                        (0.0, 0.4, 0.4, 0.4),
+                    ],
+                    'border.width': 4.0,
+                    'layout.padding': 6,
                 },
                 layouter=ui.VerticalLayouter,
         )
@@ -159,10 +166,18 @@ class Decorator(object):
             text=window_title,
             height=20,
             style={
-                'text.color': (0, 0, 0),
+                'text.color': (9, 9, 9),
+                #'border.color': (1, 0, 0),
+                #'border.width': 1.0,
+                'layout.margin': 1,
             }
         )
-        self.clientwin = ClientWindow(client.window)
+        self.clientwin = ClientWindow(
+            client.window,
+            style={
+                'layout.margin': 1,
+            },
+        )
         self.ui.add_children([self.title, self.clientwin])
         self.ui.layout()
         self.ui.render()

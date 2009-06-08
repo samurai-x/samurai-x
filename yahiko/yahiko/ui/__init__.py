@@ -63,7 +63,16 @@ class Window(EventDispatcher):
 
         border = DictProxy(self.style, 'border.')
         if border and 'color' in border and border['color']:
-            cairo.cairo_set_source_rgb(cr, *border['color'])
+            style = border.get('style', 'fill')
+            assert style in ('fill', 'gradient')
+            if style == 'fill' and 'color' in border:
+                cairo.cairo_set_source_rgb(cr, *border['color'])
+            elif style == 'gradient' and 'fill-line' in border and 'fill-stops' in border:
+                pat = cairo.cairo_pattern_create_linear(*border['fill-line'])
+                for stop in border['fill-stops']:
+                    cairo.cairo_pattern_add_color_stop_rgb(pat, *stop)
+                cairo.cairo_set_source(cr, pat)
+            cairo.cairo_set_line_width(cr, border.get('width', 1.0))
             cairo.cairo_rectangle(cr, self.rx, self.ry, self.rwidth, self.rheight)
             cairo.cairo_stroke(cr)
 
