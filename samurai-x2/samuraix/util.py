@@ -127,6 +127,69 @@ class OrderedDict(DictMixin):
         copyDict._keys = self._keys[:]
         return copyDict
 
+
+from UserDict import DictMixin
+
+
+#TODO use UserDict DictMixin or (2.6) collections.MutableMapping
+class DictProxy(object):
+    """ a dict proxy 
+    creates a proxy to a dict
+    the prefix argument is prefixed to all key operations so that 
+
+    >>> d = {'a.b':1}
+    >>> pd = DictProxy(d, 'a.')
+    >>> pd['b'] == d['a.b']
+    True
+    
+    all other dict operations should also work 
+    """
+
+    def __init__(self, other, prefix):
+        self.prefix = prefix 
+        self.other = other
+
+    def __len__(self):
+        return len(self.keys())
+
+    def __getitem__(self, key):
+        return self.other[self.prefix + key]
+
+    def __setitem__(self, key, value):
+        self.other[self.prefix + key] = value
+
+    def __delitem__(self, key):
+        del self.other[self.prefix + key]
+
+    def __contains__(self, key):
+        return self.other.__contains__(self.prefix + key)
+
+    def get(self, key, default=None):
+        return self.other.get(self.prefix+key, default)
+
+    def iterkeys(self):
+        return (key for key in self.other if key.startswith(self.prefix))
+
+    def itervalues(self):
+        return (value for key, value in self.other if key.startswith(self.prefix))
+
+    def iteritems(self):
+        return ((key, value) for key, value in self.other.iteritems() if key.startswith(self.prefix))
+
+    def keys(self):
+        return list(self.iterkeys())
+
+    def values(self):
+        return list(self.itervalues())
+
+    def items(self):
+        return list(self.iteritems())
+
+    def update(self, values):
+        for key, value in values.iteritems():
+            self[key] = value
+
+
 MODIFIERS = {
         # TODO: I am not sure about the
         # following four modifiers.
