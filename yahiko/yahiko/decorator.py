@@ -33,31 +33,7 @@ from samuraix.rect import Rect
 from ooxcb import xproto
 from ooxcb.contrib import cairo
 
-from sxbind import MODIFIERS # Oh no, we depend on sxbind! TODO? (maybe move into samuraix.contrib or something like that?)
-from sxactions import ActionInfo
-
 from yahiko import ui
-
-def compute_window_geom(geom):
-    """ convert the 'frame geom' to the 'window geom' """
-    geom.y += config['cairodeco.height']
-    geom.height -= config['cairodeco.height']
-
-
-def compute_actor_geom(geom):
-    """ convert the 'window geom' to the 'geom geom' """
-    geom.y = max(0, geom.y - config['cairodeco.height'])
-    geom.height = max(1, geom.height + config['cairodeco.height'])
-
-
-def hex_to_cairo_color(color):
-    """
-        convert a color in hexadecimal form (e.g. '#ff00ee').
-        return a 3-element tuple of (R, G, B), where R, G
-        and B are 0..255.
-    """
-    color = color.lstrip('#')
-    return tuple(int(p, 16) for p in (color[:2], color[2:4], color[4:]))
 
 
 class ClientWindow(ui.Window):
@@ -317,14 +293,3 @@ class DecoratorPlugin(Plugin):
         # has to use the same colormap as the foreign window.
         decorator = Decorator(self, screen, client)
         self.attach_data_to(client, decorator)
-
-    def emit_action(self, client, evt):
-        stroke = (evt.state, evt.detail)
-        if stroke in self.bindings:
-            info = ActionInfo(screen = self.app.get_screen_by_root(evt.root),
-                    x=evt.event_x,
-                    y=evt.event_y,
-                    client=client) # TODO: no additional info? :/
-            # ... call the action
-            self.app.plugins['actions'].emit(self.bindings[stroke], info)
-
