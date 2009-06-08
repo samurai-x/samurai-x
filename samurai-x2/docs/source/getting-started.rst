@@ -39,9 +39,9 @@ use the `sx-wm` executable. The first step will normally be to
 create a sample configuration file::
 
     ./setenv
-    ./sx-wm --default-config > ~/.samuraix/config
+    ./sx-wm --default-config > ~/.samuraix/config.py
 
-You can now edit the configuration file `~/.samuraix/config`. If there
+You can now edit the configuration file `~/.samuraix/config.py`. If there
 is no such file, samurai-x2 uses the default configuration.
 
 To run samurai-x2, just type::
