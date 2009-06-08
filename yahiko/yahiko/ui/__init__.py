@@ -47,7 +47,6 @@ class Window(EventDispatcher):
             return 
 
         background = DictProxy(self.style, 'background.')
-        log.debug(str(( background, background.items())))
         if background:
             style = background.get('style', 'fill')
             assert style in ('fill', 'gradient')
@@ -130,6 +129,9 @@ class VerticalLayouter(Layouter):
             )
             y += (child.height or hplus)
 
+            if hasattr(child, 'layout'):
+                child.layout()
+
 
 class HorizontalLayouter(Layouter):
     def layout(self):
@@ -142,7 +144,15 @@ class HorizontalLayouter(Layouter):
         h = self.container.rheight - (2 * padding)
         w = self.container.rwidth - (2 * padding)
 
-        wplus = w / len(self.container.children)
+        used_width = 0 
+        with_width = 0 
+
+        for child in self.container.children:
+            if child.width:
+                used_width += child.width
+                with_width += 1
+
+        wplus = (w - used_width) / (len(self.container.children) - with_width)
         x = padding
         for child in self.container.children:
             margin = 0
@@ -154,10 +164,13 @@ class HorizontalLayouter(Layouter):
             child.set_render_coords(
                     x + margin,
                     padding + margin,
-                    wplus - (2 * margin),
+                    (child.width or wplus) - (2 * margin),
                     h - (2 * margin),
             )
-            x += wplus
+            x += (child.width or wplus)
+
+            if hasattr(child, 'layout'):
+                child.layout()
 
 
 class Container(Window):

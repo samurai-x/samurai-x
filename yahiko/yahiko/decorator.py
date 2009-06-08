@@ -71,6 +71,39 @@ class ClientWindow(ui.Window):
 
 
 class Decorator(object):
+
+    default_actor_style={
+        'background.color': (0.2, 0.2, 0.2),
+        'background.style': 'gradient',
+        'background.fill-line': (0.0, 0.0, 0.0, 200.0),
+        'background.fill-stops': [
+            (0.0, 0.2, 0.2, 0.2),
+            (0.7, 0.7, 0.7, 0.75),
+            (1.0, 0.4, 0.4, 0.4),
+        ],
+        'border.color': (1, 1, 1),
+        'border.style': 'gradient',
+        'border.fill-line': (0.0, 0.0, 0.0, 200.0),
+        'border.fill-stops': [
+            (1.0, 0.2, 0.2, 0.2),
+            (0.7, 0.7, 0.7, 0.75),
+            (0.0, 0.4, 0.4, 0.4),
+        ],
+        'border.width': 4.0,
+        'layout.padding': 6,
+    }
+
+    default_title_style={
+        'text.color': (9, 9, 9),
+        #'border.color': (1, 0, 0),
+        #'border.width': 1.0,
+        'layout.margin': 1,
+    }
+
+    default_clientwindow_style={
+        'layout.margin': 1,
+    }
+
     def __init__(self, plugin, screen, client):
         self.plugin = plugin
         self.client = client
@@ -108,6 +141,8 @@ class Decorator(object):
         # dont know how to get this from client.window so setting it to 0 
         client.window.configure(border_width=0)
         window_border = 0
+        border = 2
+        title_height = config.get('decorator.title.height', 20)
 
         client.actor = xproto.Window.create(self.plugin.app.conn,
                 screen.root,
@@ -116,8 +151,8 @@ class Decorator(object):
                 geom.x,
                 geom.y,
                 # dont forget the borders of client.border in this calculation
-                geom.width + (2*config['border']) + (2*window_border),
-                geom.height + config['title'] + (2*config['border']) + (2*window_border),
+                geom.width + (2*border) + (2*window_border),
+                geom.height + title_height + (2*border) + (2*window_border),
                 override_redirect=True,
                 back_pixel=screen.info.white_pixel,
                 colormap=colormap,
@@ -139,46 +174,41 @@ class Decorator(object):
         self.ui = ui.TopLevelContainer(
                 client.actor, 
                 screen.info.get_root_visual_type(),
-                style={
-                    'background.color': (0.2, 0.2, 0.2),
-                    'background.style': 'gradient',
-                    'background.fill-line': (0.0, 0.0, 0.0, 200.0),
-                    'background.fill-stops': [
-                        (0.0, 0.2, 0.2, 0.2),
-                        (0.7, 0.7, 0.7, 0.75),
-                        (1.0, 0.4, 0.4, 0.4),
-                    ],
-                    'border.color': (1, 1, 1),
-                    'border.style': 'gradient',
-                    'border.fill-line': (0.0, 0.0, 0.0, 200.0),
-                    'border.fill-stops': [
-                        (1.0, 0.2, 0.2, 0.2),
-                        (0.7, 0.7, 0.7, 0.75),
-                        (0.0, 0.4, 0.4, 0.4),
-                    ],
-                    'border.width': 4.0,
-                    'layout.padding': 6,
-                },
+                style=config.get('decorator.actor.style', self.default_actor_style),
                 layouter=ui.VerticalLayouter,
         )
         window_title = self.client.get_window_title().encode('utf-8')
+
+        title_sizer = ui.Container(
+            height=title_height,
+            layouter=ui.HorizontalLayouter,
+        )
+        self.ui.add_child(title_sizer)
+
         self.title = ui.Label(
             text=window_title,
-            height=20,
-            style={
-                'text.color': (9, 9, 9),
-                #'border.color': (1, 0, 0),
-                #'border.width': 1.0,
-                'layout.margin': 1,
-            }
+            style=config.get('decorator.title.style', self.default_title_style),
         )
+        title_sizer.add_child(self.title)
+
+        def test_func(event):
+            log.info("click! %s" % event)
+
+        but = ui.Label(
+            text="X",
+            width=20,
+            style={
+                'text.color': (1.0, 1.0, 1.0),
+            },
+            on_button_press=test_func,
+        )
+        title_sizer.add_child(but)
+
         self.clientwin = ClientWindow(
             client.window,
-            style={
-                'layout.margin': 1,
-            },
+            style=config.get('decorator.clientwindow.style', self.default_clientwindow_style),
         )
-        self.ui.add_children([self.title, self.clientwin])
+        self.ui.add_child(self.clientwin)
         self.ui.layout()
         self.ui.render()
 
@@ -209,11 +239,13 @@ class Decorator(object):
             window = self.client.window
             window_border = 0
             config = self.plugin.config
+            border = 2
+            title_height = config.get('decorator.title.height', 20)
             
             actor.configure(
                     # dont forget the borders of client.border in this calculation
-                    width = geom.width + (2*config['border']) + (2*window_border),
-                    height = geom.height + config['title'] + (2*config['border']) + (2*window_border),
+                    width = geom.width + (2*border) + (2*window_border),
+                    height = geom.height + title_height + (2*border) + (2*window_border),
             )
 
             self.ui.layout()
@@ -265,11 +297,8 @@ class DecoratorPlugin(Plugin):
         app.push_handlers(self)
         self.bindings = {}
 
-        self.config = {
-            'border': 5,
-            'title': 12,
-        }
-
+    def on_load_config(self, config):
+        self.config = config
 
     def on_ready(self, app):
         for screen in app.screens:
