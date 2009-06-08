@@ -74,22 +74,19 @@ def main():
         dev_path = os.path.abspath(sys.argv[1])
         if not os.path.isdir(dev_path):
             os.makedirs(dev_path)
-        # install ooxcb
-        ooxcb_path = os.path.abspath('ooxcb')
-        develop_package(ooxcb_path, dev_path)
-        # install samurai-x2
-        sx_path = os.path.abspath('samurai-x2')
-        develop_package(sx_path, dev_path)
-        # create `setenv`
-        message('Creating `setenv` script ...')
-        pythonpath = ':'.join([ooxcb_path, sx_path])
+
+        for package_name in ('ooxcb', 'samurai-x2', 'yahiko'):
+            develop_package(os.path.abspath(package_name), dev_path)
+
         setenv_path = os.path.join(dev_path, 'setenv')
         with open(setenv_path, 'w') as setenv:
             setenv.write('#!/bin/sh\n')
-            setenv.write('PYTHONPATH=%s $SHELL\n' % pythonpath)
+            setenv.write('PYTHONPATH=%s $SHELL\n' % dev_path)
+
         # should *we* make it executable?
         message('Making it executable ...')
         os.chmod(setenv_path, stat.S_IRWXU)
+
         # install all plugins (packages in directories named `sx-*`)
         message('Installing plugins ...')
         plugins_dir = os.path.expanduser('~/.samuraix/plugins')
