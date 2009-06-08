@@ -9,6 +9,8 @@ from ctypes import byref
 
 from samuraix.rect import Rect
 
+import logging
+log = logging.getLogger(__name__)
 
 class Window(EventDispatcher):
 
@@ -27,12 +29,21 @@ class Window(EventDispatcher):
 
         self.push_handlers(**kwargs)
 
+    def set_render_coords(self, x, y, width, height):
+        self.rx = x
+        self.ry = y
+        self.rwidth = width
+        self.rheight = height 
+
     def setup_clip(self, cr):
         cairo.cairo_rectangle(cr, self.rx, self.ry, self.rwidth, self.rheight)
         cairo.cairo_clip(cr)
 
     def render(self, cr):
         assert None not in (self.rx, self.ry, self.rwidth, self.rheight)
+
+        if not self.style:
+            return 
 
         if 'background' in self.style and self.style['background'] is not None:
             cairo.cairo_set_source_rgb(cr, *self.style['background']['color'])
@@ -73,7 +84,7 @@ class Layouter(object):
 
 class VerticalLayouter(Layouter):
     def layout(self):
-        layout_style = self.container.get('layout')
+        layout_style = self.container.style.get('layout', {})
         if layout_style:
             padding = layout_style.get('padding', 0)
         else:
@@ -81,19 +92,35 @@ class VerticalLayouter(Layouter):
         h = self.container.rheight - (2 * padding)
         w = self.container.rwidth - (2 * padding)
 
-        hplus = w / len(self.container.children)
+        used_height = 0 
+        with_height = 0 
+
+        for child in self.container.children:
+            if child.height:
+                used_height += child.height
+                with_height += 1
+
+        hplus = (h - used_height) / (len(self.container.children) - with_height)
         y = padding
         for child in self.container.children:
-            child.rx = padding
-            child.ry = y
-            child.rwidth = w
-            child.rheight = hplus
-            y += hplus
+            margin = 0
+            if child.style:
+                child_layout_style = child.style.get('layout')
+                if child_layout_style:
+                    margin = child_layout_style.get('margin', 0)
+
+            child.set_render_coords(
+                    padding + margin,
+                    y + margin,
+                    w - (2 * margin),
+                    (child.height or hplus) - (2 * margin),
+            )
+            y += (child.height or hplus)
 
 
 class HorizontalLayouter(Layouter):
     def layout(self):
-        layout_style = self.container.style.get('layout')
+        layout_style = self.container.style.get('layout', {})
         if layout_style:
             padding = layout_style.get('padding', 0)
         else:
@@ -105,26 +132,33 @@ class HorizontalLayouter(Layouter):
         wplus = w / len(self.container.children)
         x = padding
         for child in self.container.children:
-            child_layout_style = child.style.get('layout')
-            if child_layout_style:
-                margin = child_layout_style.get('margin', 0)
-            else:
-                margin = 0
-            child.rx = x + margin
-            child.ry = padding + margin
-            child.rwidth = wplus - (2 * margin)
-            child.rheight = h - (2 * margin)
+            margin = 0
+            if child.style:
+                child_layout_style = child.style.get('layout')
+                if child_layout_style:
+                    margin = child_layout_style.get('margin', 0)
+
+            child.set_render_coords(
+                    x + margin,
+                    padding + margin,
+                    wplus - (2 * margin),
+                    h - (2 * margin),
+            )
             x += wplus
 
 
 class Container(Window):
     def __init__(self, layouter=None, **kwargs):
         Window.__init__(self, **kwargs)
-        self.layouter = layouter(self)
+        if layouter:
+            self.layouter = layouter(self)
+        else:
+            self.layouter = None
         self.children = []
 
     def layout(self):
-        self.layouter.layout()
+        if self.layouter:
+            self.layouter.layout()
 
     def render(self, cr):
         Window.render(self, cr)
@@ -178,6 +212,12 @@ class TopLevelContainer(Container):
 
     def recreate_surface(self):
         # create a surface for this window
+        log.debug(str((
+                self.window.conn, 
+                self.window,
+                self.visual_type,
+                self.width, self.height,
+        )))
         self.surface = cairo.cairo_xcb_surface_create(
                 self.window.conn, 
                 self.window,
@@ -239,7 +279,11 @@ class Label(Window):
     def render(self, cr):
         Window.render(self, cr)
 
-        if not self.text or not 'color' in self.style['text'] and self.style['text']['color']:
+        if (not self.style
+            or not self.text
+            or not 'text' in self.style 
+            or not 'color' in self.style['text']
+            and self.style['text']['color']):
             return 
 
         extents = cairo.cairo_text_extents_t()
