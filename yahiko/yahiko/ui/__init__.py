@@ -8,6 +8,7 @@ from ooxcb import xproto
 from ctypes import byref
 
 from samuraix.rect import Rect
+from samuraix.util import DictProxy
 
 import logging
 log = logging.getLogger(__name__)
@@ -23,7 +24,7 @@ class Window(EventDispatcher):
         self.width = width
         self.height = height 
 
-        self.style = style
+        self.style = style or {}
 
         self.parent = None
 
@@ -45,23 +46,24 @@ class Window(EventDispatcher):
         if not self.style:
             return 
 
-        if 'background' in self.style and self.style['background'] is not None:
-            style = self.style['background'].get('style', 'fill')
+        background = DictProxy(self.style, 'background.')
+        log.debug(str(( background, background.items())))
+        if background:
+            style = background.get('style', 'fill')
             assert style in ('fill', 'gradient')
-            if style == 'fill':
-                cairo.cairo_set_source_rgb(cr, *self.style['background']['color'])
-            elif style == 'gradient':
-                pat = cairo.cairo_pattern_create_linear(*self.style['background']['fill-line'])
-                for stop in self.style['background']['fill-stops']:
+            if style == 'fill' and 'color' in background:
+                cairo.cairo_set_source_rgb(cr, *background['color'])
+            elif style == 'gradient' and 'fill-line' in background and 'fill-stops' in background:
+                pat = cairo.cairo_pattern_create_linear(*background['fill-line'])
+                for stop in background['fill-stops']:
                     cairo.cairo_pattern_add_color_stop_rgb(pat, *stop)
                 cairo.cairo_set_source(cr, pat)
             cairo.cairo_rectangle(cr, self.rx, self.ry, self.rwidth, self.rheight)
             cairo.cairo_fill(cr)
 
-        if ('border' in self.style and self.style['border'] != None
-            and 'color' in self.style['border'] and self.style['border']['color'] != None
-            ):
-            cairo.cairo_set_source_rgb(cr, *self.style['border']['color'])
+        border = DictProxy(self.style, 'border.')
+        if border and 'color' in border and border['color']:
+            cairo.cairo_set_source_rgb(cr, *border['color'])
             cairo.cairo_rectangle(cr, self.rx, self.ry, self.rwidth, self.rheight)
             cairo.cairo_stroke(cr)
 
@@ -92,11 +94,8 @@ class Layouter(object):
 
 class VerticalLayouter(Layouter):
     def layout(self):
-        layout_style = self.container.style.get('layout', {})
-        if layout_style:
-            padding = layout_style.get('padding', 0)
-        else:
-            padding = 0
+        layout_style = DictProxy(self.container.style, 'layout.')
+        padding = layout_style.get('padding', 0)
         h = self.container.rheight - (2 * padding)
         w = self.container.rwidth - (2 * padding)
 
@@ -111,11 +110,8 @@ class VerticalLayouter(Layouter):
         hplus = (h - used_height) / (len(self.container.children) - with_height)
         y = padding
         for child in self.container.children:
-            margin = 0
-            if child.style:
-                child_layout_style = child.style.get('layout')
-                if child_layout_style:
-                    margin = child_layout_style.get('margin', 0)
+            child_layout_style = DictProxy(child.style, 'layout.')
+            margin = child_layout_style.get('margin', 0)
 
             child.set_render_coords(
                     padding + margin,
@@ -219,20 +215,12 @@ class TopLevelContainer(Container):
         self.recreate_surface()
 
     def recreate_surface(self):
-        # create a surface for this window
-        log.debug(str((
-                self.window.conn, 
-                self.window,
-                self.visual_type,
-                self.width, self.height,
-        )))
         self.surface = cairo.cairo_xcb_surface_create(
                 self.window.conn, 
                 self.window,
                 self.visual_type,
                 self.width, self.height)
         
-        # and a cairo context
         self.cr = cairo.cairo_create(self.surface)
 
     def on_window_expose(self, event):
@@ -286,20 +274,21 @@ class Label(Window):
 
     def render(self, cr):
         Window.render(self, cr)
-
+        
+        text = DictProxy(self.style, 'text.')
         if (not self.style
             or not self.text
-            or not 'text' in self.style 
-            or not 'color' in self.style['text']
-            and self.style['text']['color']):
+            or not text
+            or not 'color' in text
+            and text['color']):
             return 
 
         extents = cairo.cairo_text_extents_t()
         cairo.cairo_text_extents(cr, self.text, byref(extents))
 
-        cairo.cairo_set_source_rgb(cr, *self.style['text']['color'])
+        cairo.cairo_set_source_rgb(cr, *text['color'])
 
-        align = self.style['text'].get('align', 'centre')
+        align = text.get('align', 'centre')
         assert align in ('left', 'centre', 'right')
         if align == 'centre':
             cairo.cairo_move_to(cr, 

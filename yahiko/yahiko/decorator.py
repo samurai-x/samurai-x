@@ -94,6 +94,8 @@ class Decorator(object):
                 ["WM_NAME", "_NET_WM_NAME", "_NET_WM_VISIBLE_NAME"]
                 ]
 
+        self._configure_counter = 0
+
         self.create_actor_window()
 
     def create_actor_window(self):
@@ -138,34 +140,26 @@ class Decorator(object):
                 client.actor, 
                 screen.info.get_root_visual_type(),
                 style={
-                    'background': {
-                        'color': (0.2, 0.2, 0.2),
-                        'style': 'gradient',
-                        'fill-line': (0.0, 0.0, 0.0, 20.0),
-                        'fill-stops': [
-                            (0.0, 0.2, 0.2, 0.2),
-                            (0.3, 0.7, 0.7, 0.75),
-                            (1.0, 0.4, 0.4, 0.4),
-                        ],
-                    },
-                    'border': {
-                        'color': (255, 255, 255),
-                        'width': 1.0,
-                    },
-                    'layout': {
-                        'padding': 5,
-                    },
+                    'background.color': (0.2, 0.2, 0.2),
+                    'background.style': 'gradient',
+                    'background.fill-line': (0.0, 0.0, 0.0, 20.0),
+                    'background.fill-stops': [
+                        (0.0, 0.2, 0.2, 0.2),
+                        (0.7, 0.7, 0.7, 0.75),
+                        (1.0, 0.4, 0.4, 0.4),
+                    ],
+                    'border.color': (255, 255, 255),
+                    'border.width': 1.0,
+                    'layout.padding': 5,
                 },
                 layouter=ui.VerticalLayouter,
         )
-        window_title = self.client.get_window_title().encode('utf-8') # <- TODO: is that too expensive?
+        window_title = self.client.get_window_title().encode('utf-8')
         self.title = ui.Label(
             text=window_title,
             height=20,
             style={
-                'text': {
-                    'color': (0, 0, 0),
-                }
+                'text.color': (0, 0, 0),
             }
         )
         self.clientwin = ClientWindow(client.window)
@@ -181,6 +175,7 @@ class Decorator(object):
 
         client.window.push_handlers(
                 on_property_notify=self.on_property_notify,
+                on_configure_notify=self.window_on_configure_notify,
                 #on_unmap_notify=self.on_unmap_notify,
                 #on_map_notify=self.on_map_notify,
         )
@@ -188,6 +183,25 @@ class Decorator(object):
         #client.screen.root.push_handlers(
         #        #on_configure_notify=self.screen_on_configure_notify,
         #)
+
+    def window_on_configure_notify(self, event):
+        if self._configure_counter != 0:
+            self._configure_counter -=1
+        else:
+            self._configure_counter += 1
+            actor = self.client.actor
+            geom = Rect.from_object(event)
+            window = self.client.window
+            window_border = 0
+            config = self.plugin.config
+            
+            actor.configure(
+                    # dont forget the borders of client.border in this calculation
+                    width = geom.width + (2*config['border']) + (2*window_border),
+                    height = geom.height + config['title'] + (2*config['border']) + (2*window_border),
+            )
+
+            self.ui.layout()
 
     def on_focus(self, client):
         if (self._active and not self._obsolete):
@@ -207,8 +221,25 @@ class Decorator(object):
             self.ui.render()
 
     def remove(self):
-        # TODO
-        pass
+        """ the end. """
+        log.debug('removing deco for %s' % self.client)
+        if self.client.window.valid:
+            self.client.window.reparent(self.client.screen.root,
+                    self.client.geom.x,
+                    self.client.geom.y)
+            # TODO: don't stick them at (0, 0). geom.x/geom.y seem are 0 - why?
+        self.client.actor.destroy()
+        self.client.conn.flush()
+        self._obsolete = True
+        # remove all handlers of everything
+        self.client.remove_handlers(self)
+
+        self.client.window.remove_handlers(
+                on_property_notify=self.on_property_notify,
+        )
+
+        self.plugin.remove_data(self.client)
+        del self.client
 
 
 class DecoratorPlugin(Plugin):
