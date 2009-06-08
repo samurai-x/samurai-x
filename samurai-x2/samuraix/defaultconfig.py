@@ -54,7 +54,7 @@ config = {
             'Meta+p': 'desktops.cycle offset=-1',
             'Meta+c': 'desktops.cycle_clients',
             'Meta+d': 'log message="pressed d"',
-            'META+X': 'spawn cmdline="xterm -bg \'#cc0000\'"',
+            'META+X': 'spawn cmdline="xterm"',
             'META+g': 'spawn cmdline="gimp"',
             'Meta+Q': 'quit',
             'Meta+R': 'restart',
