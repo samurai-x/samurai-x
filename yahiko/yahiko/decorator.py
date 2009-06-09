@@ -101,9 +101,7 @@ class Decorator(object):
 
         self.watched_atoms = [plugin.app.conn.atoms[name] for name in
                 ["WM_NAME", "_NET_WM_NAME", "_NET_WM_VISIBLE_NAME"]
-                ]
-
-        self._configure_counter = 0
+        ]
 
         self.create_actor_window()
 
@@ -161,24 +159,29 @@ class Decorator(object):
         )
         self.ui.add_child(title_sizer)
 
+        for button in config.get('decorator.buttons.leftside', []):
+            but = ui.Label(
+                text=button.get('text'),
+                width=button.get('width'),
+                style=button.get('style'),
+                on_button_press=button.get('func'),
+            )
+            title_sizer.add_child(but)
+
         self.title = ui.Label(
             text=window_title,
             style=config.get('decorator.title.style', self.default_title_style),
         )
         title_sizer.add_child(self.title)
 
-        def test_func(event):
-            client.kill()
-
-        but = ui.Label(
-            text="X",
-            width=20,
-            style={
-                'text.color': (1.0, 1.0, 1.0),
-            },
-            on_button_press=test_func,
-        )
-        title_sizer.add_child(but)
+        for button in config.get('decorator.buttons.rightside', []):
+            but = ui.Label(
+                text=button.get('text'),
+                width=button.get('width'),
+                style=button.get('style'),
+                on_button_press=button.get('func'),
+            )
+            title_sizer.add_child(but)
 
         self.clientwin = ClientWindow(
             client.window,
@@ -206,10 +209,10 @@ class Decorator(object):
         #)
 
     def window_on_configure_notify(self, event):
-        if self._configure_counter != 0:
-            self._configure_counter -=1
+        if self._window_configures != 0:
+            self._window_configures -=1
         else:
-            self._configure_counter += 1
+            self._window_configures += 1
             actor = self.client.actor
             geom = Rect.from_object(event)
             window = self.client.window
