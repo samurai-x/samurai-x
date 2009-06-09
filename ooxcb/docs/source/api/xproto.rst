@@ -44,6 +44,9 @@ ooxcb.xproto
     .. data:: event_name
 
 
+    .. data:: opcode
+
+
     .. data:: event_target_class
 
 
@@ -502,6 +505,9 @@ ooxcb.xproto
     .. data:: event_name
 
 
+    .. data:: opcode
+
+
     .. data:: event_target_class
 
 
@@ -589,6 +595,9 @@ ooxcb.xproto
 .. class:: SelectionClearEvent
 
     .. data:: event_name
+
+
+    .. data:: opcode
 
 
     .. data:: event_target_class
@@ -781,6 +790,9 @@ ooxcb.xproto
     .. data:: event_name
 
 
+    .. data:: opcode
+
+
     .. data:: event_target_class
 
 
@@ -867,6 +879,9 @@ ooxcb.xproto
     .. data:: event_name
 
 
+    .. data:: opcode
+
+
     .. data:: event_target_class
 
 
@@ -890,6 +905,9 @@ ooxcb.xproto
 .. class:: GravityNotifyEvent
 
     .. data:: event_name
+
+
+    .. data:: opcode
 
 
     .. data:: event_target_class
@@ -965,6 +983,9 @@ ooxcb.xproto
     .. data:: event_name
 
 
+    .. data:: opcode
+
+
     .. data:: event_target_class
 
 
@@ -1023,6 +1044,9 @@ ooxcb.xproto
 .. class:: ConfigureRequestEvent
 
     .. data:: event_name
+
+
+    .. data:: opcode
 
 
     .. data:: event_target_class
@@ -1191,6 +1215,9 @@ ooxcb.xproto
 .. class:: KeymapNotifyEvent
 
     .. data:: event_name
+
+
+    .. data:: opcode
 
 
     .. data:: event_target_class
@@ -1436,6 +1463,9 @@ ooxcb.xproto
     .. data:: event_name
 
 
+    .. data:: opcode
+
+
     .. data:: event_target_class
 
 
@@ -1533,6 +1563,9 @@ ooxcb.xproto
     .. data:: event_name
 
 
+    .. data:: opcode
+
+
     .. data:: event_target_class
 
 
@@ -1568,6 +1601,9 @@ ooxcb.xproto
 .. class:: MapRequestEvent
 
     .. data:: event_name
+
+
+    .. data:: opcode
 
 
     .. data:: event_target_class
@@ -1637,6 +1673,9 @@ ooxcb.xproto
 .. class:: KeyReleaseEvent
 
     .. data:: event_name
+
+
+    .. data:: opcode
 
 
     .. data:: event_target_class
@@ -1813,6 +1852,9 @@ ooxcb.xproto
     .. data:: event_name
 
 
+    .. data:: opcode
+
+
     .. data:: event_target_class
 
 
@@ -1838,10 +1880,16 @@ ooxcb.xproto
     .. data:: event_name
 
 
+    .. data:: opcode
+
+
     .. data:: event_target_class
 
 
     .. method:: __init__(self, conn)
+
+
+    .. classmethod:: create(cls, conn, type, window, format, values)
 
 
     .. attribute:: data
@@ -1937,6 +1985,9 @@ ooxcb.xproto
 .. class:: ButtonReleaseEvent
 
     .. data:: event_name
+
+
+    .. data:: opcode
 
 
     .. data:: event_target_class
@@ -2285,6 +2336,9 @@ ooxcb.xproto
     .. data:: event_name
 
 
+    .. data:: opcode
+
+
     .. data:: event_target_class
 
 
@@ -2433,6 +2487,9 @@ ooxcb.xproto
 .. class:: CirculateNotifyEvent
 
     .. data:: event_name
+
+
+    .. data:: opcode
 
 
     .. data:: event_target_class
@@ -2653,6 +2710,9 @@ ooxcb.xproto
     .. data:: event_name
 
 
+    .. data:: opcode
+
+
     .. data:: event_target_class
 
 
@@ -2699,6 +2759,9 @@ ooxcb.xproto
 .. class:: LeaveNotifyEvent
 
     .. data:: event_name
+
+
+    .. data:: opcode
 
 
     .. data:: event_target_class
@@ -2767,6 +2830,9 @@ ooxcb.xproto
 .. class:: MapNotifyEvent
 
     .. data:: event_name
+
+
+    .. data:: opcode
 
 
     .. data:: event_target_class
@@ -3081,6 +3147,9 @@ ooxcb.xproto
     .. data:: event_name
 
 
+    .. data:: opcode
+
+
     .. data:: event_target_class
 
 
@@ -3096,6 +3165,9 @@ ooxcb.xproto
 .. class:: FocusOutEvent
 
     .. data:: event_name
+
+
+    .. data:: opcode
 
 
     .. data:: event_target_class
@@ -3136,6 +3208,9 @@ ooxcb.xproto
     .. data:: event_name
 
 
+    .. data:: opcode
+
+
     .. data:: event_target_class
 
 
@@ -3155,6 +3230,9 @@ ooxcb.xproto
 .. class:: CirculateRequestEvent
 
     .. data:: event_name
+
+
+    .. data:: opcode
 
 
     .. data:: event_target_class
@@ -3211,6 +3289,9 @@ ooxcb.xproto
     .. data:: event_name
 
 
+    .. data:: opcode
+
+
     .. data:: event_target_class
 
 
@@ -3251,6 +3332,9 @@ ooxcb.xproto
     .. data:: event_name
 
 
+    .. data:: opcode
+
+
     .. data:: event_target_class
 
 
@@ -3277,6 +3361,9 @@ ooxcb.xproto
 .. class:: MotionNotifyEvent
 
     .. data:: event_name
+
+
+    .. data:: opcode
 
 
     .. data:: event_target_class
@@ -3402,6 +3489,9 @@ ooxcb.xproto
     .. data:: event_name
 
 
+    .. data:: opcode
+
+
     .. data:: event_target_class
 
 
@@ -3438,6 +3528,9 @@ ooxcb.xproto
 .. class:: SelectionRequestEvent
 
     .. data:: event_name
+
+
+    .. data:: opcode
 
 
     .. data:: event_target_class
@@ -3543,6 +3636,9 @@ ooxcb.xproto
 .. class:: FocusInEvent
 
     .. data:: event_name
+
+
+    .. data:: opcode
 
 
     .. data:: event_target_class
@@ -3726,6 +3822,9 @@ ooxcb.xproto
     .. data:: event_name
 
 
+    .. data:: opcode
+
+
     .. data:: event_target_class
 
 
@@ -3802,6 +3901,9 @@ ooxcb.xproto
 .. class:: PropertyNotifyEvent
 
     .. data:: event_name
+
+
+    .. data:: opcode
 
 
     .. data:: event_target_class

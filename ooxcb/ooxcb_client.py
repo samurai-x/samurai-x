@@ -928,6 +928,8 @@ def py_event(self, name):
     struct = PyClass(self.py_event_name)
     struct.base = 'ooxcb.Event'
     struct.new_attribute('event_name', '"on_%s"' % pythonize_camelcase_name(strip_ns(name)))
+    # each event class has an `opcode` attribute
+    struct.new_attribute('opcode', self.opcodes[name])
 
     entry = INTERFACE.get('Events', {}).get(strip_ns(name), None)
     if entry is None:

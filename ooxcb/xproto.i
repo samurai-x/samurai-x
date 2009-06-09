@@ -259,7 +259,7 @@ Requests:
         precode:
             - !xizer "Address"
 
-    KillClient:
+    KillClient: # TODO: wrap this as `Resource` member?
         arguments: ["resource"] # TODO: allow AllTemporary somehow
         precode:
             - "resource = resource.get_internal()"
@@ -812,6 +812,23 @@ Classes:
                 - "ret.append(reply)"
                 - !dedent
                 - "return ret"
+
+    ClientMessageEvent:
+        # convenience construction method
+        - classmethod:
+            name: create
+            arguments: ["conn", "type", "window", "format", "values"]
+            code: [
+                    'assert format in (8, 16, 32)',
+                    'evt = cls(conn)',
+                    'evt.type = type',
+                    'evt.window = window',
+                    'evt.format = format',
+                    'data = ClientMessageData(conn)',
+                    'setattr(data, "data%d" % format, values)',
+                    'evt.data = data',
+                    'return evt'
+                    ]
 
     Drawable:
         - order: 99 # just before `Window` and `Pixmap`
