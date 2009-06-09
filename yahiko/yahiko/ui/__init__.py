@@ -48,17 +48,29 @@ class Window(EventDispatcher):
 
         background = DictProxy(self.style, 'background.')
         if background:
+            cairo.cairo_rectangle(cr, self.rx, self.ry, self.rwidth, self.rheight)
+
             style = background.get('style', 'fill')
-            assert style in ('fill', 'gradient')
+            assert style in ('fill', 'gradient', 'image')
             if style == 'fill' and 'color' in background:
                 cairo.cairo_set_source_rgb(cr, *background['color'])
+                cairo.cairo_fill(cr)
             elif style == 'gradient' and 'fill-line' in background and 'fill-stops' in background:
                 pat = cairo.cairo_pattern_create_linear(*background['fill-line'])
                 for stop in background['fill-stops']:
                     cairo.cairo_pattern_add_color_stop_rgb(pat, *stop)
                 cairo.cairo_set_source(cr, pat)
-            cairo.cairo_rectangle(cr, self.rx, self.ry, self.rwidth, self.rheight)
-            cairo.cairo_fill(cr)
+                cairo.cairo_fill(cr)
+            elif style == 'image' and 'image' in background and background['image']:
+                image = cairo.cairo_image_surface_create_from_png(background.get('image'))
+                w = float(cairo.cairo_image_surface_get_width(image))
+                h = float(cairo.cairo_image_surface_get_height(image))
+
+                cairo.cairo_scale(cr, self.rwidth/w, self.rheight/h)
+
+                cairo.cairo_set_source_surface(cr, image, 0, 0)
+                cairo.cairo_paint(cr)
+
 
         border = DictProxy(self.style, 'border.')
         if border and 'color' in border and border['color']:
