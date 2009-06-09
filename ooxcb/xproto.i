@@ -817,7 +817,7 @@ Classes:
         # convenience construction method
         - classmethod:
             name: create
-            arguments: ["conn", "window", "format", "values"]
+            arguments: ["conn", "type", "window", "format", "values"]
             code: [
                     'assert format in (8, 16, 32)',
                     'evt = cls(conn)',
