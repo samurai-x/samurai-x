@@ -180,13 +180,34 @@ class Client(SXObject):
                         xproto.Time.CurrentTime
                     ]
                     )
-            self.window.send_event(
-                    EventMask.SubstructureNotify | EventMask.SubstructureRedirect,
-                    msg
-                    )
+            self.window.send_event(0, msg)
         else:
             # use kill_client
             self.conn.core.kill_client(self.window)
+        self.conn.flush()
+
+    def set_input_focus(self):
+        """
+            grant the input focus. If :attr:`protocols` contains
+            `WM_TAKE_FOCUS`, send such a client message, otherwise
+            use :meth:`set_input_focus <ooxcb.xproto.Window.set_input_focus>`.
+        """
+        if self.conn.atoms['WM_TAKE_FOCUS'] in self.protocols:
+            # use client message
+            msg = xproto.ClientMessageEvent.create(
+                    self.conn,
+                    self.conn.atoms['WM_PROTOCOLS'],
+                    self.window,
+                    32,
+                    [
+                        self.conn.atoms['WM_TAKE_FOCUS'],
+                        xproto.Time.CurentTime
+                    ]
+                    )
+            self.window.set_event(0, msg)
+        else:
+            # use set_input_focus
+            self.window.set_input_focus()
         self.conn.flush()
 
     def init(self):
@@ -517,7 +538,7 @@ class Client(SXObject):
             `Screen.focus` instead.
         """
         # grab the input focus
-        self.window.set_input_focus()
+        self.set_input_focus()
         # set it abvoe
         if bring_forward:
             self.actor.configure(stack_mode=xproto.StackMode.Above)
