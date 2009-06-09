@@ -168,7 +168,7 @@ class Decorator(object):
         title_sizer.add_child(self.title)
 
         def test_func(event):
-            log.info("click! %s" % event)
+            client.kill()
 
         but = ui.Label(
             text="X",
@@ -250,7 +250,6 @@ class Decorator(object):
             self.client.window.reparent(self.client.screen.root,
                     self.client.geom.x,
                     self.client.geom.y)
-            # TODO: don't stick them at (0, 0). geom.x/geom.y seem are 0 - why?
         self.client.actor.destroy()
         self.client.conn.flush()
         self._obsolete = True
