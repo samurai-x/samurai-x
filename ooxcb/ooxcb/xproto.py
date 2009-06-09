@@ -526,6 +526,7 @@ class QueryBestSizeCookie(ooxcb.Cookie):
 
 class GraphicsExposureEvent(ooxcb.Event):
     event_name = "on_graphics_exposure"
+    opcode = 13
     event_target_class = "Drawable"
     def __init__(self, conn):
         ooxcb.Event.__init__(self, conn)
@@ -1216,6 +1217,7 @@ class Fontable(ooxcb.Resource):
 
 class ConfigureNotifyEvent(ooxcb.Event):
     event_name = "on_configure_notify"
+    opcode = 22
     event_target_class = "Window"
     def __init__(self, conn):
         ooxcb.Event.__init__(self, conn)
@@ -1318,6 +1320,7 @@ class Setup(ooxcb.Struct):
 
 class SelectionClearEvent(ooxcb.Event):
     event_name = "on_selection_clear"
+    opcode = 29
     event_target_class = ooxcb.Connection
     def __init__(self, conn):
         ooxcb.Event.__init__(self, conn)
@@ -1426,6 +1429,7 @@ class GetPointerMappingReply(ooxcb.Reply):
 
 class DestroyNotifyEvent(ooxcb.Event):
     event_name = "on_destroy_notify"
+    opcode = 17
     event_target_class = "Window"
     def __init__(self, conn):
         ooxcb.Event.__init__(self, conn)
@@ -1562,6 +1566,7 @@ class QueryKeymapCookie(ooxcb.Cookie):
 
 class ExposeEvent(ooxcb.Event):
     event_name = "on_expose"
+    opcode = 12
     event_target_class = "Window"
     def __init__(self, conn):
         ooxcb.Event.__init__(self, conn)
@@ -1592,6 +1597,7 @@ class ExposeEvent(ooxcb.Event):
 
 class GravityNotifyEvent(ooxcb.Event):
     event_name = "on_gravity_notify"
+    opcode = 24
     event_target_class = ooxcb.Connection
     def __init__(self, conn):
         ooxcb.Event.__init__(self, conn)
@@ -1695,6 +1701,7 @@ class MatchError(ooxcb.Error):
 
 class UnmapNotifyEvent(ooxcb.Event):
     event_name = "on_unmap_notify"
+    opcode = 18
     event_target_class = "Window"
     def __init__(self, conn):
         ooxcb.Event.__init__(self, conn)
@@ -1795,6 +1802,7 @@ class AllocColorCellsReply(ooxcb.Reply):
 
 class ConfigureRequestEvent(ooxcb.Event):
     event_name = "on_configure_request"
+    opcode = 23
     event_target_class = "Window"
     def __init__(self, conn):
         ooxcb.Event.__init__(self, conn)
@@ -1904,6 +1912,7 @@ class Setuprequest(ooxcb.Struct):
 
 class KeymapNotifyEvent(ooxcb.Event):
     event_name = "on_keymap_notify"
+    opcode = 11
     event_target_class = ooxcb.Connection
     def __init__(self, conn):
         ooxcb.Event.__init__(self, conn)
@@ -2071,6 +2080,7 @@ class BadColormap(ooxcb.ProtocolException):
 
 class NoExposureEvent(ooxcb.Event):
     event_name = "on_no_exposure"
+    opcode = 14
     event_target_class = ooxcb.Connection
     def __init__(self, conn):
         ooxcb.Event.__init__(self, conn)
@@ -2143,6 +2153,7 @@ class LookupColorCookie(ooxcb.Cookie):
 
 class EnterNotifyEvent(ooxcb.Event):
     event_name = "on_enter_notify"
+    opcode = 7
     event_target_class = "Window"
     def __init__(self, conn):
         ooxcb.Event.__init__(self, conn)
@@ -2185,6 +2196,7 @@ class EnterNotifyEvent(ooxcb.Event):
 
 class MapRequestEvent(ooxcb.Event):
     event_name = "on_map_request"
+    opcode = 20
     event_target_class = "Window"
     def __init__(self, conn):
         ooxcb.Event.__init__(self, conn)
@@ -2251,6 +2263,7 @@ class GrabKeyboardCookie(ooxcb.Cookie):
 
 class KeyReleaseEvent(ooxcb.Event):
     event_name = "on_key_release"
+    opcode = 3
     event_target_class = "Window"
     def __init__(self, conn):
         ooxcb.Event.__init__(self, conn)
@@ -2480,6 +2493,7 @@ class Screen(ooxcb.Struct):
 
 class ReparentNotifyEvent(ooxcb.Event):
     event_name = "on_reparent_notify"
+    opcode = 21
     event_target_class = "Window"
     def __init__(self, conn):
         ooxcb.Event.__init__(self, conn)
@@ -2510,6 +2524,7 @@ class ReparentNotifyEvent(ooxcb.Event):
 
 class ClientMessageEvent(ooxcb.Event):
     event_name = "on_client_message"
+    opcode = 33
     event_target_class = "Window"
     def __init__(self, conn):
         ooxcb.Event.__init__(self, conn)
@@ -2536,6 +2551,18 @@ class ClientMessageEvent(ooxcb.Event):
         stream.write(pack("=BBxxII", self.response_type, self.format, self.window.get_internal(), self.type.get_internal()))
         count += 12
         self.data.build(stream)
+
+    @classmethod
+    def create(cls, conn, type, window, format, values):
+        assert format in (8, 16, 32)
+        evt = cls(conn)
+        evt.type = type
+        evt.window = window
+        evt.format = format
+        data = ClientMessageData(conn)
+        setattr(data, "data%d" % format, values)
+        evt.data = data
+        return evt
 
 class Host(ooxcb.Struct):
     def __init__(self, conn):
@@ -2675,6 +2702,7 @@ class QueryTextExtentsReply(ooxcb.Reply):
 
 class ButtonReleaseEvent(ooxcb.Event):
     event_name = "on_button_release"
+    opcode = 5
     event_target_class = "Window"
     def __init__(self, conn):
         ooxcb.Event.__init__(self, conn)
@@ -3452,6 +3480,7 @@ class xprotoExtension(ooxcb.Extension):
 
 class ButtonPressEvent(ooxcb.Event):
     event_name = "on_button_press"
+    opcode = 4
     event_target_class = "Window"
     def __init__(self, conn):
         ooxcb.Event.__init__(self, conn)
@@ -3595,6 +3624,7 @@ class AllocColorPlanesReply(ooxcb.Reply):
 
 class CirculateNotifyEvent(ooxcb.Event):
     event_name = "on_circulate_notify"
+    opcode = 26
     event_target_class = ooxcb.Connection
     def __init__(self, conn):
         ooxcb.Event.__init__(self, conn)
@@ -3680,6 +3710,7 @@ class InternAtomReply(ooxcb.Reply):
 
 class KeyPressEvent(ooxcb.Event):
     event_name = "on_key_press"
+    opcode = 2
     event_target_class = "Window"
     def __init__(self, conn):
         ooxcb.Event.__init__(self, conn)
@@ -3742,6 +3773,7 @@ class GetFontPathCookie(ooxcb.Cookie):
 
 class LeaveNotifyEvent(ooxcb.Event):
     event_name = "on_leave_notify"
+    opcode = 8
     event_target_class = "Window"
     def __init__(self, conn):
         ooxcb.Event.__init__(self, conn)
@@ -3837,6 +3869,7 @@ class Pixmap(Drawable):
 
 class MapNotifyEvent(ooxcb.Event):
     event_name = "on_map_notify"
+    opcode = 19
     event_target_class = "Window"
     def __init__(self, conn):
         ooxcb.Event.__init__(self, conn)
@@ -4664,6 +4697,7 @@ class QueryBestSizeReply(ooxcb.Reply):
 
 class VisibilityNotifyEvent(ooxcb.Event):
     event_name = "on_visibility_notify"
+    opcode = 15
     event_target_class = "Window"
     def __init__(self, conn):
         ooxcb.Event.__init__(self, conn)
@@ -4686,6 +4720,7 @@ class VisibilityNotifyEvent(ooxcb.Event):
 
 class FocusOutEvent(ooxcb.Event):
     event_name = "on_focus_out"
+    opcode = 10
     event_target_class = ooxcb.Connection
     def __init__(self, conn):
         ooxcb.Event.__init__(self, conn)
@@ -4729,6 +4764,7 @@ class Format(ooxcb.Struct):
 
 class ColormapNotifyEvent(ooxcb.Event):
     event_name = "on_colormap_notify"
+    opcode = 32
     event_target_class = ooxcb.Connection
     def __init__(self, conn):
         ooxcb.Event.__init__(self, conn)
@@ -4755,6 +4791,7 @@ class ColormapNotifyEvent(ooxcb.Event):
 
 class CirculateRequestEvent(ooxcb.Event):
     event_name = "on_circulate_request"
+    opcode = 27
     event_target_class = ooxcb.Connection
     def __init__(self, conn):
         ooxcb.Event.__init__(self, conn)
@@ -4838,6 +4875,7 @@ class QueryFontReply(ooxcb.Reply):
 
 class CreateNotifyEvent(ooxcb.Event):
     event_name = "on_create_notify"
+    opcode = 16
     event_target_class = "Window"
     def __init__(self, conn):
         ooxcb.Event.__init__(self, conn)
@@ -4872,6 +4910,7 @@ class CreateNotifyEvent(ooxcb.Event):
 
 class ResizeRequestEvent(ooxcb.Event):
     event_name = "on_resize_request"
+    opcode = 25
     event_target_class = ooxcb.Connection
     def __init__(self, conn):
         ooxcb.Event.__init__(self, conn)
@@ -4916,6 +4955,7 @@ class QueryColorsReply(ooxcb.Reply):
 
 class MotionNotifyEvent(ooxcb.Event):
     event_name = "on_motion_notify"
+    opcode = 6
     event_target_class = "Window"
     def __init__(self, conn):
         ooxcb.Event.__init__(self, conn)
@@ -5108,6 +5148,7 @@ class GetInputFocusReply(ooxcb.Reply):
 
 class MappingNotifyEvent(ooxcb.Event):
     event_name = "on_mapping_notify"
+    opcode = 34
     event_target_class = ooxcb.Connection
     def __init__(self, conn):
         ooxcb.Event.__init__(self, conn)
@@ -5159,6 +5200,7 @@ class GetGeometryReply(ooxcb.Reply):
 
 class SelectionRequestEvent(ooxcb.Event):
     event_name = "on_selection_request"
+    opcode = 30
     event_target_class = ooxcb.Connection
     def __init__(self, conn):
         ooxcb.Event.__init__(self, conn)
@@ -5238,6 +5280,7 @@ class CursorError(ooxcb.Error):
 
 class FocusInEvent(ooxcb.Event):
     event_name = "on_focus_in"
+    opcode = 9
     event_target_class = ooxcb.Connection
     def __init__(self, conn):
         ooxcb.Event.__init__(self, conn)
@@ -6039,6 +6082,7 @@ class QueryPointerReply(ooxcb.Reply):
 
 class SelectionNotifyEvent(ooxcb.Event):
     event_name = "on_selection_notify"
+    opcode = 31
     event_target_class = ooxcb.Connection
     def __init__(self, conn):
         ooxcb.Event.__init__(self, conn)
@@ -6107,6 +6151,7 @@ class WindowError(ooxcb.Error):
 
 class PropertyNotifyEvent(ooxcb.Event):
     event_name = "on_property_notify"
+    opcode = 28
     event_target_class = "Window"
     def __init__(self, conn):
         ooxcb.Event.__init__(self, conn)
