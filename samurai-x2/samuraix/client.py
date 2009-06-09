@@ -103,6 +103,7 @@ class Client(SXObject):
         self.install_handlers()
 
         self.state = set() # a set of Atom instances, values for _NET_WM_STATE
+        self.protocols = set() # a set of Atom instances, values for WM_PROTOCOLS
         self.screen = screen
         self.window = window
         self.window.valid = True
@@ -149,6 +150,44 @@ class Client(SXObject):
             self.state.remove(self.conn.atoms[name])
         except KeyError:
             pass
+
+    def update_protocols(self):
+        """
+            get the WM_PROTOCOLS property from the window and update
+            :attr:`protocols`.
+        """
+        prop = self.window.get_property('WM_PROTOCOLS', 'ATOM').reply()
+        if prop.exists:
+            self.protocols = set(prop.value.to_atoms())
+        else:
+            self.protocols = set()
+
+    def kill(self):
+        """
+            kill the client. If :attr:`protocols` contains
+            `WM_DELETE_WINDOW`, send such a client message, otherwise,
+            use :meth:`kill_client <ooxcb.xproto.Window.kill_client>`.
+        """
+        if self.conn.atoms['WM_DELETE_WINDOW'] in self.protocols:
+            # use client message
+            msg = xproto.ClientMessageEvent.create(
+                    self.conn,
+                    self.conn.atoms['WM_PROTOCOLS'],
+                    self.window,
+                    32,
+                    [
+                        self.conn.atoms['WM_DELETE_WINDOW'],
+                        xproto.Time.CurrentTime
+                    ]
+                    )
+            self.window.send_event(
+                    EventMask.SubstructureNotify | EventMask.SubstructureRedirect,
+                    msg
+                    )
+        else:
+            # use kill_client
+            self.conn.core.kill_client(self.window)
+        self.conn.flush()
 
     def init(self):
         """

@@ -59,6 +59,7 @@ config = {
             'Meta+Q': 'quit',
             'Meta+R': 'restart',
             'Meta+L': 'layoutmgr.cycle',
+            'meta+k': 'kill',
         },
     'clientbuttons.bindings': {
             'Meta+1': 'moveresize.move',

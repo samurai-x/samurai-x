@@ -259,7 +259,7 @@ Requests:
         precode:
             - !xizer "Address"
 
-    KillClient:
+    KillClient: # TODO: wrap this as `Resource` member?
         arguments: ["resource"] # TODO: allow AllTemporary somehow
         precode:
             - "resource = resource.get_internal()"

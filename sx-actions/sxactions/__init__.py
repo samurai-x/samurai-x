@@ -143,6 +143,7 @@ class SXActions(Plugin):
                 'quit': self.action_quit,
                 'log': self.action_log,
                 'restart': self.action_restart,
+                'kill': self.action_kill,
                 } # TODO: dotted names?
 
         app.push_handlers(on_ready=self.on_ready)
@@ -178,6 +179,19 @@ class SXActions(Plugin):
             restart samurai-x.
         """
         samuraix.main.restart()
+
+    def action_kill(self, info):
+        """
+            kill a client. If specified, use the `client` parameter,
+            if not, use the focused client on the `screen` parameter.
+            Therefore, the `screen` parameter is absolutely required.
+        """
+        screen = info['screen']
+        client = info.get('client', screen.focused_client)
+        if client is None:
+            log.warning('No focused client on screen %s' % screen)
+        else:
+            client.kill()
 
     def action_log(self, info):
         """

@@ -86,6 +86,24 @@ There are some predefined actions:
     :Parameters:
         `message`: str
 
+.. function:: restart()
+    :module:
+
+    restarts samurai-x2 gracefully. This will use the same process.
+
+.. function:: kill()
+    :module:
+
+    kills (quits) the currently focused or a specified (i.e. specified
+    by the calling plugin) client.
+
+    :Parameters:
+        `screen`: :class:`Screen <samuraix.screen.Screen>`
+            The screen the event was dispatched on
+        `client`: :class:`Client <samuraix.client.Client>`
+            The client to kill. Optional, uses the currently focused
+            client as default.
+
 How to use it in your plugin
 ----------------------------
 
