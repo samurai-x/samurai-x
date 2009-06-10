@@ -203,11 +203,11 @@ class Client(SXObject):
                     self.window,
                     32,
                     [
-                        self.conn.atoms['WM_TAKE_FOCUS'],
-                        xproto.Time.CurentTime
+                        self.conn.atoms['WM_TAKE_FOCUS'].get_internal(),
+                        xproto.Time.CurrentTime
                     ]
                     )
-            self.window.set_event(0, msg)
+            self.window.send_event(0, msg)
         else:
             # use set_input_focus
             self.window.set_input_focus()
