@@ -195,6 +195,7 @@ class Client(SXObject):
             `WM_TAKE_FOCUS`, send such a client message, otherwise
             use :meth:`set_input_focus <ooxcb.xproto.Window.set_input_focus>`.
         """
+        log.info('setting input focus on %s' % self)
         if self.conn.atoms['WM_TAKE_FOCUS'] in self.protocols:
             # use client message
             msg = xproto.ClientMessageEvent.create(
