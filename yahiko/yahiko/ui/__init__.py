@@ -269,11 +269,12 @@ class TopLevelContainer(Container):
 
     def on_window_configure_notify(self, event):
         rect = Rect.from_object(event)
-        self.width = rect.width
-        self.height = rect.height 
-        self.recreate_surface()
-        self.layout()
-        self.render()
+        if rect.width != self.width or rect.height != self.height:
+            self.width = rect.width
+            self.height = rect.height 
+            self.recreate_surface()
+            self.layout()
+            self.render()
 
     def layout(self):
         self.rx = 0
