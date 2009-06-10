@@ -68,9 +68,8 @@ class Window(EventDispatcher):
 
                 cairo.cairo_scale(cr, self.rwidth/w, self.rheight/h)
 
-                cairo.cairo_set_source_surface(cr, image, 0, 0)
+                cairo.cairo_set_source_surface(cr, image, self.rx, self.ry)
                 cairo.cairo_paint(cr)
-
 
         border = DictProxy(self.style, 'border.')
         if border and 'color' in border and border['color']:
