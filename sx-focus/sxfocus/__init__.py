@@ -81,6 +81,7 @@ class ClickToFocus(FocusStyle):
         self.bind_focus()
 
     def remove(self):
+        self.client.remove_handlers(self)
         self.client.window.remove_handlers(self)
         del self.client
 
@@ -98,6 +99,7 @@ class SloppyFocus(ClickToFocus):
         #self.client.conn.core.allow_events(xproto.Allow.ReplayPointer)
 
     def remove(self):
+        self.client.remove_handlers(self)
         self.client.window.remove_handlers(self)
         self.client.actor.remove_handlers(self)
         del self.client
