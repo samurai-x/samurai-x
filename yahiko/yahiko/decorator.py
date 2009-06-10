@@ -253,6 +253,7 @@ class Decorator(object):
             self.client.window.reparent(self.client.screen.root,
                     self.client.geom.x,
                     self.client.geom.y)
+        self.client.actor.valid = False
         self.client.actor.destroy()
         self.client.conn.flush()
         self._obsolete = True
