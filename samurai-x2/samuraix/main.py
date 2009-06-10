@@ -37,8 +37,10 @@ import pkg_resources
 from optparse import OptionParser
 from tempfile import gettempdir
 
+
 SXWM_USAGE = '''sx-wm [options] '''
 DEFAULT_LOGFILE = os.path.join(gettempdir(), 'sx.lastrun.log')
+
 
 class SamuraiLogger(logging.Logger):
     """
@@ -55,8 +57,8 @@ class SamuraiLogger(logging.Logger):
         formatted = '\n'.join(traceback.format_exception(type_, value, tb))
         self._log(logging.ERROR, formatted, (), {})
 
-logging.setLoggerClass(SamuraiLogger)
 
+logging.setLoggerClass(SamuraiLogger)
 log = logging.getLogger(__name__)
 
 import samuraix
@@ -99,6 +101,7 @@ def configure_logging(options, file_level=logging.DEBUG, console_level=logging.D
 
     log.info('logging everything to %s' % options.logfile)
 
+
 def load_config(config=None):
     """
         Sets :attr:`samuraix.config` to the desired configuration dictionary.
@@ -112,6 +115,7 @@ def load_config(config=None):
         config = config()
     samuraix.config = config
 
+
 def load_user_config(configpath):
     """
         Tries to execute the Python configuration script. Returns
@@ -124,7 +128,6 @@ def load_user_config(configpath):
         :note: Yes, the configuration file is a Python script, yes,
                it is executed and yes, that's unsafe. Let's trust
                the user that he knows what he does.
-
     """
     configpath = os.path.normpath(os.path.expanduser(configpath))
     log.info('trying to import config from %s...' % configpath)
@@ -135,6 +138,7 @@ def load_user_config(configpath):
         return None
     mod = imp.load_module('config', fp, pathname, description)
     return getattr(mod, 'config')
+
 
 def parse_options():
     """
@@ -170,6 +174,10 @@ def parse_options():
 
 
 def run(app_func=None):
+    """ 
+        main entry point for sx-wm. Runs the application in a loop 
+        to allow restarting 
+    """
     setup_ooxcb()
     while samuraix.restarting:
         log.info('restart loop')
@@ -178,9 +186,11 @@ def run(app_func=None):
 
 
 def restart():
+    """ restart the running application """
     log.info('restart')
     samuraix.restarting = True
     samuraix.app.stop()
+
 
 def setup_ooxcb():
     """
@@ -192,11 +202,9 @@ def setup_ooxcb():
     ooxcb.contrib.icccm.mixin()
     ooxcb.contrib.ewmh.mixin()
 
+
 def run_app(app_func=None):
     """
-        Run samurai-x. That's also the setuptools entrypoint for the `sx-wm`
-        console script.
-
         First, it parses the options. If the user specified `--default-config`,
         it will just print the defaultconfig.py file and quit.
         If not, it configures the logging and loads the configuration.

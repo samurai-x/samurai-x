@@ -37,6 +37,7 @@ from .screen import Screen
 from .pluginsys import PluginLoader
 from .base import SXObject
 
+
 class App(SXObject):
     """
         The samurai-x application object is the central point of the
