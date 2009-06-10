@@ -48,6 +48,7 @@ class ClientHandler(object):
 
         client.screen.root.grab_pointer(MOUSE_MASK, cursor=cursor)
         client.screen.focus(client)
+        client.ban()
         client.conn.flush()
 
     def on_motion_notify(self, evt):
@@ -55,6 +56,7 @@ class ClientHandler(object):
 
     def on_button_release(self, evt):
         pass
+
 
 class MoveHandler(ClientHandler):
     def __init__(self, client, x, y):
@@ -66,6 +68,8 @@ class MoveHandler(ClientHandler):
     def on_motion_notify(self, evt):
         self.clear_preview()
         x, y = evt.root_x - self.offset_x, evt.root_y - self.offset_y
+        log.debug(str(("draw", self.client.screen.root,
+                                str(Rect(x, y, self.client.geom.width, self.client.geom.height)))))
         self.gc.poly_rectangle(self.client.screen.root,
                                 [Rect(x, y, self.client.geom.width, self.client.geom.height)])
         self.client.conn.flush()
@@ -77,6 +81,7 @@ class MoveHandler(ClientHandler):
         self.client.screen.root.remove_handlers(self)
         self.client.conn.core.ungrab_pointer()
         self.clear_preview()
+        self.client.unban()
         if self._x is not None:
             self.client.actor.configure(x=self._x - self.offset_x, y=self._y - self.offset_y)
 #            self.client.force_update_geom()
@@ -87,8 +92,11 @@ class MoveHandler(ClientHandler):
         """ clear old preview if necessary """
         if self._x is not None:
             x, y = self._x - self.offset_x, self._y - self.offset_y
+            log.debug(str(("clear", self.client.screen.root,
+                                    str(Rect(x, y, self.client.geom.width, self.client.geom.height)))))
             self.gc.poly_rectangle(self.client.screen.root,
                                     [Rect(x, y, self.client.geom.width, self.client.geom.height)])
+
 
 class ResizeHandler(ClientHandler):
     def __init__(self, client, x, y):
@@ -128,6 +136,7 @@ class ResizeHandler(ClientHandler):
                     )
         self.client.screen.root.remove_handlers(self)
         self.client.conn.core.ungrab_pointer()
+        self.client.unban()
         # put the mouse back where it was # TODO: necessary?
 #        self.client.frame.warp_pointer(self.offset_x, self.offset_y)
         self.client.conn.flush()
