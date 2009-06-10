@@ -28,15 +28,18 @@ log = logging.getLogger(__name__)
 
 from samuraix.plugin import Plugin
 from samuraix.rect import Rect
+from samuraix.util import DictProxy
 
 from ooxcb import xproto
 
 MOUSE_MASK = xproto.EventMask.ButtonPress | xproto.EventMask.ButtonRelease | xproto.EventMask.PointerMotion
 
 class ClientHandler(object):
-    def __init__(self, client, x, y, cursor=None):
+    def __init__(self, client, x, y, cursor=None, border_move=True, hide_win=True):
         self.client = client
         self.offset_x, self.offset_y = x, y
+        self.border_move = border_move
+        self.hide_win = hide_win
 
         self.gc = xproto.GContext.create(
                 self.client.conn,
@@ -48,7 +51,8 @@ class ClientHandler(object):
 
         client.screen.root.grab_pointer(MOUSE_MASK, cursor=cursor)
         client.screen.focus(client)
-        client.ban()
+        if self.hide_win:
+            client.ban()
         client.conn.flush()
 
     def on_motion_notify(self, evt):
@@ -59,19 +63,20 @@ class ClientHandler(object):
 
 
 class MoveHandler(ClientHandler):
-    def __init__(self, client, x, y):
-        ClientHandler.__init__(self, client, x, y, client.app.cursors['Move'])
+    def __init__(self, client, x, y, cursor=None, **kwargs):
+        ClientHandler.__init__(self, client, x, y, client.app.cursors['Move'], **kwargs)
         log.info('Now moving %s' % client)
         self._x = None
         self._y = None
 
     def on_motion_notify(self, evt):
-        self.clear_preview()
         x, y = evt.root_x - self.offset_x, evt.root_y - self.offset_y
-        log.debug(str(("draw", self.client.screen.root,
-                                str(Rect(x, y, self.client.geom.width, self.client.geom.height)))))
-        self.gc.poly_rectangle(self.client.screen.root,
-                                [Rect(x, y, self.client.geom.width, self.client.geom.height)])
+        if self.border_move:
+            self.clear_preview()
+            self.gc.poly_rectangle(self.client.screen.root,
+                    [Rect(x, y, self.client.geom.width, self.client.geom.height)])
+        else:
+            self.client.actor.configure(x=x, y=y)
         self.client.conn.flush()
         self._x = evt.root_x
         self._y = evt.root_y
@@ -80,8 +85,10 @@ class MoveHandler(ClientHandler):
     def on_button_release(self, evt):
         self.client.screen.root.remove_handlers(self)
         self.client.conn.core.ungrab_pointer()
-        self.clear_preview()
-        self.client.unban()
+        if self.border_move:
+            self.clear_preview()
+        if self.hide_win:
+            self.client.unban()
         if self._x is not None:
             self.client.actor.configure(x=self._x - self.offset_x, y=self._y - self.offset_y)
 #            self.client.force_update_geom()
@@ -99,8 +106,8 @@ class MoveHandler(ClientHandler):
 
 
 class ResizeHandler(ClientHandler):
-    def __init__(self, client, x, y):
-        ClientHandler.__init__(self, client, x, y, client.app.cursors['Resize'])
+    def __init__(self, client, x, y, **kwargs):
+        ClientHandler.__init__(self, client, x, y, client.app.cursors['Resize'], **kwargs)
         log.info('Now resizing %s' % client)
 
 #        geom = self.client.geom
@@ -110,19 +117,23 @@ class ResizeHandler(ClientHandler):
         self._h = None
 
     def on_motion_notify(self, evt):
-        self.clear_preview()
         geom = self.client.geom # TODO: I'm sure that's wrong. -- is it?
         w = evt.root_x - geom.x
         h = evt.root_y - geom.y
-        self.gc.poly_rectangle(self.client.screen.root,
-                                [Rect(geom.x, geom.y, w, h)])
+        if self.border_move: 
+            self.clear_preview()
+            self.gc.poly_rectangle(self.client.screen.root,
+                    [Rect(geom.x, geom.y, w, h)])
+        else:
+            self.client.actor.configure(w=w, h=h)
         self.client.conn.flush()
         self._w = w
         self._h = h
         return True
 
     def on_button_release(self, evt):
-        self.clear_preview()
+        if self.border_move:
+            self.clear_preview()
 
         geom = self.client.geom.copy()
         geom.width, geom.height = self._w, self._h
@@ -159,21 +170,31 @@ class SXMoveResize(Plugin):
 
     def __init__(self, app):
         self.app = app
+        app.push_handlers(self)
 
         app.plugins['actions'].register('moveresize.move', self.action_move)
         app.plugins['actions'].register('moveresize.resize', self.action_resize)
+
+    def on_load_config(self, config):
+        self.config = DictProxy(config, self.key+'.')
 
     def action_move(self, info):
         client = info.get('client', info['screen'].focused_client)
         if client is not None:
             client.screen.root.push_handlers(
-                    MoveHandler(client, info.get('x', 0), info.get('y', 0))
-                )
+                    MoveHandler(client, info.get('x', 0), info.get('y', 0), 
+                            border_move=self.config.get('border-move', True),
+                            hide_win=self.config.get('hide-win', True),
+                    )
+            )
 
     def action_resize(self, info):
         client = info.get('client', info['screen'].focused_client)
         if client is not None:
             client.screen.root.push_handlers(
-                    ResizeHandler(client, info.get('x', 0), info.get('y', 0))
-                )
+                    ResizeHandler(client, info.get('x', 0), info.get('y', 0),
+                            border_move=self.config.get('border-move', True),
+                            hide_win=self.config.get('hide-win', True),
+                    )
+            )
 
