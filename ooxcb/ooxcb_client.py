@@ -619,6 +619,8 @@ def py_union(self, name):
     read.code.append('count = 0')
     read.code.append('root = stream.tell()')
 
+    build.code.append('root = stream.tell()')
+
     kw = 'if' # the first iteration has an if!
     for field in self.fields:
         # TODO: is it possible to have wrapped objects in unions? if yes, what to do?
@@ -672,10 +674,19 @@ def py_union(self, name):
         kw = 'elif' # all further iterations have an elif.
         build.code.append(DEDENT)
 
+    # using this dirty stuff to get the total length
+    # of the union. TODO: what for not-fixed-size unions?
+    assert self.fixed_size()
+    size = self.fields[0].type.py_format_len
     build.code.extend(['else:',
         INDENT,
             'raise ooxcb.XcbException("No value set in the union!")',
-        DEDENT
+        DEDENT,
+        # check if the union has the correct size. if not, append dummy bytes.
+        'if stream.tell() - root < %d:' % size,
+        INDENT,
+            'stream.write(pack("=" + "x" * (%d - (stream.tell() - root))))' % size,
+        DEDENT,
         ])
 
     if not self.fixed_size():
