@@ -1,10 +1,12 @@
 import os
+import socket
 import wsgiref
 from wsgiref import simple_server
 import mimetypes
 
 import samuraix
 from samuraix.plugin import Plugin
+from samuraix.util import DictProxy
 
 from webob import Request, Response
 from webob import exc
@@ -70,7 +72,8 @@ class SXWeb(Plugin):
         self.app = app
         app.push_handlers(self)
 
-        self.config = samuraix.config.get('sxweb', {})
+    def on_load_config(self, config):
+        self.config = DictProxy(config, self.key+'.')
         self.port = self.config.get('port', 8000)
 
     def on_ready(self, app):
@@ -78,7 +81,13 @@ class SXWeb(Plugin):
         
         wsgiapp = WSGIApp(app)
 
-        self.httpd = simple_server.make_server('', self.port, wsgiapp)
-        app.add_fd_handler('read', self.httpd.socket, self.httpd.handle_request)
+        try:
+            self.httpd = simple_server.make_server('', self.port, wsgiapp)
+        except socket.error, e:
+            log.error('cannot launch web server: %s', str(e))
+            return 
 
+        print dir(self.httpd)
+
+        app.add_fd_handler('read', self.httpd.socket, self.httpd.handle_request)
 
