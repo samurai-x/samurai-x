@@ -159,12 +159,19 @@ class Decorator(object):
         )
         self.ui.add_child(title_sizer)
 
+        def make_func(f):
+            if type(f) == str:
+                def r(e):
+                    self.plugin.app.plugins['actions'].emit(f, {'screen': screen})
+                return r
+            return f
+
         for button in config.get('decorator.buttons.leftside', []):
             but = ui.Label(
                 text=button.get('text'),
                 width=button.get('width'),
                 style=button.get('style'),
-                on_button_press=button.get('func'),
+                on_button_press=make_func(button.get('func')),
             )
             title_sizer.add_child(but)
 
@@ -179,7 +186,7 @@ class Decorator(object):
                 text=button.get('text'),
                 width=button.get('width'),
                 style=button.get('style'),
-                on_button_press=button.get('func'),
+                on_button_press=make_func(button.get('func')),
             )
             title_sizer.add_child(but)
 
