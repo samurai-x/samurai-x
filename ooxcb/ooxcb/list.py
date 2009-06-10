@@ -114,6 +114,13 @@ class List(list):
         """
         return self.to_string().decode('utf-8')
 
+    def to_atoms(self):
+        """
+            my value is a list of atom ids, return a list of
+            :class:`Atom <ooxcb.xproto.Atom>` instances.
+        """
+        return map(self.conn.atoms.get_by_id, self)
+
     def to_resources(self, cls):
         """
             interpret the data as a homogenous list of X ids.

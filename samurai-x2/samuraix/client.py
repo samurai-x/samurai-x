@@ -121,6 +121,7 @@ class Client(SXObject):
         self.all_clients.append(self)
         self.window_2_client_map[self.window] = self
 
+        self.update_protocols()
         self.apply_normal_hints()
         self.conn.flush()
 
@@ -170,19 +171,21 @@ class Client(SXObject):
         """
         if self.conn.atoms['WM_DELETE_WINDOW'] in self.protocols:
             # use client message
+            log.debug('Killing client %s using WM_DELETE_WINDOW' % self)
             msg = xproto.ClientMessageEvent.create(
                     self.conn,
                     self.conn.atoms['WM_PROTOCOLS'],
                     self.window,
                     32,
                     [
-                        self.conn.atoms['WM_DELETE_WINDOW'],
-                        xproto.Time.CurrentTime
+                        self.conn.atoms['WM_DELETE_WINDOW'].get_internal(),
+                        xproto.Time.CurrentTime,
                     ]
                     )
             self.window.send_event(0, msg)
         else:
             # use kill_client
+            log.debug('Killing client %s using `kill_client`' % self)
             self.conn.core.kill_client(self.window)
         self.conn.flush()
 
@@ -192,6 +195,7 @@ class Client(SXObject):
             `WM_TAKE_FOCUS`, send such a client message, otherwise
             use :meth:`set_input_focus <ooxcb.xproto.Window.set_input_focus>`.
         """
+        log.info('setting input focus on %s' % self)
         if self.conn.atoms['WM_TAKE_FOCUS'] in self.protocols:
             # use client message
             msg = xproto.ClientMessageEvent.create(
@@ -200,11 +204,11 @@ class Client(SXObject):
                     self.window,
                     32,
                     [
-                        self.conn.atoms['WM_TAKE_FOCUS'],
-                        xproto.Time.CurentTime
+                        self.conn.atoms['WM_TAKE_FOCUS'].get_internal(),
+                        xproto.Time.CurrentTime
                     ]
                     )
-            self.window.set_event(0, msg)
+            self.window.send_event(0, msg)
         else:
             # use set_input_focus
             self.window.set_input_focus()

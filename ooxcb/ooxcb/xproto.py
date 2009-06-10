@@ -580,6 +580,7 @@ class ClientMessageData(ooxcb.Union):
         stream.seek(root)
 
     def build(self, stream):
+        root = stream.tell()
         if self.data8:
             build_list(self.conn, stream, self.data8, 'B')
         elif self.data16:
@@ -588,6 +589,8 @@ class ClientMessageData(ooxcb.Union):
             build_list(self.conn, stream, self.data32, 'I')
         else:
             raise ooxcb.XcbException("No value set in the union!")
+        if stream.tell() - root < 20:
+            stream.write(pack("=" + "x" * (20 - (stream.tell() - root))))
 
 class QueryExtensionReply(ooxcb.Reply):
     def __init__(self, conn):

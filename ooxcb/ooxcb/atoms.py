@@ -93,5 +93,5 @@ class AtomDict(dict):
         except KeyError:
             self._by_id[aid] = atom = Atom(self.conn, aid)
             name = atom.get_name().reply().name.to_string()
-            self[name] = aid
+            self[name] = atom
             return atom

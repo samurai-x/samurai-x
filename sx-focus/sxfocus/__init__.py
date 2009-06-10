@@ -39,6 +39,8 @@ class FocusStyle(object):
         self.plugin = plugin
         self.client = client
 
+    def remove(self):
+        del self.client
 
 class ClickToFocus(FocusStyle):
     def __init__(self, plugin, client):
@@ -56,7 +58,8 @@ class ClickToFocus(FocusStyle):
         )
 
     def unbind_focus(self):
-        self.client.window.ungrab_button(xproto.ButtonIndex._1, 0)
+        if self.client.window.valid:
+            self.client.window.ungrab_button(xproto.ButtonIndex._1, 0)
 
     def on_button_press(self, evt):
         # make sure the state is 0 to not interfere with the client-buttons 
@@ -77,6 +80,9 @@ class ClickToFocus(FocusStyle):
     def on_blur(self, c):
         self.bind_focus()
 
+    def remove(self):
+        self.client.window.remove_handlers(self)
+        del self.client
 
 class SloppyFocus(ClickToFocus):
     def __init__(self, plugin, client):
@@ -91,13 +97,16 @@ class SloppyFocus(ClickToFocus):
         # do we need this? im not sure...
         #self.client.conn.core.allow_events(xproto.Allow.ReplayPointer)
 
+    def remove(self):
+        self.client.window.remove_handlers(self)
+        self.client.actor.remove_handlers(self)
+        del self.client
 
 class SloppyFocusWithAutoRaise(SloppyFocus):
     def on_enter_notify(self, evt):
         self.client.focus(bring_forward=True)
         # do we need this? im not sure...
         #self.client.conn.core.allow_events(xproto.Allow.ReplayPointer)
-
 
 class SXFocus(Plugin):
     """ Plugin for various styles of mouse focusing """
@@ -125,10 +134,10 @@ class SXFocus(Plugin):
                 self.on_new_client(screen, client)
 
     def on_new_client(self, screen, client):
-        style = self.focus_method(self, client)
+        self.attach_data_to(client,
+                self.focus_method(self, client))
 
     def on_unmanage_client(self, screen, client):
-        # TODO.. tidy up properly
-        pass
-
+        self.get_data(client).remove()
+        self.remove_data(client)
         
