@@ -29,7 +29,7 @@ import sys, os
 setup(name='sx-moveresize',
     description="client moving and resizing handlers for samurai-x2",
     license='BSD',
-    packages=['sxmoveresize'],
+    py_modules=['sxmoveresize'],
     entry_points="""
     [samuraix.plugin]
     sxmoveresize = sxmoveresize:SXMoveResize
