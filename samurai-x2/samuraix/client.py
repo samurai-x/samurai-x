@@ -121,6 +121,7 @@ class Client(SXObject):
         self.all_clients.append(self)
         self.window_2_client_map[self.window] = self
 
+        self.update_protocols()
         self.apply_normal_hints()
         self.conn.flush()
 
@@ -170,19 +171,21 @@ class Client(SXObject):
         """
         if self.conn.atoms['WM_DELETE_WINDOW'] in self.protocols:
             # use client message
+            log.debug('Killing client %s using WM_DELETE_WINDOW' % self)
             msg = xproto.ClientMessageEvent.create(
                     self.conn,
                     self.conn.atoms['WM_PROTOCOLS'],
                     self.window,
                     32,
                     [
-                        self.conn.atoms['WM_DELETE_WINDOW'],
-                        xproto.Time.CurrentTime
+                        self.conn.atoms['WM_DELETE_WINDOW'].get_internal(),
+                        xproto.Time.CurrentTime,
                     ]
                     )
             self.window.send_event(0, msg)
         else:
             # use kill_client
+            log.debug('Killing client %s using `kill_client`' % self)
             self.conn.core.kill_client(self.window)
         self.conn.flush()
 
