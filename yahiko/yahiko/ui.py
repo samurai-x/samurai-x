@@ -13,6 +13,7 @@ from samuraix.util import DictProxy
 import logging
 log = logging.getLogger(__name__)
 
+
 class Window(EventDispatcher):
 
     def __init__(self, width=None, height=None, style=None, **kwargs):
@@ -30,6 +31,10 @@ class Window(EventDispatcher):
 
         self.push_handlers(**kwargs)
 
+    def set_size(self, width, height):
+        self.width = width
+        self.height = height 
+
     def set_render_coords(self, x, y, width, height):
         self.rx = x
         self.ry = y
@@ -41,28 +46,29 @@ class Window(EventDispatcher):
         cairo.cairo_clip(cr)
 
     def render(self, cr):
-        assert None not in (self.rx, self.ry, self.rwidth, self.rheight)
+        assert None not in (self.rx, self.ry, self.rwidth, self.rheight), self
 
-        if not self.style:
+        style = self.style
+
+        if not style:
             return 
 
-        background = DictProxy(self.style, 'background.')
-        if background:
+        if 'background.style' in style: 
             cairo.cairo_rectangle(cr, self.rx, self.ry, self.rwidth, self.rheight)
 
-            style = background.get('style', 'fill')
-            assert style in ('fill', 'gradient', 'image')
-            if style == 'fill' and 'color' in background:
-                cairo.cairo_set_source_rgb(cr, *background['color'])
+            bstyle = style.get('background.style')
+            assert bstyle in ('fill', 'gradient', 'image')
+            if bstyle == 'fill' and 'background.color' in style:
+                cairo.cairo_set_source_rgb(cr, *style['background.color'])
                 cairo.cairo_fill(cr)
-            elif style == 'gradient' and 'fill-line' in background and 'fill-stops' in background:
-                pat = cairo.cairo_pattern_create_linear(*background['fill-line'])
-                for stop in background['fill-stops']:
+            elif bstyle == 'gradient' and 'background.fill-line' in style and 'background.fill-stops' in style:
+                pat = cairo.cairo_pattern_create_linear(*style['background.fill-line'])
+                for stop in style['background.fill-stops']:
                     cairo.cairo_pattern_add_color_stop_rgb(pat, *stop)
                 cairo.cairo_set_source(cr, pat)
                 cairo.cairo_fill(cr)
-            elif style == 'image' and 'image' in background and background['image']:
-                image = cairo.cairo_image_surface_create_from_png(background.get('image'))
+            elif bstyle == 'image' and 'background.image' in style and style['background.image']:
+                image = cairo.cairo_image_surface_create_from_png(style.get('background.image'))
                 w = float(cairo.cairo_image_surface_get_width(image))
                 h = float(cairo.cairo_image_surface_get_height(image))
 
@@ -71,18 +77,17 @@ class Window(EventDispatcher):
                 cairo.cairo_set_source_surface(cr, image, self.rx, self.ry)
                 cairo.cairo_paint(cr)
 
-        border = DictProxy(self.style, 'border.')
-        if border and 'color' in border and border['color']:
-            style = border.get('style', 'fill')
-            assert style in ('fill', 'gradient')
-            if style == 'fill' and 'color' in border:
-                cairo.cairo_set_source_rgb(cr, *border['color'])
-            elif style == 'gradient' and 'fill-line' in border and 'fill-stops' in border:
-                pat = cairo.cairo_pattern_create_linear(*border['fill-line'])
-                for stop in border['fill-stops']:
+        if 'border.color' in style:
+            bstyle = style.get('style', 'fill')
+            assert bstyle in ('fill', 'gradient')
+            if bstyle == 'fill' and 'border.color' in style:
+                cairo.cairo_set_source_rgb(cr, *style['border.color'])
+            elif bstyle == 'gradient' and 'border.fill-line' in style and 'border.fill-stops' in style:
+                pat = cairo.cairo_pattern_create_linear(*style['border.fill-line'])
+                for stop in style['border.fill-stops']:
                     cairo.cairo_pattern_add_color_stop_rgb(pat, *stop)
                 cairo.cairo_set_source(cr, pat)
-            cairo.cairo_set_line_width(cr, border.get('width', 1.0))
+            cairo.cairo_set_line_width(cr, style.get('width', 1.0))
             cairo.cairo_rectangle(cr, self.rx, self.ry, self.rwidth, self.rheight)
             cairo.cairo_stroke(cr)
 
@@ -108,29 +113,37 @@ class Layouter(object):
         self.container = container
 
     def layout(self): 
-        pass
+        raise NotImplementedError
+
+    def fit(self):
+        raise NotImplementedError
 
 
 class VerticalLayouter(Layouter):
     def layout(self):
-        layout_style = DictProxy(self.container.style, 'layout.')
-        padding = layout_style.get('padding', 0)
+        padding = self.container.style.get('layout.padding', 0)
         h = self.container.rheight - (2 * padding)
         w = self.container.rwidth - (2 * padding)
 
         used_height = 0 
-        with_height = 0 
+        without_height = len(self.container.children)
 
         for child in self.container.children:
             if child.height:
                 used_height += child.height
-                with_height += 1
+                without_height -= 1
 
-        hplus = (h - used_height) / (len(self.container.children) - with_height)
+        if without_height:
+            hplus = (h - used_height) / without_height
+        else:
+            hplus = 0
+
         y = padding
         for child in self.container.children:
-            child_layout_style = DictProxy(child.style, 'layout.')
-            margin = child_layout_style.get('margin', 0)
+            if child.style:
+                margin = child.style.get('layout.margin', 0)
+            else:
+                margin = 0 
 
             child.set_render_coords(
                     padding + margin,
@@ -142,6 +155,31 @@ class VerticalLayouter(Layouter):
 
             if hasattr(child, 'layout'):
                 child.layout()
+
+    def fit(self):
+        width = 0
+        height = 0
+
+        for child in self.container.children:
+            child_layout_style = DictProxy(child.style, 'layout.')
+            margin = child_layout_style.get('margin', 0)
+            if child.width:
+                width = max(width, child.width + (2 * margin))
+
+            if child.height:
+                height += child.height + (2 * margin)
+
+        layout_style = DictProxy(self.container.style, 'layout.')
+        padding = layout_style.get('padding', 0)
+        width += padding * 2
+        height += padding * 2
+
+        log.debug('fit says %s, %s', width, height)
+
+        self.container.set_size(width, height)
+
+        if self.container.parent and hasattr(self.container.parent, 'layout'):
+            self.container.parent.fit()
 
 
 class HorizontalLayouter(Layouter):
@@ -197,6 +235,10 @@ class Container(Window):
         if self.layouter:
             self.layouter.layout()
 
+    def fit(self):
+        log.debug('fitting %s', self)
+        self.layouter.fit()
+
     def render(self, cr):
         Window.render(self, cr)
 
@@ -204,10 +246,10 @@ class Container(Window):
             cairo.cairo_translate(cr, self.rx, self.ry)
 
             for child in self.children:
-                cairo.cairo_save(cr)
-                child.setup_clip(cr)
+                #cairo.cairo_save(cr)
+                #child.setup_clip(cr)
                 child.render(cr)
-                cairo.cairo_restore(cr)
+                #cairo.cairo_restore(cr)
 
     def add_child(self, child):
         assert child.parent is None
@@ -237,6 +279,9 @@ class TopLevelContainer(Container):
 
         self.focused_control = None
 
+        self.surface = None
+        self.cr = None
+
         window.push_handlers(
                 on_property_notify=self.on_window_property_notify,
                 on_configure_notify=self.on_window_configure_notify,
@@ -245,7 +290,12 @@ class TopLevelContainer(Container):
                 on_expose=self.on_window_expose,
         )
 
-        self.recreate_surface()
+        #self.recreate_surface()
+
+    def set_size(self, width, height):
+        log.debug(str(('set_size', self, width, height, self.width, self.height)))
+        if self.width != width or self.height != height:
+            self.window.configure(width=width, height=height)
 
     def recreate_surface(self):
         self.surface = cairo.cairo_xcb_surface_create(
@@ -257,7 +307,8 @@ class TopLevelContainer(Container):
         self.cr = cairo.cairo_create(self.surface)
 
     def on_window_expose(self, event):
-        self.render()
+        if event.count == 0:
+            self.render()
 
     def on_window_property_notify(self, event):
         pass
@@ -276,6 +327,7 @@ class TopLevelContainer(Container):
             self.render()
 
     def layout(self):
+        log.debug('TopLevel layout %s %s', self.width, self.height)
         self.rx = 0
         self.ry = 0
         self.rwidth = self.width
@@ -283,11 +335,13 @@ class TopLevelContainer(Container):
         Container.layout(self)
 
     def render(self, control=None):
+        if self.cr is None:
+            return 
         cairo.cairo_save(self.cr)
         if control is None:
             Container.render(self, self.cr)
         else:
-            control.setup_clip(self.cr)
+            #control.setup_clip(self.cr)
             control.render(self.cr)
         cairo.cairo_restore(self.cr)
         self.window.conn.flush()

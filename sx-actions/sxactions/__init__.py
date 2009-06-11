@@ -144,6 +144,7 @@ class SXActions(Plugin):
                 'log': self.action_log,
                 'restart': self.action_restart,
                 'kill': self.action_kill,
+                'mark': self.action_mark,
                 } # TODO: dotted names?
 
         app.push_handlers(on_ready=self.on_ready)
@@ -156,6 +157,9 @@ class SXActions(Plugin):
                     'actions', 
                     functools.partial(sxactions.dbusobj.ActionsObject, self),
             )
+
+    def action_mark(self, info):
+        log.info('MARK --------------------------------------------')
 
     def action_spawn(self, info):
         """

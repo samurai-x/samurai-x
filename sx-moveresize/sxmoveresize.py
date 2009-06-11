@@ -36,6 +36,8 @@ MOUSE_MASK = xproto.EventMask.ButtonPress | xproto.EventMask.ButtonRelease | xpr
 
 class ClientHandler(object):
     def __init__(self, client, x, y, cursor=None, border_move=True, hide_win=True):
+        log.debug('created %s', self)
+
         self.client = client
         self.offset_x, self.offset_y = x, y
         self.border_move = border_move

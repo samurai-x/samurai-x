@@ -193,7 +193,7 @@ class App(SXObject):
                     log.exception(e)
 
         while self.running:
-            log.debug('selecting...')
+            #log.debug('selecting...')
             try:
                 rready, wready, xready = select(
                         self.fds['read'].keys(),
@@ -230,8 +230,8 @@ class App(SXObject):
                 if ev is None:
                     break
                 try:
-                    log.debug('Dispatching %s to %s.' %
-                            (ev.event_name, ev.event_target))
+                    #log.debug('Dispatching %s to %s.' %
+                    #        (ev.event_name, ev.event_target))
                     ev.dispatch()
                 except Exception, e:
                     log.exception(e)

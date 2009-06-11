@@ -35,6 +35,10 @@ from ooxcb.contrib import cairo
 
 from yahiko import ui
 
+# TODO does this make any difference?
+#import psyco
+#psyco.full()
+
 
 class ClientWindow(ui.Window):
     def __init__(self, window, **kwargs):
@@ -42,8 +46,9 @@ class ClientWindow(ui.Window):
         ui.Window.__init__(self, **kwargs)
 
     def set_render_coords(self, x, y, width, height):
-        ui.Window.set_render_coords(self, x, y, width, height)
-        self.window.configure(x=x, y=y, width=width, height=height)
+        if x != self.rx or y != self.ry or width != self.width or height != self.height:
+            ui.Window.set_render_coords(self, x, y, width, height)
+            self.window.configure(x=x, y=y, width=width, height=height)
 
 
 class Decorator(object):
@@ -193,10 +198,13 @@ class Decorator(object):
         self.clientwin = ClientWindow(
             client.window,
             style=config.get('decorator.clientwindow.style', self.default_clientwindow_style),
+            width=geom.width,
+            height=geom.height,
         )
         self.ui.add_child(self.clientwin)
-        self.ui.layout()
-        self.ui.render()
+        #self.ui.layout()
+        #log.debug('after layout size is %s %s', self.ui.width, self.ui.height)
+        #self.ui.render()
 
         client.push_handlers(
                 on_focus=self.on_focus,
@@ -215,26 +223,26 @@ class Decorator(object):
         #        #on_configure_notify=self.screen_on_configure_notify,
         #)
 
+        self.ui.fit()
+
     def window_on_configure_notify(self, event):
         if self._window_configures != 0:
             self._window_configures -=1
         else:
             self._window_configures += 1
-            actor = self.client.actor
             geom = Rect.from_object(event)
-            window = self.client.window
-            window_border = 0
-            config = self.plugin.config
-            border = 2
-            title_height = config.get('decorator.title.height', 20)
+            if geom.width != self.clientwin.width or geom.height != self.clientwin.height:
+                self.clientwin.width = geom.width
+                self.clientwin.height = geom.height 
+                self.ui.fit()
             
-            actor.configure(
-                    # dont forget the borders of client.border in this calculation
-                    width = geom.width + (2*border) + (2*window_border),
-                    height = geom.height + title_height + (2*border) + (2*window_border),
-            )
+            #actor.configure(
+            #        # dont forget the borders of client.border in this calculation
+            #        width = geom.width + (2*border) + (2*window_border),
+            #        height = geom.height + title_height + (2*border) + (2*window_border),
+            #)
 
-            self.ui.layout()
+            #self.ui.layout()
 
     def on_focus(self, client):
         if (self._active and not self._obsolete):
