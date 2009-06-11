@@ -33,7 +33,7 @@ samurai-x is a window manager written in pure python using ctypes, xcb and cairo
     entry_points="""
     [console_scripts]
     sx-wm = samuraix.main:run
-    sx-event = samuraix.tools.sevent:run
+    #sx-event = samuraix.tools.sevent:run
     #sx-setroot = samuraix.setroot:run
     """,
 )
