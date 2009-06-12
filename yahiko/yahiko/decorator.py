@@ -281,8 +281,9 @@ class Decorator(object):
             the title bar.
         """
         if (evt.atom in self.watched_atoms and not self._obsolete):
-            self.title.text = self.client.get_window_title().encode('utf-8') # <- TODO: is that too expensive?
-            self.ui.render()
+            title_text = self.client.get_window_title().encode('utf-8') # <- TODO: is that too expensive?
+            if title_text != self.title.text:
+                self.title.dirty()
 
     def remove(self):
         """ the end. """
