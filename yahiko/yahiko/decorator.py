@@ -35,6 +35,9 @@ from ooxcb.contrib import cairo
 
 from yahiko import ui
 
+# TODO move this func to somewhere else!
+from sxcairodeco import parse_buttonstroke
+
 # TODO does this make any difference?
 #import psyco
 #psyco.full()
@@ -166,31 +169,39 @@ class Decorator(object):
         )
         self.ui.add_child(title_sizer)
 
-        def make_func(f):
-            if type(f) == str:
-                def r(e):
-                    self.plugin.app.plugins['actions'].emit(f, {
+        def make_func(bindings):
+            parsed_bindings = {}
+            for k, v in bindings.iteritems():
+                parsed_bindings[parse_buttonstroke(k)] = v
+            def r(e):
+                try:
+                    func = parsed_bindings[(e.state, e.detail)]
+                except KeyError:
+                    return 
+                if type(func) == str:
+                    self.plugin.app.plugins['actions'].emit(func, {
                             'screen': screen,
                             'x': e.event_x,
                             'y': e.event_y,
                             'client': self.client,
                     })
-                return r
-            return f
+                else:
+                    func()
+            return r
 
         for button in config.get('decorator.buttons.leftside', []):
             but = ui.Label(
                 text=button.get('text'),
                 width=button.get('width'),
                 style=button.get('style'),
-                on_button_press=make_func(button.get('func')),
+                on_button_press=make_func(button.get('bindings')),
             )
             title_sizer.add_child(but)
 
         self.title = ui.Label(
             text=window_title,
             style=config.get('decorator.title.style', self.default_title_style),
-            on_button_press=make_func(config.get('decorator.title.func')),
+            on_button_press=make_func(config.get('decorator.title.bindings')),
         )
         title_sizer.add_child(self.title)
 
@@ -199,7 +210,7 @@ class Decorator(object):
                 text=button.get('text'),
                 width=button.get('width'),
                 style=button.get('style'),
-                on_button_press=make_func(button.get('func')),
+                on_button_press=make_func(button.get('bindings')),
             )
             title_sizer.add_child(but)
 
