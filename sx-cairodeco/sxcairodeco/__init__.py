@@ -29,47 +29,13 @@ log = logging.getLogger(__name__)
 from samuraix import config
 from samuraix.plugin import Plugin
 from samuraix.cairo_ext import create_surface
-from samuraix.util import MODIFIERS
+from samuraix.util import parse_buttonstroke
 from samuraix.rect import Rect
 from ooxcb import xproto
 from ooxcb.contrib import cairo
 
 from sxactions import ActionInfo
 
-def parse_buttonstroke(s):
-    """
-        Return (modifiers, button id), extracted from the string `s`.
-
-        It has to contain several modifiers and a button index,
-        joined together with a '+'::
-
-            CTRL+1
-            MOD4+2
-
-        1 is the left mouse button,
-        2 the middle,
-        3 the right button.
-    """
-    modmask, button = 0, 0
-
-    parts = s.split('+')
-    modifiers = parts[:-1]
-    buttonpart = parts[-1]
-
-    # create modmask
-    for mod in modifiers:
-        try:
-            modmask |= MODIFIERS[mod.lower()]
-        except KeyError:
-            log.error('Unknown modifier: "%s"' % mod)
-
-    # get button
-    try:
-        button = int(buttonpart)
-    except ValueError:
-        log.error('Invalid button: "%s"' % buttonpart)
-
-    return modmask, button
 
 def compute_window_geom(geom):
     """ convert the 'frame geom' to the 'window geom' """

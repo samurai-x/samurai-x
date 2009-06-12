@@ -28,8 +28,7 @@ log = logging.getLogger(__name__)
 
 from samuraix import config
 from samuraix.plugin import Plugin
-
-from sxcairodeco import parse_buttonstroke
+from samuraix.util import parse_buttonstroke
 
 from ooxcb.xproto import EventMask
 from ooxcb import xproto

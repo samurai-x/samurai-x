@@ -190,6 +190,42 @@ class DictProxy(object):
             self[key] = value
 
 
+def parse_buttonstroke(s):
+    """
+        Return (modifiers, button id), extracted from the string `s`.
+
+        It has to contain several modifiers and a button index,
+        joined together with a '+'::
+
+            CTRL+1
+            MOD4+2
+
+        1 is the left mouse button,
+        2 the middle,
+        3 the right button.
+    """
+    modmask, button = 0, 0
+
+    parts = s.split('+')
+    modifiers = parts[:-1]
+    buttonpart = parts[-1]
+
+    # create modmask
+    for mod in modifiers:
+        try:
+            modmask |= MODIFIERS[mod.lower()]
+        except KeyError:
+            log.error('Unknown modifier: "%s"' % mod)
+
+    # get button
+    try:
+        button = int(buttonpart)
+    except ValueError:
+        log.error('Invalid button: "%s"' % buttonpart)
+
+    return modmask, button
+
+
 MODIFIERS = {
         # TODO: I am not sure about the
         # following four modifiers.
