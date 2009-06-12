@@ -174,8 +174,6 @@ class VerticalLayouter(Layouter):
         width += padding * 2
         height += padding * 2
 
-        log.debug('fit says %s, %s', width, height)
-
         self.container.set_size(width, height)
 
         if self.container.parent and hasattr(self.container.parent, 'layout'):
@@ -236,7 +234,6 @@ class Container(Window):
             self.layouter.layout()
 
     def fit(self):
-        log.debug('fitting %s', self)
         self.layouter.fit()
 
     def render(self, cr):
@@ -293,7 +290,6 @@ class TopLevelContainer(Container):
         #self.recreate_surface()
 
     def set_size(self, width, height):
-        log.debug(str(('set_size', self, width, height, self.width, self.height)))
         if self.width != width or self.height != height:
             self.window.configure(width=width, height=height)
 
@@ -327,7 +323,6 @@ class TopLevelContainer(Container):
             self.render()
 
     def layout(self):
-        log.debug('TopLevel layout %s %s', self.width, self.height)
         self.rx = 0
         self.ry = 0
         self.rwidth = self.width
@@ -403,8 +398,6 @@ class Input(Label):
         shift = int((event.state & xproto.ModMask.Shift) or (event.state & xproto.ModMask.Lock))
         k = ooxcb.keysyms.keysym_to_str(event.conn.keysyms.get_keysym(event.detail, shift))
         
-        print k
-
         if k == 'Return':
             self.dispatch_event('on_return', self)    
         elif k in string.printable:

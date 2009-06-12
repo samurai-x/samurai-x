@@ -135,6 +135,8 @@ class Decorator(object):
                 override_redirect=True,
                 back_pixel=screen.info.white_pixel,
                 colormap=colormap,
+                # does this help flickering probs? im not sure...
+                backing_store=xproto.BackingStore.WhenMapped,
                 event_mask=
                     xproto.EventMask.Exposure |
                     xproto.EventMask.StructureNotify |
@@ -224,6 +226,8 @@ class Decorator(object):
         #)
 
         self.ui.fit()
+        self.clientwin.width = None
+        self.clientwin.height = None
 
     def window_on_configure_notify(self, event):
         if self._window_configures != 0:
@@ -235,6 +239,10 @@ class Decorator(object):
                 self.clientwin.width = geom.width
                 self.clientwin.height = geom.height 
                 self.ui.fit()
+                # put the width and height back because we want these to be
+                # automatic 
+                self.clientwin.width = None
+                self.clientwin.height = None
             
             #actor.configure(
             #        # dont forget the borders of client.border in this calculation

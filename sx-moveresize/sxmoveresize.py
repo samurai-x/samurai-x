@@ -67,7 +67,6 @@ class ClientHandler(object):
 class MoveHandler(ClientHandler):
     def __init__(self, client, x, y, cursor=None, **kwargs):
         ClientHandler.__init__(self, client, x, y, client.app.cursors['Move'], **kwargs)
-        log.info('Now moving %s' % client)
         self._x = None
         self._y = None
 
@@ -101,8 +100,6 @@ class MoveHandler(ClientHandler):
         """ clear old preview if necessary """
         if self._x is not None:
             x, y = self._x - self.offset_x, self._y - self.offset_y
-            log.debug(str(("clear", self.client.screen.root,
-                                    str(Rect(x, y, self.client.geom.width, self.client.geom.height)))))
             self.gc.poly_rectangle(self.client.screen.root,
                                     [Rect(x, y, self.client.geom.width, self.client.geom.height)])
 
@@ -110,7 +107,6 @@ class MoveHandler(ClientHandler):
 class ResizeHandler(ClientHandler):
     def __init__(self, client, x, y, **kwargs):
         ClientHandler.__init__(self, client, x, y, client.app.cursors['Resize'], **kwargs)
-        log.info('Now resizing %s' % client)
 
 #        geom = self.client.geom
 #        client.frame.warp_pointer(geom.width, geom.height)
