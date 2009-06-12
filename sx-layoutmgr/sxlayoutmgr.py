@@ -22,6 +22,7 @@ class Layout(object):
     def layout(self):
         raise NotImplemented()
 
+
 class FloatingLayout(Layout):
     """ do nothing. """
     name = 'floating'
@@ -32,6 +33,7 @@ class FloatingLayout(Layout):
             self.desktop.clients.current() \
                     .actor.configure(stack_mode=xproto.StackMode.Above)
             app.conn.flush()
+
 
 class MaxLayout(Layout):
     """ make the focused window fill the screen """
