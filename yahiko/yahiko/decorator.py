@@ -169,7 +169,12 @@ class Decorator(object):
         def make_func(f):
             if type(f) == str:
                 def r(e):
-                    self.plugin.app.plugins['actions'].emit(f, {'screen': screen})
+                    self.plugin.app.plugins['actions'].emit(f, {
+                            'screen': screen,
+                            'x': e.event_x,
+                            'y': e.event_y,
+                            'client': self.client,
+                    })
                 return r
             return f
 
@@ -185,6 +190,7 @@ class Decorator(object):
         self.title = ui.Label(
             text=window_title,
             style=config.get('decorator.title.style', self.default_title_style),
+            on_button_press=make_func(config.get('decorator.title.func')),
         )
         title_sizer.add_child(self.title)
 

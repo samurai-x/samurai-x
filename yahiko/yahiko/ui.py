@@ -261,7 +261,7 @@ class Container(Window):
 
         for child in self.children:
             if child.hit(local_x, local_y):
-                child.dispatch_event('on_button_press', event)
+                return child.dispatch_event('on_button_press', event)
 
 
 class TopLevelContainer(Container):
