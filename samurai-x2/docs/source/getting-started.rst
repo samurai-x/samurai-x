@@ -96,7 +96,8 @@ a dictionary. There are some special dictionary keys:
         ]
 
 If you have any further questions, you're welcome to join our
-`irc channel`_!
+`irc channel`_ and our `mailing list`_!
 
 .. _egg links: http://peak.telecommunity.com/DevCenter/EggFormats#egg-links
 .. _irc channel: irc://irc.freenode.net/samuraix
+.. _mailing list: http://samurai-x.org/mailman/listinfo/samuraix_users
