@@ -24,8 +24,13 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 """
-    sx-desktops is a plugin that enables multiple desktops in samurai-x. 
-    
+    sx-desktops is a plugin that enables multiple desktops in samurai-x.
+
+    Dependencies
+    ------------
+
+    sx-desktops depends on :ref:`sx-actions`.
+
     Configuration
     -------------
 
@@ -43,7 +48,7 @@
              ]
 
     .. attribute:: desktops.autofocus
-    
+
         If `desktops.autofocus` is True, a new client is automatically
         focused.
 
@@ -57,7 +62,7 @@
 
         Cycle desktops by *offset*. Positive values mean
         forward cycling, negative values mean backwards cycling.
-        
+
         Required parameters:
             * `screen`
 
@@ -78,8 +83,6 @@
             * `screen`
             * `index`
 
-    API documentation
-    -----------------
 """
 
 import logging
