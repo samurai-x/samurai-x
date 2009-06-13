@@ -26,19 +26,19 @@
 """
     sx-layoutmgr is a plugin that adds layout algorithms to desktops. 
 
-
     Actions
     -------
 
-    .. function:: layoutmgr.set_layout
+    .. function:: layoutmgr.set_layout()
         :module:
 
         sets the layout of a desktop 
 
-    .. function:: layoutmgr.cycle
+    .. function:: layoutmgr.cycle()
         :module:
         
         cycles through the different desktop layouts
+
 """
 
 from samuraix.plugin import Plugin
@@ -144,9 +144,11 @@ class SXLayoutMgr(Plugin):
     def action_set_layout(self, info):
         """
             set the layout of the current desktop.
+
             parameters:
                 `name`: str
                     identifier of the layout
+
             needed:
                 `screen`
         """
@@ -158,9 +160,11 @@ class SXLayoutMgr(Plugin):
     def action_cycle(self, info):
         """
             cycle the layouts for the current desktop
+
             parameters:
                 `offset`: int
                     offset to cycle, defaults to +1
+
             needed:
                 `screen`
         """
