@@ -31,19 +31,19 @@
     Configuration
     -------------
 
-    ..attribute:: autoclient.rules
+    .. attribute:: autoclient.rules
 
-        List of functions to call when a new client is created. For example:
+        List of functions to call when a new client is created. 
+        For example::
+        
+            def test_rule(screen, client):
+                log.info('test rule!')
+                client.actor.configure(x=100, y=100)
 
-    
-        def test_rule(screen, client):
-            log.info('test rule!')
-            client.actor.configure(x=100, y=100)
-
-        config = {
-            # ...
-            'autoclient.rules': [test_rule],
-        }
+            config = {
+                # ...
+                'autoclient.rules': [test_rule],
+            }
 
 """
 

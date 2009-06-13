@@ -26,16 +26,10 @@
 """
     sx-dbus is a plugin that enables dbus inside samurai-x.
 
-    Configuration
-    -------------
+    Dependencies
+    ------------
 
-    sx-dbus has no configuration options.
-
-    Actions
-    -------
-    
-    sx-dbus provides no actions 
-    
+    sx-dbus depends on :ref:`sx-gobject`.
 
 """
 

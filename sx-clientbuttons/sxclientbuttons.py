@@ -32,12 +32,13 @@
 
     .. attribute:: clientbuttons.bindings
 
-        Dictionary of button/modifier : action. For example:
+        Dictionary of button/modifier : action. 
+        For example::
     
-        'clientbuttons.bindings': {
-            'Meta+1': 'moveresize.move',
-            'Meta+3': 'moveresize.resize',
-        }
+            'clientbuttons.bindings': {
+                'Meta+1': 'moveresize.move',
+                'Meta+3': 'moveresize.resize',
+            }
 
 """
 

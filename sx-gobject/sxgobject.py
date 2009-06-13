@@ -26,15 +26,6 @@
 """
     sx-gobject is a plugin that replaces the default samurai-x loop with a gobject based loop.
 
-    Configuration
-    -------------
-
-    sx-gobject has no configuration options.
-
-    Actions
-    -------
-    
-    sx-gobject provides no actions 
 """
 
 import logging
