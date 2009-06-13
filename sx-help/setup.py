@@ -29,7 +29,7 @@ import sys, os
 setup(name='sx-help',
     description="help handling",
     license='BSD',
-    packages=['sxhelp'],
+    py_modules=['sxhelp'],
     entry_points="""
     [samuraix.plugin]
     sxhelp = sxhelp:SXHelp
