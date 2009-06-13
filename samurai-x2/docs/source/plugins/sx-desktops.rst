@@ -3,7 +3,7 @@
 .. currentmodule:: sxdesktops 
 
 sx-desktops
-=============
+===========
 
 .. automodule:: sxdesktops
     :members:
