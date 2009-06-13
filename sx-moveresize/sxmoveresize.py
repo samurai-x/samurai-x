@@ -23,6 +23,39 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+"""
+    sx-moveresize is a plugin that adds the actions 'moveresize.move' and 'moveresize.resize' 
+    which move and resize the current or specified window respectivly.
+
+    Configuration
+    -------------
+        
+    .. attribute:: moveresize.border-move
+
+        Boolean value that when True shows a rectangle preview of the moved/resized
+        window instead of moving/resizing the window directly
+
+    .. attribute:: moveresize.hide-win
+    
+        Boolean value that when True will hide the window that is being moved/resized.
+        Most usefull when moveresize.border-move is True. 
+
+    Actions
+    -------
+
+    .. function:: moveresize.move
+        :module:
+
+        Start moving the current window
+
+    .. function:: moveresize.resize
+        :module:
+        
+        Start resizing the current window 
+
+"""
+
+
 import logging
 log = logging.getLogger(__name__)
 
