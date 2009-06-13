@@ -23,6 +23,24 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+"""
+    sx-clientbuttons is a plugin that enables you to bind mouse button 
+    and modifier key combinations to an action.
+
+    Configuration
+    -------------
+
+    .. attribute:: clientbuttons.bindings
+
+        Dictionary of button/modifier : action. For example:
+    
+        'clientbuttons.bindings': {
+            'Meta+1': 'moveresize.move',
+            'Meta+3': 'moveresize.resize',
+        }
+
+"""
+
 import logging
 log = logging.getLogger(__name__)
 
