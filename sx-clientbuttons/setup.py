@@ -29,7 +29,7 @@ import sys, os
 setup(name='sx-clientbuttons',
     description="client button binding plugin for samurai-x2",
     license='BSD',
-    packages=['sxclientbuttons'],
+    py_modules=['sxclientbuttons'],
     entry_points="""
     [samuraix.plugin]
     sxclientbuttons = sxclientbuttons:SXClientButtons
