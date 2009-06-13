@@ -23,6 +23,65 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+"""
+    sx-desktops is a plugin that enables multiple desktops in samurai-x. 
+    
+    Configuration
+    -------------
+
+    .. attribute:: desktops.desktops
+
+        A list of tuples of (desktop name, desktop info dictionary).
+        sx-desktops itself doesn't define any desktop information
+        keys, but e.g. :ref:`sx-layoutmgr` does.
+
+        An example::
+
+            'desktops.desktops': [
+                ('desktop number one', {'layout': 'floating'}),
+                ('oh, just another desktop', {'layout': 'vert'})
+             ]
+
+    .. attribute:: desktops.autofocus
+    
+        If `desktops.autofocus` is True, a new client is automatically
+        focused.
+
+        Default value: True
+
+    Actions
+    -------
+
+    .. function:: desktops.cycle([offset=1])
+        :module:
+
+        Cycle desktops by *offset*. Positive values mean
+        forward cycling, negative values mean backwards cycling.
+        
+        Required parameters:
+            * `screen`
+
+    .. function:: desktops.cycle_clients([offset=1])
+        :module:
+
+        Cycle the clients of the current desktop by *offset*.
+
+        Required parameters:
+            * `screen`
+
+    .. function:: desktops.goto(index)
+        :module:
+
+        go to the desktop with the index *index*.
+
+        Required parameters:
+            * `screen`
+            * `index`
+
+    API documentation
+    -----------------
+"""
+
 import logging
 log = logging.getLogger(__name__)
 
@@ -265,7 +324,7 @@ class SXDesktops(Plugin):
 
     def on_load_config(self, config):
         #self.names = config.get('desktops.names', ['one desktop'])
-        self.config = config.get('desktops.desktops', {})
+        self.config = config.get('desktops.desktops', ())
 
     #def on_ready(self, app):
     #    print "sxdesktps read"
@@ -281,7 +340,6 @@ class SXDesktops(Plugin):
             desktop = Desktop(self, screen, name, idx, info)
             desktops.append(desktop)
         self.attach_data_to(screen, ScreenData(screen, desktops))
-        print "++", screen.data
 
         screen.root.change_property('_NET_NUMBER_OF_DESKTOPS', 'CARDINAL',
                 32, [len(desktops)])
