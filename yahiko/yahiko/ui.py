@@ -10,6 +10,8 @@ from ctypes import byref
 from samuraix.rect import Rect
 from samuraix.util import DictProxy
 
+from yahiko import rsvg
+
 import logging
 log = logging.getLogger(__name__)
 
@@ -68,14 +70,26 @@ class Window(EventDispatcher):
                 cairo.cairo_set_source(cr, pat)
                 cairo.cairo_fill(cr)
             elif bstyle == 'image' and 'background.image' in style and style['background.image']:
-                image = cairo.cairo_image_surface_create_from_png(style.get('background.image'))
-                w = float(cairo.cairo_image_surface_get_width(image))
-                h = float(cairo.cairo_image_surface_get_height(image))
+                fn = style.get('background.image')
+                ext = fn.rsplit('.', 1)[1]
+                if ext == 'png':
+                    image = cairo.cairo_image_surface_create_from_png(fn)
+                    w = float(cairo.cairo_image_surface_get_width(image))
+                    h = float(cairo.cairo_image_surface_get_height(image))
 
-                cairo.cairo_scale(cr, self.rwidth/w, self.rheight/h)
+                    print w, h, self.rwidth, self.rheight, self.rx, self.ry
 
-                cairo.cairo_set_source_surface(cr, image, self.rx, self.ry)
-                cairo.cairo_paint(cr)
+                    cairo.cairo_scale(cr, self.rwidth/w, self.rheight/h)
+                    cairo.cairo_set_source_surface(cr, image, self.rx, self.ry)
+                    cairo.cairo_paint(cr)
+                elif ext == 'svg':
+                    handle = rsvg.rsvg_handle_new_from_file(fn, None)
+                    dim = rsvg.RsvgDimensionData()
+                    rsvg.rsvg_handle_get_dimensions(handle, byref(dim))
+                    cairo.cairo_scale(cr, self.rwidth/dim.width, self.rheight/dim.height)
+                    cairo.cairo_save(cr)
+                    cairo.cairo_translate(cr, self.rx, self.ry)
+                    rsvg.rsvg_handle_render_cairo(handle, cr)
 
         if 'border.color' in style:
             bstyle = style.get('style', 'fill')
@@ -288,6 +302,14 @@ class TopLevelContainer(Container):
         )
 
         #self.recreate_surface()
+    def remove_handlers(self):
+            self.window.remove_handlers(
+                on_property_notify=self.on_window_property_notify,
+                on_configure_notify=self.on_window_configure_notify,
+                on_button_press=self.on_button_press,
+                on_key_press=self.on_window_key_press,
+                on_expose=self.on_window_expose,
+            )
 
     def set_size(self, width, height):
         if self.width != width or self.height != height:

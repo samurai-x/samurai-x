@@ -6,48 +6,13 @@ from ooxcb.contrib import cairo
 from ooxcb import xproto
 import ooxcb
 
+from yahiko.ui import Window
 
-# ripped from yahiko
-def default_func(cr, style, width, height):
-    x = 0
-    y = 0
-    if 'background.style' in style: 
-        cairo.cairo_rectangle(cr, x, y, width, height)
 
-        bstyle = style.get('background.style')
-        assert bstyle in ('fill', 'gradient', 'image')
-        if bstyle == 'fill' and 'background.color' in style:
-            cairo.cairo_set_source_rgb(cr, *style['background.color'])
-            cairo.cairo_fill(cr)
-        elif bstyle == 'gradient' and 'background.fill-line' in style and 'background.fill-stops' in style:
-            pat = cairo.cairo_pattern_create_linear(*style['background.fill-line'])
-            for stop in style['background.fill-stops']:
-                cairo.cairo_pattern_add_color_stop_rgb(pat, *stop)
-            cairo.cairo_set_source(cr, pat)
-            cairo.cairo_fill(cr)
-        elif bstyle == 'image' and 'background.image' in style and style['background.image']:
-            image = cairo.cairo_image_surface_create_from_png(style.get('background.image'))
-            w = float(cairo.cairo_image_surface_get_width(image))
-            h = float(cairo.cairo_image_surface_get_height(image))
-
-            cairo.cairo_scale(cr, width/w, height/h)
-
-            cairo.cairo_set_source_surface(cr, image, x, y)
-            cairo.cairo_paint(cr)
-
-    if 'border.color' in style:
-        bstyle = style.get('style', 'fill')
-        assert bstyle in ('fill', 'gradient')
-        if bstyle == 'fill' and 'border.color' in style:
-            cairo.cairo_set_source_rgb(cr, *style['border.color'])
-        elif bstyle == 'gradient' and 'border.fill-line' in style and 'border.fill-stops' in style:
-            pat = cairo.cairo_pattern_create_linear(*style['border.fill-line'])
-            for stop in style['border.fill-stops']:
-                cairo.cairo_pattern_add_color_stop_rgb(pat, *stop)
-            cairo.cairo_set_source(cr, pat)
-        cairo.cairo_set_line_width(cr, style.get('width', 1.0))
-        cairo.cairo_rectangle(cr, x, y, width, height)
-        cairo.cairo_stroke(cr)
+def yahiko_render(cr, style, width, height):
+    win = Window(style=style)
+    win.set_render_coords(0, 0, width, height)
+    win.render(cr)
 
 
 def set_root(conn, screen_info, style, func=None):
@@ -69,7 +34,7 @@ def set_root(conn, screen_info, style, func=None):
     root.change_attributes(back_pixmap=pixmap)
     cr = cairo.cairo_create(surface)
     if func is None:
-        func = default_func
+        func = yahiko_render
     func(cr, style, geom.width, geom.height)
 
     root.clear_area(0, 0, geom.width, geom.height)
