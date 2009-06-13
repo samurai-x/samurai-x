@@ -34,6 +34,7 @@ import imp
 import traceback
 import logging
 import pkg_resources
+import gc
 from optparse import OptionParser
 from tempfile import gettempdir
 
@@ -183,6 +184,10 @@ def run(app_func=None):
         log.info('restart loop')
         samuraix.restarting = False
         run_app(app_func=app_func)
+        # make sure everything is really gone 
+        samuraix.app = None
+        samuraix.config = None
+        gc.collect()
 
 
 def restart():
