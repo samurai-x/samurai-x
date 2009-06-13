@@ -231,6 +231,7 @@ class ClientData(object):
                     self.client.geom.x,
                     self.client.geom.y)
             # TODO: don't stick them at (0, 0). geom.x/geom.y seem are 0 - why?
+        self.client.actor.valid = False
         self.client.actor.destroy()
         self.gc.free()
         self.client.conn.flush()
