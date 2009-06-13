@@ -76,9 +76,6 @@ class Window(EventDispatcher):
                     image = cairo.cairo_image_surface_create_from_png(fn)
                     w = float(cairo.cairo_image_surface_get_width(image))
                     h = float(cairo.cairo_image_surface_get_height(image))
-
-                    print w, h, self.rwidth, self.rheight, self.rx, self.ry
-
                     cairo.cairo_scale(cr, self.rwidth/w, self.rheight/h)
                     cairo.cairo_set_source_surface(cr, image, self.rx, self.ry)
                     cairo.cairo_paint(cr)
