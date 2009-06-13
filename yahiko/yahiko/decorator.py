@@ -15,13 +15,13 @@
 # THIS SOFTWARE IS PROVIDED BY SAMURAI-X.ORG ``AS IS'' AND ANY
 # EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 # WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-# DISCLAIMED. IN NO EVENT SHALL SAMURAI-X.ORG  BE LIABLE FOR ANY
-# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+# DISCLAIMED. in no event shall samurai-x.org  be liable for any
+# direct, indirect, incidental, special, exemplary, or consequential damages
+# (including, but not limited to, procurement of substitute goods or services;
+# loss of use, data, or profits; or business interruption) however caused and
+# on any theory of liability, whether in contract, strict liability, or tort
+# (including negligence or otherwise) arising in any way out of the use of this
+# software, even if advised of the possibility of such damage.
 
 import logging
 log = logging.getLogger(__name__)
@@ -302,9 +302,11 @@ class Decorator(object):
         self.client.window.remove_handlers(
                 on_property_notify=self.on_property_notify,
         )
+        self.ui.remove_handlers()
 
         self.plugin.remove_data(self.client)
         del self.client
+        del self.ui
 
 
 class DecoratorPlugin(Plugin):
