@@ -32,13 +32,16 @@
     to the resize action.
 """
 
+import logging
+log = logging.getLogger(__name__)
+
 config = {
     'core.plugin_paths': ['~/.samuraix/plugins'],
     'core.plugins': [
         'sxactions',
         'sxdesktops',
         'sxbind',
-        'sxcairodeco',
+        'yahiko_decorator',
         'sxmoveresize',
         'sxclientbuttons',
         'sxfocus',
@@ -47,10 +50,11 @@ config = {
 
     'desktops.desktops':
         [('one', {'layout': 'floating'}),
-         ('two', {'layout': 'horiz'})]
+         ('two', {'layout': 'vert'})]
     ,
     'bind.keys': {
             'Meta+n': 'desktops.cycle offset=1',
+            'Meta+m': 'mark',
             'Meta+p': 'desktops.cycle offset=-1',
             'Meta+c': 'desktops.cycle_clients',
             'Meta+d': 'log message="pressed d"',
@@ -58,21 +62,14 @@ config = {
             'META+g': 'spawn cmdline="gimp"',
             'Meta+Q': 'quit',
             'Meta+R': 'restart',
-            'Meta+L': 'layoutmgr.cycle',
-            'meta+k': 'kill',
         },
     'clientbuttons.bindings': {
             'Meta+1': 'moveresize.move',
             'Meta+3': 'moveresize.resize',
         },
-    'cairodeco.bindings': {
+    'decorator.title.bindings': {
             '1': 'moveresize.move',
-            '3': 'moveresize.resize',
-        },
-    'cairodeco.height': 15,
-    'cairodeco.title.position': "center", # one of "left", "center" or "right"
-    'cairodeco.color': '#cc0000',
-    'cairodeco.title.color': '#ffffff',
-    'cairodeco.title.inactive_color': '#000000',
+    },
 }
+
 

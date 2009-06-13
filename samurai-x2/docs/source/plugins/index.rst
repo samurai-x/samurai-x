@@ -16,4 +16,5 @@ Plugins
     sx-help.rst
     sx-layoutmgr.rst
     sx-moveresize.rst
+    sx-simpledeco.rst
     sx-web.rst
