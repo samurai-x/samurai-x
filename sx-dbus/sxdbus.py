@@ -26,6 +26,13 @@
 """
     sx-dbus is a plugin that enables dbus inside samurai-x.
 
+    .. warning::
+        
+        :ref:`sx-actions` exposes a method that is able to execute
+        arbitrary actions, including the "spawn" action. That means you
+        can execute arbitrary commands in the context of the `sx-wm`
+        process over dbus. Be careful.
+
     Dependencies
     ------------
 
