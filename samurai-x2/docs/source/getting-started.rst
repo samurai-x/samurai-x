@@ -1,6 +1,9 @@
 Getting started with samurai-x2
 ===============================
 
+Get it
+------
+
 Since there is no current release of samurai-x2, you'll have
 to clone the git repository to try it::
 
@@ -35,14 +38,7 @@ change the code and do not have to rebuild eggs after each change.
 In order to launch samurai-x2 then, you have to cd into this directory
 and run `./setenv` before you do anything else. This will launch
 a subshell with a custom PYTHONPATH set. In this subshell, you can
-use the `sx-wm` executable. The first step will normally be to
-create a sample configuration file::
-
-    ./setenv
-    ./sx-wm --default-config > ~/.samuraix/config.py
-
-You can now edit the configuration file `~/.samuraix/config.py`. If there
-is no such file, samurai-x2 uses the default configuration.
+use the `sx-wm` executable.
 
 To run samurai-x2, just type::
 
@@ -59,6 +55,45 @@ checked immediately, so you get more detailed tracebacks), run::
     ./sx-wm -s
 
 samurai-x2 will write its logfile to `/tmp/sx.lastrun.log`.
+
+Configure it
+------------
+
+After having installed samurai-x2, the first step will normally be to
+create a sample configuration file::
+
+    ./setenv
+    ./sx-wm --default-config > ~/.samuraix/config.py
+
+You can now edit the configuration file `~/.samuraix/config.py`. If there
+is no such file, samurai-x2 uses the default configuration.
+
+The config file is an executable Python script, so be careful about its content.
+
+It has to contain a dictionary called `config` or a callable `config` that returns
+a dictionary. There are some special dictionary keys:
+
+.. attribute:: core.plugin_paths
+
+    A list of plugin search paths. Example::
+
+       'core.plugin_paths': ['~/.samuraix/plugins']
+
+.. attribute:: core.plugins
+
+    A list of setuptools entry point names. The plugins these entry points to
+    will be loaded. Example::
+
+        'core.plugins': [
+            'sxactions',
+            'sxdesktops',
+            'sxbind',
+            'sxsimpledeco',
+            'sxmoveresize',
+            'sxclientbuttons',
+            'sxfocus',
+            'sxlayoutmgr',
+        ]
 
 If you have any further questions, you're welcome to join our
 `irc channel`_!
