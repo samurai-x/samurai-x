@@ -123,6 +123,11 @@
                 The client to kill. Optional, uses the currently focused
                 client as default.
 
+    .. function:: mark()
+        :module:
+
+        prints a mark to the debuglog
+
     How to use it in your plugin
     ----------------------------
 

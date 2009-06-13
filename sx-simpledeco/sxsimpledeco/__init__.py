@@ -23,6 +23,36 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+"""
+    sx-simpledeco is a simple plugin that uses nothing but the core X protocol
+    to draw simple window decoration.
+
+    If possible, use the yahiko decoration plugin instead of sx-simpledeco.
+
+    It's plugin key is "decoration".
+
+    Dependencies
+    ------------
+
+    sx-simpledeco depends on :ref:`sx-actions`.
+
+    Configuration
+    -------------
+
+    .. attribute:: decoration.bindings
+
+        A dictionary mapping :ref:`buttonstrokes` to to action lines.
+        The actions are emitted if the user clicks on the title bar.
+        Provided information:
+
+            * `screen`, the current :class:`Screen <samuraix.screen.Screen>` instance
+            * `x` and
+            * `y`, the coordinates of the button click event.
+            * `client`, the :class:`client <samuraix.client.Client>` the frame belongs to.
+
+        Default: no bindings.
+"""
+
 import logging
 log = logging.getLogger(__name__)
 
@@ -30,7 +60,7 @@ from samuraix.plugin import Plugin
 from samuraix.rect import Rect
 from ooxcb import xproto
 
-from sxbind import MODIFIERS # Oh no, we depend on sxbind! TODO? (maybe move into samuraix.contrib or something like that?)
+from samuraix.util import MODIFIERS
 from sxactions import ActionInfo
 
 BAR_HEIGHT = 20
@@ -201,6 +231,7 @@ class ClientData(object):
                     self.client.geom.x,
                     self.client.geom.y)
             # TODO: don't stick them at (0, 0). geom.x/geom.y seem are 0 - why?
+        self.client.actor.valid = False
         self.client.actor.destroy()
         self.gc.free()
         self.client.conn.flush()
