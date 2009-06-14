@@ -69,7 +69,7 @@ config = {
     # Here we can bind keystrokes to actions using the sx-bind plugin.
     # More information about actions:
     # http://docs.samurai-x.org/samurai-x2/plugins/sx-actions.html
-    # More information about sx-bind: 
+    # More information about sx-bind:
     # http://docs.samurai-x.org/samurai-x2/plugins/sx-bind.html
     'bind.keys': {
             'Meta+n': 'desktops.cycle offset=1',
@@ -98,7 +98,7 @@ config = {
             'Meta+1': 'moveresize.move',
             'Meta+3': 'moveresize.resize',
         },
-    
+
     # Configuration for yahiko_decorator follows.
     # If you click and drag the titlebar with the left mouse button,
     # you move the window. If you click and drag with the right mouse
