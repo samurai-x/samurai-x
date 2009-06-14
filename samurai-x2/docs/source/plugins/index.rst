@@ -18,4 +18,4 @@ Plugins
     sx-moveresize.rst
     sx-simpledeco.rst
     sx-web.rst
-    yahiko.decorator.rst
+    yahiko_decorator.rst
