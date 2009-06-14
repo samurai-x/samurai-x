@@ -46,7 +46,6 @@ config = {
         'sxmoveresize',
         'sxclientbuttons',
         'sxfocus',
-        'sxhelp',
     ],
 
     # Here we create 10 desktops. You can find more
