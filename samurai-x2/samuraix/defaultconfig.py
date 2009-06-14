@@ -31,6 +31,8 @@
 import logging
 log = logging.getLogger(__name__)
 
+from pkg_resources import resource_filename as resource
+
 config = {
     # The search paths for plugin packages
     'core.plugin_paths': ['~/.samuraix/plugins'],
@@ -106,13 +108,15 @@ config = {
             '3': 'moveresize.resize',
     },
 
-    # Here we create a "Close" button on the right side of the titlebar.
-    'decorator.buttons.rightside': [
+    # Here we create a "Close" button on the left side of the titlebar.
+    'decorator.buttons.leftside': [
         {
-            'text': 'X',
             'width': 20,
             'style': {
                 'text.color': (1.0, 1.0, 1.0),
+                'background.style': 'image',
+                # This will give us the filename of the graphic file.
+                'background.image': resource('yahiko', 'gfx/close.png'),
             },
             # if you click with the left mouse button, the "kill" action
             # is emitted.
