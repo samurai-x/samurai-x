@@ -23,6 +23,27 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+"""
+    sx-focus is a plugin that ... urm ... what does it do? :]
+
+    Configuration
+    -------------
+
+    .. attribute:: focus.style
+
+        The focus style to use.
+
+        There are several focus styles available:
+
+        `click` (default)
+            click in a window to focus and raise
+        `sloppy`
+            move the pointer into a window to focus
+        `sloppy-autoraise`
+            same as `sloppy`, but focused windows are raised automatically
+
+"""
+
 import logging
 log = logging.getLogger(__name__)
 

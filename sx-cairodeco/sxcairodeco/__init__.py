@@ -143,7 +143,7 @@ def compute_window_geom(geom):
     geom.height -= config['cairodeco.height']
 
 def compute_actor_geom(geom):
-    """ convert the 'window geom' to the 'geom geom' """
+    """ convert the 'window geom' to the 'frame geom' """
     geom.y = max(0, geom.y - config['cairodeco.height'])
     geom.height = max(1, geom.height + config['cairodeco.height'])
 

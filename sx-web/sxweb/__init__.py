@@ -24,14 +24,23 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 """
-    sx-web is a plugin that runs a wsgi server inside samurai-x. 
+    sx-web is a plugin that runs a wsgi http server inside samurai-x.
+    Currently, it only displays some information about the installed plugins.
+
+    Dependencies
+    ------------
+
+    sx-web depends on `webob`_ and `mako`_.
+
+    .. _webob: http://pythonpaste.org/webob/
+    .. _mako: http://www.makotemplates.org/
 
     Configuration
     -------------
 
     .. attribute:: web.port
     
-        Port number to run the web server on 
+        Port number to run the web server on (defaults to 8000)
 
 """
 
