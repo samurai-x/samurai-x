@@ -22,6 +22,41 @@
 # on any theory of liability, whether in contract, strict liability, or tort
 # (including negligence or otherwise) arising in any way out of the use of this
 # software, even if advised of the possibility of such damage.
+"""
+    yahiko.decorator is a window decorator plugin for samurai-x
+
+    Configuration
+    -------------
+
+    .. attribute:: decorator.actor.style
+
+        A dictionary describing the style. Read yahiko.ui.Window for more 
+
+    .. attribute:: decorator.title.style
+        
+        A dictionary describing the style. Read yahiko.ui.Window for more 
+
+    .. attribute:: decorator.leftside.buttons
+
+        A list of dictionaries describing buttons on the left side of the 
+        window. For example::
+
+            {
+                'text': 'X',
+                'width': '20',
+                'style': {
+                    # yahiko.ui style...
+                },
+                'bindings': {
+                    '1': 'some.action',
+                },                      
+            }
+
+    .. attribute:: decorator.rightside.buttons
+
+        See the documentation for decorator.leftside.buttons.
+
+"""
 
 import logging
 log = logging.getLogger(__name__)

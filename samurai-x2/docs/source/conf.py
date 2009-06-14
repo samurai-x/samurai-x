@@ -18,6 +18,7 @@ import sys, os
 # absolute, like shown here.
 sys.path.append(os.path.abspath('../..')) # add samuraix
 sys.path.append(os.path.abspath('../../../ooxcb')) # add ooxcb as well
+sys.path.append(os.path.abspath('../../../yahiko')) # add ooxcb as well
 
 # add plugins
 from glob import iglob
