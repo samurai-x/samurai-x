@@ -21,12 +21,14 @@ it's a bit unstable).
 Apart from that, xpyb-generated bindings are very close to the X protocol. For every extension,
 you have one class that has some methods for each request. On the one hand, xpyb is able to cover
 all the extensions supported by xcb-proto this way; on the other hand, the binding is not very
-comfortable to use. Because of that, we decided to write our own binding, based on the xpyb-ctypes code.
-The xpyb wrapper generator uses so-called interface files that describe the desired Python API of
+comfortable to use. Because of that, we decided to write our own binding, based on the
+xpyb-ctypes code (so, big thanks to `xpyb`_!).
+The ooxcb wrapper generator uses so-called interface files that describe the desired Python API of
 a specific extension - so we can create an API that is more comfortable and easy-to-use.
-However, somebody has to write these interface files, and depending on the size and complexity of
+However, someone has to write these interface files, and depending on the size and complexity of
 the extension, that's a time-intensive job. At the moment, everything of the xproto extension
-(the core extension) is wrapped, but some parts need testing.
+(the core extension) is wrapped, but some parts need testing. The xtest extension is already usable,
+too.
 
 Additionally, ooxcb comes with a simple and powerful event dispatching system (stolen from `pyglet`_) -
 you don't have to use it necessarily, but it can make life much easier.
