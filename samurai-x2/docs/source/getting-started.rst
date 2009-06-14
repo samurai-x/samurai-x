@@ -4,6 +4,71 @@ Getting started with samurai-x2
 Get it
 ------
 
+Dependencies
+~~~~~~~~~~~~
+
+samurai-x2 needs:
+
+ * Python >= 2.5
+ * `ooxcb`_
+ * `setuptools`_
+
+ooxcb needs:
+
+ * `libxcb`_
+
+yahiko (a package containing a nice decoration plugin. Not required,
+you can use :ref:`sx-cairodeco` instead) needs:
+
+ * `cairo`_ (with the xcb backend)
+ * `librsvg`_
+
+.. _ooxcb: http://docs.samurai-x.org/ooxcb/
+.. _setuptools: http://peak.telecommunity.com/DevCenter/setuptools
+.. _libxcb: http://xcb.freedesktop.org
+.. _cairo: http://www.cairographics.org
+.. _librsvg: http://librsvg.sourceforge.net
+
+Stable version
+~~~~~~~~~~~~~~
+
+The easiest way to get a samurai-x2 stable release is::
+
+    easy_install ooxcb yahiko samurai-x2
+
+Now, there is a `sx-wm` executable available. Without any plugins,
+samurai-x2 isn't usable, so let's install some (here we install them
+system-wide. That is possible, but you can also install the plugin
+packages as eggs to `~/.samuraix/plugins` or any other directory
+in your `search path`_)::
+
+    easy_install sx-actions sx-desktops
+
+In the default configuration, samurai-x2 uses the yahiko decorator plugin,
+and since you already installed yahiko above, the decorator plugin is available.
+
+If you type ``sx-wm`` now, a more or less usable window manager is launched.
+
+If you want to run it on another X server, launch it with the
+`DISPLAY` variable set::
+
+    DISPLAY=:1 sx-wm
+
+If you want to turn on synchronous checks (each X request is
+checked immediately, so you get more detailed tracebacks), run::
+
+    sx-wm -s
+
+samurai-x2 will write its logfile to `/tmp/sx.lastrun.log`.
+
+After having installed samurai-x2, the first step will normally be to
+create a sample configuration file::
+
+    sx-wm --default-config > ~/.samuraix/config.py
+
+Development version
+~~~~~~~~~~~~~~~~~~~
+
 Since there is no current release of samurai-x2, you'll have
 to clone the git repository to try it::
 
@@ -56,14 +121,13 @@ checked immediately, so you get more detailed tracebacks), run::
 
 samurai-x2 will write its logfile to `/tmp/sx.lastrun.log`.
 
-Configure it
-------------
-
 After having installed samurai-x2, the first step will normally be to
 create a sample configuration file::
 
-    ./setenv
     ./sx-wm --default-config > ~/.samuraix/config.py
+
+Configure it
+------------
 
 You can now edit the configuration file `~/.samuraix/config.py`. If there
 is no such file, samurai-x2 uses the default configuration.
@@ -72,6 +136,8 @@ The config file is an executable Python script, so be careful about its content.
 
 It has to contain a dictionary called `config` or a callable `config` that returns
 a dictionary. There are some special dictionary keys:
+
+.. _search path:
 
 .. attribute:: core.plugin_paths
 
