@@ -32,7 +32,7 @@
 
     .. attribute:: clientbuttons.bindings
 
-        Dictionary of button/modifier : action. 
+        Dictionary of button/modifier (:ref:`buttonstrokes`): action.
         For example::
     
             'clientbuttons.bindings': {
