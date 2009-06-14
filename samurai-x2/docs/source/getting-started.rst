@@ -36,7 +36,7 @@ The easiest way to get a samurai-x2 stable release is::
 
     easy_install ooxcb yahiko samurai-x2
 
-Now, there is a `sx-wm` executable available. Without any plugins,
+Now, there is a ``sx-wm`` executable available. Without any plugins,
 samurai-x2 isn't usable, so let's install some (here we install them
 system-wide. That is possible, but you can also install the plugin
 packages as eggs to `~/.samuraix/plugins` or any other directory
