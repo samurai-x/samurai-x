@@ -46,12 +46,32 @@
     .. function:: moveresize.move
         :module:
 
-        Start moving the current window
+        Start moving a client.
+
+        :Parameters:
+            `screen`
+                required
+            `client`
+                the :class:`client <samuraix.client.Client>` to move
+                (optional, defaults to the currently focused client)
+            `x`, `y`
+                the coordinates of the event that emitted the action (optional)
+        
 
     .. function:: moveresize.resize
         :module:
         
-        Start resizing the current window 
+        Start resizing a client
+
+        :Parameters:
+            `screen`
+                required
+            `client`
+                the :class:`client <samuraix.client.Client>` to resize
+                (optional, defaults to the currently focused client)
+            `x`, `y`
+                the coordinates of the event that emitted the action (optional)
+        
 
 """
 

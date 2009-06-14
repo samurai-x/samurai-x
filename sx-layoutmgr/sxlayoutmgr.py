@@ -24,20 +24,58 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 """
-    sx-layoutmgr is a plugin that adds layout algorithms to desktops. 
+    sx-layoutmgr is a plugin that adds layout algorithms to desktops.
+
+    Dependencies
+    ------------
+
+    sx-layoutmgr depends on :ref:`sx-actions` and :ref:`sx-desktops`.
+
+    Configuration
+    -------------
+
+    sx-layoutmgr reads the desired layout for each desktop from the
+    desktop information key "layout".
+
+    Builtin layouts:
+
+    `floating`
+        The user is free to arrange the windows.
+    `max`
+        Maximize the currently focused window
+    `vert`
+        Stack the windows vertically
+    `horiz`
+        Stack the windows horizontally
+
+    Example::
+
+        'desktops.desktops': [
+             ('desktop one', {'layout': 'vert'}),
+             ('just another desktop', {'layout': 'floating'}),
+             ('the third one!', {'layout': 'max'}),
+             ]
 
     Actions
     -------
 
-    .. function:: layoutmgr.set_layout()
+    .. function:: layoutmgr.set_layout(name)
         :module:
 
-        sets the layout of a desktop 
+        sets the layout of the currently active desktop to the layout *name*.
 
-    .. function:: layoutmgr.cycle()
+        Required parameters:
+            * `screen`
+            * `name`
+
+    .. function:: layoutmgr.cycle([offset=+1])
         :module:
         
-        cycles through the different desktop layouts
+        cycles through the available desktop layouts for the currently
+        active desktop.
+
+        Required parameters:
+            * `screen`
 
 """
 

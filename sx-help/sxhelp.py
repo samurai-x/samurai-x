@@ -34,9 +34,11 @@
         Show help
 
 """
+from __future__ import with_statement
 
 import os
 
+import webbrowser
 import logging
 log = logging.getLogger(__name__)
 
@@ -68,13 +70,12 @@ class SXHelp(Plugin):
             filedir = os.path.dirname(firsttimefile)
             if not os.path.exists(filedir):
                 os.makedirs(filedir)
-            open(firsttimefile, 'w').write('hello')
+            with open(firsttimefile, 'w') as f:
+                f.write('hello')
             self.show_help()
 
-    def show_help(self):
+    def show_help(self, *ignore):
         url = config.get('help.url', 'http://samurai-x.org/wiki/UserManual')
-        self.app.plugins['actions'].emit('spawn', 
-            ActionInfo(cmdline='firefox %s' % url)
-        )
-        
+        log.warning('showing da help')
+        webbrowser.open(url)
     
