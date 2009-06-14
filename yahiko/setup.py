@@ -33,7 +33,8 @@ setup(name='yahiko',
     entry_points="""
     [samuraix.plugin]
     yahiko_decorator = yahiko.decorator:DecoratorPlugin
-    """
+    """,
+    zip_safe=False
 )
 
 
