@@ -27,9 +27,13 @@ from setuptools import setup, find_packages
 import sys, os
 
 setup(name='sx-focus',
-    description="plugin for various styles of mouse focusing",
+    version="0.1",
+    description="samurai-x plugin for various styles of mouse focusing",
+    keywords='window manager xcb cairo X11 wm samurai-x',
+    url='http://samurai-x.org',
     license='BSD',
     packages=['sxfocus'],
+    #install_requires=['samurai-x2 >= 0.2'],
     entry_points="""
     [samuraix.plugin]
     sxfocus = sxfocus:SXFocus

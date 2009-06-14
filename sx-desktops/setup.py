@@ -27,9 +27,13 @@ from setuptools import setup, find_packages
 import sys, os
 
 setup(name='sx-desktops',
+    version="0.1",
     description="Desktops plugin for samurai-x2",
+    keywords='window manager xcb cairo X11 wm samurai-x',
+    url='http://samurai-x.org',
     license='BSD',
     packages=['sxdesktops'],
+    #install_requires=['samurai-x2 >= 0.2'],
     entry_points="""
     [samuraix.plugin]
     sxdesktops = sxdesktops:SXDesktops

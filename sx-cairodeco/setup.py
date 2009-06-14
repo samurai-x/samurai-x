@@ -27,9 +27,13 @@ from setuptools import setup, find_packages
 import sys, os
 
 setup(name='sx-cairodeco',
+    version="0.1",
     description="decoration plugin for samurai-x2 using the cairo library",
+    keywords='window manager xcb cairo X11 wm samurai-x',
+    url='http://samurai-x.org',
     license='BSD',
     packages=['sxcairodeco'],
+    #install_requires=['samurai-x2 >= 0.2'],
     entry_points="""
     [samuraix.plugin]
     sxcairodeco = sxcairodeco:SXDeco

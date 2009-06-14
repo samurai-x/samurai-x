@@ -27,9 +27,13 @@ from setuptools import setup, find_packages
 import sys, os
 
 setup(name='sx-actions',
-    description="a simple interface for actions",
+    version="0.1",
+    description="samurai-x plugin for simple interface for actions",
+    keywords='window manager xcb cairo X11 wm samurai-x',
+    url='http://samurai-x.org',
     license='BSD',
     packages=['sxactions'],
+    #install_requires=['samurai-x2 >= 0.2'],
     entry_points="""
     [samuraix.plugin]
     sxactions = sxactions:SXActions

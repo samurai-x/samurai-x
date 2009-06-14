@@ -27,9 +27,13 @@ from setuptools import setup, find_packages
 import sys, os
 
 setup(name='sx-moveresize',
-    description="client moving and resizing handlers for samurai-x2",
+    version="0.1",
+    description="client moving and resizing plugin for samurai-x2",
+    keywords='window manager xcb cairo X11 wm samurai-x',
+    url='http://samurai-x.org',
     license='BSD',
     py_modules=['sxmoveresize'],
+    #install_requires=['samurai-x2 >= 0.2'],
     entry_points="""
     [samuraix.plugin]
     sxmoveresize = sxmoveresize:SXMoveResize

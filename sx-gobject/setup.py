@@ -27,9 +27,13 @@ from setuptools import setup, find_packages
 import sys, os
 
 setup(name='sx-gobject',
-    description="",
+    version="0.1",
+    description="samurai-x plugin to provide a gobject based main loop",
+    keywords='window manager xcb cairo X11 wm samurai-x gobject',
+    url='http://samurai-x.org',
     license='BSD',
     py_modules=['sxgobject'],
+    #install_requires=['samurai-x2>=0.2'],
     entry_points="""
     [samuraix.plugin]
     sxgobject = sxgobject:SXGObject

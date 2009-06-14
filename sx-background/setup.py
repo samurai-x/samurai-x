@@ -27,9 +27,13 @@ from setuptools import setup, find_packages
 import sys, os
 
 setup(name='sx-background',
-    description="",
+    version="0.1",
+    description="samurai-x plugin for changing backgrounds",
+    keywords='window manager xcb cairo X11 wm samurai-x',
+    url='http://samurai-x.org',
     license='BSD',
     py_modules=['sxbackground'],
+    #install_requires=['samurai-x2>=0.2'],
     entry_points="""
     [samuraix.plugin]
     sxbackground = sxbackground:SXBackground

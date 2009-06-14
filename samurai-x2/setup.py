@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 import sys, os
 
 setup(name='samurai-x2',
-    version="0.1",
+    version="0.2",
     description="A window manager written in pure python",
     long_description="""\
 samurai-x is a window manager written in pure python using ctypes, xcb and cairo.

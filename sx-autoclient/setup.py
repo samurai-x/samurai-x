@@ -27,9 +27,13 @@ from setuptools import setup, find_packages
 import sys, os
 
 setup(name='sx-autoclient',
-    description="",
+    version="0.1",
+    description="samurai-x plugin for running rules on new clients",
+    keywords='window manager xcb cairo X11 wm samurai-x',
+    url='http://samurai-x.org',
     license='BSD',
     py_modules=['sxautoclient'],
+    #install_requires=['samurai-x2'],
     entry_points="""
     [samuraix.plugin]
     sxautoclient = sxautoclient:SXAutoClient

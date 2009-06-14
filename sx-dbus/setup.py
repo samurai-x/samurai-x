@@ -27,9 +27,13 @@ from setuptools import setup, find_packages
 import sys, os
 
 setup(name='sx-dbus',
-    description="",
+    version="0.1",
+    description="DBus module for samurai-x",
+    keywords='window manager xcb cairo X11 wm samurai-x',
+    url='http://samurai-x.org',
     license='BSD',
     py_modules=['sxdbus'],
+    #install_requires=['samurai-x2 >= 0.2', 'sx-gobject'],
     entry_points="""
     [samuraix.plugin]
     sxdbus = sxdbus:SXDBus
