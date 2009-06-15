@@ -12,13 +12,61 @@ from samuraix.util import DictProxy
 
 from yahiko import rsvg
 
-import logging
+import logging 
 log = logging.getLogger(__name__)
 
 
 class Window(EventDispatcher):
+    """ 
+        The base class of all widgets in yahiko.ui. Window simply defines
+        a rectangle area on the screen.
+        
+    """
 
     def __init__(self, width=None, height=None, style=None, **kwargs):
+        """
+            :param width: The desired width of the window. This may or may 
+            not actually be used when laying out the window.
+
+            The actual render coordinates of a window are stored in
+            window.rx, window.ry, window.rwidth, window.rheight.
+
+            :param height: The desired height of the window. This may or 
+            may not actually be used when laying out the window.
+
+            :param style: A dictionary describing the style of this window.
+            This resembles CSS and knowledge of CSS wil certainly help 
+            understanding this. Styles currently supported are:
+
+                * background.style: must be one of:
+                    * fill: fill the background with a solid color 
+                    * gradient: fill the background with a gradient
+                    * image: fill the background with an image 
+                * background.color: used with background.style "fill", a tuple
+                    like (r, g, b) representing color
+                * background.fill-line: used with background.style "gradient", 
+                    a tuple like (x1, y1, x2, y2) describing the path of a 
+                    gradient 
+                * background.fill-stops: used with background.style "gradient", 
+                    a list of tuples like [(offset, r, g, b), ...] where 
+                    offset is between 0 and 1.0.
+                * background.image: used with background.style "image", a
+                    filename of an image ( either PNG or SVG ) 
+
+                * border.style: must be one of:
+                    * fill: fill the border with a solid color 
+                    * gradient: fill the border with a gradient 
+                * border.color: used with border.style "fill", a tuple
+                    like (r, g, b) representing color
+                * border.fill-line: used with border.style "gradient", 
+                    a tuple like (x1, y1, x2, y2) describing the path of a 
+                    gradient 
+                * border.fill-stops: used with border.style "gradient", 
+                    a list of tuples like [(offset, r, g, b), ...] where 
+                    offset is between 0 and 1.0.
+                                
+        """
+
         self.rx = None
         self.ry = None
         self.rwidth = None
@@ -88,7 +136,7 @@ class Window(EventDispatcher):
                     cairo.cairo_translate(cr, self.rx, self.ry)
                     rsvg.rsvg_handle_render_cairo(handle, cr)
 
-        if 'border.color' in style:
+        if 'border.style' in style:
             bstyle = style.get('style', 'fill')
             assert bstyle in ('fill', 'gradient')
             if bstyle == 'fill' and 'border.color' in style:
