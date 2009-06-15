@@ -7,7 +7,7 @@ setup(name='ooxcb',
     description='An object-oriented X Python Binding, based on xpyb',
     packages=['ooxcb', 'ooxcb.contrib'],
     keywords='xcb cairo',
-    author='Fred Reichbier',
+    author='Friedrich Weber',
     author_email='fred.reichbier@gmail.com',
 )
 
