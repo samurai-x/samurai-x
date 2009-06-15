@@ -413,7 +413,9 @@ class TopLevelContainer(Container):
         self.focused_control = control
 
     def dirty(self, control=None):
-        self.render(control)
+        # FIXME somehow we need to render a control that fills the 
+        # background
+        self.render() #control)
 
 
 class Label(Window):

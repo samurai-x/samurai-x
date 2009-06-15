@@ -8,8 +8,8 @@ setup(name='sx-allplugins',
 meta package containing all the official samurai-x plugins
 """,
     keywords='window manager xcb cairo X11 wm samurai-x',
-    author='Dunk Fordyce',
-    author_email='dunkfordyce@gmail.com',
+    maintainer="dunk fordyce",
+    maintainer_email="dunkfordyce@gmail.com",
     url='http://samurai-x.org',
     license='BSD',
     install_requires=[

@@ -30,6 +30,8 @@ setup(name='sx-tiling',
     description="tiling window manager plugin",
     license='BSD',
     packages=['sxtiling'],
+    maintainer="dunk fordyce",
+    maintainer_email="dunkfordyce@gmail.com",
     entry_points="""
     [samuraix.plugin]
     sxtiling = sxtiling:SXTiling
