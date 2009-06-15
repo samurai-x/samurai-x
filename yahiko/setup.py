@@ -27,14 +27,18 @@ from setuptools import setup, find_packages
 import sys, os
 
 setup(name='yahiko',
+    version="0.1",
     description="",
+    author='Dunk Fordyce',
+    author_email='dunkfordyce@gmail.com',
+    url='http://samurai-x.org',
     license='BSD',
     packages=['yahiko'],
+    zip_safe=False,
     entry_points="""
     [samuraix.plugin]
     yahiko_decorator = yahiko.decorator:DecoratorPlugin
     """,
-    zip_safe=False
 )
 
 

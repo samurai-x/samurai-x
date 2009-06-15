@@ -29,6 +29,7 @@ samurai-x is a window manager written in pure python using ctypes, xcb and cairo
         },
     zip_safe=False,
     install_requires=[
+        'ooxcb',
     ],
     entry_points="""
     [console_scripts]
