@@ -34,6 +34,9 @@ setup(name='yahiko',
     url='http://samurai-x.org',
     license='BSD',
     packages=['yahiko'],
+    package_data={
+        'yahiko': ['gfx/*.*']
+    },
     zip_safe=False,
     entry_points="""
     [samuraix.plugin]
