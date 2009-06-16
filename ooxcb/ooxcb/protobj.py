@@ -86,3 +86,15 @@ class Protobj(object):
         self.read(stream)
         return self
 
+class Struct(Protobj):
+    """
+        also just a subclass of :class:`protobj.Protobj`. Nothing special here.
+    """
+    pass
+
+class Union(Protobj):
+    """
+        the baseclass for Unions. Nothing special.
+    """
+    pass
+
