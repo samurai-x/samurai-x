@@ -510,8 +510,8 @@ class TranslateCoordinatesReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=xBxxxxxxIHH", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=xBxxxxxxIHH", stream)
         self.same_screen = _unpacked[0]
         self.child = self.conn.get_from_cache_fallback(_unpacked[1], Window)
         self.dst_x = _unpacked[2]
@@ -542,8 +542,8 @@ class GraphicsExposureEvent(ooxcb.Event):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=BxxxIHHHHHHBxxx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=BxxxIHHHHHHBxxx", stream)
         self.response_type = _unpacked[0]
         self.drawable = self.conn.get_from_cache_fallback(_unpacked[1], Drawable)
         self.x = _unpacked[2]
@@ -569,13 +569,13 @@ class ClientMessageData(ooxcb.Union):
     def read(self, stream):
         count = 0
         root = stream.tell()
-        self.data8 = ooxcb.List(self.conn, stream, 0, 20, 'B', 1)
+        self.data8 = ooxcb.List(self.conn, stream, 20, 'B', 1)
         count = max(count, self.data8.size)
         stream.seek(root)
-        self.data16 = ooxcb.List(self.conn, stream, 0, 10, 'H', 2)
+        self.data16 = ooxcb.List(self.conn, stream, 10, 'H', 2)
         count = max(count, self.data16.size)
         stream.seek(root)
-        self.data32 = ooxcb.List(self.conn, stream, 0, 5, 'I', 4)
+        self.data32 = ooxcb.List(self.conn, stream, 5, 'I', 4)
         count = max(count, self.data32.size)
         stream.seek(root)
 
@@ -602,8 +602,8 @@ class QueryExtensionReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=xxxxxxxxBBBB", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=xxxxxxxxBBBB", stream)
         self.present = _unpacked[0]
         self.major_opcode = _unpacked[1]
         self.first_event = _unpacked[2]
@@ -623,13 +623,12 @@ class QueryTreeReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=xxxxxxxxIIHxxxxxxxxxxxxxx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=xxxxxxxxIIHxxxxxxxxxxxxxx", stream)
         self.root = self.conn.get_from_cache_fallback(_unpacked[0], Window)
         self.parent = self.conn.get_from_cache_fallback(_unpacked[1], Window)
         self.children_len = _unpacked[2]
-        count += 32
-        self.children = [self.conn.get_from_cache_fallback(w, Window) for w in ooxcb.List(self.conn, stream, count, self.children_len, 'I', 4)]
+        self.children = [self.conn.get_from_cache_fallback(w, Window) for w in ooxcb.List(self.conn, stream, self.children_len, 'I', 4)]
 
     def build(self, stream):
         count = 0
@@ -645,11 +644,10 @@ class ListInstalledColormapsReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=xxxxxxxxHxxxxxxxxxxxxxxxxxxxxxx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=xxxxxxxxHxxxxxxxxxxxxxxxxxxxxxx", stream)
         self.cmaps_len = _unpacked[0]
-        count += 32
-        self.cmaps = [self.conn.get_from_cache_fallback(w, Colormap) for w in ooxcb.List(self.conn, stream, count, self.cmaps_len, 'I', 4)]
+        self.cmaps = [self.conn.get_from_cache_fallback(w, Colormap) for w in ooxcb.List(self.conn, stream, self.cmaps_len, 'I', 4)]
 
     def build(self, stream):
         count = 0
@@ -666,8 +664,8 @@ class Rgb(ooxcb.Struct):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=HHHxx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=HHHxx", stream)
         self.red = _unpacked[0]
         self.green = _unpacked[1]
         self.blue = _unpacked[2]
@@ -700,8 +698,8 @@ class GetWindowAttributesReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=xBxxxxxxIHBBIIBBBBIIIHxx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=xBxxxxxxIHBBIIBBBBIIIHxx", stream)
         self.backing_store = _unpacked[0]
         self.visual = _unpacked[1]
         self._class = _unpacked[2]
@@ -734,8 +732,8 @@ class AllocError(ooxcb.Error):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=xxxxIHBx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=xxxxIHBx", stream)
         self.bad_value = _unpacked[0]
         self.minor_opcode = _unpacked[1]
         self.major_opcode = _unpacked[2]
@@ -995,8 +993,8 @@ class SetModifierMappingReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=xBxxxxxx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=xBxxxxxx", stream)
         self.status = _unpacked[0]
 
     def build(self, stream):
@@ -1010,8 +1008,8 @@ class GrabPointerReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=xBxxxxxx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=xBxxxxxx", stream)
         self.status = _unpacked[0]
 
     def build(self, stream):
@@ -1027,8 +1025,8 @@ class NameError(ooxcb.Error):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=xxxxIHBx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=xxxxIHBx", stream)
         self.bad_value = _unpacked[0]
         self.minor_opcode = _unpacked[1]
         self.major_opcode = _unpacked[2]
@@ -1052,8 +1050,8 @@ class GContextError(ooxcb.Error):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=xxxxIHBx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=xxxxIHBx", stream)
         self.bad_value = _unpacked[0]
         self.minor_opcode = _unpacked[1]
         self.major_opcode = _unpacked[2]
@@ -1073,8 +1071,8 @@ class Coloritem(ooxcb.Struct):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=IHHHBx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=IHHHBx", stream)
         self.pixel = _unpacked[0]
         self.red = _unpacked[1]
         self.green = _unpacked[2]
@@ -1097,8 +1095,8 @@ class RequestError(ooxcb.Error):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=xxxxIHBx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=xxxxIHBx", stream)
         self.bad_value = _unpacked[0]
         self.minor_opcode = _unpacked[1]
         self.major_opcode = _unpacked[2]
@@ -1116,14 +1114,12 @@ class Setupauthenticate(ooxcb.Struct):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=BxxxxxH", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=BxxxxxH", stream)
         self.status = _unpacked[0]
         self.length = _unpacked[1]
-        count += 8
-        self.reason = ooxcb.List(self.conn, stream, count, (self.length * 4), 'B', 1)
-        count += self.reason.size
-        ooxcb._resize_obj(self, count)
+        self.reason = ooxcb.List(self.conn, stream, (self.length * 4), 'B', 1)
+        self.size = stream.tell() - root
 
     def build(self, stream):
         count = 0
@@ -1141,8 +1137,8 @@ class GetScreenSaverReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=xxxxxxxxHHBBxxxxxxxxxxxxxxxxxx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=xxxxxxxxHHBBxxxxxxxxxxxxxxxxxx", stream)
         self.timeout = _unpacked[0]
         self.interval = _unpacked[1]
         self.prefer_blanking = _unpacked[2]
@@ -1161,8 +1157,8 @@ class LengthError(ooxcb.Error):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=xxxxIHBx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=xxxxIHBx", stream)
         self.bad_value = _unpacked[0]
         self.minor_opcode = _unpacked[1]
         self.major_opcode = _unpacked[2]
@@ -1237,8 +1233,8 @@ class ConfigureNotifyEvent(ooxcb.Event):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=BxxxIIIhhHHHBx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=BxxxIIIhhHHHBx", stream)
         self.response_type = _unpacked[0]
         self.event = self.conn.get_from_cache_fallback(_unpacked[1], Window)
         self.window = self.conn.get_from_cache_fallback(_unpacked[2], Window)
@@ -1282,8 +1278,8 @@ class Setup(ooxcb.Struct):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=BxHHHIIIIHHBBBBBBBBxxxx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=BxHHHIIIIHHBBBBBBBBxxxx", stream)
         self.status = _unpacked[0]
         self.protocol_major_version = _unpacked[1]
         self.protocol_minor_version = _unpacked[2]
@@ -1302,16 +1298,12 @@ class Setup(ooxcb.Struct):
         self.bitmap_format_scanline_pad = _unpacked[15]
         self.min_keycode = _unpacked[16]
         self.max_keycode = _unpacked[17]
-        count += 40
-        self.vendor = ooxcb.List(self.conn, stream, count, self.vendor_len, 'B', 1)
-        count += self.vendor.size
-        count += ooxcb.type_pad(8, count)
-        self.pixmap_formats = ooxcb.List(self.conn, stream, count, self.pixmap_formats_len, Format, 8)
-        count += self.pixmap_formats.size
-        count += ooxcb.type_pad(4, count)
-        self.roots = ooxcb.List(self.conn, stream, count, self.roots_len, Screen, -1)
-        count += self.roots.size
-        ooxcb._resize_obj(self, count)
+        self.vendor = ooxcb.List(self.conn, stream, self.vendor_len, 'B', 1)
+        stream.seek(ooxcb.type_pad(8, stream.tell() - root), 1)
+        self.pixmap_formats = ooxcb.List(self.conn, stream, self.pixmap_formats_len, Format, 8)
+        stream.seek(ooxcb.type_pad(4, stream.tell() - root), 1)
+        self.roots = ooxcb.List(self.conn, stream, self.roots_len, Screen, -1)
+        self.size = stream.tell() - root
 
     def build(self, stream):
         count = 0
@@ -1334,8 +1326,8 @@ class SelectionClearEvent(ooxcb.Event):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=BxxxIII", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=BxxxIII", stream)
         self.response_type = _unpacked[0]
         self.time = _unpacked[1]
         self.owner = self.conn.get_from_cache_fallback(_unpacked[2], Window)
@@ -1358,8 +1350,8 @@ class ImplementationError(ooxcb.Error):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=xxxxIHBx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=xxxxIHBx", stream)
         self.bad_value = _unpacked[0]
         self.minor_opcode = _unpacked[1]
         self.major_opcode = _unpacked[2]
@@ -1377,12 +1369,11 @@ class ListHostsReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=xBxxxxxxHxxxxxxxxxxxxxxxxxxxxxx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=xBxxxxxxHxxxxxxxxxxxxxxxxxxxxxx", stream)
         self.mode = _unpacked[0]
         self.hosts_len = _unpacked[1]
-        count += 32
-        self.hosts = ooxcb.List(self.conn, stream, count, self.hosts_len, Host, -1)
+        self.hosts = ooxcb.List(self.conn, stream, self.hosts_len, Host, -1)
 
     def build(self, stream):
         count = 0
@@ -1398,11 +1389,10 @@ class GetModifierMappingReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=xBxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=xBxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", stream)
         self.keycodes_per_modifier = _unpacked[0]
-        count += 32
-        self.keycodes = ooxcb.List(self.conn, stream, count, (self.keycodes_per_modifier * 8), 'B', 1)
+        self.keycodes = ooxcb.List(self.conn, stream, (self.keycodes_per_modifier * 8), 'B', 1)
 
     def build(self, stream):
         count = 0
@@ -1418,11 +1408,10 @@ class GetPointerMappingReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=xBxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=xBxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", stream)
         self.map_len = _unpacked[0]
-        count += 32
-        self.map = ooxcb.List(self.conn, stream, count, self.map_len, 'B', 1)
+        self.map = ooxcb.List(self.conn, stream, self.map_len, 'B', 1)
 
     def build(self, stream):
         count = 0
@@ -1442,8 +1431,8 @@ class DestroyNotifyEvent(ooxcb.Event):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=BxxxII", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=BxxxII", stream)
         self.response_type = _unpacked[0]
         self.event = self.conn.get_from_cache_fallback(_unpacked[1], Window)
         self.window = self.conn.get_from_cache_fallback(_unpacked[2], Window)
@@ -1460,9 +1449,8 @@ class QueryKeymapReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        count += 8
-        self.keys = ooxcb.List(self.conn, stream, count, 32, 'B', 1)
+        root = stream.tell()
+        self.keys = ooxcb.List(self.conn, stream, 32, 'B', 1)
 
     def build(self, stream):
         count = 0
@@ -1479,8 +1467,8 @@ class AllocColorReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=xxxxxxxxHHHxxI", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=xxxxxxxxHHHxxI", stream)
         self.red = _unpacked[0]
         self.green = _unpacked[1]
         self.blue = _unpacked[2]
@@ -1511,8 +1499,8 @@ class Arc(ooxcb.Struct):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=hhHHhh", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=hhHHhh", stream)
         self.x = _unpacked[0]
         self.y = _unpacked[1]
         self.width = _unpacked[2]
@@ -1583,8 +1571,8 @@ class ExposeEvent(ooxcb.Event):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=BxxxIHHHHHxx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=BxxxIHHHHHxx", stream)
         self.response_type = _unpacked[0]
         self.window = self.conn.get_from_cache_fallback(_unpacked[1], Window)
         self.x = _unpacked[2]
@@ -1612,8 +1600,8 @@ class GravityNotifyEvent(ooxcb.Event):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=BxxxIIhh", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=BxxxIIhh", stream)
         self.response_type = _unpacked[0]
         self.event = self.conn.get_from_cache_fallback(_unpacked[1], Window)
         self.window = self.conn.get_from_cache_fallback(_unpacked[2], Window)
@@ -1632,8 +1620,8 @@ class GrabKeyboardReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=xBxxxxxx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=xBxxxxxx", stream)
         self.status = _unpacked[0]
 
     def build(self, stream):
@@ -1648,11 +1636,10 @@ class ListPropertiesReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=xxxxxxxxHxxxxxxxxxxxxxxxxxxxxxx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=xxxxxxxxHxxxxxxxxxxxxxxxxxxxxxx", stream)
         self.atoms_len = _unpacked[0]
-        count += 32
-        self.atoms = ooxcb.List(self.conn, stream, count, self.atoms_len, 'I', 4)
+        self.atoms = ooxcb.List(self.conn, stream, self.atoms_len, 'I', 4)
 
     def build(self, stream):
         count = 0
@@ -1668,11 +1655,10 @@ class ListExtensionsReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=xBxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=xBxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", stream)
         self.names_len = _unpacked[0]
-        count += 32
-        self.names = ooxcb.List(self.conn, stream, count, self.names_len, Str, -1)
+        self.names = ooxcb.List(self.conn, stream, self.names_len, Str, -1)
 
     def build(self, stream):
         count = 0
@@ -1692,8 +1678,8 @@ class MatchError(ooxcb.Error):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=xxxxIHBx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=xxxxIHBx", stream)
         self.bad_value = _unpacked[0]
         self.minor_opcode = _unpacked[1]
         self.major_opcode = _unpacked[2]
@@ -1715,8 +1701,8 @@ class UnmapNotifyEvent(ooxcb.Event):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=BxxxIIBxxx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=BxxxIIBxxx", stream)
         self.response_type = _unpacked[0]
         self.event = self.conn.get_from_cache_fallback(_unpacked[1], Window)
         self.window = self.conn.get_from_cache_fallback(_unpacked[2], Window)
@@ -1739,17 +1725,15 @@ class Setupfailed(ooxcb.Struct):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=BBHHH", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=BBHHH", stream)
         self.status = _unpacked[0]
         self.reason_len = _unpacked[1]
         self.protocol_major_version = _unpacked[2]
         self.protocol_minor_version = _unpacked[3]
         self.length = _unpacked[4]
-        count += 8
-        self.reason = ooxcb.List(self.conn, stream, count, self.reason_len, 'B', 1)
-        count += self.reason.size
-        ooxcb._resize_obj(self, count)
+        self.reason = ooxcb.List(self.conn, stream, self.reason_len, 'B', 1)
+        self.size = stream.tell() - root
 
     def build(self, stream):
         count = 0
@@ -1766,8 +1750,8 @@ class IDChoiceError(ooxcb.Error):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=xxxxIHBx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=xxxxIHBx", stream)
         self.bad_value = _unpacked[0]
         self.minor_opcode = _unpacked[1]
         self.major_opcode = _unpacked[2]
@@ -1786,15 +1770,13 @@ class AllocColorCellsReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=xxxxxxxxHHxxxxxxxxxxxxxxxxxxxx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=xxxxxxxxHHxxxxxxxxxxxxxxxxxxxx", stream)
         self.pixels_len = _unpacked[0]
         self.masks_len = _unpacked[1]
-        count += 32
-        self.pixels = ooxcb.List(self.conn, stream, count, self.pixels_len, 'I', 4)
-        count += self.pixels.size
-        count += ooxcb.type_pad(4, count)
-        self.masks = ooxcb.List(self.conn, stream, count, self.masks_len, 'I', 4)
+        self.pixels = ooxcb.List(self.conn, stream, self.pixels_len, 'I', 4)
+        stream.seek(ooxcb.type_pad(4, stream.tell() - root), 1)
+        self.masks = ooxcb.List(self.conn, stream, self.masks_len, 'I', 4)
 
     def build(self, stream):
         count = 0
@@ -1823,8 +1805,8 @@ class ConfigureRequestEvent(ooxcb.Event):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=BBxxIIIhhHHHH", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=BBxxIIIhhHHHH", stream)
         self.response_type = _unpacked[0]
         self.stack_mode = _unpacked[1]
         self.parent = self.conn.get_from_cache_fallback(_unpacked[2], Window)
@@ -1868,8 +1850,8 @@ class FontError(ooxcb.Error):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=xxxxIHBx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=xxxxIHBx", stream)
         self.bad_value = _unpacked[0]
         self.minor_opcode = _unpacked[1]
         self.major_opcode = _unpacked[2]
@@ -1891,20 +1873,17 @@ class Setuprequest(ooxcb.Struct):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=BxHHHHxx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=BxHHHHxx", stream)
         self.byte_order = _unpacked[0]
         self.protocol_major_version = _unpacked[1]
         self.protocol_minor_version = _unpacked[2]
         self.authorization_protocol_name_len = _unpacked[3]
         self.authorization_protocol_data_len = _unpacked[4]
-        count += 12
-        self.authorization_protocol_name = ooxcb.List(self.conn, stream, count, self.authorization_protocol_name_len, 'B', 1)
-        count += self.authorization_protocol_name.size
-        count += ooxcb.type_pad(1, count)
-        self.authorization_protocol_data = ooxcb.List(self.conn, stream, count, self.authorization_protocol_data_len, 'B', 1)
-        count += self.authorization_protocol_data.size
-        ooxcb._resize_obj(self, count)
+        self.authorization_protocol_name = ooxcb.List(self.conn, stream, self.authorization_protocol_name_len, 'B', 1)
+        stream.seek(ooxcb.type_pad(1, stream.tell() - root), 1)
+        self.authorization_protocol_data = ooxcb.List(self.conn, stream, self.authorization_protocol_data_len, 'B', 1)
+        self.size = stream.tell() - root
 
     def build(self, stream):
         count = 0
@@ -1924,11 +1903,10 @@ class KeymapNotifyEvent(ooxcb.Event):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=B", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=B", stream)
         self.response_type = _unpacked[0]
-        count += 1
-        self.keys = ooxcb.List(self.conn, stream, count, 31, 'B', 1)
+        self.keys = ooxcb.List(self.conn, stream, 31, 'B', 1)
         self.event_target = self.conn
 
     def build(self, stream):
@@ -1962,8 +1940,8 @@ class Visualtype(ooxcb.Struct):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=IBBHIIIxxxx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=IBBHIIIxxxx", stream)
         self.visual_id = _unpacked[0]
         self._class = _unpacked[1]
         self.bits_per_rgb_value = _unpacked[2]
@@ -2045,8 +2023,8 @@ class DrawableError(ooxcb.Error):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=xxxxIHBx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=xxxxIHBx", stream)
         self.bad_value = _unpacked[0]
         self.minor_opcode = _unpacked[1]
         self.major_opcode = _unpacked[2]
@@ -2069,8 +2047,8 @@ class Point(ooxcb.Struct):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=hh", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=hh", stream)
         self.x = _unpacked[0]
         self.y = _unpacked[1]
 
@@ -2094,8 +2072,8 @@ class NoExposureEvent(ooxcb.Event):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=BxxxIHBx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=BxxxIHBx", stream)
         self.response_type = _unpacked[0]
         self.drawable = self.conn.get_from_cache_fallback(_unpacked[1], Drawable)
         self.minor_opcode = _unpacked[2]
@@ -2134,8 +2112,8 @@ class AllocNamedColorReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=xxxxxxxxIHHHHHH", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=xxxxxxxxIHHHHHH", stream)
         self.pixel = _unpacked[0]
         self.exact_red = _unpacked[1]
         self.exact_green = _unpacked[2]
@@ -2176,8 +2154,8 @@ class EnterNotifyEvent(ooxcb.Event):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=BBxxIIIIhhhhHBB", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=BBxxIIIIhhhhHBB", stream)
         self.response_type = _unpacked[0]
         self.detail = _unpacked[1]
         self.time = _unpacked[2]
@@ -2209,8 +2187,8 @@ class MapRequestEvent(ooxcb.Event):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=BxxxII", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=BxxxII", stream)
         self.response_type = _unpacked[0]
         self.parent = self.conn.get_from_cache_fallback(_unpacked[1], Window)
         self.window = self.conn.get_from_cache_fallback(_unpacked[2], Window)
@@ -2232,8 +2210,8 @@ class ColormapError(ooxcb.Error):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=xxxxIHBx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=xxxxIHBx", stream)
         self.bad_value = _unpacked[0]
         self.minor_opcode = _unpacked[1]
         self.major_opcode = _unpacked[2]
@@ -2251,8 +2229,8 @@ class AccessError(ooxcb.Error):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=xxxxIHBx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=xxxxIHBx", stream)
         self.bad_value = _unpacked[0]
         self.minor_opcode = _unpacked[1]
         self.major_opcode = _unpacked[2]
@@ -2285,8 +2263,8 @@ class KeyReleaseEvent(ooxcb.Event):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=BBxxIIIIhhhhHBx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=BBxxIIIIhhhhHBx", stream)
         self.response_type = _unpacked[0]
         self.detail = _unpacked[1]
         self.time = _unpacked[2]
@@ -2318,8 +2296,8 @@ class Rectangle(ooxcb.Struct):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=hhHH", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=hhHH", stream)
         self.x = _unpacked[0]
         self.y = _unpacked[1]
         self.width = _unpacked[2]
@@ -2352,14 +2330,13 @@ class GetPropertyReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=xBxxxxxxIIIxxxxxxxxxxxx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=xBxxxxxxIIIxxxxxxxxxxxx", stream)
         self.format = _unpacked[0]
         self.type = self.conn.atoms.get_by_id(_unpacked[1])
         self.bytes_after = _unpacked[2]
         self.value_len = _unpacked[3]
-        count += 32
-        self.value = ooxcb.List(self.conn, stream, count, self.value_len, SIZES.get(self.format, "B"), self.format // 8)
+        self.value = ooxcb.List(self.conn, stream, self.value_len, SIZES.get(self.format, "B"), self.format // 8)
 
     def build(self, stream):
         count = 0
@@ -2384,8 +2361,8 @@ class LookupColorReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=xxxxxxxxHHHHHH", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=xxxxxxxxHHHHHH", stream)
         self.exact_red = _unpacked[0]
         self.exact_green = _unpacked[1]
         self.exact_blue = _unpacked[2]
@@ -2406,12 +2383,11 @@ class GetImageReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=xBxxxxxxIxxxxxxxxxxxxxxxxxxxx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=xBxxxxxxIxxxxxxxxxxxxxxxxxxxx", stream)
         self.depth = _unpacked[0]
         self.visual = _unpacked[1]
-        count += 32
-        self.data = ooxcb.List(self.conn, stream, count, (self.length * 4), 'B', 1)
+        self.data = ooxcb.List(self.conn, stream, (self.length * 4), 'B', 1)
 
     def build(self, stream):
         count = 0
@@ -2442,8 +2418,8 @@ class Screen(ooxcb.Struct):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=IIIIIHHHHHHIBBBB", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=IIIIIHHHHHHIBBBB", stream)
         self.root = self.conn.get_from_cache_fallback(_unpacked[0], Window)
         self.default_colormap = self.conn.get_from_cache_fallback(_unpacked[1], Colormap)
         self.white_pixel = _unpacked[2]
@@ -2460,10 +2436,8 @@ class Screen(ooxcb.Struct):
         self.save_unders = _unpacked[13]
         self.root_depth = _unpacked[14]
         self.allowed_depths_len = _unpacked[15]
-        count += 40
-        self.allowed_depths = ooxcb.List(self.conn, stream, count, self.allowed_depths_len, Depth, -1)
-        count += self.allowed_depths.size
-        ooxcb._resize_obj(self, count)
+        self.allowed_depths = ooxcb.List(self.conn, stream, self.allowed_depths_len, Depth, -1)
+        self.size = stream.tell() - root
 
     def build(self, stream):
         count = 0
@@ -2510,8 +2484,8 @@ class ReparentNotifyEvent(ooxcb.Event):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=BxxxIIIhhBxxx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=BxxxIIIhhBxxx", stream)
         self.response_type = _unpacked[0]
         self.event = self.conn.get_from_cache_fallback(_unpacked[1], Window)
         self.window = self.conn.get_from_cache_fallback(_unpacked[2], Window)
@@ -2539,13 +2513,12 @@ class ClientMessageEvent(ooxcb.Event):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=BBxxII", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=BBxxII", stream)
         self.response_type = _unpacked[0]
         self.format = _unpacked[1]
         self.window = self.conn.get_from_cache_fallback(_unpacked[2], Window)
         self.type = self.conn.atoms.get_by_id(_unpacked[3])
-        count += 12
         self.data = ClientMessageData.create_from_stream(self.conn, stream)
         self.event_target = self.window
 
@@ -2576,14 +2549,12 @@ class Host(ooxcb.Struct):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=BxH", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=BxH", stream)
         self.family = _unpacked[0]
         self.address_len = _unpacked[1]
-        count += 4
-        self.address = ooxcb.List(self.conn, stream, count, self.address_len, 'B', 1)
-        count += self.address.size
-        ooxcb._resize_obj(self, count)
+        self.address = ooxcb.List(self.conn, stream, self.address_len, 'B', 1)
+        self.size = stream.tell() - root
 
     def build(self, stream):
         count = 0
@@ -2599,8 +2570,8 @@ class Char2b(ooxcb.Struct):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=BB", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=BB", stream)
         self.byte1 = _unpacked[0]
         self.byte2 = _unpacked[1]
 
@@ -2633,17 +2604,13 @@ class ListFontsWithInfoReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=xBxxxxxx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=xBxxxxxx", stream)
         self.name_len = _unpacked[0]
-        count += 8
         self.min_bounds = Charinfo.create_from_stream(self.conn, stream)
-        count += 12
-        count += 4
-        count += ooxcb.type_pad(12, count)
+        stream.seek(ooxcb.type_pad(12, stream.tell() - root), 1)
         self.max_bounds = Charinfo.create_from_stream(self.conn, stream)
-        count += 12
-        _unpacked = unpack_from_stream("=xxxxHHHHBBBBhhI", stream, count)
+        _unpacked = unpack_from_stream("=xxxxHHHHBBBBhhI", stream)
         self.min_char_or_byte2 = _unpacked[0]
         self.max_char_or_byte2 = _unpacked[1]
         self.default_char = _unpacked[2]
@@ -2655,12 +2622,10 @@ class ListFontsWithInfoReply(ooxcb.Reply):
         self.font_ascent = _unpacked[8]
         self.font_descent = _unpacked[9]
         self.replies_hint = _unpacked[10]
-        count += 24
-        count += ooxcb.type_pad(8, count)
-        self.properties = ooxcb.List(self.conn, stream, count, self.properties_len, Fontprop, 8)
-        count += self.properties.size
-        count += ooxcb.type_pad(1, count)
-        self.name = ooxcb.List(self.conn, stream, count, self.name_len, 'B', 1)
+        stream.seek(ooxcb.type_pad(8, stream.tell() - root), 1)
+        self.properties = ooxcb.List(self.conn, stream, self.properties_len, Fontprop, 8)
+        stream.seek(ooxcb.type_pad(1, stream.tell() - root), 1)
+        self.name = ooxcb.List(self.conn, stream, self.name_len, 'B', 1)
 
     def build(self, stream):
         count = 0
@@ -2688,8 +2653,8 @@ class QueryTextExtentsReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=xBxxxxxxhhhhiii", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=xBxxxxxxhhhhiii", stream)
         self.draw_direction = _unpacked[0]
         self.font_ascent = _unpacked[1]
         self.font_descent = _unpacked[2]
@@ -2724,8 +2689,8 @@ class ButtonReleaseEvent(ooxcb.Event):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=BBxxIIIIhhhhHBx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=BBxxIIIIhhhhHBx", stream)
         self.response_type = _unpacked[0]
         self.detail = _unpacked[1]
         self.time = _unpacked[2]
@@ -2756,8 +2721,8 @@ class Charinfo(ooxcb.Struct):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=hhhhhH", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=hhhhhH", stream)
         self.left_side_bearing = _unpacked[0]
         self.right_side_bearing = _unpacked[1]
         self.character_width = _unpacked[2]
@@ -3502,8 +3467,8 @@ class ButtonPressEvent(ooxcb.Event):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=BBxxIIIIhhhhHBx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=BBxxIIIIhhhhHBx", stream)
         self.response_type = _unpacked[0]
         self.detail = _unpacked[1]
         self.time = _unpacked[2]
@@ -3535,16 +3500,15 @@ class GetKeyboardControlReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=xBxxxxxxIBBHHxx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=xBxxxxxxIBBHHxx", stream)
         self.global_auto_repeat = _unpacked[0]
         self.led_mask = _unpacked[1]
         self.key_click_percent = _unpacked[2]
         self.bell_percent = _unpacked[3]
         self.bell_pitch = _unpacked[4]
         self.bell_duration = _unpacked[5]
-        count += 20
-        self.auto_repeats = ooxcb.List(self.conn, stream, count, 32, 'B', 1)
+        self.auto_repeats = ooxcb.List(self.conn, stream, 32, 'B', 1)
 
     def build(self, stream):
         count = 0
@@ -3569,13 +3533,11 @@ class Str(ooxcb.Struct):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=B", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=B", stream)
         self.name_len = _unpacked[0]
-        count += 1
-        self.name = ooxcb.List(self.conn, stream, count, self.name_len, 'B', 1)
-        count += self.name.size
-        ooxcb._resize_obj(self, count)
+        self.name = ooxcb.List(self.conn, stream, self.name_len, 'B', 1)
+        self.size = stream.tell() - root
 
     def build(self, stream):
         count = 0
@@ -3610,14 +3572,13 @@ class AllocColorPlanesReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=xxxxxxxxHxxIIIxxxxxxxx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=xxxxxxxxHxxIIIxxxxxxxx", stream)
         self.pixels_len = _unpacked[0]
         self.red_mask = _unpacked[1]
         self.green_mask = _unpacked[2]
         self.blue_mask = _unpacked[3]
-        count += 32
-        self.pixels = ooxcb.List(self.conn, stream, count, self.pixels_len, 'I', 4)
+        self.pixels = ooxcb.List(self.conn, stream, self.pixels_len, 'I', 4)
 
     def build(self, stream):
         count = 0
@@ -3638,8 +3599,8 @@ class CirculateNotifyEvent(ooxcb.Event):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=BxxxIIxxxxBxxx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=BxxxIIxxxxBxxx", stream)
         self.response_type = _unpacked[0]
         self.event = self.conn.get_from_cache_fallback(_unpacked[1], Window)
         self.window = self.conn.get_from_cache_fallback(_unpacked[2], Window)
@@ -3664,11 +3625,10 @@ class GetMotionEventsReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=xxxxxxxxIxxxxxxxxxxxxxxxxxxxx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=xxxxxxxxIxxxxxxxxxxxxxxxxxxxx", stream)
         self.events_len = _unpacked[0]
-        count += 32
-        self.events = ooxcb.List(self.conn, stream, count, self.events_len, Timecoord, 8)
+        self.events = ooxcb.List(self.conn, stream, self.events_len, Timecoord, 8)
 
     def build(self, stream):
         count = 0
@@ -3684,11 +3644,10 @@ class ListFontsReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=xxxxxxxxHxxxxxxxxxxxxxxxxxxxxxx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=xxxxxxxxHxxxxxxxxxxxxxxxxxxxxxx", stream)
         self.names_len = _unpacked[0]
-        count += 32
-        self.names = ooxcb.List(self.conn, stream, count, self.names_len, Str, -1)
+        self.names = ooxcb.List(self.conn, stream, self.names_len, Str, -1)
 
     def build(self, stream):
         count = 0
@@ -3703,8 +3662,8 @@ class InternAtomReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=xxxxxxxxI", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=xxxxxxxxI", stream)
         self.atom = self.conn.atoms.get_by_id(_unpacked[0])
 
     def build(self, stream):
@@ -3732,8 +3691,8 @@ class KeyPressEvent(ooxcb.Event):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=BBxxIIIIhhhhHBx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=BBxxIIIIhhhhHBx", stream)
         self.response_type = _unpacked[0]
         self.detail = _unpacked[1]
         self.time = _unpacked[2]
@@ -3761,8 +3720,8 @@ class GetPointerControlReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=xxxxxxxxHHHxxxxxxxxxxxxxxxxxx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=xxxxxxxxHHHxxxxxxxxxxxxxxxxxx", stream)
         self.acceleration_numerator = _unpacked[0]
         self.acceleration_denominator = _unpacked[1]
         self.threshold = _unpacked[2]
@@ -3796,8 +3755,8 @@ class LeaveNotifyEvent(ooxcb.Event):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=BBxxIIIIhhhhHBB", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=BBxxIIIIhhhhHBB", stream)
         self.response_type = _unpacked[0]
         self.detail = _unpacked[1]
         self.time = _unpacked[2]
@@ -3829,8 +3788,8 @@ class AtomError(ooxcb.Error):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=xxxxIHBx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=xxxxIHBx", stream)
         self.bad_value = _unpacked[0]
         self.minor_opcode = _unpacked[1]
         self.major_opcode = _unpacked[2]
@@ -3883,8 +3842,8 @@ class MapNotifyEvent(ooxcb.Event):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=BxxxIIBxxx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=BxxxIIBxxx", stream)
         self.response_type = _unpacked[0]
         self.event = self.conn.get_from_cache_fallback(_unpacked[1], Window)
         self.window = self.conn.get_from_cache_fallback(_unpacked[2], Window)
@@ -3903,11 +3862,10 @@ class GetAtomNameReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=xxxxxxxxHxxxxxxxxxxxxxxxxxxxxxx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=xxxxxxxxHxxxxxxxxxxxxxxxxxxxxxx", stream)
         self.name_len = _unpacked[0]
-        count += 32
-        self.name = ooxcb.List(self.conn, stream, count, self.name_len, 'B', 1)
+        self.name = ooxcb.List(self.conn, stream, self.name_len, 'B', 1)
 
     def build(self, stream):
         count = 0
@@ -3923,8 +3881,8 @@ class Fontprop(ooxcb.Struct):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=II", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=II", stream)
         self.name = self.conn.atoms.get_by_id(_unpacked[0])
         self.value = _unpacked[1]
 
@@ -4671,8 +4629,8 @@ class Timecoord(ooxcb.Struct):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=Ihh", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=Ihh", stream)
         self.time = _unpacked[0]
         self.x = _unpacked[1]
         self.y = _unpacked[2]
@@ -4689,8 +4647,8 @@ class QueryBestSizeReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=xxxxxxxxHH", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=xxxxxxxxHH", stream)
         self.width = _unpacked[0]
         self.height = _unpacked[1]
 
@@ -4710,8 +4668,8 @@ class VisibilityNotifyEvent(ooxcb.Event):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=BxxxIBxxx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=BxxxIBxxx", stream)
         self.response_type = _unpacked[0]
         self.window = self.conn.get_from_cache_fallback(_unpacked[1], Window)
         self.state = _unpacked[2]
@@ -4734,8 +4692,8 @@ class FocusOutEvent(ooxcb.Event):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=BBxxIBxxx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=BBxxIBxxx", stream)
         self.response_type = _unpacked[0]
         self.detail = _unpacked[1]
         self.event = self.conn.get_from_cache_fallback(_unpacked[2], Window)
@@ -4755,8 +4713,8 @@ class Format(ooxcb.Struct):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=BBBxxxxx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=BBBxxxxx", stream)
         self.depth = _unpacked[0]
         self.bits_per_pixel = _unpacked[1]
         self.scanline_pad = _unpacked[2]
@@ -4779,8 +4737,8 @@ class ColormapNotifyEvent(ooxcb.Event):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=BxxxIIBBxx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=BxxxIIBBxx", stream)
         self.response_type = _unpacked[0]
         self.window = self.conn.get_from_cache_fallback(_unpacked[1], Window)
         self.colormap = self.conn.get_from_cache_fallback(_unpacked[2], Colormap)
@@ -4805,8 +4763,8 @@ class CirculateRequestEvent(ooxcb.Event):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=BxxxIIxxxxBxxx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=BxxxIIxxxxBxxx", stream)
         self.response_type = _unpacked[0]
         self.event = self.conn.get_from_cache_fallback(_unpacked[1], Window)
         self.window = self.conn.get_from_cache_fallback(_unpacked[2], Window)
@@ -4838,15 +4796,11 @@ class QueryFontReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        count += 8
+        root = stream.tell()
         self.min_bounds = Charinfo.create_from_stream(self.conn, stream)
-        count += 12
-        count += 4
-        count += ooxcb.type_pad(12, count)
+        stream.seek(ooxcb.type_pad(12, stream.tell() - root), 1)
         self.max_bounds = Charinfo.create_from_stream(self.conn, stream)
-        count += 12
-        _unpacked = unpack_from_stream("=xxxxHHHHBBBBhhI", stream, count)
+        _unpacked = unpack_from_stream("=xxxxHHHHBBBBhhI", stream)
         self.min_char_or_byte2 = _unpacked[0]
         self.max_char_or_byte2 = _unpacked[1]
         self.default_char = _unpacked[2]
@@ -4858,12 +4812,10 @@ class QueryFontReply(ooxcb.Reply):
         self.font_ascent = _unpacked[8]
         self.font_descent = _unpacked[9]
         self.char_infos_len = _unpacked[10]
-        count += 24
-        count += ooxcb.type_pad(8, count)
-        self.properties = ooxcb.List(self.conn, stream, count, self.properties_len, Fontprop, 8)
-        count += self.properties.size
-        count += ooxcb.type_pad(12, count)
-        self.char_infos = ooxcb.List(self.conn, stream, count, self.char_infos_len, Charinfo, 12)
+        stream.seek(ooxcb.type_pad(8, stream.tell() - root), 1)
+        self.properties = ooxcb.List(self.conn, stream, self.properties_len, Fontprop, 8)
+        stream.seek(ooxcb.type_pad(12, stream.tell() - root), 1)
+        self.char_infos = ooxcb.List(self.conn, stream, self.char_infos_len, Charinfo, 12)
 
     def build(self, stream):
         count = 0
@@ -4894,8 +4846,8 @@ class CreateNotifyEvent(ooxcb.Event):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=BxxxIIhhHHHBx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=BxxxIIhhHHHBx", stream)
         self.response_type = _unpacked[0]
         self.parent = self.conn.get_from_cache_fallback(_unpacked[1], Window)
         self.window = self.conn.get_from_cache_fallback(_unpacked[2], Window)
@@ -4924,8 +4876,8 @@ class ResizeRequestEvent(ooxcb.Event):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=BxxxIHH", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=BxxxIHH", stream)
         self.response_type = _unpacked[0]
         self.window = self.conn.get_from_cache_fallback(_unpacked[1], Window)
         self.width = _unpacked[2]
@@ -4944,11 +4896,10 @@ class QueryColorsReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=xxxxxxxxHxxxxxxxxxxxxxxxxxxxxxx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=xxxxxxxxHxxxxxxxxxxxxxxxxxxxxxx", stream)
         self.colors_len = _unpacked[0]
-        count += 32
-        self.colors = ooxcb.List(self.conn, stream, count, self.colors_len, Rgb, 8)
+        self.colors = ooxcb.List(self.conn, stream, self.colors_len, Rgb, 8)
 
     def build(self, stream):
         count = 0
@@ -4977,8 +4928,8 @@ class MotionNotifyEvent(ooxcb.Event):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=BBxxIIIIhhhhHBx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=BBxxIIIIhhhhHBx", stream)
         self.response_type = _unpacked[0]
         self.detail = _unpacked[1]
         self.time = _unpacked[2]
@@ -5084,8 +5035,8 @@ class SetPointerMappingReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=xBxxxxxx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=xBxxxxxx", stream)
         self.status = _unpacked[0]
 
     def build(self, stream):
@@ -5102,8 +5053,8 @@ class Segment(ooxcb.Struct):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=hhhh", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=hhhh", stream)
         self.x1 = _unpacked[0]
         self.y1 = _unpacked[1]
         self.x2 = _unpacked[2]
@@ -5122,8 +5073,8 @@ class ValueError(ooxcb.Error):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=xxxxIHBx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=xxxxIHBx", stream)
         self.bad_value = _unpacked[0]
         self.minor_opcode = _unpacked[1]
         self.major_opcode = _unpacked[2]
@@ -5140,8 +5091,8 @@ class GetInputFocusReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=xBxxxxxxI", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=xBxxxxxxI", stream)
         self.revert_to = _unpacked[0]
         self.focus = self.conn.get_from_cache_fallback(_unpacked[1], Window)
 
@@ -5162,8 +5113,8 @@ class MappingNotifyEvent(ooxcb.Event):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=BxxxBBBx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=BxxxBBBx", stream)
         self.response_type = _unpacked[0]
         self.request = _unpacked[1]
         self.first_keycode = _unpacked[2]
@@ -5187,8 +5138,8 @@ class GetGeometryReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=xBxxxxxxIhhHHHxx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=xBxxxxxxIhhHHHxx", stream)
         self.depth = _unpacked[0]
         self.root = self.conn.get_from_cache_fallback(_unpacked[1], Window)
         self.x = _unpacked[2]
@@ -5217,8 +5168,8 @@ class SelectionRequestEvent(ooxcb.Event):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=BxxxIIIIII", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=BxxxIIIIII", stream)
         self.response_type = _unpacked[0]
         self.time = _unpacked[1]
         self.owner = self.conn.get_from_cache_fallback(_unpacked[2], Window)
@@ -5244,14 +5195,12 @@ class Depth(ooxcb.Struct):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=BxHxxxx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=BxHxxxx", stream)
         self.depth = _unpacked[0]
         self.visuals_len = _unpacked[1]
-        count += 8
-        self.visuals = ooxcb.List(self.conn, stream, count, self.visuals_len, Visualtype, 24)
-        count += self.visuals.size
-        ooxcb._resize_obj(self, count)
+        self.visuals = ooxcb.List(self.conn, stream, self.visuals_len, Visualtype, 24)
+        self.size = stream.tell() - root
 
     def build(self, stream):
         count = 0
@@ -5271,8 +5220,8 @@ class CursorError(ooxcb.Error):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=xxxxIHBx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=xxxxIHBx", stream)
         self.bad_value = _unpacked[0]
         self.minor_opcode = _unpacked[1]
         self.major_opcode = _unpacked[2]
@@ -5294,8 +5243,8 @@ class FocusInEvent(ooxcb.Event):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=BBxxIBxxx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=BBxxIBxxx", stream)
         self.response_type = _unpacked[0]
         self.detail = _unpacked[1]
         self.event = self.conn.get_from_cache_fallback(_unpacked[2], Window)
@@ -6041,8 +5990,8 @@ class PixmapError(ooxcb.Error):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=xxxxIHBx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=xxxxIHBx", stream)
         self.bad_value = _unpacked[0]
         self.minor_opcode = _unpacked[1]
         self.major_opcode = _unpacked[2]
@@ -6068,8 +6017,8 @@ class QueryPointerReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=xBxxxxxxIIhhhhHxx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=xBxxxxxxIIhhhhHxx", stream)
         self.same_screen = _unpacked[0]
         self.root = self.conn.get_from_cache_fallback(_unpacked[1], Window)
         self.child = self.conn.get_from_cache_fallback(_unpacked[2], Window)
@@ -6098,8 +6047,8 @@ class SelectionNotifyEvent(ooxcb.Event):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=BxxxIIIII", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=BxxxIIIII", stream)
         self.response_type = _unpacked[0]
         self.time = _unpacked[1]
         self.requestor = self.conn.get_from_cache_fallback(_unpacked[2], Window)
@@ -6125,8 +6074,8 @@ class GetSelectionOwnerReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=xxxxxxxxI", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=xxxxxxxxI", stream)
         self.owner = self.conn.get_from_cache_fallback(_unpacked[0], Window)
 
     def build(self, stream):
@@ -6142,8 +6091,8 @@ class WindowError(ooxcb.Error):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=xxxxIHBx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=xxxxIHBx", stream)
         self.bad_value = _unpacked[0]
         self.minor_opcode = _unpacked[1]
         self.major_opcode = _unpacked[2]
@@ -6166,8 +6115,8 @@ class PropertyNotifyEvent(ooxcb.Event):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=BxxxIIIBxxx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=BxxxIIIBxxx", stream)
         self.response_type = _unpacked[0]
         self.window = self.conn.get_from_cache_fallback(_unpacked[1], Window)
         self.atom = self.conn.atoms.get_by_id(_unpacked[2])
@@ -6187,11 +6136,10 @@ class GetFontPathReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=xxxxxxxxHxxxxxxxxxxxxxxxxxxxxxx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=xxxxxxxxHxxxxxxxxxxxxxxxxxxxxxx", stream)
         self.path_len = _unpacked[0]
-        count += 32
-        self.path = ooxcb.List(self.conn, stream, count, self.path_len, Str, -1)
+        self.path = ooxcb.List(self.conn, stream, self.path_len, Str, -1)
 
     def build(self, stream):
         count = 0
@@ -6207,11 +6155,10 @@ class GetKeyboardMappingReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        count = 0
-        _unpacked = unpack_from_stream("=xBxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", stream, count)
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=xBxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", stream)
         self.keysyms_per_keycode = _unpacked[0]
-        count += 32
-        self.keysyms = ooxcb.List(self.conn, stream, count, self.length, 'I', 4)
+        self.keysyms = ooxcb.List(self.conn, stream, self.length, 'I', 4)
 
     def build(self, stream):
         count = 0

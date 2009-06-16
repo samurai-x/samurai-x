@@ -367,7 +367,7 @@ def py_complex(self, name, cls):
     build_code = m_build.code
 
     def _add_fields(fields):
-        read_code.append('_unpacked = unpack_from_stream("=%s", stream, count)' % fmt)
+        read_code.append('_unpacked = unpack_from_stream("=%s", stream)' % fmt)
         build_fields = []
         for idx, field in enumerate(fields):
             # try if we can get a modifier
@@ -392,7 +392,7 @@ def py_complex(self, name, cls):
     # from a MemStream. That's sad. But the address of the struct
     # seems to be needed by some replys, e.g. GetKeyboardMappingReply,
     # to access `self.length`.
-    read_code.extend(['self._address = stream.address', 'count = 0'])
+    read_code.extend(['self._address = stream.address', 'root = stream.tell()'])
     build_code.append('count = 0')
     struct = Struct()
     for field in self.fields:
@@ -420,10 +420,10 @@ def py_complex(self, name, cls):
         if fields:
             _add_fields(fields)
         if size > 0:
-            read_code.append(template('count += $size', size=size))
+#            read_code.append(template('count += $size', size=size))
             build_code.append(template('count += $size', size=size))
         if need_alignment:
-            read_code.append('count += ooxcb.type_pad(%d, count)' % align_size(field))
+            read_code.append('stream.seek(ooxcb.type_pad(%d, stream.tell() - root), 1)' % align_size(field))
             # need to add pad for `build`?
 #            build_code.append(r'stream.write("\0" * ooxcb.type_pad(%d, count)' % align_size(field))
         need_alignment = True
@@ -442,11 +442,10 @@ def py_complex(self, name, cls):
                 # If `self.format` is 0 (happens for GetPropertyReply
                 # if we try to access a non-existent property),
                 # we use "B" (which is an unsigned byte) as a fallback.
-
-                lread_code = ('ooxcb.List(self.conn, stream, count, %s, SIZES.get(self.format, "B"), self.format // 8)' % \
+                lread_code = ('ooxcb.List(self.conn, stream, %s, SIZES.get(self.format, "B"), self.format // 8)' % \
                         (get_expr(field.type.expr)))
             else:
-                lread_code = ('ooxcb.List(self.conn, stream, count, %s, %s, %d)' % \
+                lread_code = ('ooxcb.List(self.conn, stream, %s, %s, %d)' % \
                         (get_expr(field.type.expr),
                             field.py_listtype,
                             field.py_listsize))
@@ -455,7 +454,6 @@ def py_complex(self, name, cls):
                     lread_code = '[%s for w in %s]' % (get_modifier(field) % 'w', lread_code)
             read_code.append('self.%s = %s' % (prefix_if_needed(field.field_name), lread_code))
             cls.add_instance_attribute(prefix_if_needed(field.field_name), '') # TODO: description
-            read_code.append('count += self.%s.size' % prefix_if_needed(field.field_name))
 
             # TODO: add the lazy length property setter ...
             # e.g. `self.cmaps_length` is set to `len(self.colormaps)`.
@@ -469,7 +467,6 @@ def py_complex(self, name, cls):
         elif field.type.is_container and field.type.fixed_size():
             read_code.append('self.%s = %s.create_from_stream(self.conn, stream)' % (prefix_if_needed(field.field_name),
                     get_wrapped(field.py_type)))
-            read_code.append('count += %s' % field.type.size)
             cls.add_instance_attribute(prefix_if_needed(field.field_name), '') # TODO: description
 
             build_code.append('self.%s.build(stream)' % prefix_if_needed(field.field_name))
@@ -477,7 +474,6 @@ def py_complex(self, name, cls):
         else:
             read_code.append('self.%s = %s.create_from_stream(self.conn, stream)' % (prefix_if_needed(field.field_name),
                     get_wrapped(field.py_type)))
-            read_code.append('count += self.%s.size' % prefix_if_needed(field.field_name))
             cls.add_instance_attribute(prefix_if_needed(field.field_name), '') # TODO: description
             build_code.append('self.%s.build(stream)' % prefix_if_needed(field.field_name))
             init_code.append('self.%s = None' % (prefix_if_needed(field.field_name)))
@@ -485,13 +481,8 @@ def py_complex(self, name, cls):
     fields, size, fmt = struct.flush()
     if fields:
         if need_alignment:
-            read_code.append('count += ooxcb.type_pad(4, count)')
+            read_code.append('stream.seek(ooxcb.type_pad(4, stream.tell() - root), 1)')
         _add_fields(fields)
-        read_code.append('count += %d' % size)
-
-    if self.fixed_size() or self.is_reply:
-        if self.fields:
-            read_code.pop()
 
 def py_open(self):
     global NAMESPACE
@@ -587,7 +578,7 @@ def py_struct(self, oldname):
     py_complex(self, name, cls)
 
     if not self.fixed_size():
-        cls.get_member_by_name('read').code.append('ooxcb._resize_obj(self, count)')
+        cls.get_member_by_name('read').code.append('self.size = stream.tell() - root')
 
     ALL[strip_ns(name)] = cls
     WRAPPERS[strip_ns(oldname)] = cls
@@ -641,7 +632,7 @@ def py_union(self, name):
             # add a simple default value.
             init.code.append('self.%s = None' % (prefix_if_needed(field.field_name)))
         elif field.type.is_list:
-            read.code.append('self.%s = ooxcb.List(self.conn, stream, 0, %s, %s, %s)' % \
+            read.code.append('self.%s = ooxcb.List(self.conn, stream, %s, %s, %s)' % \
                     (prefix_if_needed(field.field_name),
                     get_expr(field.type.expr),
                     field.py_listtype,
