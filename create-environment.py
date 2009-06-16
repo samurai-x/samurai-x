@@ -93,7 +93,8 @@ def main():
         if not os.path.isdir(plugins_dir):
             os.makedirs(plugins_dir)
         for plugin_dir in iglob('./sx-*'):
-            develop_package(plugin_dir, plugins_dir)
+            if plugin_dir != './sx-allplugins':
+                develop_package(plugin_dir, plugins_dir)
         message('Done!')
 
 if __name__ == '__main__':
