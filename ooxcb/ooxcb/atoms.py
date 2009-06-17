@@ -44,6 +44,7 @@ class AtomDict(dict):
         self.conn = conn
         self._by_id = {}
         self._add_predefined()
+        self.do_name_lookup = True
 
     def _add_predefined(self):
         """
@@ -91,7 +92,10 @@ class AtomDict(dict):
         try:
             return self._by_id[aid]
         except KeyError:
-            self._by_id[aid] = atom = Atom(self.conn, aid)
-            name = atom.get_name().reply().name.to_string()
-            self[name] = atom
+            atom = Atom(self.conn, aid)
+            if self.do_name_lookup:
+                self._by_id[aid] = atom
+                name = atom.get_name().reply().name.to_string()
+                self[name] = atom
             return atom
+
