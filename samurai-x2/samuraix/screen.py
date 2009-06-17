@@ -381,7 +381,12 @@ class Screen(SXObject):
         children = self.root.query_tree().reply().children
         for child in children:
             log.debug('%s found child %s', self, child)
-            attr = child.get_attributes().reply()
+            try:
+                attr = child.get_attributes().reply()
+            except xproto.BadWindow:
+                log.warning('Window was destroyed while scanning: %s' % child)
+                continue
+
             log.debug('attr %s', attr)
 
             # according to awesome we only do this when scanning...
