@@ -58,6 +58,7 @@ class App(SXObject):
         self.conn = None
         self.synchronous_check = False
 
+        self.replace_existing_wm = False
         self.running = False
         self.cursors = None
         self.screens = []

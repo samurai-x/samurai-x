@@ -160,6 +160,11 @@ def parse_options():
             action='store_true',
             default=False)
 
+    parser.add_option('', '--replace', dest='replace_existing_wm',
+            help='replace an already running window manager',
+            action='store_true',
+            default=False)
+
     parser.add_option('-s', '--synchronous-check', dest='synchronous_check',
             help='turn on synchronous checks (useful for debugging)',
             action='store_true',
@@ -239,6 +244,7 @@ def run_app(app_func=None):
         app_func = App
 
     samuraix.app = app = app_func()
+    app.replace_existing_wm = options.replace_existing_wm
     app.synchronous_check = options.synchronous_check
 
     try:
