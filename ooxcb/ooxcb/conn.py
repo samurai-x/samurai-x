@@ -151,13 +151,20 @@ class Connection(EventDispatcher):
 
             return ext
 
+    @property
+    def alive(self):
+        """
+            True if the connection is valid, False if it
+            is not (ie disconnected)
+        """
+        return self.conn is not None
+
     def check_conn(self):
         """
-            checks *self.conn* and raises an `AssertionError` if it's None.
-
-            :todo: Raise something else.
+            checks *self.conn* and raises an :class:`IOError` if it's None.
         """
-        assert self.conn is not None, "Invalid Connection"
+        if not self.alive:
+            raise IOError("Connection is not valid anymore")
 
     def has_error(self):
         """
