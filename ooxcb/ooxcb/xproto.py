@@ -1589,7 +1589,7 @@ class ExposeEvent(ooxcb.Event):
 class GravityNotifyEvent(ooxcb.Event):
     event_name = "on_gravity_notify"
     opcode = 24
-    event_target_class = ooxcb.Connection
+    event_target_class = "Window"
     def __init__(self, conn):
         ooxcb.Event.__init__(self, conn)
         self.response_type = 24
@@ -1607,7 +1607,7 @@ class GravityNotifyEvent(ooxcb.Event):
         self.window = self.conn.get_from_cache_fallback(_unpacked[2], Window)
         self.x = _unpacked[3]
         self.y = _unpacked[4]
-        self.event_target = self.conn
+        self.event_target = self.event
 
     def build(self, stream):
         count = 0
@@ -2062,7 +2062,7 @@ class BadColormap(ooxcb.ProtocolException):
 class NoExposureEvent(ooxcb.Event):
     event_name = "on_no_exposure"
     opcode = 14
-    event_target_class = ooxcb.Connection
+    event_target_class = "Drawable"
     def __init__(self, conn):
         ooxcb.Event.__init__(self, conn)
         self.response_type = 14
@@ -2078,7 +2078,7 @@ class NoExposureEvent(ooxcb.Event):
         self.drawable = self.conn.get_from_cache_fallback(_unpacked[1], Drawable)
         self.minor_opcode = _unpacked[2]
         self.major_opcode = _unpacked[3]
-        self.event_target = self.conn
+        self.event_target = self.drawable
 
     def build(self, stream):
         count = 0
@@ -3589,7 +3589,7 @@ class AllocColorPlanesReply(ooxcb.Reply):
 class CirculateNotifyEvent(ooxcb.Event):
     event_name = "on_circulate_notify"
     opcode = 26
-    event_target_class = ooxcb.Connection
+    event_target_class = "Window"
     def __init__(self, conn):
         ooxcb.Event.__init__(self, conn)
         self.response_type = 26
@@ -3605,7 +3605,7 @@ class CirculateNotifyEvent(ooxcb.Event):
         self.event = self.conn.get_from_cache_fallback(_unpacked[1], Window)
         self.window = self.conn.get_from_cache_fallback(_unpacked[2], Window)
         self.place = _unpacked[3]
-        self.event_target = self.conn
+        self.event_target = self.event
 
     def build(self, stream):
         count = 0
@@ -4682,7 +4682,7 @@ class VisibilityNotifyEvent(ooxcb.Event):
 class FocusOutEvent(ooxcb.Event):
     event_name = "on_focus_out"
     opcode = 10
-    event_target_class = ooxcb.Connection
+    event_target_class = "Window"
     def __init__(self, conn):
         ooxcb.Event.__init__(self, conn)
         self.response_type = 10
@@ -4698,7 +4698,7 @@ class FocusOutEvent(ooxcb.Event):
         self.detail = _unpacked[1]
         self.event = self.conn.get_from_cache_fallback(_unpacked[2], Window)
         self.mode = _unpacked[3]
-        self.event_target = self.conn
+        self.event_target = self.event
 
     def build(self, stream):
         count = 0
@@ -4726,7 +4726,7 @@ class Format(ooxcb.Struct):
 class ColormapNotifyEvent(ooxcb.Event):
     event_name = "on_colormap_notify"
     opcode = 32
-    event_target_class = ooxcb.Connection
+    event_target_class = "Window"
     def __init__(self, conn):
         ooxcb.Event.__init__(self, conn)
         self.response_type = 32
@@ -4744,7 +4744,7 @@ class ColormapNotifyEvent(ooxcb.Event):
         self.colormap = self.conn.get_from_cache_fallback(_unpacked[2], Colormap)
         self.new = _unpacked[3]
         self.state = _unpacked[4]
-        self.event_target = self.conn
+        self.event_target = self.window
 
     def build(self, stream):
         count = 0
@@ -4753,7 +4753,7 @@ class ColormapNotifyEvent(ooxcb.Event):
 class CirculateRequestEvent(ooxcb.Event):
     event_name = "on_circulate_request"
     opcode = 27
-    event_target_class = ooxcb.Connection
+    event_target_class = "Window"
     def __init__(self, conn):
         ooxcb.Event.__init__(self, conn)
         self.response_type = 27
@@ -4769,7 +4769,7 @@ class CirculateRequestEvent(ooxcb.Event):
         self.event = self.conn.get_from_cache_fallback(_unpacked[1], Window)
         self.window = self.conn.get_from_cache_fallback(_unpacked[2], Window)
         self.place = _unpacked[3]
-        self.event_target = self.conn
+        self.event_target = self.event
 
     def build(self, stream):
         count = 0
@@ -4866,7 +4866,7 @@ class CreateNotifyEvent(ooxcb.Event):
 class ResizeRequestEvent(ooxcb.Event):
     event_name = "on_resize_request"
     opcode = 25
-    event_target_class = ooxcb.Connection
+    event_target_class = "Window"
     def __init__(self, conn):
         ooxcb.Event.__init__(self, conn)
         self.response_type = 25
@@ -4882,7 +4882,7 @@ class ResizeRequestEvent(ooxcb.Event):
         self.window = self.conn.get_from_cache_fallback(_unpacked[1], Window)
         self.width = _unpacked[2]
         self.height = _unpacked[3]
-        self.event_target = self.conn
+        self.event_target = self.window
 
     def build(self, stream):
         count = 0
@@ -5233,7 +5233,7 @@ class CursorError(ooxcb.Error):
 class FocusInEvent(ooxcb.Event):
     event_name = "on_focus_in"
     opcode = 9
-    event_target_class = ooxcb.Connection
+    event_target_class = "Window"
     def __init__(self, conn):
         ooxcb.Event.__init__(self, conn)
         self.response_type = 9
@@ -5249,7 +5249,7 @@ class FocusInEvent(ooxcb.Event):
         self.detail = _unpacked[1]
         self.event = self.conn.get_from_cache_fallback(_unpacked[2], Window)
         self.mode = _unpacked[3]
-        self.event_target = self.conn
+        self.event_target = self.event
 
     def build(self, stream):
         count = 0
@@ -6035,7 +6035,7 @@ class QueryPointerReply(ooxcb.Reply):
 class SelectionNotifyEvent(ooxcb.Event):
     event_name = "on_selection_notify"
     opcode = 31
-    event_target_class = ooxcb.Connection
+    event_target_class = "Window"
     def __init__(self, conn):
         ooxcb.Event.__init__(self, conn)
         self.response_type = 31
@@ -6055,7 +6055,7 @@ class SelectionNotifyEvent(ooxcb.Event):
         self.selection = self.conn.atoms.get_by_id(_unpacked[3])
         self.target = self.conn.atoms.get_by_id(_unpacked[4])
         self.property = self.conn.atoms.get_by_id(_unpacked[5])
-        self.event_target = self.conn
+        self.event_target = self.requestor
 
     def build(self, stream):
         count = 0
