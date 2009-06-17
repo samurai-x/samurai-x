@@ -81,7 +81,7 @@ def main():
         setenv_path = os.path.join(dev_path, 'setenv')
         with open(setenv_path, 'w') as setenv:
             setenv.write('#!/bin/sh\n')
-            setenv.write('PYTHONPATH=%s $SHELL\n' % dev_path)
+            setenv.write('export PYTHONPATH=$PYTHONPATH:%s\n' % dev_path)
 
         # should *we* make it executable?
         message('Making it executable ...')
