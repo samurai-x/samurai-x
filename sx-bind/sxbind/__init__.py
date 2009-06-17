@@ -92,7 +92,7 @@ log = logging.getLogger(__name__)
 from samuraix.util import MODIFIERS
 from samuraix.plugin import Plugin
 
-from ooxcb import keysymdef
+from ooxcb import keysymdef, xproto
 
 def parse_keystroke(s):
     """
@@ -144,7 +144,10 @@ class SXBind(Plugin):
             # necessary for a proper configuration reloading.
             for modifiers, keycode in self.bindings.iterkeys():
                 for screen in self.app.screens:
-                    screen.root.ungrab_key(keycode, modifiers)
+                    try:
+                        screen.root.ungrab_key_checked(keycode, modifiers).check()
+                    except xproto.BadAccess:
+                        log.warning("Couldn't ungrab modifiers %d keycode %d" % (modifiers, keycode))
             # Then, bind the keys.
             self.bindings = {}
             for keystroke, action in self.config.iteritems():
@@ -182,9 +185,9 @@ class SXBind(Plugin):
             and the key with the keycode *keycode* is pressed down,
             emit the action line *line*.
         """
-        self.bindings[(modifiers, keycode)] = line
         for screen in self.app.screens:
-            screen.root.grab_key(keycode, modifiers)
+            screen.root.grab_key_checked(keycode, modifiers).check()
+        self.bindings[(modifiers, keycode)] = line
 
     def bind_keystroke(self, keystroke, line):
         """
@@ -194,5 +197,7 @@ class SXBind(Plugin):
         """
         modifiers, keysym = parse_keystroke(keystroke)
         keycode = self.app.conn.keysyms.get_keycode(keysym)
-
-        self.bind_key_to_action(modifiers, keycode, line)
+        try:
+            self.bind_key_to_action(modifiers, keycode, line)
+        except xproto.BadAccess:
+            log.warning("Couldn't grab key combination '%s'" % keystroke)
