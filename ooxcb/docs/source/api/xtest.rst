@@ -3,19 +3,6 @@ ooxcb.xtest
 
 .. module:: ooxcb.xtest
 
-The xtest api is fully wrapped. All methods of :class:`WindowMixin` are
-mixed into the :class:`Window <ooxcb.xproto.Window>` class, so you can
-use them very easily; for example::
-
-    from ooxcb import xproto, xtest
-    
-    ...
-
-    cookie = my_window.compare_cursor(my_cursor)
-
-See :file:`examples/xtesttest.py` for an example how to use the fake input
-capabilities.
-
 .. class:: GetVersionReply
 
     .. method:: __init__(self, conn)

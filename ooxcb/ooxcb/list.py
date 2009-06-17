@@ -31,7 +31,7 @@ class List(list):
         members from a memory stream. It also provides with
         methods to convert this data to more useful values.
     """
-    def __init__(self, conn, stream, offset, length, type, size=-1):
+    def __init__(self, conn, stream, length, type, size=-1):
         """
             :Parameters:
                 `conn`: :class:`ooxcb.conn.Connection`
@@ -40,10 +40,6 @@ class List(list):
                     most likely be a :class:`ooxcb.memstream.MemoryInputStream`
                     but any other object offering a buffer interface
                     is allowed.
-                `offset`: int
-                    This argument is just used to calculate the size of the
-                    list. At other places it is ignored, because the stream has
-                    a builtin position pointer.
                 `length`: int
                     Count of items the list contains
                 `type`: a typestring or a class
@@ -70,6 +66,7 @@ class List(list):
         """
         self.conn = conn
         cur = 0
+        root = stream.tell()
         if isinstance(type, str):
             if length:
                 fmt = '=' + (type * length)
@@ -98,7 +95,7 @@ class List(list):
 
                 self.append(obj)
 
-        self.size = cur - offset
+        self.size = stream.tell() - root
 
     def to_string(self):
         """

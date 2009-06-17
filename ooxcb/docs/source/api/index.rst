@@ -30,9 +30,7 @@ ooxcb api documentation
     resource.rst
     response.rst
     sizehints.rst
-    structure.rst
     types.rst
-    union.rst
     util.rst
     xproto.rst
     xtest.rst

@@ -138,10 +138,9 @@ def _resize_obj(obj, size):
     obj.size = size
 
 from ooxcb.list import *
+from ooxcb.protobj import *
 from ooxcb.event import *
-from ooxcb.structure import *
 from ooxcb.request import *
-from ooxcb.union import *
 from ooxcb.error import *
 from ooxcb.iter import *
 from ooxcb.exception import *

@@ -26,9 +26,10 @@
 import logging
 log = logging.getLogger(__name__)
 
+import sys
 import os.path
 
-from ooxcb import xproto
+from ooxcb import xproto, XNone
 from ooxcb.xproto import EventMask
 
 from .client import Client
@@ -92,8 +93,16 @@ class Screen(SXObject):
             '_NET_WM_STATE_BELOW', '_NET_WM_STATE_DEMANDS_ATTENTION'
             ))
 
+        self.number = num
         self.info = app.conn.get_setup().roots[num]
         self.root = self.info.root
+
+        # set the check window before setting the MANAGER selection
+        self.check_window = self.create_check_window()
+        self.set_manager_selection()
+        self.check_window.push_handlers(
+                on_selection_clear=self.check_window_on_selection_clear
+                )
 
         self.root.change_attributes(
             event_mask=
@@ -110,7 +119,53 @@ class Screen(SXObject):
 
         self.set_supported_hints()
 
-        self.check_window = self.create_check_window()
+    def set_manager_selection(self):
+        """
+            acquire the WM_Sn selection, where `n` is the screen number
+        """
+        # check ownership first
+        atom = self.conn.atoms["WM_S%d" % self.number]
+        owner = atom.get_selection_owner().reply().owner
+        if owner is not XNone:
+            # there is already a wm running on this screen
+            # should replace?
+            if not self.app.replace_existing_wm:
+                # shouldn't replace
+                log.error('There is already a window manager running on screen %d - ' % self.number +
+                        'Type `sx-wm --replace` if you wish to replace the running wm')
+                # TODO: just quit it?
+                sys.exit(0)
+                return
+        # set the selection owner to the check window
+        atom.set_selection_owner(self.check_window)
+        # send a client message to kick the other window manager
+        evt = xproto.ClientMessageEvent.create(
+                self.conn,
+                self.conn.atoms["MANAGER"],
+                self.root,
+                32,
+                [
+                    xproto.Time.CurrentTime,
+                    atom.get_internal(),
+                    self.check_window.get_internal(),
+                ]
+                )
+        self.root.send_event(
+                EventMask.StructureNotify,
+                evt
+                )
+        self.conn.flush()
+
+    def check_window_on_selection_clear(self, evt):
+        """
+            Event handler: most likely, a window manager wants to replace
+            samurai-x2!
+        """
+        atom = self.conn.atoms["WM_S%d" % self.number]
+        if evt.selection == atom:
+            self.app.stop()
+        else:
+            log.warning('Received an unknown selection clear event: %s' % evt.selection)
 
     def get_geometry(self):
         """
@@ -340,7 +395,12 @@ class Screen(SXObject):
         children = self.root.query_tree().reply().children
         for child in children:
             log.debug('%s found child %s', self, child)
-            attr = child.get_attributes().reply()
+            try:
+                attr = child.get_attributes().reply()
+            except xproto.BadWindow:
+                log.warning('Window was destroyed while scanning: %s' % child)
+                continue
+
             log.debug('attr %s', attr)
 
             # according to awesome we only do this when scanning...

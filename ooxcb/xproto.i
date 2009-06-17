@@ -1073,7 +1073,7 @@ Events:
         member: window
     MotionNotify:
         member: event
-    #KeymapNotify:
+    #KeymapNotify: # Should dispatch to Connection.
     VisibilityNotify:
         member: window
     MapRequest:
@@ -1094,7 +1094,32 @@ Events:
         member: window # correct??
     PropertyNotify:
         member: window
+    SelectionRequest:
+        member: owner
+    SelectionClear:
+        member: owner
+    FocusIn:
+        member: event
+    FocusOut:
+        member: event
+    GraphicsExposure:
+        member: drawable
+    NoExposure:
+        member: drawable
+    GravityNotify:
+        member: event
+    ResizeRequest:
+        member: window # correct??
+    CirculateNotify:
+        member: event
+    CirculateRequest:
+        member: event # correct??
+    SelectionNotify:
+        member: requestor # correct??
+    ColormapNotify:
+        member: window
+    # MappingNotify should be dispatched to the connection.
 
-    # TODO: hundreds of events to be mapped.
+    # That's all.
 
 # vim: ft=yaml
