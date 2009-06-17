@@ -100,6 +100,9 @@ class Screen(SXObject):
         # set the check window before setting the MANAGER selection
         self.check_window = self.create_check_window()
         self.set_manager_selection()
+        self.check_window.push_handlers(
+                on_selection_clear=self.check_window_on_selection_clear
+                )
 
         self.root.change_attributes(
             event_mask=
@@ -115,7 +118,6 @@ class Screen(SXObject):
         self.root.push_handlers(self)
 
         self.set_supported_hints()
-
 
     def set_manager_selection(self):
         """
@@ -152,6 +154,18 @@ class Screen(SXObject):
                 EventMask.StructureNotify,
                 evt
                 )
+        self.conn.flush()
+
+    def check_window_on_selection_clear(self, evt):
+        """
+            Event handler: most likely, a window manager wants to replace
+            samurai-x2!
+        """
+        atom = self.conn.atoms["WM_S%d" % self.number]
+        if evt.selection == atom:
+            self.app.stop()
+        else:
+            log.warning('Received an unknown selection clear event: %s' % evt.selection)
 
     def get_geometry(self):
         """

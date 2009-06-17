@@ -1094,7 +1094,10 @@ Events:
         member: window # correct??
     PropertyNotify:
         member: window
-
+    SelectionRequest:
+        member: owner
+    SelectionClear:
+        member: owner
     # TODO: hundreds of events to be mapped.
 
 # vim: ft=yaml

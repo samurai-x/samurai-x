@@ -1316,7 +1316,7 @@ class Setup(ooxcb.Struct):
 class SelectionClearEvent(ooxcb.Event):
     event_name = "on_selection_clear"
     opcode = 29
-    event_target_class = ooxcb.Connection
+    event_target_class = "Window"
     def __init__(self, conn):
         ooxcb.Event.__init__(self, conn)
         self.response_type = 29
@@ -1332,7 +1332,7 @@ class SelectionClearEvent(ooxcb.Event):
         self.time = _unpacked[1]
         self.owner = self.conn.get_from_cache_fallback(_unpacked[2], Window)
         self.selection = self.conn.atoms.get_by_id(_unpacked[3])
-        self.event_target = self.conn
+        self.event_target = self.owner
 
     def build(self, stream):
         count = 0
@@ -5155,7 +5155,7 @@ class GetGeometryReply(ooxcb.Reply):
 class SelectionRequestEvent(ooxcb.Event):
     event_name = "on_selection_request"
     opcode = 30
-    event_target_class = ooxcb.Connection
+    event_target_class = "Window"
     def __init__(self, conn):
         ooxcb.Event.__init__(self, conn)
         self.response_type = 30
@@ -5177,7 +5177,7 @@ class SelectionRequestEvent(ooxcb.Event):
         self.selection = self.conn.atoms.get_by_id(_unpacked[4])
         self.target = self.conn.atoms.get_by_id(_unpacked[5])
         self.property = self.conn.atoms.get_by_id(_unpacked[6])
-        self.event_target = self.conn
+        self.event_target = self.owner
 
     def build(self, stream):
         count = 0
