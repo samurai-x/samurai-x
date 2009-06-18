@@ -14,11 +14,6 @@ ooxcb.shape
     .. method:: query_version_unchecked(self)
 
 
-.. class:: Kind
-
-    .. method:: __init__(self, conn, xid)
-
-
 .. class:: WindowMixin
 
     .. method:: shape_rectangles_checked(self, operation, destination_kind, ordering, x_offset, y_offset, rectangles)
@@ -188,9 +183,4 @@ ooxcb.shape
 .. class:: GetRectanglesCookie
 
 .. class:: InputSelectedCookie
-
-.. class:: Op
-
-    .. method:: __init__(self, conn, xid)
-
 

@@ -3,9 +3,14 @@ ImportCode:
 
 ExternallyWrapped:
     - WINDOW
+    - PIXMAP
 
 Mixins:
     WINDOW: Window
+
+Ignored:
+    - KIND
+    - OP
 
 Requests:
     # Not wrapped:
@@ -42,5 +47,8 @@ Requests:
         name: shape_get_rectangles
         subject: window
         
+Events:
+    Notify:
+        member: affected_window
 
 # vim: ft=yaml

@@ -807,8 +807,8 @@ def request_helper(self, name, void, regular):
         for field in self.fields:
             if (is_wrapped(field.py_type) and
                 field is not subject_field and
-                field.field_name not in reqinfo.get('do_not_xize', [])):
-                if field.type.is_simple: # simple types are resources. 
+                field.field_name not in reqinfo.get('do_not_xize', []) and
+                field.type.is_simple) :
                     meth.code.append('%s = %s.get_internal()' %  (field.field_name, field.field_name))
             if field is subject_field:
                 meth.code.append('%s = self.get_internal()' % field.field_name)
@@ -965,7 +965,10 @@ def py_event(self, name):
         clsname, membername = ('ooxcb.Connection', 'conn')
     else:
         membername = entry['member']
-        clsname = '"%s"' % entry.get('class', get_wrapped(get_field_by_name(self.fields, membername).py_type))
+        # here we want to register the events to the original class.
+        # TODO: The way I am doing that here is dirty.
+        clsname = '"%s"' % entry.get('class',
+                get_wrapped(get_field_by_name(self.fields, membername).py_type).replace('Mixin', ''))
         # the classnames are resolved later. see generate_all.
 
     struct.new_attribute('event_target_class', clsname)

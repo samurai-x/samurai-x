@@ -50,15 +50,9 @@ class shapeExtension(ooxcb.Extension):
             QueryVersionCookie(),
             QueryVersionReply)
 
-class Kind(ooxcb.Resource):
-    def __init__(self, conn, xid):
-        ooxcb.Resource.__init__(self, conn, xid)
-
 class WindowMixin(object):
     def shape_rectangles_checked(self, operation, destination_kind, ordering, x_offset, y_offset, rectangles):
         rectangles_len = len(rectangles)
-        operation = operation.get_internal()
-        destination_kind = destination_kind.get_internal()
         destination_window = self.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxBBBxIhh", operation, destination_kind, ordering, destination_window, x_offset, y_offset))
@@ -68,8 +62,6 @@ class WindowMixin(object):
 
     def shape_rectangles(self, operation, destination_kind, ordering, x_offset, y_offset, rectangles):
         rectangles_len = len(rectangles)
-        operation = operation.get_internal()
-        destination_kind = destination_kind.get_internal()
         destination_window = self.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxBBBxIhh", operation, destination_kind, ordering, destination_window, x_offset, y_offset))
@@ -78,27 +70,22 @@ class WindowMixin(object):
             ooxcb.VoidCookie())
 
     def shape_mask_checked(self, operation, destination_kind, x_offset, y_offset, source_bitmap):
-        operation = operation.get_internal()
-        destination_kind = destination_kind.get_internal()
         destination_window = self.get_internal()
+        source_bitmap = source_bitmap.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxBBxxIhhI", operation, destination_kind, destination_window, x_offset, y_offset, source_bitmap))
         return self.conn.shape.send_request(ooxcb.Request(self.conn, buf.getvalue(), 2, True, True), \
             ooxcb.VoidCookie())
 
     def shape_mask(self, operation, destination_kind, x_offset, y_offset, source_bitmap):
-        operation = operation.get_internal()
-        destination_kind = destination_kind.get_internal()
         destination_window = self.get_internal()
+        source_bitmap = source_bitmap.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxBBxxIhhI", operation, destination_kind, destination_window, x_offset, y_offset, source_bitmap))
         return self.conn.shape.send_request(ooxcb.Request(self.conn, buf.getvalue(), 2, True, False), \
             ooxcb.VoidCookie())
 
     def shape_combine_checked(self, operation, destination_kind, source_kind, x_offset, y_offset, source_window):
-        operation = operation.get_internal()
-        destination_kind = destination_kind.get_internal()
-        source_kind = source_kind.get_internal()
         destination_window = self.get_internal()
         source_window = source_window.get_internal()
         buf = StringIO.StringIO()
@@ -107,9 +94,6 @@ class WindowMixin(object):
             ooxcb.VoidCookie())
 
     def shape_combine(self, operation, destination_kind, source_kind, x_offset, y_offset, source_window):
-        operation = operation.get_internal()
-        destination_kind = destination_kind.get_internal()
-        source_kind = source_kind.get_internal()
         destination_window = self.get_internal()
         source_window = source_window.get_internal()
         buf = StringIO.StringIO()
@@ -118,7 +102,6 @@ class WindowMixin(object):
             ooxcb.VoidCookie())
 
     def shape_offset_checked(self, destination_kind, x_offset, y_offset):
-        destination_kind = destination_kind.get_internal()
         destination_window = self.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxBxxxIhh", destination_kind, destination_window, x_offset, y_offset))
@@ -126,7 +109,6 @@ class WindowMixin(object):
             ooxcb.VoidCookie())
 
     def shape_offset(self, destination_kind, x_offset, y_offset):
-        destination_kind = destination_kind.get_internal()
         destination_window = self.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxBxxxIhh", destination_kind, destination_window, x_offset, y_offset))
@@ -181,7 +163,6 @@ class WindowMixin(object):
 
     def shape_get_rectangles(self, source_kind):
         window = self.get_internal()
-        source_kind = source_kind.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIBxxx", window, source_kind))
         return self.conn.shape.send_request(ooxcb.Request(self.conn, buf.getvalue(), 8, False, True), \
@@ -190,7 +171,6 @@ class WindowMixin(object):
 
     def shape_get_rectangles_unchecked(self, source_kind):
         window = self.get_internal()
-        source_kind = source_kind.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIBxxx", window, source_kind))
         return self.conn.shape.send_request(ooxcb.Request(self.conn, buf.getvalue(), 8, False, False), \
@@ -220,7 +200,7 @@ class QueryVersionCookie(ooxcb.Cookie):
 class NotifyEvent(ooxcb.Event):
     event_name = "on_notify"
     opcode = 0
-    event_target_class = ooxcb.Connection
+    event_target_class = "Window"
     def __init__(self, conn):
         ooxcb.Event.__init__(self, conn)
         self.response_type = 0
@@ -238,7 +218,7 @@ class NotifyEvent(ooxcb.Event):
         root = stream.tell()
         _unpacked = unpack_from_stream("=BBxxIhhHHIBxxxxxxxxxxx", stream)
         self.response_type = _unpacked[0]
-        self.shape_kind = Kind(conn, _unpacked[1])
+        self.shape_kind = _unpacked[1]
         self.affected_window = WindowMixin(conn, _unpacked[2])
         self.extents_x = _unpacked[3]
         self.extents_y = _unpacked[4]
@@ -246,11 +226,11 @@ class NotifyEvent(ooxcb.Event):
         self.extents_height = _unpacked[6]
         self.server_time = _unpacked[7]
         self.shaped = _unpacked[8]
-        self.event_target = self.conn
+        self.event_target = self.affected_window
 
     def build(self, stream):
         count = 0
-        stream.write(pack("=BBxxIhhHHIBxxxxxxxxxxx", self.response_type, self.shape_kind.get_internal(), self.affected_window.get_internal(), self.extents_x, self.extents_y, self.extents_width, self.extents_height, self.server_time, self.shaped))
+        stream.write(pack("=BBxxIhhHHIBxxxxxxxxxxx", self.response_type, self.shape_kind, self.affected_window.get_internal(), self.extents_x, self.extents_y, self.extents_width, self.extents_height, self.server_time, self.shaped))
 
 class GetRectanglesReply(ooxcb.Reply):
     def __init__(self, conn):
@@ -329,10 +309,6 @@ class GetRectanglesCookie(ooxcb.Cookie):
 
 class InputSelectedCookie(ooxcb.Cookie):
     pass
-
-class Op(ooxcb.Resource):
-    def __init__(self, conn, xid):
-        ooxcb.Resource.__init__(self, conn, xid)
 
 _events = {
     0: NotifyEvent,
