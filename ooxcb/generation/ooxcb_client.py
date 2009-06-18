@@ -282,7 +282,7 @@ def setup_type(self, name, postfix=''):
     self.py_cookie_name = strip_ns(name) + 'Cookie'
 
     if _pyname_except_re.match(strip_ns(name)):
-        self.py_error_name = strip_ns(name).replace('Bad') + 'Error'
+        self.py_error_name = strip_ns(name).replace('Bad', '') + 'Error'
         self.py_except_name = strip_ns(name)
     else:
         self.py_error_name = strip_ns(name) + 'Error'
