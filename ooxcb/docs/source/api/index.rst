@@ -7,6 +7,7 @@ ooxcb api documentation
     ooxcb.rst
     atoms.rst
     builder.rst
+    composite.rst
     connection.rst
     constant.rst
     cookie.rst
