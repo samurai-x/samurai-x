@@ -27,10 +27,17 @@ def after_install(options, home_dir):
         os.makedirs(etc)
 """
 
-for module in to_install:
-    extra_text += "    subprocess.call([join(home_dir, 'bin', 'easy_install'), '%s'])\n" % module
-    
-output = virtualenv.create_bootstrap_script(extra_text)
+installs_text = []
+dev_installs_text = []
 
-f = open('bootstrap.py', 'w').write(output)
+for module in to_install:
+    installs_text.append("    subprocess.call([join(home_dir, 'bin', 'easy_install'), '%s'])" % module)
+    dev_installs_text.append("    print home_dir")
+    dev_installs_text.append("    os.chdir('%s')" % module)
+    dev_installs_text.append("    print str(([os.path.normpath(join('..', home_dir, 'bin', 'python')), 'setup.py', 'develop']))")
+    dev_installs_text.append("    subprocess.call([os.path.normpath(join('..', home_dir, 'bin', 'python')), 'setup.py', 'develop'])")
+    dev_installs_text.append("    os.chdir('..')")
+
+open('bootstrap.py', 'w').write(virtualenv.create_bootstrap_script(extra_text + "\n".join(installs_text)))
+open('dev_bootstrap.py', 'w').write(virtualenv.create_bootstrap_script(extra_text + "\n".join(dev_installs_text)))
 

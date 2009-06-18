@@ -972,27 +972,111 @@ def after_install(options, home_dir):
     etc = join(home_dir, 'etc')
     if not os.path.exists(etc):
         os.makedirs(etc)
-    subprocess.call([join(home_dir, 'bin', 'easy_install'), 'ooxcb'])
-    subprocess.call([join(home_dir, 'bin', 'easy_install'), 'samurai-x2'])
-    subprocess.call([join(home_dir, 'bin', 'easy_install'), 'yahiko'])
-    subprocess.call([join(home_dir, 'bin', 'easy_install'), 'sx-gobject'])
-    subprocess.call([join(home_dir, 'bin', 'easy_install'), 'sx-client'])
-    subprocess.call([join(home_dir, 'bin', 'easy_install'), 'sx-clientbuttons'])
-    subprocess.call([join(home_dir, 'bin', 'easy_install'), 'sx-cairodeco'])
-    subprocess.call([join(home_dir, 'bin', 'easy_install'), 'sx-layoutmgr'])
-    subprocess.call([join(home_dir, 'bin', 'easy_install'), 'sx-desktops'])
-    subprocess.call([join(home_dir, 'bin', 'easy_install'), 'sx-tiling'])
-    subprocess.call([join(home_dir, 'bin', 'easy_install'), 'sx-dbus'])
-    subprocess.call([join(home_dir, 'bin', 'easy_install'), 'sx-allplugins'])
-    subprocess.call([join(home_dir, 'bin', 'easy_install'), 'sx-simpledeco'])
-    subprocess.call([join(home_dir, 'bin', 'easy_install'), 'sx-actions'])
-    subprocess.call([join(home_dir, 'bin', 'easy_install'), 'sx-bind'])
-    subprocess.call([join(home_dir, 'bin', 'easy_install'), 'sx-web'])
-    subprocess.call([join(home_dir, 'bin', 'easy_install'), 'sx-autoclient'])
-    subprocess.call([join(home_dir, 'bin', 'easy_install'), 'sx-moveresize'])
-    subprocess.call([join(home_dir, 'bin', 'easy_install'), 'sx-focus'])
-    subprocess.call([join(home_dir, 'bin', 'easy_install'), 'sx-background'])
-    subprocess.call([join(home_dir, 'bin', 'easy_install'), 'sx-help'])
+    print home_dir
+    os.chdir('ooxcb')
+    print str(([os.path.normpath(join('..', home_dir, 'bin', 'python')), 'setup.py', 'develop']))
+    subprocess.call([os.path.normpath(join('..', home_dir, 'bin', 'python')), 'setup.py', 'develop'])
+    os.chdir('..')
+    print home_dir
+    os.chdir('samurai-x2')
+    print str(([os.path.normpath(join('..', home_dir, 'bin', 'python')), 'setup.py', 'develop']))
+    subprocess.call([os.path.normpath(join('..', home_dir, 'bin', 'python')), 'setup.py', 'develop'])
+    os.chdir('..')
+    print home_dir
+    os.chdir('yahiko')
+    print str(([os.path.normpath(join('..', home_dir, 'bin', 'python')), 'setup.py', 'develop']))
+    subprocess.call([os.path.normpath(join('..', home_dir, 'bin', 'python')), 'setup.py', 'develop'])
+    os.chdir('..')
+    print home_dir
+    os.chdir('sx-gobject')
+    print str(([os.path.normpath(join('..', home_dir, 'bin', 'python')), 'setup.py', 'develop']))
+    subprocess.call([os.path.normpath(join('..', home_dir, 'bin', 'python')), 'setup.py', 'develop'])
+    os.chdir('..')
+    print home_dir
+    os.chdir('sx-client')
+    print str(([os.path.normpath(join('..', home_dir, 'bin', 'python')), 'setup.py', 'develop']))
+    subprocess.call([os.path.normpath(join('..', home_dir, 'bin', 'python')), 'setup.py', 'develop'])
+    os.chdir('..')
+    print home_dir
+    os.chdir('sx-clientbuttons')
+    print str(([os.path.normpath(join('..', home_dir, 'bin', 'python')), 'setup.py', 'develop']))
+    subprocess.call([os.path.normpath(join('..', home_dir, 'bin', 'python')), 'setup.py', 'develop'])
+    os.chdir('..')
+    print home_dir
+    os.chdir('sx-cairodeco')
+    print str(([os.path.normpath(join('..', home_dir, 'bin', 'python')), 'setup.py', 'develop']))
+    subprocess.call([os.path.normpath(join('..', home_dir, 'bin', 'python')), 'setup.py', 'develop'])
+    os.chdir('..')
+    print home_dir
+    os.chdir('sx-layoutmgr')
+    print str(([os.path.normpath(join('..', home_dir, 'bin', 'python')), 'setup.py', 'develop']))
+    subprocess.call([os.path.normpath(join('..', home_dir, 'bin', 'python')), 'setup.py', 'develop'])
+    os.chdir('..')
+    print home_dir
+    os.chdir('sx-desktops')
+    print str(([os.path.normpath(join('..', home_dir, 'bin', 'python')), 'setup.py', 'develop']))
+    subprocess.call([os.path.normpath(join('..', home_dir, 'bin', 'python')), 'setup.py', 'develop'])
+    os.chdir('..')
+    print home_dir
+    os.chdir('sx-tiling')
+    print str(([os.path.normpath(join('..', home_dir, 'bin', 'python')), 'setup.py', 'develop']))
+    subprocess.call([os.path.normpath(join('..', home_dir, 'bin', 'python')), 'setup.py', 'develop'])
+    os.chdir('..')
+    print home_dir
+    os.chdir('sx-dbus')
+    print str(([os.path.normpath(join('..', home_dir, 'bin', 'python')), 'setup.py', 'develop']))
+    subprocess.call([os.path.normpath(join('..', home_dir, 'bin', 'python')), 'setup.py', 'develop'])
+    os.chdir('..')
+    print home_dir
+    os.chdir('sx-allplugins')
+    print str(([os.path.normpath(join('..', home_dir, 'bin', 'python')), 'setup.py', 'develop']))
+    subprocess.call([os.path.normpath(join('..', home_dir, 'bin', 'python')), 'setup.py', 'develop'])
+    os.chdir('..')
+    print home_dir
+    os.chdir('sx-simpledeco')
+    print str(([os.path.normpath(join('..', home_dir, 'bin', 'python')), 'setup.py', 'develop']))
+    subprocess.call([os.path.normpath(join('..', home_dir, 'bin', 'python')), 'setup.py', 'develop'])
+    os.chdir('..')
+    print home_dir
+    os.chdir('sx-actions')
+    print str(([os.path.normpath(join('..', home_dir, 'bin', 'python')), 'setup.py', 'develop']))
+    subprocess.call([os.path.normpath(join('..', home_dir, 'bin', 'python')), 'setup.py', 'develop'])
+    os.chdir('..')
+    print home_dir
+    os.chdir('sx-bind')
+    print str(([os.path.normpath(join('..', home_dir, 'bin', 'python')), 'setup.py', 'develop']))
+    subprocess.call([os.path.normpath(join('..', home_dir, 'bin', 'python')), 'setup.py', 'develop'])
+    os.chdir('..')
+    print home_dir
+    os.chdir('sx-web')
+    print str(([os.path.normpath(join('..', home_dir, 'bin', 'python')), 'setup.py', 'develop']))
+    subprocess.call([os.path.normpath(join('..', home_dir, 'bin', 'python')), 'setup.py', 'develop'])
+    os.chdir('..')
+    print home_dir
+    os.chdir('sx-autoclient')
+    print str(([os.path.normpath(join('..', home_dir, 'bin', 'python')), 'setup.py', 'develop']))
+    subprocess.call([os.path.normpath(join('..', home_dir, 'bin', 'python')), 'setup.py', 'develop'])
+    os.chdir('..')
+    print home_dir
+    os.chdir('sx-moveresize')
+    print str(([os.path.normpath(join('..', home_dir, 'bin', 'python')), 'setup.py', 'develop']))
+    subprocess.call([os.path.normpath(join('..', home_dir, 'bin', 'python')), 'setup.py', 'develop'])
+    os.chdir('..')
+    print home_dir
+    os.chdir('sx-focus')
+    print str(([os.path.normpath(join('..', home_dir, 'bin', 'python')), 'setup.py', 'develop']))
+    subprocess.call([os.path.normpath(join('..', home_dir, 'bin', 'python')), 'setup.py', 'develop'])
+    os.chdir('..')
+    print home_dir
+    os.chdir('sx-background')
+    print str(([os.path.normpath(join('..', home_dir, 'bin', 'python')), 'setup.py', 'develop']))
+    subprocess.call([os.path.normpath(join('..', home_dir, 'bin', 'python')), 'setup.py', 'develop'])
+    os.chdir('..')
+    print home_dir
+    os.chdir('sx-help')
+    print str(([os.path.normpath(join('..', home_dir, 'bin', 'python')), 'setup.py', 'develop']))
+    subprocess.call([os.path.normpath(join('..', home_dir, 'bin', 'python')), 'setup.py', 'develop'])
+    os.chdir('..')
 
 ##file site.py
 SITE_PY = """
