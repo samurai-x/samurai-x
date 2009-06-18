@@ -4,7 +4,7 @@ from string import Template
 def tmpl(s, **kwargs):
     return Template(s).substitute(**kwargs)
 
-EXTENSIONS = ('xproto', 'xtest', 'render', 'composite', 'shape')
+EXTENSIONS = ('xproto', 'xtest', 'render', 'composite', 'shape', 'xfixes')
 
 print 'all: %s\n' % ' '.join(EXTENSIONS)
 

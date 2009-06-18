@@ -33,6 +33,7 @@ ooxcb api documentation
     sizehints.rst
     types.rst
     util.rst
+    xfixes.rst
     xproto.rst
     xtest.rst
 
