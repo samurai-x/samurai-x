@@ -8,7 +8,7 @@ try:
 except ImportError:
     import StringIO
 from struct import pack, unpack, calcsize
-from ooxcb.xproto import Drawable
+from ooxcb.xproto import Drawable, Screen
 from ooxcb.util import mixin_class
 
 def unpack_from_stream(fmt, stream, offset=0):
@@ -21,10 +21,6 @@ def unpack_from_stream(fmt, stream, offset=0):
 MAJOR_VERSION = 0
 MINOR_VERSION = 10
 key = ooxcb.ExtensionKey("RENDER")
-
-class PictType(object):
-    Indexed = 0
-    Direct = 1
 
 class Repeat(object):
     _None = 0
@@ -71,6 +67,10 @@ class PictOp(object):
     ConjointAtop = 35
     ConjointAtopReverse = 36
     ConjointXor = 37
+
+class PictType(object):
+    Indexed = 0
+    Direct = 1
 
 class SubPixel(object):
     Unknown = 0
@@ -145,6 +145,18 @@ class Directformat(ooxcb.Struct):
     def build(self, stream):
         count = 0
         stream.write(pack("=HHHHHHHH", self.red_shift, self.red_mask, self.green_shift, self.green_mask, self.blue_shift, self.blue_mask, self.alpha_shift, self.alpha_mask))
+
+class ScreenMixin(object):
+    def get_render_pictformat(self):
+        reply = self.conn.render.query_pict_formats().reply()
+        screen_num = self.conn.setup.roots.index(self)
+        render_screen = reply.screens[screen_num]
+        for d in render_screen.depths:
+            if d.depth == self.root_depth:
+                for v in d.visuals:
+                    if v.visual == self.root_visual:
+                        return v.format
+        raise Exception("Failed to find an appropriate Render pictformat!")
 
 class GlyphSetError(ooxcb.Error):
     def __init__(self, conn):
@@ -1140,41 +1152,6 @@ class Pictforminfo(ooxcb.Struct):
 class BadGlyphSet(ooxcb.ProtocolException):
     pass
 
-class QueryPictFormatsReply(ooxcb.Reply):
-    def __init__(self, conn):
-        ooxcb.Reply.__init__(self, conn)
-        self.num_formats = None
-        self.num_screens = None
-        self.num_depths = None
-        self.num_visuals = None
-        self.num_subpixel = None
-        self.formats = []
-        self.screens = []
-        self.subpixels = []
-
-    def read(self, stream):
-        self._address = stream.address
-        root = stream.tell()
-        _unpacked = unpack_from_stream("=xxxxxxxxIIIIIxxxx", stream)
-        self.num_formats = _unpacked[0]
-        self.num_screens = _unpacked[1]
-        self.num_depths = _unpacked[2]
-        self.num_visuals = _unpacked[3]
-        self.num_subpixel = _unpacked[4]
-        self.formats = ooxcb.List(self.conn, stream, self.num_formats, Pictforminfo, 28)
-        stream.seek(ooxcb.type_pad(4, stream.tell() - root), 1)
-        self.screens = ooxcb.List(self.conn, stream, self.num_screens, Pictscreen, -1)
-        stream.seek(ooxcb.type_pad(4, stream.tell() - root), 1)
-        self.subpixels = ooxcb.List(self.conn, stream, self.num_subpixel, 'I', 4)
-
-    def build(self, stream):
-        count = 0
-        stream.write(pack("=xxxxxxxxIIIIIxxxx", self.num_formats, self.num_screens, self.num_depths, self.num_visuals, self.num_subpixel))
-        count += 32
-        build_list(self.conn, stream, self.formats, Pictforminfo)
-        build_list(self.conn, stream, self.screens, Pictscreen)
-        build_list(self.conn, stream, self.subpixels, 'I')
-
 class Pointfix(ooxcb.Struct):
     def __init__(self, conn):
         ooxcb.Struct.__init__(self, conn)
@@ -1497,6 +1474,41 @@ class Pictformat(ooxcb.Resource):
 class QueryFiltersCookie(ooxcb.Cookie):
     pass
 
+class QueryPictFormatsReply(ooxcb.Reply):
+    def __init__(self, conn):
+        ooxcb.Reply.__init__(self, conn)
+        self.num_formats = None
+        self.num_screens = None
+        self.num_depths = None
+        self.num_visuals = None
+        self.num_subpixel = None
+        self.formats = []
+        self.screens = []
+        self.subpixels = []
+
+    def read(self, stream):
+        self._address = stream.address
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=xxxxxxxxIIIIIxxxx", stream)
+        self.num_formats = _unpacked[0]
+        self.num_screens = _unpacked[1]
+        self.num_depths = _unpacked[2]
+        self.num_visuals = _unpacked[3]
+        self.num_subpixel = _unpacked[4]
+        self.formats = ooxcb.List(self.conn, stream, self.num_formats, Pictforminfo, 28)
+        stream.seek(ooxcb.type_pad(4, stream.tell() - root), 1)
+        self.screens = ooxcb.List(self.conn, stream, self.num_screens, Pictscreen, -1)
+        stream.seek(ooxcb.type_pad(4, stream.tell() - root), 1)
+        self.subpixels = ooxcb.List(self.conn, stream, self.num_subpixel, 'I', 4)
+
+    def build(self, stream):
+        count = 0
+        stream.write(pack("=xxxxxxxxIIIIIxxxx", self.num_formats, self.num_screens, self.num_depths, self.num_visuals, self.num_subpixel))
+        count += 32
+        build_list(self.conn, stream, self.formats, Pictforminfo)
+        build_list(self.conn, stream, self.screens, Pictscreen)
+        build_list(self.conn, stream, self.subpixels, 'I')
+
 class Glyph(ooxcb.Resource):
     def __init__(self, conn, xid):
         ooxcb.Resource.__init__(self, conn, xid)
@@ -1518,4 +1530,5 @@ for ev in _events.itervalues():
 
 ooxcb._add_ext(key, renderExtension, _events, _errors)
 mixin_class(DrawableMixin, Drawable)
+mixin_class(ScreenMixin, Screen)
 
