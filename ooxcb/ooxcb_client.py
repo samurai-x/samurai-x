@@ -561,7 +561,7 @@ def py_simple(self, name):
         ALL[clsname] = cls
 
 def py_struct(self, oldname):
-    name = (oldname[0], pythonize_classname(oldname[1]))
+    name = (oldname[-2], pythonize_classname(oldname[-1]))
     setup_type(self, name)
 
     cls = PyClass(self.py_type)
