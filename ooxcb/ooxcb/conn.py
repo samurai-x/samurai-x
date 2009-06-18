@@ -31,6 +31,7 @@ from . import libxcb
 from .event import Event
 from .eventsys import EventDispatcher
 from .error import Error
+from .resource import XNone
 from .atoms import AtomDict
 from .keysyms import Keysyms
 
@@ -71,6 +72,8 @@ class Connection(EventDispatcher):
         self.atoms = AtomDict(self)
         # the X object cache. {X ID: Object, ...}
         self._cache = WeakValueDictionary()
+        # add XNone to the cache ...
+        self.add_to_cache(0, XNone)
 
     @contextmanager
     def bunch(self):
