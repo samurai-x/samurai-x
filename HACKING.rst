@@ -4,7 +4,7 @@ Hacking on samurai-x
 Creating a development environment
 ----------------------------------
 
-You can use the `create-environment.py` script to create your
-own development environment. Call `./create-environment.py` for
+You can use the `dev_boostrap.py` script to create your
+own development environment. Call `./dev_bootstrap.py` for
 more information.
 
