@@ -13,6 +13,8 @@ Ignored:
     - TIMESTAMP
     - BUTTON
     - VISUALID
+    - SEGMENT
+    - POINT
     - Window
     - Colormap
     - Font

@@ -893,22 +893,20 @@ class Colormap(ooxcb.Resource):
     def store_colors_checked(self, items):
         items_len = len(items)
         cmap = self.get_internal()
-        items = items.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", cmap))
-        for elt in ooxcb.Iterator(items, 5, "items", True):
-            buf.write(pack("=IHHHBx", *elt))
+        for elt in items:
+            elt.build(stream)
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 89, True, True), \
             ooxcb.VoidCookie())
 
     def store_colors(self, items):
         items_len = len(items)
         cmap = self.get_internal()
-        items = items.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", cmap))
-        for elt in ooxcb.Iterator(items, 5, "items", True):
-            buf.write(pack("=IHHHBx", *elt))
+        for elt in items:
+            elt.build(stream)
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 89, True, False), \
             ooxcb.VoidCookie())
 

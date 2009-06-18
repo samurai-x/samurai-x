@@ -56,7 +56,9 @@ ERRORS = {} # {Opcode: (Blargh, Blargh)} - no idea what.
 EVENTS = {} # {Opcode: classname}
 
 def is_ignored(tup):
-    return strip_ns(tup) in INTERFACE.get('Ignored', [])
+    if isinstance(tup, tuple):
+        tup = strip_ns(tup)
+    return tup in INTERFACE.get('Ignored', [])
 
 def is_wrapped(name):
     return (name in WRAPPERS or name in INTERFACE.get('ExternallyWrapped', []))
@@ -759,6 +761,11 @@ def request_helper(self, name, void, regular):
             cls = ALL[clsname]
     cls.add_member(meth)
 
+    # get the argument / field names. Only needed for the length field shortcut.
+    all_field_names = [prefix_if_needed(field.field_name) for field in self.fields]
+    if 'arguments' in reqinfo:
+        all_field_names = reqinfo
+
     for field in self.fields:
         if field.wire:
             wire_fields.append(field)
@@ -774,7 +781,14 @@ def request_helper(self, name, void, regular):
                 f += '=' + str(defaults[f])
                 optional_param_fields.append(f)
             else:
-                param_fields.append(f)
+                if (f.endswith('_len') and
+                        f[:-len('_len')] in all_field_names):
+                    # It's most likely a length field. We don't have
+                    # to include those in the arguments list, the length
+                    # can be got from the list itself.
+                    meth.code.append('%s = len(%s)' % (f, f[:-len('_len')]))
+                else:
+                    param_fields.append(f)
 
     if 'arguments' in reqinfo:
         param_fields = reqinfo['arguments']
@@ -791,7 +805,8 @@ def request_helper(self, name, void, regular):
     else:
         # Check if we have to append some `.get_internal()` somewhere
         for field in self.fields:
-            if (is_wrapped(field.py_type) and
+            if (not field.type.is_list and # don't xize lists of something.
+                    is_wrapped(field.py_type) and
                     field is not subject_field and
                     field.field_name not in reqinfo.get('do_not_xize', [])):
                 meth.code.append('%s = %s.get_internal()' %  (field.field_name, field.field_name))
@@ -845,13 +860,21 @@ def request_helper(self, name, void, regular):
                     meth.code.append('buf.write(%s.encode("utf-16be"))' % \
                             prefix_if_needed(field.field_name))
                 else:
-                    meth.code.append('for elt in ooxcb.Iterator(%s, %d, "%s", True):' % \
-                        (prefix_if_needed(field.field_name),
-                            field.type.member.py_format_len,
-                            prefix_if_needed(field.field_name)))
-                    meth.code.append(INDENT)
-                    meth.code.append('buf.write(pack("=%s", *elt))' % field.type.member.py_format_str)
-                    meth.code.append(DEDENT)
+                    if (is_wrapped(strip_ns(field.type.name))
+                            and not is_ignored(strip_ns(field.type.name))):
+                        meth.code.extend([
+                            'for elt in %s:' % prefix_if_needed(field.field_name),
+                            INDENT,
+                            'elt.build(stream)',
+                            DEDENT])
+                    else:
+                        meth.code.append('for elt in ooxcb.Iterator(%s, %d, "%s", True):' % \
+                            (prefix_if_needed(field.field_name),
+                                field.type.member.py_format_len,
+                                prefix_if_needed(field.field_name)))
+                        meth.code.append(INDENT)
+                        meth.code.append('buf.write(pack("=%s", *elt))' % field.type.member.py_format_str)
+                        meth.code.append(DEDENT)
 
         fields, size, format = struct.flush()
         if size > 0:
