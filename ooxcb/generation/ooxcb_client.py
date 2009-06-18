@@ -805,11 +805,11 @@ def request_helper(self, name, void, regular):
     else:
         # Check if we have to append some `.get_internal()` somewhere
         for field in self.fields:
-            if (not field.type.is_list and # don't xize lists of something.
-                    is_wrapped(field.py_type) and
-                    field is not subject_field and
-                    field.field_name not in reqinfo.get('do_not_xize', [])):
-                meth.code.append('%s = %s.get_internal()' %  (field.field_name, field.field_name))
+            if (is_wrapped(field.py_type) and
+                field is not subject_field and
+                field.field_name not in reqinfo.get('do_not_xize', [])):
+                if field.type.is_simple: # simple types are resources. 
+                    meth.code.append('%s = %s.get_internal()' %  (field.field_name, field.field_name))
             if field is subject_field:
                 meth.code.append('%s = self.get_internal()' % field.field_name)
 
@@ -841,14 +841,17 @@ def request_helper(self, name, void, regular):
             elif field.type.is_pad:
                 meth.code.append('buf.write(pack("=%sx"))' % field.type.nmemb)
             elif field.type.is_container:
-                # TODO: try to use the `build` member for classes.
-                meth.code.append('for elt in ooxcb.Iterator(%s, %d, "%s", False):' % \
-                        (prefix_if_needed(field.field_name),
-                            field.type.py_format_len,
-                            prefix_if_needed(field.field_name)))
-                meth.code.append(INDENT)
-                meth.code.append('buf.write(pack("=%s", *elt))' % field.type.py_format_str)
-                meth.code.append(DEDENT)
+                if is_ignored(strip_ns(field.type.name)):
+                    meth.code.append('for elt in ooxcb.Iterator(%s, %d, "%s", False):' % \
+                            (prefix_if_needed(field.field_name),
+                                field.type.py_format_len,
+                                prefix_if_needed(field.field_name)))
+                    meth.code.append(INDENT)
+                    meth.code.append('buf.write(pack("=%s", *elt))' % field.type.py_format_str)
+                    meth.code.append(DEDENT)
+                else:
+                    meth.code.append('%s.build(buf)' % prefix_if_needed(field.field_name))
+
             elif field.type.is_list and field.type.member.is_simple:
                 meth.code.append('buf.write(make_array(%s, "%s"))' % \
                         (prefix_if_needed(field.field_name),
@@ -860,14 +863,7 @@ def request_helper(self, name, void, regular):
                     meth.code.append('buf.write(%s.encode("utf-16be"))' % \
                             prefix_if_needed(field.field_name))
                 else:
-                    if (is_wrapped(strip_ns(field.type.name))
-                            and not is_ignored(strip_ns(field.type.name))):
-                        meth.code.extend([
-                            'for elt in %s:' % prefix_if_needed(field.field_name),
-                            INDENT,
-                            'elt.build(stream)',
-                            DEDENT])
-                    else:
+                    if is_ignored(strip_ns(field.type.name)):
                         meth.code.append('for elt in ooxcb.Iterator(%s, %d, "%s", True):' % \
                             (prefix_if_needed(field.field_name),
                                 field.type.member.py_format_len,
@@ -875,6 +871,14 @@ def request_helper(self, name, void, regular):
                         meth.code.append(INDENT)
                         meth.code.append('buf.write(pack("=%s", *elt))' % field.type.member.py_format_str)
                         meth.code.append(DEDENT)
+                    elif is_wrapped(strip_ns(field.type.name)):
+                        meth.code.extend([
+                            'for elt in %s:' % prefix_if_needed(field.field_name),
+                            INDENT,
+                            'elt.build(buf)',
+                            DEDENT])
+                    else:
+                        meth.code.append('%s.build(buf)' % prefix_if_needed(field.field_name))
 
         fields, size, format = struct.flush()
         if size > 0:

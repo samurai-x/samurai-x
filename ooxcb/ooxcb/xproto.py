@@ -896,7 +896,7 @@ class Colormap(ooxcb.Resource):
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", cmap))
         for elt in items:
-            elt.build(stream)
+            elt.build(buf)
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 89, True, True), \
             ooxcb.VoidCookie())
 
@@ -906,7 +906,7 @@ class Colormap(ooxcb.Resource):
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", cmap))
         for elt in items:
-            elt.build(stream)
+            elt.build(buf)
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 89, True, False), \
             ooxcb.VoidCookie())
 

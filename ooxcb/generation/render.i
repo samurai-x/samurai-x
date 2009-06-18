@@ -8,9 +8,7 @@ ResourceClasses:
 ExternallyWrapped:
     - WINDOW
     - DRAWABLE
-
-Ignored:
-    - COLOR
+    - RECTANGLE
 
 Mixins:
     DRAWABLE: Drawable
@@ -81,28 +79,19 @@ Requests:
         subject: src
         precode:
             - !xizer "MaskNone"
-        arguments: ["clip_x_origin", "clip_y_origin", "rectangles"]
-        initcode:
-            - !xizer "Rectangles"
-            - "picture = self.get_internal()"
-            - "buf = StringIO.StringIO()"
-            - 'buf.write(pack("=xxxxIhh", picture, clip_x_origin, clip_y_origin)) '
-            - !xizer "RectanglesObjects"
-        do_not_xize: ["rectangles"]
-        doc: ":type rectangles: a list of :class:`Rectangle` instances"
+#        arguments: ["clip_x_origin", "clip_y_origin", "rectangles"]
+#        initcode:
+#            - !xizer "Rectangles"
+#            - "picture = self.get_internal()"
+#            - "buf = StringIO.StringIO()"
+#            - 'buf.write(pack("=xxxxIhh", picture, clip_x_origin, clip_y_origin)) '
+#            - !xizer "RectanglesObjects"
+#        do_not_xize: ["rectangles"]
+#        doc: ":type rectangles: a list of :class:`Rectangle` instances"
 
     FillRectangles:
         subject: dst
-        arguments: ["op", "color", "rectangles"]
-        initcode:
-            - !xizer "Rectangles"
-            - "dst = self.get_internal()"
-            - "buf = StringIO.StringIO()"
-            - 'buf.write(pack("=xxxxBxxxI", op, dst))'
-            - 'buf.write(pack("=HHHH", *color))'
-            - !xizer "RectanglesObjects"
-        do_not_xize: ["rectangles", "color"]
-        doc: ":type rectangles: a list of :class:`Rectangle` instances\n:type color: a (r, g, b, alpha) tuple"
+        doc: ":type rects: a list of :class:`Rectangle` instances\n:type color: :class:`Color`"
 
 Classes:
     Picture:
@@ -116,5 +105,17 @@ Classes:
                 - "conn.render.create_picture_checked(pict, drawable, format, value_mask, value_list).check()"
                 - "conn.add_to_cache(pid, pict)"
                 - "return pict"
+
+    Color:
+        - classmethod:
+            name: create
+            arguments: ["conn", "red", "green", "blue", "alpha"]
+            code:
+                - "self = cls(conn)"
+                - "self.red = red"
+                - "self.green = green"
+                - "self.blue = blue"
+                - "self.alpha = alpha"
+                - "return self"
 
 # vim: ft=yaml

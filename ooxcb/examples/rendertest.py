@@ -42,7 +42,7 @@ def main():
         for x in xrange(0, 7):
             for y in xrange(0, 5):
                 rectangle = xproto.Rectangle.create(conn, (x + 1) * 24 + x * 64, (y + 1) * 24 + y * 64, 64, 64)
-                color = (x * 65535 / 7, y * 65535 / 5, (x * y) * 65535 / 35, 65535)
+                color = render.Color.create(conn, x * 65535 / 7, y * 65535 / 5, (x * y) * 65535 / 35, 65535)
                 picture.fill_rectangles(render.PictOp.Src, color, [rectangle])
         conn.flush()
 
