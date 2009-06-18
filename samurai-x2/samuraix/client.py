@@ -27,7 +27,7 @@ import logging
 log = logging.getLogger(__name__)
 import weakref
 
-from ooxcb import xproto
+from ooxcb import xproto, timestamp
 from ooxcb.list import List
 from ooxcb.xproto import EventMask
 from ooxcb.sizehints import SizeHints
@@ -104,6 +104,7 @@ class Client(SXObject):
 
         self.state = set() # a set of Atom instances, values for _NET_WM_STATE
         self.protocols = set() # a set of Atom instances, values for WM_PROTOCOLS
+        self.wm_hints = None
         self.screen = screen
         self.window = window
         self.window.valid = True
@@ -189,6 +190,31 @@ class Client(SXObject):
             self.conn.core.kill_client(self.window)
         self.conn.flush()
 
+    def _set_input_focus_via_request(self):
+        """
+            use :meth:`set_input_focus <ooxcb.xproto.Window.set_input_focus>`
+            to give the input focus
+        """
+        log.debug('Setting input focus via request (%s)' % self)
+        self.window.set_input_focus()
+
+    def _set_input_focus_via_clientmessage(self):
+        """
+            use the `WM_TAKE_FOCUS` client message to give the input focus.
+        """
+        log.debug('Setting input focus via client message (%s)' % self)
+        msg = xproto.ClientMessageEvent.create(
+                self.conn,
+                self.conn.atoms['WM_PROTOCOLS'],
+                self.window,
+                32,
+                [
+                    self.conn.atoms['WM_TAKE_FOCUS'].get_internal(),
+                    timestamp()
+                ]
+                )
+        self.window.send_event(0, msg)
+
     def set_input_focus(self):
         """
             grant the input focus. If :attr:`protocols` contains
@@ -196,22 +222,21 @@ class Client(SXObject):
             use :meth:`set_input_focus <ooxcb.xproto.Window.set_input_focus>`.
         """
         log.info('setting input focus on %s' % self)
-        if self.conn.atoms['WM_TAKE_FOCUS'] in self.protocols:
-            # use client message
-            msg = xproto.ClientMessageEvent.create(
-                    self.conn,
-                    self.conn.atoms['WM_PROTOCOLS'],
-                    self.window,
-                    32,
-                    [
-                        self.conn.atoms['WM_TAKE_FOCUS'].get_internal(),
-                        xproto.Time.CurrentTime
-                    ]
-                    )
-            self.window.send_event(0, msg)
+        take_focus = self.conn.atoms['WM_TAKE_FOCUS'] in self.protocols
+        hints = self.window.icccm_get_wm_hints() # TODO: cache that?
+        if not hints:
+            self._set_input_focus_via_request()
+        # Check what we do to grant the input focus. Described in
+        # the ICCCM, Section 4.1.7.
+        elif (not hints.input and not take_focus):
+            # Do not give input focus
+            pass
+        elif not take_focus:
+            # Passive / Locally Active
+            self._set_input_focus_via_request()
         else:
-            # use set_input_focus
-            self.window.set_input_focus()
+            # use client message
+            self._set_input_focus_via_clientmessage()
         self.conn.flush()
 
     def init(self):

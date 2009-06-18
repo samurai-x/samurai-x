@@ -24,6 +24,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import ctypes
+import time
 from . import (libxcb, exception)
 from .conn import Connection
 from ooxcb.constant import *
@@ -136,6 +137,12 @@ def _resize_obj(obj, size):
         sets `obj.size = size`.
     """
     obj.size = size
+
+def timestamp():
+    """
+        return a cardinal timestamp. a shortcut.
+    """
+    return int(time.time())
 
 from ooxcb.list import *
 from ooxcb.protobj import *

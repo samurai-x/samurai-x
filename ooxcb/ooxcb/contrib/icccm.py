@@ -27,7 +27,7 @@
     This module contains some helper functions for the icccm standard.
 """
 
-from ooxcb.xproto import Window
+from ooxcb.xproto import Window, Pixmap
 
 class WMState(object):
     """
@@ -38,7 +38,7 @@ class WMState(object):
             one member of :class:`ooxcb.xproto.WMState`
 
         .. attribute:: icon
-            
+
             The icon window, either a :class:`ooxcb.xproto.Window` instance
             or None.
     """
@@ -60,9 +60,79 @@ def icccm_get_wm_state(window):
             prop = window.conn.get_from_cache_fallback(prop.value[1], Window)
         return WMState(prop.value[0], icon)
 
+class WMHints(object):
+    """
+        a container class for the `WM_HINTS` property.
+
+        .. attribute:: flags
+
+            a mask of the :class:`WMHintsFlags` values
+
+        .. attribute:: input
+
+            The client's input model (True/False)
+
+        .. attribute:: initial_state
+
+            The state when first mapped
+
+        .. attribute:: icon_pixmap
+
+            The pixmap for the icon image
+
+        .. attribute:: icon_window
+
+            The window for the icon image
+
+        .. attribute:: icon_x
+
+            X coordinate of the icon location
+
+        .. attribute:: icon_y
+
+            Y coordinate of the icon location
+
+        .. attribute:: icon_mask
+
+            The mask for the icon shape
+
+    """
+    def __init__(self, flags, input, initial_state, icon_pixmap,
+            icon_window, icon_x, icon_y, icon_mask):
+        self.flags = flags
+        self.input = input
+        self.initial_state = initial_state
+        self.icon_pixmap = icon_pixmap
+        self.icon_window = icon_window
+        self.icon_x = icon_x
+        self.icon_y = icon_y
+        self.icon_mask = icon_mask
+
+def icccm_get_wm_hints(window):
+    """
+        return a :class:`WMHints` instance or None if there is no
+        `WM_HINTS` property or the value is invalid.
+    """
+    prop = window.get_property('WM_HINTS', 'CARDINAL').reply()
+    if (not prop.exists or not prop.value):
+        return None
+    else:
+        value = prop.value
+        return WMHints(
+                value[0],
+                value[1],
+                value[2],
+                window.conn.get_from_cache_fallback(value[3], Pixmap),
+                window.conn.get_from_cache_fallback(value[4], Window),
+                value[5],
+                value[6],
+                window.conn.get_from_cache_fallback(value[7], Pixmap)
+                )
+
 def mixin():
     from ooxcb.util import mixin_functions
     mixin_functions((
         icccm_get_wm_state,
+        icccm_get_wm_hints,
         ), Window)
 
