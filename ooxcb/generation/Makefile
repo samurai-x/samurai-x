@@ -1,4 +1,4 @@
-all: xproto xtest render composite
+all: xproto xtest render composite shape
 
 xproto: ../ooxcb/xproto.py ../docs/source/api/xproto.rst
 
@@ -40,8 +40,18 @@ composite.rst: ../ooxcb/composite.py
 ../ooxcb/composite.py: composite.xml composite.i
 	python ooxcb_client.py composite > ../ooxcb/composite.py
 
-clean:
-	rm -f ../docs/source/api/{xproto,xtest,render,composite}.rst ../ooxcb/{xproto,xtest,render,composite}.py {xproto,xtest,render,composite}.rst
+shape: ../ooxcb/shape.py ../docs/source/api/shape.rst
 
-.phony: xproto xtest render composite
+../docs/source/api/shape.rst: shape.rst
+	cp shape.rst ../docs/source/api/shape.rst
+
+shape.rst: ../ooxcb/shape.py
+
+../ooxcb/shape.py: shape.xml shape.i
+	python ooxcb_client.py shape > ../ooxcb/shape.py
+
+clean:
+	rm -f ../docs/source/api/{xproto,xtest,render,composite,shape}.rst ../ooxcb/{xproto,xtest,render,composite,shape}.py {xproto,xtest,render,composite,shape}.rst
+
+.phony: xproto xtest render composite shape
 

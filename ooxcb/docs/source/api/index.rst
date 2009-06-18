@@ -29,6 +29,7 @@ ooxcb api documentation
     request.rst
     resource.rst
     response.rst
+    shape.rst
     sizehints.rst
     types.rst
     util.rst
