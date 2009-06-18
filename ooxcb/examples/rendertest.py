@@ -39,11 +39,14 @@ def main():
     def on_expose(evt):
         win.clear_area(0, 0, 0, 0)
 
-        for x in xrange(0, 7):
-            for y in xrange(0, 5):
-                rectangle = xproto.Rectangle.create(conn, (x + 1) * 24 + x * 64, (y + 1) * 24 + y * 64, 64, 64)
-                color = render.Color.create(conn, x * 65535 / 7, y * 65535 / 5, (x * y) * 65535 / 35, 65535)
-                picture.fill_rectangles(render.PictOp.Src, color, [rectangle])
+        #for x in xrange(0, 7):
+        #    for y in xrange(0, 5):
+        #        rectangle = xproto.Rectangle.create(conn, (x + 1) * 24 + x * 64, (y + 1) * 24 + y * 64, 64, 64)
+        #        color = render.Color.create(conn, x * 65535 / 7, y * 65535 / 5, (x * y) * 65535 / 35, 65535)
+        #        picture.fill_rectangles(render.PictOp.Src, color, [rectangle])
+
+        pic = render.Picture.create_solid_fill(conn, render.Color.create(conn, 65535, 0, 0, 65535))
+        pic.composite(render.PictOp.Src, None, picture, 300, 300)
         conn.flush()
 
 
