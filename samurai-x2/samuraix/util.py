@@ -28,7 +28,7 @@ from UserDict import DictMixin
 import logging
 log = logging.getLogger(__name__)
 
-from ooxcb.xproto import ModMask
+from ooxcb.protocol.xproto import ModMask
 
 class ClientMessageHandlers(object):
     """
