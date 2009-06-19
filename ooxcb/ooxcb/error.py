@@ -25,6 +25,7 @@
 
 import ctypes
 
+from . import libc
 from .libxcb import xcb_generic_error_t
 from .response import Response
 
@@ -52,5 +53,7 @@ class Error(Response):
             address = ctypes.addressof(e)
 
             inst = type.create_from_address(conn, address)
+            libc.free(address)
+
             raise exception(conn, inst)
 
