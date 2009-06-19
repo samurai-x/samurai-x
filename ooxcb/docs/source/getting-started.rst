@@ -13,14 +13,14 @@ Please don't forget the api documentation!
 So, let's start:
 If you want to use ooxcb in your application, you first have to import it.
 You also need to import a module that provides with a core protocol
-implementation. That's most likely the :mod:`ooxcb.xproto` module:
+implementation. That's most likely the :mod:`ooxcb.protocol.xproto` module:
 
 ::
 
     import sys
 
     import ooxcb
-    import ooxcb.xproto
+    from ooxcb.protocol import xproto
 
 The second import registers the xproto module as core module, so that import
 is necessary.
@@ -77,7 +77,7 @@ it isn't (really!).
 
 ::
 
-    window = ooxcb.xproto.Window.create(conn,
+    window = xproto.Window.create(conn,
         screen.root,
         screen.root_depth,
         screen.root_visual
@@ -89,7 +89,7 @@ Fortunately, there is a shortcut for this boilerplate code:
 
 ::
 
-    window = ooxcb.xproto.Window.create_toplevel_on_screen(conn, screen)
+    window = xproto.Window.create_toplevel_on_screen(conn, screen)
 
 Woah! So easy!
 
@@ -137,7 +137,7 @@ plain white. That is done by modifying the window creation line:
 
 ::
 
-    window = ooxcb.xproto.Window.create_toplevel_on_screen(conn, screen,
+    window = xproto.Window.create_toplevel_on_screen(conn, screen,
                     back_pixel=screen.white_pixel)
 
 And - it has a white background. Awesome!
@@ -151,7 +151,7 @@ It is possible to handle events in an Xlib style here:
 
     while 1:
         evt = conn.wait_for_event()
-        if isinstance(evt, ooxcb.xproto.ExposeEvent):
+        if isinstance(evt, xproto.ExposeEvent):
             print 'Got an expose event!'
         elif ...
 
@@ -178,9 +178,9 @@ We can do that in the window creation line, too:
 
 ::
 
-    window = ooxcb.xproto.Window.create_toplevel_on_screen(conn, screen,
+    window = xproto.Window.create_toplevel_on_screen(conn, screen,
                     back_pixel=screen.white_pixel,
-                    event_mask=ooxcb.xproto.EventMask.Exposure
+                    event_mask=xproto.EventMask.Exposure
                     )
 
 Now, let's listen to expose events. We have a new mainloop now:
@@ -202,7 +202,7 @@ to start. Put the following in the beginning of the script:
 
 ::
 
-    gc = ooxcb.xproto.GContext.create(conn, window)
+    gc = xproto.GContext.create(conn, window)
 
 We will draw a line from (0, 0) to (640, 480) now. A diagonal line through
 the whole window. Put it in `on_expose`:
@@ -234,9 +234,9 @@ That's easy. Just register for the ButtonPress events ...
 
 ::
 
-    window = ooxcb.xproto.Window.create_toplevel_on_screen(conn, screen,
+    window = xproto.Window.create_toplevel_on_screen(conn, screen,
                     back_pixel=screen.white_pixel,
-                    event_mask=ooxcb.xproto.EventMask.Exposure | ooxcb.xproto.EventMask.ButtonPress
+                    event_mask=xproto.EventMask.Exposure | xproto.EventMask.ButtonPress
                     )
 
 :note: Multiple events to listen to are joined with the binary or operator \|, the pipe.
