@@ -5526,7 +5526,7 @@ class GContext(Fontable):
         gc = self.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxII", coordinate_mode, drawable, gc))
-        for elt in ooxcb.Iterator(points, 2, "points", True):
+        for elt in points:
             buf.write(pack("=hh", *elt))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 64, True, True), \
             ooxcb.VoidCookie())
@@ -5537,7 +5537,7 @@ class GContext(Fontable):
         gc = self.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxII", coordinate_mode, drawable, gc))
-        for elt in ooxcb.Iterator(points, 2, "points", True):
+        for elt in points:
             buf.write(pack("=hh", *elt))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 64, True, False), \
             ooxcb.VoidCookie())
@@ -5548,7 +5548,7 @@ class GContext(Fontable):
         gc = self.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxII", coordinate_mode, drawable, gc))
-        for elt in ooxcb.Iterator(points, 2, "points", True):
+        for elt in points:
             buf.write(pack("=hh", *elt))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 65, True, True), \
             ooxcb.VoidCookie())
@@ -5559,7 +5559,7 @@ class GContext(Fontable):
         gc = self.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxII", coordinate_mode, drawable, gc))
-        for elt in ooxcb.Iterator(points, 2, "points", True):
+        for elt in points:
             buf.write(pack("=hh", *elt))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 65, True, False), \
             ooxcb.VoidCookie())
@@ -5570,7 +5570,7 @@ class GContext(Fontable):
         gc = self.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxII", drawable, gc))
-        for elt in ooxcb.Iterator(segments, 4, "segments", True):
+        for elt in segments:
             buf.write(pack("=hhhh", *elt))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 66, True, True), \
             ooxcb.VoidCookie())
@@ -5581,7 +5581,7 @@ class GContext(Fontable):
         gc = self.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxII", drawable, gc))
-        for elt in ooxcb.Iterator(segments, 4, "segments", True):
+        for elt in segments:
             buf.write(pack("=hhhh", *elt))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 66, True, False), \
             ooxcb.VoidCookie())
@@ -5634,7 +5634,7 @@ class GContext(Fontable):
         gc = self.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIIBBxx", drawable, gc, shape, coordinate_mode))
-        for elt in ooxcb.Iterator(points, 2, "points", True):
+        for elt in points:
             buf.write(pack("=hh", *elt))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 69, True, True), \
             ooxcb.VoidCookie())
@@ -5645,7 +5645,7 @@ class GContext(Fontable):
         gc = self.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIIBBxx", drawable, gc, shape, coordinate_mode))
-        for elt in ooxcb.Iterator(points, 2, "points", True):
+        for elt in points:
             buf.write(pack("=hh", *elt))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 69, True, False), \
             ooxcb.VoidCookie())

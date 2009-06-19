@@ -149,7 +149,6 @@ from ooxcb.protobj import *
 from ooxcb.event import *
 from ooxcb.request import *
 from ooxcb.error import *
-from ooxcb.iter import *
 from ooxcb.exception import *
 from ooxcb.cookie import *
 from ooxcb.reply import *

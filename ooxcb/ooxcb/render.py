@@ -425,7 +425,7 @@ class Picture(ooxcb.Resource):
         mask_format = mask_format.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxBxxxIIIhh", op, src, dst, mask_format, src_x, src_y))
-        for elt in ooxcb.Iterator(points, 2, "points", True):
+        for elt in points:
             buf.write(pack("=ii", *elt))
         return self.conn.render.send_request(ooxcb.Request(self.conn, buf.getvalue(), 12, True, True), \
             ooxcb.VoidCookie())
@@ -439,7 +439,7 @@ class Picture(ooxcb.Resource):
         mask_format = mask_format.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxBxxxIIIhh", op, src, dst, mask_format, src_x, src_y))
-        for elt in ooxcb.Iterator(points, 2, "points", True):
+        for elt in points:
             buf.write(pack("=ii", *elt))
         return self.conn.render.send_request(ooxcb.Request(self.conn, buf.getvalue(), 12, True, False), \
             ooxcb.VoidCookie())
@@ -453,7 +453,7 @@ class Picture(ooxcb.Resource):
         mask_format = mask_format.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxBxxxIIIhh", op, src, dst, mask_format, src_x, src_y))
-        for elt in ooxcb.Iterator(points, 2, "points", True):
+        for elt in points:
             buf.write(pack("=ii", *elt))
         return self.conn.render.send_request(ooxcb.Request(self.conn, buf.getvalue(), 13, True, True), \
             ooxcb.VoidCookie())
@@ -467,7 +467,7 @@ class Picture(ooxcb.Resource):
         mask_format = mask_format.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxBxxxIIIhh", op, src, dst, mask_format, src_x, src_y))
-        for elt in ooxcb.Iterator(points, 2, "points", True):
+        for elt in points:
             buf.write(pack("=ii", *elt))
         return self.conn.render.send_request(ooxcb.Request(self.conn, buf.getvalue(), 13, True, False), \
             ooxcb.VoidCookie())
@@ -1032,9 +1032,9 @@ class renderExtension(ooxcb.Extension):
         picture = picture.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", picture))
-        for elt in ooxcb.Iterator(p1, 2, "p1", False):
+        for elt in p1:
             buf.write(pack("=ii", *elt))
-        for elt in ooxcb.Iterator(p2, 2, "p2", False):
+        for elt in p2:
             buf.write(pack("=ii", *elt))
         buf.write(pack("=I", num_stops))
         buf.write(make_array(stops, "i"))
@@ -1047,9 +1047,9 @@ class renderExtension(ooxcb.Extension):
         picture = picture.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", picture))
-        for elt in ooxcb.Iterator(p1, 2, "p1", False):
+        for elt in p1:
             buf.write(pack("=ii", *elt))
-        for elt in ooxcb.Iterator(p2, 2, "p2", False):
+        for elt in p2:
             buf.write(pack("=ii", *elt))
         buf.write(pack("=I", num_stops))
         buf.write(make_array(stops, "i"))
@@ -1062,9 +1062,9 @@ class renderExtension(ooxcb.Extension):
         picture = picture.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", picture))
-        for elt in ooxcb.Iterator(inner, 2, "inner", False):
+        for elt in inner:
             buf.write(pack("=ii", *elt))
-        for elt in ooxcb.Iterator(outer, 2, "outer", False):
+        for elt in outer:
             buf.write(pack("=ii", *elt))
         buf.write(pack("=iiI", inner_radius, outer_radius, num_stops))
         buf.write(make_array(stops, "i"))
@@ -1077,9 +1077,9 @@ class renderExtension(ooxcb.Extension):
         picture = picture.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", picture))
-        for elt in ooxcb.Iterator(inner, 2, "inner", False):
+        for elt in inner:
             buf.write(pack("=ii", *elt))
-        for elt in ooxcb.Iterator(outer, 2, "outer", False):
+        for elt in outer:
             buf.write(pack("=ii", *elt))
         buf.write(pack("=iiI", inner_radius, outer_radius, num_stops))
         buf.write(make_array(stops, "i"))
@@ -1092,7 +1092,7 @@ class renderExtension(ooxcb.Extension):
         picture = picture.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", picture))
-        for elt in ooxcb.Iterator(center, 2, "center", False):
+        for elt in center:
             buf.write(pack("=ii", *elt))
         buf.write(pack("=iI", angle, num_stops))
         buf.write(make_array(stops, "i"))
@@ -1105,7 +1105,7 @@ class renderExtension(ooxcb.Extension):
         picture = picture.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", picture))
-        for elt in ooxcb.Iterator(center, 2, "center", False):
+        for elt in center:
             buf.write(pack("=ii", *elt))
         buf.write(pack("=iI", angle, num_stops))
         buf.write(make_array(stops, "i"))

@@ -854,10 +854,7 @@ def request_helper(self, name, void, regular):
                 meth.code.append('buf.write(pack("=%sx"))' % field.type.nmemb)
             elif field.type.is_container:
                 if is_ignored(strip_ns(field.type.name)):
-                    meth.code.append('for elt in ooxcb.Iterator(%s, %d, "%s", False):' % \
-                            (prefix_if_needed(field.field_name),
-                                field.type.py_format_len,
-                                prefix_if_needed(field.field_name)))
+                    meth.code.append('for elt in %s:' % prefix_if_needed(field.field_name))
                     meth.code.append(INDENT)
                     meth.code.append('buf.write(pack("=%s", *elt))' % field.type.py_format_str)
                     meth.code.append(DEDENT)
@@ -876,10 +873,7 @@ def request_helper(self, name, void, regular):
                             prefix_if_needed(field.field_name))
                 else:
                     if is_ignored(strip_ns(field.type.name)):
-                        meth.code.append('for elt in ooxcb.Iterator(%s, %d, "%s", True):' % \
-                            (prefix_if_needed(field.field_name),
-                                field.type.member.py_format_len,
-                                prefix_if_needed(field.field_name)))
+                        meth.code.append('for elt in %s:' % (prefix_if_needed(field.field_name)))
                         meth.code.append(INDENT)
                         meth.code.append('buf.write(pack("=%s", *elt))' % field.type.member.py_format_str)
                         meth.code.append(DEDENT)
