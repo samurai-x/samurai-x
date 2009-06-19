@@ -12,6 +12,7 @@ ooxcb api documentation
     constant.rst
     cookie.rst
     cursors.rst
+    damage.rst
     error.rst
     event.rst
     eventsys.rst

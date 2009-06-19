@@ -1,4 +1,4 @@
-all: xproto xtest render composite shape xfixes
+all: xproto xtest render composite shape xfixes damage
 
 xproto: ../ooxcb/xproto.py ../docs/source/api/xproto.rst
 
@@ -60,8 +60,18 @@ xfixes.rst: ../ooxcb/xfixes.py
 ../ooxcb/xfixes.py: xfixes.xml xfixes.i
 	python ooxcb_client.py xfixes > ../ooxcb/xfixes.py
 
-clean:
-	rm -f ../docs/source/api/{xproto,xtest,render,composite,shape,xfixes}.rst ../ooxcb/{xproto,xtest,render,composite,shape,xfixes}.py {xproto,xtest,render,composite,shape,xfixes}.rst
+damage: ../ooxcb/damage.py ../docs/source/api/damage.rst
 
-.phony: xproto xtest render composite shape xfixes
+../docs/source/api/damage.rst: damage.rst
+	cp damage.rst ../docs/source/api/damage.rst
+
+damage.rst: ../ooxcb/damage.py
+
+../ooxcb/damage.py: damage.xml damage.i
+	python ooxcb_client.py damage > ../ooxcb/damage.py
+
+clean:
+	rm -f ../docs/source/api/{xproto,xtest,render,composite,shape,xfixes,damage}.rst ../ooxcb/{xproto,xtest,render,composite,shape,xfixes,damage}.py {xproto,xtest,render,composite,shape,xfixes,damage}.rst
+
+.phony: xproto xtest render composite shape xfixes damage
 

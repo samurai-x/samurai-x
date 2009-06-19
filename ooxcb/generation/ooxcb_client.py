@@ -954,14 +954,18 @@ def py_error(self, name):
 def py_event(self, name):
     setup_type(self, name, 'Event')
 
-    struct = PyClass(self.py_event_name)
+    entry = INTERFACE.get('Events', {}).get(strip_ns(name), {})
+
+    clsname = entry.get('classname', self.py_event_name)
+    eventname = ('"%s"' % entry.get('eventname',
+            'on_%s' % pythonize_camelcase_name(strip_ns(name))))
+    struct = PyClass(clsname)
     struct.base = 'ooxcb.Event'
-    struct.new_attribute('event_name', '"on_%s"' % pythonize_camelcase_name(strip_ns(name)))
+    struct.new_attribute('event_name', eventname)
     # each event class has an `opcode` attribute
     struct.new_attribute('opcode', self.opcodes[name])
 
-    entry = INTERFACE.get('Events', {}).get(strip_ns(name), None)
-    if entry is None:
+    if not entry:
         clsname, membername = ('ooxcb.Connection', 'conn')
     else:
         membername = entry['member']
