@@ -1,8 +1,7 @@
 # auto generated. yay.
 import ooxcb
 from ooxcb.resource import XNone
-from ooxcb.types import SIZES, make_array
-from ooxcb.builder import build_list
+from ooxcb.types import SIZES, make_array, build_list
 try:
     import cStringIO as StringIO
 except ImportError:

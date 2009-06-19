@@ -505,8 +505,7 @@ def py_open(self):
     py('# auto generated. yay.') \
       ('import ooxcb') \
       ('from ooxcb.resource import XNone') \
-      ('from ooxcb.types import SIZES, make_array') \
-      ('from ooxcb.builder import build_list') \
+      ('from ooxcb.types import SIZES, make_array, build_list') \
       ('try:').indent() \
                 ('import cStringIO as StringIO') \
                 .dedent() \
