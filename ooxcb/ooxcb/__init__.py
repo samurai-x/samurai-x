@@ -149,5 +149,4 @@ from ooxcb.protobj import *
 from ooxcb.exception import *
 from ooxcb.cookie import *
 from ooxcb.ext import *
-from ooxcb.extkey import *
 from ooxcb.resource import *

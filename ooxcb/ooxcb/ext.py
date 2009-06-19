@@ -94,3 +94,17 @@ class Extension(object):
         if (self.conn.synchronous_check and request.is_void):
             cookie.check()
         return cookie
+
+class ExtensionKey(object):
+    """
+        just a wrapper class for :class:`libxcb.xcb_extension_t`.
+        :todo: explain what an extension key is
+    """
+    def __init__(self, name):
+        self.key = libxcb.xcb_extension_t()
+        self.key.name = name
+        self.name = name
+
+    def __hash__(self):
+        return hash(self.name)
+
