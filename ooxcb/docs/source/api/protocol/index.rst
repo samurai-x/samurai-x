@@ -6,6 +6,7 @@ ooxcb.protocol
 .. toctree::
     :maxdepth: 2
 
+    bigreq.rst
     composite.rst
     damage.rst
     render.rst
