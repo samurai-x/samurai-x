@@ -185,7 +185,6 @@ class QueryVersionReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        root = stream.tell()
         _unpacked = unpack_from_stream("=xxxxxxxxHH", stream)
         self.major_version = _unpacked[0]
         self.minor_version = _unpacked[1]
@@ -215,7 +214,6 @@ class NotifyEvent(ooxcb.Event):
 
     def read(self, stream):
         self._address = stream.address
-        root = stream.tell()
         _unpacked = unpack_from_stream("=BBxxIhhHHIBxxxxxxxxxxx", stream)
         self.response_type = _unpacked[0]
         self.shape_kind = _unpacked[1]
@@ -241,7 +239,6 @@ class GetRectanglesReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        root = stream.tell()
         _unpacked = unpack_from_stream("=xBxxxxxxI", stream)
         self.ordering = _unpacked[0]
         self.rectangles_len = _unpacked[1]
@@ -263,7 +260,6 @@ class InputSelectedReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        root = stream.tell()
         _unpacked = unpack_from_stream("=xBxxxxxx", stream)
         self.enabled = _unpacked[0]
 
@@ -287,7 +283,6 @@ class QueryExtentsReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        root = stream.tell()
         _unpacked = unpack_from_stream("=xxxxxxxxBBxxhhHHhhHH", stream)
         self.bounding_shaped = _unpacked[0]
         self.clip_shaped = _unpacked[1]

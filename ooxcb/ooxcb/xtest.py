@@ -34,7 +34,6 @@ class GetVersionReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        root = stream.tell()
         _unpacked = unpack_from_stream("=xBxxxxxxH", stream)
         self.major_version = _unpacked[0]
         self.minor_version = _unpacked[1]
@@ -111,7 +110,6 @@ class CompareCursorReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        root = stream.tell()
         _unpacked = unpack_from_stream("=xBxxxxxx", stream)
         self.same = _unpacked[0]
 

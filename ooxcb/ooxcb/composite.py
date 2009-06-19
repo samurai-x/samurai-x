@@ -34,7 +34,6 @@ class GetOverlayWindowReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        root = stream.tell()
         _unpacked = unpack_from_stream("=xxxxxxxxIxxxxxxxxxxxxxxxxxxxx", stream)
         self.overlay_win = WindowMixin(conn, _unpacked[0])
 
@@ -151,7 +150,6 @@ class QueryVersionReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        root = stream.tell()
         _unpacked = unpack_from_stream("=xxxxxxxxIIxxxxxxxxxxxxxxxx", stream)
         self.major_version = _unpacked[0]
         self.minor_version = _unpacked[1]

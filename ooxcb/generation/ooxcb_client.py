@@ -395,6 +395,10 @@ def py_complex(self, name, cls):
     # seems to be needed by some replys, e.g. GetKeyboardMappingReply,
     # to access `self.length`.
     read_code.extend(['self._address = stream.address', 'root = stream.tell()'])
+    # Here we store the index of the `root = stream.tell()` line to be able
+    # to remove obsolete calls later.
+    needs_root = False
+
     build_code.append('count = 0')
     struct = Struct()
     for field in self.fields:
@@ -426,6 +430,7 @@ def py_complex(self, name, cls):
             build_code.append(template('count += $size', size=size))
         if need_alignment:
             read_code.append('stream.seek(ooxcb.type_pad(%d, stream.tell() - root), 1)' % align_size(field))
+            needs_root = True
             # need to add pad for `build`?
 #            build_code.append(r'stream.write("\0" * ooxcb.type_pad(%d, count)' % align_size(field))
         need_alignment = True
@@ -484,7 +489,14 @@ def py_complex(self, name, cls):
     if fields:
         if need_alignment:
             read_code.append('stream.seek(ooxcb.type_pad(4, stream.tell() - root), 1)')
+            needs_root = True
         _add_fields(fields)
+    if (not self.fixed_size() and cls.base == 'ooxcb.Struct'):
+        # only do that for variable-length structs.
+        # However, the check above is very nasty.
+        needs_root = True
+    if not needs_root:
+        read_code.remove('root = stream.tell()')
 
 def py_open(self):
     global NAMESPACE

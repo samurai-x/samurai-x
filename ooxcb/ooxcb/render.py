@@ -112,7 +112,6 @@ class PictFormatError(ooxcb.Error):
 
     def read(self, stream):
         self._address = stream.address
-        root = stream.tell()
 
     def build(self, stream):
         count = 0
@@ -131,7 +130,6 @@ class Directformat(ooxcb.Struct):
 
     def read(self, stream):
         self._address = stream.address
-        root = stream.tell()
         _unpacked = unpack_from_stream("=HHHHHHHH", stream)
         self.red_shift = _unpacked[0]
         self.red_mask = _unpacked[1]
@@ -164,7 +162,6 @@ class GlyphSetError(ooxcb.Error):
 
     def read(self, stream):
         self._address = stream.address
-        root = stream.tell()
 
     def build(self, stream):
         count = 0
@@ -203,7 +200,6 @@ class PictureError(ooxcb.Error):
 
     def read(self, stream):
         self._address = stream.address
-        root = stream.tell()
 
     def build(self, stream):
         count = 0
@@ -828,7 +824,6 @@ class Pictvisual(ooxcb.Struct):
 
     def read(self, stream):
         self._address = stream.address
-        root = stream.tell()
         _unpacked = unpack_from_stream("=II", stream)
         self.visual = _unpacked[0]
         self.format = self.conn.get_from_cache_fallback(_unpacked[1], Pictformat)
@@ -846,7 +841,6 @@ class Spanfix(ooxcb.Struct):
 
     def read(self, stream):
         self._address = stream.address
-        root = stream.tell()
         _unpacked = unpack_from_stream("=iii", stream)
         self.l = _unpacked[0]
         self.r = _unpacked[1]
@@ -903,7 +897,6 @@ class Animcursorelt(ooxcb.Struct):
 
     def read(self, stream):
         self._address = stream.address
-        root = stream.tell()
         _unpacked = unpack_from_stream("=II", stream)
         self.cursor = self.conn.get_from_cache_fallback(_unpacked[0], CURSOR)
         self.delay = _unpacked[1]
@@ -1160,7 +1153,6 @@ class Pointfix(ooxcb.Struct):
 
     def read(self, stream):
         self._address = stream.address
-        root = stream.tell()
         _unpacked = unpack_from_stream("=ii", stream)
         self.x = _unpacked[0]
         self.y = _unpacked[1]
@@ -1183,7 +1175,6 @@ class Indexvalue(ooxcb.Struct):
 
     def read(self, stream):
         self._address = stream.address
-        root = stream.tell()
         _unpacked = unpack_from_stream("=IHHHH", stream)
         self.pixel = _unpacked[0]
         self.red = _unpacked[1]
@@ -1220,7 +1211,6 @@ class QueryPictIndexValuesReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        root = stream.tell()
         _unpacked = unpack_from_stream("=xxxxxxxxIxxxxxxxxxxxxxxxxxxxx", stream)
         self.num_values = _unpacked[0]
         self.values = ooxcb.List(self.conn, stream, self.num_values, Indexvalue, 12)
@@ -1328,7 +1318,6 @@ class QueryVersionReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        root = stream.tell()
         _unpacked = unpack_from_stream("=xxxxxxxxIIxxxxxxxxxxxxxxxx", stream)
         self.major_version = _unpacked[0]
         self.minor_version = _unpacked[1]
@@ -1343,7 +1332,6 @@ class PictOpError(ooxcb.Error):
 
     def read(self, stream):
         self._address = stream.address
-        root = stream.tell()
 
     def build(self, stream):
         count = 0
@@ -1360,7 +1348,6 @@ class Glyphinfo(ooxcb.Struct):
 
     def read(self, stream):
         self._address = stream.address
-        root = stream.tell()
         _unpacked = unpack_from_stream("=HHhhhh", stream)
         self.width = _unpacked[0]
         self.height = _unpacked[1]
@@ -1386,7 +1373,6 @@ class Color(ooxcb.Struct):
 
     def read(self, stream):
         self._address = stream.address
-        root = stream.tell()
         _unpacked = unpack_from_stream("=HHHH", stream)
         self.red = _unpacked[0]
         self.green = _unpacked[1]
@@ -1415,7 +1401,6 @@ class GlyphError(ooxcb.Error):
 
     def read(self, stream):
         self._address = stream.address
-        root = stream.tell()
 
     def build(self, stream):
         count = 0
@@ -1435,7 +1420,6 @@ class Transform(ooxcb.Struct):
 
     def read(self, stream):
         self._address = stream.address
-        root = stream.tell()
         _unpacked = unpack_from_stream("=iiiiiiiii", stream)
         self.matrix11 = _unpacked[0]
         self.matrix12 = _unpacked[1]

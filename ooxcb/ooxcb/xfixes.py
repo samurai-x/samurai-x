@@ -69,7 +69,6 @@ class CursorNotifyEvent(ooxcb.Event):
 
     def read(self, stream):
         self._address = stream.address
-        root = stream.tell()
         _unpacked = unpack_from_stream("=BBxxIIIIxxxxxxxxxxxx", stream)
         self.response_type = _unpacked[0]
         self.subtype = _unpacked[1]
@@ -199,7 +198,6 @@ class RegionError(ooxcb.Error):
 
     def read(self, stream):
         self._address = stream.address
-        root = stream.tell()
 
     def build(self, stream):
         count = 0
@@ -372,7 +370,6 @@ class GetCursorNameReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        root = stream.tell()
         _unpacked = unpack_from_stream("=xxxxxxxxIHxxxxxxxxxxxxxxxxxx", stream)
         self.atom = self.conn.atoms.get_by_id(_unpacked[0])
         self.nbytes = _unpacked[1]
@@ -646,7 +643,6 @@ class GetCursorImageReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        root = stream.tell()
         _unpacked = unpack_from_stream("=xxxxxxxxhhHHHHIxxxxxxxx", stream)
         self.x = _unpacked[0]
         self.y = _unpacked[1]
@@ -671,7 +667,6 @@ class QueryVersionReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        root = stream.tell()
         _unpacked = unpack_from_stream("=xxxxxxxxIIxxxxxxxxxxxxxxxx", stream)
         self.major_version = _unpacked[0]
         self.minor_version = _unpacked[1]
@@ -696,7 +691,6 @@ class SelectionNotifyEvent(ooxcb.Event):
 
     def read(self, stream):
         self._address = stream.address
-        root = stream.tell()
         _unpacked = unpack_from_stream("=BBxxIIIIIxxxxxxxx", stream)
         self.response_type = _unpacked[0]
         self.subtype = _unpacked[1]
