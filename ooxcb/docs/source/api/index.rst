@@ -19,7 +19,6 @@ ooxcb api documentation
     exception.rst
     ext.rst
     extkey.rst
-    iter.rst
     keysymdef.rst
     keysyms.rst
     libxcb.rst
