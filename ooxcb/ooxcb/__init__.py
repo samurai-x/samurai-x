@@ -146,12 +146,8 @@ def timestamp():
 
 from ooxcb.list import *
 from ooxcb.protobj import *
-from ooxcb.event import *
-from ooxcb.request import *
-from ooxcb.error import *
 from ooxcb.exception import *
 from ooxcb.cookie import *
-from ooxcb.reply import *
 from ooxcb.ext import *
 from ooxcb.extkey import *
 from ooxcb.resource import *

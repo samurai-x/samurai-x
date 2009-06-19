@@ -28,9 +28,8 @@ from contextlib import contextmanager
 from weakref import WeakValueDictionary
 
 from . import libxcb
-from .event import Event
+from .protobj import Event, Error
 from .eventsys import EventDispatcher
-from .error import Error
 from .resource import XNone
 from .atoms import AtomDict
 from .keysyms import Keysyms

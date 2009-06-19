@@ -27,7 +27,7 @@ import ctypes
 
 from . import (libxcb, util)
 from .exception import XcbException
-from .error import Error
+from .protobj import Error
 
 class Cookie(object):
     """
