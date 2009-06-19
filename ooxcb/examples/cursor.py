@@ -4,7 +4,7 @@ import sys
 sys.path.append('..')
 
 import ooxcb
-from ooxcb import xproto
+from ooxcb.protocol import xproto
 
 conn = ooxcb.connect()
 screen = conn.setup.roots[conn.pref_screen]

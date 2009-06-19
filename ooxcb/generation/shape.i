@@ -1,5 +1,5 @@
 ImportCode:
-    - "from ooxcb.xproto import Window"
+    - "from ooxcb.protocol.xproto import Window"
 
 ExternallyWrapped:
     - WINDOW

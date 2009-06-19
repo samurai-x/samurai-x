@@ -4,7 +4,7 @@ import sys
 sys.path.append('..')
 
 import ooxcb
-from ooxcb import xproto, render
+from ooxcb.protocol import xproto, render
 
 conn = ooxcb.connect()
 

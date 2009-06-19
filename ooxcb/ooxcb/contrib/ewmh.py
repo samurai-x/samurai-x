@@ -33,7 +33,7 @@
 
 def ewmh_get_client_list(screen):
     """
-        return a list of :class:`ooxcb.xproto.Window` instances, or
+        return a list of :class:`ooxcb.protocol.xproto.Window` instances, or
         None if the _NET_CLIENT_LIST property is not set.
     """
     reply = screen.root.get_property('_NET_CLIENT_LIST', 'WINDOW').reply()
@@ -44,7 +44,7 @@ def ewmh_get_client_list(screen):
 
 def ewmh_get_client_list_stacking(screen):
     """
-        return a list of :class:`ooxcb.xproto.Window` instances, or
+        return a list of :class:`ooxcb.protocol.xproto.Window` instances, or
         None if the _NET_CLIENT_LIST_STACKING property is not set.
     """
     reply = screen.root.get_property('_NET_CLIENT_LIST_STACKING', 'WINDOW').reply()
@@ -93,7 +93,7 @@ def mixin():
         mix em all
     """
     from ooxcb.util import mixin_functions
-    from ooxcb.xproto import Screen, Window
+    from ooxcb.protocol.xproto import Screen, Window
     
     mixin_functions((
         ewmh_get_client_list,

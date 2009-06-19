@@ -5,7 +5,8 @@
 import sys
 sys.path.append('..')
 
-from ooxcb import xproto, connect
+from ooxcb import connect
+from ooxcb.protocol import xproto
 
 EVENT_MASK = (xproto.EventMask.SubstructureRedirect |
         xproto.EventMask.SubstructureNotify)

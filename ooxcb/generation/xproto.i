@@ -1041,7 +1041,7 @@ Classes:
             code: ["return self.name.to_string()"]
         - method:
             name: __repr__
-            code: ["return '<ooxcb.xproto.Str %s>' % repr(self.name.to_string())"]
+            code: ["return '<ooxcb.protocol.xproto.Str %s>' % repr(self.name.to_string())"]
         - method:
             name: pythonize_lazy
             code: ["return self.name.to_string()"]

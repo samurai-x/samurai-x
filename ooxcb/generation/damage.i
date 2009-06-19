@@ -1,5 +1,5 @@
 ImportCode:
-    - "from ooxcb.xproto import Drawable"
+    - "from ooxcb.protocol.xproto import Drawable"
 
 Mixins:
     DRAWABLE: Drawable

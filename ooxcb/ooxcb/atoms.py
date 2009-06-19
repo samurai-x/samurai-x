@@ -52,7 +52,7 @@ class AtomDict(dict):
         """
         # TODO: uglyuglyuglyuglyuglyUGLY
         from . import constant
-        from .xproto import Atom # TODO:
+        from ooxcb.protocol.xproto import Atom # TODO:
         for name in dir(constant):
             if name.startswith('XA_'):
                 key = name[len('XA_'):]
@@ -83,10 +83,10 @@ class AtomDict(dict):
             For aid == 0, it will return None, but this may
             change in the future.
 
-            :todo: currently, this depends on :mod:`ooxcb.xproto`. That's
+            :todo: currently, this depends on :mod:`ooxcb.protocol.xproto`. That's
                    not really consistent.
         """
-        from .xproto import Atom # TODO: uuuuuuuugly
+        from ooxcb.protocol.xproto import Atom # TODO: uuuuuuuugly
         if aid == 0:
             return None # TODO: That's basically AnyProperty ... better solution?
         try:

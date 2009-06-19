@@ -1,6 +1,6 @@
 ImportCode:
-    - "from ooxcb.xproto import Window"
-    - "from ooxcb.xfixes import Region"
+    - "from ooxcb.protocol.xproto import Window"
+    - "from ooxcb.protocol.xfixes import Region"
 
 ExternallyWrapped:
     - WINDOW

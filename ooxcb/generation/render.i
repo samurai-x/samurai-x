@@ -1,5 +1,5 @@
 ImportCode:
-    - "from ooxcb.xproto import Drawable, Screen"
+    - "from ooxcb.protocol.xproto import Drawable, Screen"
 
 ResourceClasses:
     - PICTURE

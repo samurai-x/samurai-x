@@ -1,7 +1,7 @@
-ooxcb.xfixes
-============
+ooxcb.protocol.xfixes
+=====================
 
-.. module:: ooxcb.xfixes
+.. module:: ooxcb.protocol.xfixes
 
 .. class:: BadRegion
 

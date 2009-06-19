@@ -1,7 +1,7 @@
-ooxcb.composite
-===============
+ooxcb.protocol.composite
+========================
 
-.. module:: ooxcb.composite
+.. module:: ooxcb.protocol.composite
 
 .. class:: Redirect
 

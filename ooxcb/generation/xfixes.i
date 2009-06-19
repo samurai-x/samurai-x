@@ -1,6 +1,6 @@
 ImportCode:
-    - "from ooxcb.xproto import Window, GContext, Cursor"
-    - "from ooxcb.render import Picture"
+    - "from ooxcb.protocol.xproto import Window, GContext, Cursor"
+    - "from ooxcb.protocol.render import Picture"
 
 ExternallyWrapped:
     - WINDOW

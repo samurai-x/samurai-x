@@ -3,7 +3,7 @@ sys.path.append('../..')
 from time import time
 
 import ooxcb
-from ooxcb import xproto as X
+from ooxcb.protocol import xproto as X
 
 NUM_NAMES = 500
 NAMES = ['NAME%d' % i for i in xrange(NUM_NAMES)]

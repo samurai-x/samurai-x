@@ -1,7 +1,7 @@
-ooxcb.shape
-===========
+ooxcb.protocol.shape
+====================
 
-.. module:: ooxcb.shape
+.. module:: ooxcb.protocol.shape
 
 .. class:: shapeExtension
 

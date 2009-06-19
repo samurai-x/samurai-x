@@ -1054,7 +1054,7 @@ def make_xizers():
 
 def generate_docs():
     gen = Codegen()
-    mod = 'ooxcb.%s' % MODNAME
+    mod = 'ooxcb.protocol.%s' % MODNAME
     heading = mod
     gen(heading)
     gen('=' * len(heading))()

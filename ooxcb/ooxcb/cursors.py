@@ -23,7 +23,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from .xproto import Font, Cursor
+from ooxcb.protocol.xproto import Font, Cursor
 
 # See http://tronche.com/gui/x/xlib/appendix/b/ for values
 XUTIL_CURSOR_FLEUR = 52

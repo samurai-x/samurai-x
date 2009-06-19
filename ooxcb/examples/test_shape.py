@@ -2,7 +2,7 @@ import sys
 sys.path.append('..')
 
 import ooxcb
-from ooxcb import xproto, shape
+from ooxcb.protocol import xproto, shape
 
 conn = ooxcb.connect()
 screen = conn.setup.roots[0]

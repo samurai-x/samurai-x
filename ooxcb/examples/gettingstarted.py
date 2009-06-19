@@ -4,18 +4,18 @@ import sys
 sys.path.append('..')
 
 import ooxcb
-import ooxcb.xproto
+from ooxcb.protocol import xproto
 
 conn = ooxcb.connect()
 setup = conn.setup
 
 screen = conn.setup.roots[conn.pref_screen]
-window = ooxcb.xproto.Window.create_toplevel_on_screen(conn, screen,
+window = xproto.Window.create_toplevel_on_screen(conn, screen,
                 back_pixel=screen.white_pixel,
-                event_mask=ooxcb.xproto.EventMask.Exposure | ooxcb.xproto.EventMask.ButtonPress
+                event_mask=xproto.EventMask.Exposure | xproto.EventMask.ButtonPress
                 )
 
-gc = ooxcb.xproto.GContext.create(conn, window)
+gc = xproto.GContext.create(conn, window)
 
 with conn.bunch():
     window.map()

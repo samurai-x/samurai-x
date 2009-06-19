@@ -1,7 +1,7 @@
-ooxcb.xtest
-===========
+ooxcb.protocol.xtest
+====================
 
-.. module:: ooxcb.xtest
+.. module:: ooxcb.protocol.xtest
 
 .. class:: GetVersionReply
 

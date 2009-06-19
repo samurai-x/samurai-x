@@ -5,7 +5,7 @@ import sys
 sys.path.append('..')
 
 import ooxcb
-from ooxcb.xproto import *
+from ooxcb.protocol.xproto import *
 
 conn = ooxcb.connect()
 

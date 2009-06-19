@@ -4,15 +4,14 @@ ooxcb api documentation
 .. toctree::
 
     contrib/index.rst
+    protocol/index.rst
     ooxcb.rst
     atoms.rst
     builder.rst
-    composite.rst
     connection.rst
     constant.rst
     cookie.rst
     cursors.rst
-    damage.rst
     error.rst
     event.rst
     eventsys.rst
@@ -25,16 +24,11 @@ ooxcb api documentation
     list.rst
     memstream.rst
     protobj.rst
-    render.rst
     reply.rst
     request.rst
     resource.rst
     response.rst
-    shape.rst
     sizehints.rst
     types.rst
     util.rst
-    xfixes.rst
-    xproto.rst
-    xtest.rst
 

@@ -1,7 +1,7 @@
-ooxcb.damage
-============
+ooxcb.protocol.damage
+=====================
 
-.. module:: ooxcb.damage
+.. module:: ooxcb.protocol.damage
 
 .. class:: ReportLevel
 

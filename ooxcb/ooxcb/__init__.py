@@ -74,7 +74,7 @@ def connect(display='', fd=None, auth_string=None, cls=Connection):
     if CORE is None:
         raise exception.XcbException(
                 "No core protocol object has been set. "
-                "Did you import xcb.xproto?"
+                "Did you import ooxcb.protocol.xproto?"
                 )
 
     conn = cls(CORE)

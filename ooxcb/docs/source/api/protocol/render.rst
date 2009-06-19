@@ -1,7 +1,7 @@
-ooxcb.render
-============
+ooxcb.protocol.render
+=====================
 
-.. module:: ooxcb.render
+.. module:: ooxcb.protocol.render
 
 .. class:: BadGlyph
 
