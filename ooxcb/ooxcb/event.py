@@ -25,6 +25,7 @@
 
 import ctypes
 
+from . import libc
 from .response import Response
 
 class Event(Response):
@@ -81,7 +82,9 @@ class Event(Response):
             type = conn.events[opcode]
 
         address = ctypes.addressof(event.contents)
-        return type.create_from_address(conn, address)
+        evt = type.create_from_address(conn, address)
+        libc.free(address)
+        return evt
 
     def dispatch(self):
         """
