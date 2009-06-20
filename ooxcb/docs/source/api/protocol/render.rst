@@ -33,6 +33,9 @@ ooxcb.protocol.render
 
 .. class:: ScreenMixin
 
+    .. data:: target_class
+
+
     .. method:: get_render_pictformat(self)
 
 
@@ -246,6 +249,9 @@ ooxcb.protocol.render
     .. attribute:: l
 
 .. class:: DrawableMixin
+
+    .. data:: target_class
+
 
     .. method:: query_filters(self)
 

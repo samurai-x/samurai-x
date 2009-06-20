@@ -6125,4 +6125,7 @@ for ev in _events.itervalues():
         ev.event_target_class = globals()[ev.event_target_class]
 
 ooxcb._add_core(xprotoExtension, Setup, _events, _errors)
+def mixin():
+    pass
+
 

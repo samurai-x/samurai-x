@@ -10,7 +10,7 @@ from wraplib.struct import Struct
 from wraplib.names import prefix_if_needed
 from wraplib.utils import pythonize_camelcase_name
 from wraplib.codegen import Codegen, INDENT, DEDENT
-from wraplib.pymember import PyMethod, PyClassMethod, PyAttribute
+from wraplib.pymember import PyMethod, PyClassMethod, PyAttribute, PyFunction
 from wraplib.template import template
 from wraplib.pyclass import PyClass
 
@@ -517,7 +517,7 @@ def py_open(self):
     if 'ImportCode' in INTERFACE:
         py(INTERFACE['ImportCode'])
     if 'Mixins' in INTERFACE:
-        py('from ooxcb.util import mixin_class')
+        py('from ooxcb.util import Mixin')
 
     py() \
       ('def unpack_from_stream(fmt, stream, offset=0):') \
@@ -1040,10 +1040,14 @@ def process_custom_classes(classes):
             add_custom_member(cls, mtype, minfo)
 
 def make_mixins():
+    m = PyFunction('mixin')
     for name, into in INTERFACE.get('Mixins', {}).iteritems():
-        clsname = pythonize_classname(name) + 'Mixin'
-        WRAPPERS[name] = ALL[clsname] = PyClass(clsname)
-        TAIL.append('mixin_class(%s, %s)' % (clsname, into))
+        clsname = into + 'Mixin'
+        WRAPPERS[name] = ALL[clsname] = cls = PyClass(clsname)
+        cls.new_attribute('target_class', into)
+        cls.base = 'Mixin'
+        m.code.append('%s.mixin()' % clsname)
+    TAIL.append(m.generate_code())
 
 def make_xizers():
     for name, info in INTERFACE.get('Xizers', {}).iteritems():

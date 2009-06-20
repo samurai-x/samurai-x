@@ -8,7 +8,7 @@ except ImportError:
     import StringIO
 from struct import pack, unpack, calcsize
 from ooxcb.protocol.xproto import Window
-from ooxcb.util import mixin_class
+from ooxcb.util import Mixin
 
 def unpack_from_stream(fmt, stream, offset=0):
     if offset:
@@ -41,7 +41,8 @@ class GetVersionReply(ooxcb.Reply):
         count = 0
         stream.write(pack("=xBxxxxxxH", self.major_version, self.minor_version))
 
-class WindowMixin(object):
+class WindowMixin(Mixin):
+    target_class = Window
     def compare_cursor(self, cursor):
         window = self.get_internal()
         cursor = cursor.get_internal()
@@ -133,5 +134,7 @@ for ev in _events.itervalues():
         ev.event_target_class = globals()[ev.event_target_class]
 
 ooxcb._add_ext(key, xtestExtension, _events, _errors)
-mixin_class(WindowMixin, Window)
+def mixin():
+    WindowMixin.mixin()
+
 

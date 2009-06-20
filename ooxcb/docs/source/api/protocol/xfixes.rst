@@ -57,6 +57,9 @@ ooxcb.protocol.xfixes
 
 .. class:: WindowMixin
 
+    .. data:: target_class
+
+
     .. method:: change_save_set_checked(self, mode, target, map)
 
 
@@ -118,14 +121,6 @@ ooxcb.protocol.xfixes
 
 
     .. data:: SelectionClientClose
-
-
-.. class:: GcontextMixin
-
-    .. method:: set_clip_region_checked(self, region, x_origin, y_origin)
-
-
-    .. method:: set_clip_region(self, region, x_origin, y_origin)
 
 
 .. class:: xfixesExtension
@@ -296,6 +291,9 @@ ooxcb.protocol.xfixes
 
 .. class:: PictureMixin
 
+    .. data:: target_class
+
+
     .. method:: set_clip_region_checked(self, region, x_origin, y_origin)
 
 
@@ -329,6 +327,17 @@ ooxcb.protocol.xfixes
 
 
     .. data:: Root
+
+
+.. class:: GContextMixin
+
+    .. data:: target_class
+
+
+    .. method:: set_clip_region_checked(self, region, x_origin, y_origin)
+
+
+    .. method:: set_clip_region(self, region, x_origin, y_origin)
 
 
 .. class:: QueryVersionReply
@@ -407,6 +416,9 @@ ooxcb.protocol.xfixes
 
 
 .. class:: CursorMixin
+
+    .. data:: target_class
+
 
     .. method:: set_name_checked(self, name)
 

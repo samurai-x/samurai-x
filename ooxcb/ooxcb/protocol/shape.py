@@ -8,7 +8,7 @@ except ImportError:
     import StringIO
 from struct import pack, unpack, calcsize
 from ooxcb.protocol.xproto import Window
-from ooxcb.util import mixin_class
+from ooxcb.util import Mixin
 
 def unpack_from_stream(fmt, stream, offset=0):
     if offset:
@@ -49,7 +49,8 @@ class shapeExtension(ooxcb.Extension):
             QueryVersionCookie(),
             QueryVersionReply)
 
-class WindowMixin(object):
+class WindowMixin(Mixin):
+    target_class = Window
     def shape_rectangles_checked(self, operation, destination_kind, ordering, x_offset, y_offset, rectangles):
         rectangles_len = len(rectangles)
         destination_window = self.get_internal()
@@ -316,5 +317,7 @@ for ev in _events.itervalues():
         ev.event_target_class = globals()[ev.event_target_class]
 
 ooxcb._add_ext(key, shapeExtension, _events, _errors)
-mixin_class(WindowMixin, Window)
+def mixin():
+    WindowMixin.mixin()
+
 

@@ -9,7 +9,7 @@ except ImportError:
 from struct import pack, unpack, calcsize
 from ooxcb.protocol.xproto import Window
 from ooxcb.protocol.xfixes import Region
-from ooxcb.util import mixin_class
+from ooxcb.util import Mixin
 
 def unpack_from_stream(fmt, stream, offset=0):
     if offset:
@@ -40,7 +40,8 @@ class GetOverlayWindowReply(ooxcb.Reply):
         count = 0
         stream.write(pack("=xxxxxxxxIxxxxxxxxxxxxxxxxxxxx", self.overlay_win.get_internal()))
 
-class WindowMixin(object):
+class WindowMixin(Mixin):
+    target_class = Window
     def redirect_checked(self, update=Redirect.Automatic):
         window = self.get_internal()
         buf = StringIO.StringIO()
@@ -163,7 +164,8 @@ class QueryVersionCookie(ooxcb.Cookie):
 class GetOverlayWindowCookie(ooxcb.Cookie):
     pass
 
-class RegionMixin(object):
+class RegionMixin(Mixin):
+    target_class = Region
     @classmethod
     def create_from_border_clip(cls, conn, window):
         rid = conn.generate_id()
@@ -215,6 +217,8 @@ for ev in _events.itervalues():
         ev.event_target_class = globals()[ev.event_target_class]
 
 ooxcb._add_ext(key, compositeExtension, _events, _errors)
-mixin_class(WindowMixin, Window)
-mixin_class(RegionMixin, Region)
+def mixin():
+    WindowMixin.mixin()
+    RegionMixin.mixin()
+
 

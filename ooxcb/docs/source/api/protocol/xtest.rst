@@ -14,6 +14,9 @@ ooxcb.protocol.xtest
 
 .. class:: WindowMixin
 
+    .. data:: target_class
+
+
     .. method:: compare_cursor(self, cursor)
 
 

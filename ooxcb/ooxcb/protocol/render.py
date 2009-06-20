@@ -8,7 +8,7 @@ except ImportError:
     import StringIO
 from struct import pack, unpack, calcsize
 from ooxcb.protocol.xproto import Drawable, Screen
-from ooxcb.util import mixin_class
+from ooxcb.util import Mixin
 
 def unpack_from_stream(fmt, stream, offset=0):
     if offset:
@@ -143,7 +143,8 @@ class Directformat(ooxcb.Struct):
         count = 0
         stream.write(pack("=HHHHHHHH", self.red_shift, self.red_mask, self.green_shift, self.green_mask, self.blue_shift, self.blue_mask, self.alpha_shift, self.alpha_mask))
 
-class ScreenMixin(object):
+class ScreenMixin(Mixin):
+    target_class = Screen
     def get_render_pictformat(self):
         reply = self.conn.render.query_pict_formats().reply()
         screen_num = self.conn.setup.roots.index(self)
@@ -849,7 +850,8 @@ class Spanfix(ooxcb.Struct):
         count = 0
         stream.write(pack("=iii", self.l, self.r, self.y))
 
-class DrawableMixin(object):
+class DrawableMixin(Mixin):
+    target_class = Drawable
     def query_filters(self):
         drawable = self.get_internal()
         buf = StringIO.StringIO()
@@ -1512,6 +1514,8 @@ for ev in _events.itervalues():
         ev.event_target_class = globals()[ev.event_target_class]
 
 ooxcb._add_ext(key, renderExtension, _events, _errors)
-mixin_class(DrawableMixin, Drawable)
-mixin_class(ScreenMixin, Screen)
+def mixin():
+    DrawableMixin.mixin()
+    ScreenMixin.mixin()
+
 

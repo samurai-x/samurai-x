@@ -4,6 +4,8 @@ sys.path.append('..')
 import ooxcb
 from ooxcb.protocol import xproto, shape
 
+shape.mixin()
+
 conn = ooxcb.connect()
 screen = conn.setup.roots[0]
 win = xproto.Window.create_toplevel_on_screen(conn, screen,

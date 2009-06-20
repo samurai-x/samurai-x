@@ -16,6 +16,9 @@ ooxcb.protocol.shape
 
 .. class:: WindowMixin
 
+    .. data:: target_class
+
+
     .. method:: shape_rectangles_checked(self, operation, destination_kind, ordering, x_offset, y_offset, rectangles)
 
 

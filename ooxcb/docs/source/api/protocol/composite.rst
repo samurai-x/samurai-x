@@ -20,6 +20,9 @@ ooxcb.protocol.composite
 
 .. class:: WindowMixin
 
+    .. data:: target_class
+
+
     .. method:: redirect_checked(self, update=Redirect.Automatic)
 
 
@@ -76,6 +79,9 @@ ooxcb.protocol.composite
 .. class:: GetOverlayWindowCookie
 
 .. class:: RegionMixin
+
+    .. data:: target_class
+
 
     .. classmethod:: create_from_border_clip(cls, conn, window)
 

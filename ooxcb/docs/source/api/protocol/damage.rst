@@ -36,6 +36,9 @@ ooxcb.protocol.damage
 
 .. class:: DrawableMixin
 
+    .. data:: target_class
+
+
     .. method:: damage_add_checked(self, region)
 
 

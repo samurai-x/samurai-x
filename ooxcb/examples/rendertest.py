@@ -6,6 +6,9 @@ sys.path.append('..')
 import ooxcb
 from ooxcb.protocol import xproto, render
 
+# use the render mixin
+render.mixin()
+
 conn = ooxcb.connect()
 
 def find_format(realscreen, screen):

@@ -285,6 +285,7 @@ Classes:
                 - "return cursor"
 
     ScreenMixin:
+        - base: Mixin
         - method:
             name: get_render_pictformat
             code:

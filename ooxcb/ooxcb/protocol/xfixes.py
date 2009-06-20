@@ -9,7 +9,7 @@ except ImportError:
 from struct import pack, unpack, calcsize
 from ooxcb.protocol.xproto import Window, GContext, Cursor
 from ooxcb.protocol.render import Picture
-from ooxcb.util import mixin_class
+from ooxcb.util import Mixin
 
 def unpack_from_stream(fmt, stream, offset=0):
     if offset:
@@ -81,7 +81,8 @@ class CursorNotifyEvent(ooxcb.Event):
         count = 0
         stream.write(pack("=BBxxIIIIxxxxxxxxxxxx", self.response_type, self.subtype, self.window.get_internal(), self.cursor_serial, self.timestamp, self.name.get_internal()))
 
-class WindowMixin(object):
+class WindowMixin(Mixin):
+    target_class = Window
     def change_save_set_checked(self, mode, target, map):
         window = self.get_internal()
         buf = StringIO.StringIO()
@@ -200,23 +201,6 @@ class RegionError(ooxcb.Error):
 
     def build(self, stream):
         count = 0
-
-class GcontextMixin(object):
-    def set_clip_region_checked(self, region, x_origin, y_origin):
-        gc = self.get_internal()
-        region = region.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxIIhh", gc, region, x_origin, y_origin))
-        return self.conn.xfixes.send_request(ooxcb.Request(self.conn, buf.getvalue(), 20, True, True), \
-            ooxcb.VoidCookie())
-
-    def set_clip_region(self, region, x_origin, y_origin):
-        gc = self.get_internal()
-        region = region.get_internal()
-        buf = StringIO.StringIO()
-        buf.write(pack("=xxxxIIhh", gc, region, x_origin, y_origin))
-        return self.conn.xfixes.send_request(ooxcb.Request(self.conn, buf.getvalue(), 20, True, False), \
-            ooxcb.VoidCookie())
 
 class xfixesExtension(ooxcb.Extension):
     header = "xfixes"
@@ -611,7 +595,8 @@ class Region(ooxcb.Resource):
         conn.add_to_cache(rid, region)
         return region
 
-class PictureMixin(object):
+class PictureMixin(Mixin):
+    target_class = Picture
     def set_clip_region_checked(self, region, x_origin, y_origin):
         picture = self.get_internal()
         region = region.get_internal()
@@ -657,6 +642,24 @@ class GetCursorImageReply(ooxcb.Reply):
         stream.write(pack("=xxxxxxxxhhHHHHIxxxxxxxx", self.x, self.y, self.width, self.height, self.xhot, self.yhot, self.cursor_serial))
         count += 32
         build_list(self.conn, stream, self.cursor_image, 'I')
+
+class GContextMixin(Mixin):
+    target_class = GContext
+    def set_clip_region_checked(self, region, x_origin, y_origin):
+        gc = self.get_internal()
+        region = region.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxIIhh", gc, region, x_origin, y_origin))
+        return self.conn.xfixes.send_request(ooxcb.Request(self.conn, buf.getvalue(), 20, True, True), \
+            ooxcb.VoidCookie())
+
+    def set_clip_region(self, region, x_origin, y_origin):
+        gc = self.get_internal()
+        region = region.get_internal()
+        buf = StringIO.StringIO()
+        buf.write(pack("=xxxxIIhh", gc, region, x_origin, y_origin))
+        return self.conn.xfixes.send_request(ooxcb.Request(self.conn, buf.getvalue(), 20, True, False), \
+            ooxcb.VoidCookie())
 
 class QueryVersionReply(ooxcb.Reply):
     def __init__(self, conn):
@@ -752,7 +755,8 @@ class GetCursorNameCookie(ooxcb.Cookie):
 class GetCursorImageAndNameCookie(ooxcb.Cookie):
     pass
 
-class CursorMixin(object):
+class CursorMixin(Mixin):
+    target_class = Cursor
     def set_name_checked(self, name):
         if isinstance(name, unicode):
             name = name.encode("utf-8")
@@ -815,8 +819,10 @@ for ev in _events.itervalues():
         ev.event_target_class = globals()[ev.event_target_class]
 
 ooxcb._add_ext(key, xfixesExtension, _events, _errors)
-mixin_class(CursorMixin, Cursor)
-mixin_class(PictureMixin, Picture)
-mixin_class(WindowMixin, Window)
-mixin_class(GcontextMixin, GContext)
+def mixin():
+    CursorMixin.mixin()
+    PictureMixin.mixin()
+    WindowMixin.mixin()
+    GContextMixin.mixin()
+
 

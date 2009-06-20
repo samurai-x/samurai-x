@@ -8,7 +8,7 @@ except ImportError:
     import StringIO
 from struct import pack, unpack, calcsize
 from ooxcb.protocol.xproto import Drawable
-from ooxcb.util import mixin_class
+from ooxcb.util import Mixin
 
 def unpack_from_stream(fmt, stream, offset=0):
     if offset:
@@ -59,7 +59,8 @@ class damageExtension(ooxcb.Extension):
         return self.conn.damage.send_request(ooxcb.Request(self.conn, buf.getvalue(), 1, True, False), \
             ooxcb.VoidCookie())
 
-class DrawableMixin(object):
+class DrawableMixin(Mixin):
+    target_class = Drawable
     def damage_add_checked(self, region):
         drawable = self.get_internal()
         region = region.get_internal()
@@ -200,5 +201,7 @@ for ev in _events.itervalues():
         ev.event_target_class = globals()[ev.event_target_class]
 
 ooxcb._add_ext(key, damageExtension, _events, _errors)
-mixin_class(DrawableMixin, Drawable)
+def mixin():
+    DrawableMixin.mixin()
+
 
