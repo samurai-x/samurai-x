@@ -56,11 +56,12 @@
 import logging
 log = logging.getLogger(__name__)
 
+from ooxcb.protocol import xproto
+
 from samuraix.plugin import Plugin
 from samuraix.rect import Rect
-from ooxcb import xproto
-
 from samuraix.util import MODIFIERS
+
 from sxactions import ActionInfo
 
 BAR_HEIGHT = 20

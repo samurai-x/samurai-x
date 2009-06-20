@@ -5,10 +5,13 @@ import sys
 sys.path.append('..')
 
 import ooxcb
-import ooxcb.xproto
-import ooxcb.xtest
+from ooxcb import XNone
+from ooxcb.protocol import xproto, xtest
 from ooxcb.constant import KeyPress, KeyRelease, MotionNotify
 from ooxcb.keysymdef import keysyms
+
+# necessary for using the `compare_cursor` mixin method of `Window`.
+xtest.mixin()
 
 conn = ooxcb.connect()
 
@@ -30,5 +33,8 @@ with conn.bunch():
 
 # Now test if the root window's cursor is the null cursor.
 # Note that `compare_cursor` was mixed into the Window class.
-print screen.root.compare_cursor(ooxcb.xproto.XNone).reply().same
+print screen.root.compare_cursor(XNone).reply().same
+# If you wouldn't have called `xtest.mixin` above, you'd have
+# to call the method like this:
+#print xtest.WindowMixin.compare_cursor(screen.root, XNone).reply().same
 

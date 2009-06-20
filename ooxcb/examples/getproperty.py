@@ -2,7 +2,7 @@ import sys
 sys.path.append('..')
 
 import ooxcb
-from ooxcb import xproto
+from ooxcb.protocol import xproto
 
 conn = ooxcb.connect()
 

@@ -92,7 +92,8 @@ log = logging.getLogger(__name__)
 from samuraix.util import MODIFIERS
 from samuraix.plugin import Plugin
 
-from ooxcb import keysymdef, xproto
+from ooxcb import keysymdef
+from ooxcb.protocol import xproto
 
 def parse_keystroke(s):
     """

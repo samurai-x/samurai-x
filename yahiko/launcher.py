@@ -6,7 +6,7 @@ import sys
 sys.path.append('../ooxcb')
 
 import ooxcb
-from ooxcb import xproto
+from ooxcb.protocol import xproto
 from ooxcb.contrib import cairo
 
 from yahiko import ui

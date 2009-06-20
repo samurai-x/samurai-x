@@ -61,7 +61,7 @@ class List(list):
                Now, if the type has a `pythonize_lazy` method defined, it
                will be called on the object. That's a convenience method, ie
                for strings. The user doesn't have to bother with
-               :class:`xproto.Str` instances, it is just converted to a Python
+               :class:`protocol.xproto.Str` instances, it is just converted to a Python
                string lazily and on-the-fly.
         """
         self.conn = conn
@@ -114,7 +114,7 @@ class List(list):
     def to_atoms(self):
         """
             my value is a list of atom ids, return a list of
-            :class:`Atom <ooxcb.xproto.Atom>` instances.
+            :class:`Atom <ooxcb.protocol.xproto.Atom>` instances.
         """
         return map(self.conn.atoms.get_by_id, self)
 
@@ -132,10 +132,10 @@ class List(list):
 
     def to_windows(self):
         """
-            I am a list of :class:`ooxcb.xproto.Window` Ids. Just
+            I am a list of :class:`ooxcb.protocol.xproto.Window` Ids. Just
             a shortcut for :meth:`to_resources`.
         """
-        from .xproto import Window # TODO: imports in methods are not nice
+        from ooxcb.protocol.xproto import Window # TODO: imports in methods are not nice
         return self.to_resources(Window)
 
     @staticmethod

@@ -25,6 +25,8 @@
 
 import struct
 
+from .protobj import Protobj
+
 SIZES = {
         8: 'B',
         16: 'H',
@@ -71,3 +73,20 @@ def make_void_array(data, format):
     typecode = SIZES[format]
     return make_array(data, typecode)
 
+def build_list(conn, stream, list_, type):
+    """
+        writes a *list_* of objects of the elementar
+        data type *type* (where *type* is a :mod:`struct`-compatible
+        type char) to *stream*.
+
+        For each item, this checks if the item is a
+        :class:`ooxcb.protobj.Protobj`. If it is, the object's `build` method
+        is called.
+    """
+    for item in list_:
+        if getattr(type, 'create_lazy', None):
+            item = type.create_lazy(conn, item)
+        if isinstance(item, Protobj):
+            item.build(stream)
+        else:
+            stream.write(struct.pack(type, item))

@@ -43,7 +43,7 @@ Here's a minimal example that displays a white window and exits if a mouse butto
     import sys
 
     import ooxcb
-    from ooxcb.xproto import *
+    from ooxcb.protocol.xproto import *
 
     conn = ooxcb.connect()
 

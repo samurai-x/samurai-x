@@ -1,7 +1,7 @@
-ooxcb.shape
-===========
+ooxcb.protocol.shape
+====================
 
-.. module:: ooxcb.shape
+.. module:: ooxcb.protocol.shape
 
 .. class:: shapeExtension
 
@@ -15,6 +15,9 @@ ooxcb.shape
 
 
 .. class:: WindowMixin
+
+    .. data:: target_class
+
 
     .. method:: shape_rectangles_checked(self, operation, destination_kind, ordering, x_offset, y_offset, rectangles)
 

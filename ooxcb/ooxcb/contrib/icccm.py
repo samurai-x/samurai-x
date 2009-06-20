@@ -27,7 +27,7 @@
     This module contains some helper functions for the icccm standard.
 """
 
-from ooxcb.xproto import Window, Pixmap
+from ooxcb.protocol.xproto import Window, Pixmap
 
 class WMState(object):
     """

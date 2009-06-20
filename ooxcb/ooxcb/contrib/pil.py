@@ -30,7 +30,7 @@
 
 from PIL import Image
 
-from ooxcb.xproto import ImageFormat, Window
+from ooxcb.protocol.xproto import ImageFormat, Window
 from ooxcb.util import mixin_functions
 
 def put_pil_image(gc, drawable, image, dst_x=0, dst_y=0):

@@ -10,7 +10,7 @@ from wraplib.struct import Struct
 from wraplib.names import prefix_if_needed
 from wraplib.utils import pythonize_camelcase_name
 from wraplib.codegen import Codegen, INDENT, DEDENT
-from wraplib.pymember import PyMethod, PyClassMethod, PyAttribute
+from wraplib.pymember import PyMethod, PyClassMethod, PyAttribute, PyFunction
 from wraplib.template import template
 from wraplib.pyclass import PyClass
 
@@ -395,6 +395,10 @@ def py_complex(self, name, cls):
     # seems to be needed by some replys, e.g. GetKeyboardMappingReply,
     # to access `self.length`.
     read_code.extend(['self._address = stream.address', 'root = stream.tell()'])
+    # Here we store the index of the `root = stream.tell()` line to be able
+    # to remove obsolete calls later.
+    needs_root = False
+
     build_code.append('count = 0')
     struct = Struct()
     for field in self.fields:
@@ -426,6 +430,7 @@ def py_complex(self, name, cls):
             build_code.append(template('count += $size', size=size))
         if need_alignment:
             read_code.append('stream.seek(ooxcb.type_pad(%d, stream.tell() - root), 1)' % align_size(field))
+            needs_root = True
             # need to add pad for `build`?
 #            build_code.append(r'stream.write("\0" * ooxcb.type_pad(%d, count)' % align_size(field))
         need_alignment = True
@@ -484,7 +489,14 @@ def py_complex(self, name, cls):
     if fields:
         if need_alignment:
             read_code.append('stream.seek(ooxcb.type_pad(4, stream.tell() - root), 1)')
+            needs_root = True
         _add_fields(fields)
+    if (not self.fixed_size() and cls.base == 'ooxcb.Struct'):
+        # only do that for variable-length structs.
+        # However, the check above is very nasty.
+        needs_root = True
+    if not needs_root:
+        read_code.remove('root = stream.tell()')
 
 def py_open(self):
     global NAMESPACE
@@ -493,8 +505,7 @@ def py_open(self):
     py('# auto generated. yay.') \
       ('import ooxcb') \
       ('from ooxcb.resource import XNone') \
-      ('from ooxcb.types import SIZES, make_array') \
-      ('from ooxcb.builder import build_list') \
+      ('from ooxcb.types import SIZES, make_array, build_list') \
       ('try:').indent() \
                 ('import cStringIO as StringIO') \
                 .dedent() \
@@ -506,7 +517,7 @@ def py_open(self):
     if 'ImportCode' in INTERFACE:
         py(INTERFACE['ImportCode'])
     if 'Mixins' in INTERFACE:
-        py('from ooxcb.util import mixin_class')
+        py('from ooxcb.util import Mixin')
 
     py() \
       ('def unpack_from_stream(fmt, stream, offset=0):') \
@@ -842,10 +853,7 @@ def request_helper(self, name, void, regular):
                 meth.code.append('buf.write(pack("=%sx"))' % field.type.nmemb)
             elif field.type.is_container:
                 if is_ignored(strip_ns(field.type.name)):
-                    meth.code.append('for elt in ooxcb.Iterator(%s, %d, "%s", False):' % \
-                            (prefix_if_needed(field.field_name),
-                                field.type.py_format_len,
-                                prefix_if_needed(field.field_name)))
+                    meth.code.append('for elt in %s:' % prefix_if_needed(field.field_name))
                     meth.code.append(INDENT)
                     meth.code.append('buf.write(pack("=%s", *elt))' % field.type.py_format_str)
                     meth.code.append(DEDENT)
@@ -864,10 +872,7 @@ def request_helper(self, name, void, regular):
                             prefix_if_needed(field.field_name))
                 else:
                     if is_ignored(strip_ns(field.type.name)):
-                        meth.code.append('for elt in ooxcb.Iterator(%s, %d, "%s", True):' % \
-                            (prefix_if_needed(field.field_name),
-                                field.type.member.py_format_len,
-                                prefix_if_needed(field.field_name)))
+                        meth.code.append('for elt in %s:' % (prefix_if_needed(field.field_name)))
                         meth.code.append(INDENT)
                         meth.code.append('buf.write(pack("=%s", *elt))' % field.type.member.py_format_str)
                         meth.code.append(DEDENT)
@@ -954,14 +959,18 @@ def py_error(self, name):
 def py_event(self, name):
     setup_type(self, name, 'Event')
 
-    struct = PyClass(self.py_event_name)
+    entry = INTERFACE.get('Events', {}).get(strip_ns(name), {})
+
+    clsname = entry.get('classname', self.py_event_name)
+    eventname = ('"%s"' % entry.get('eventname',
+            'on_%s' % pythonize_camelcase_name(strip_ns(name))))
+    struct = PyClass(clsname)
     struct.base = 'ooxcb.Event'
-    struct.new_attribute('event_name', '"on_%s"' % pythonize_camelcase_name(strip_ns(name)))
+    struct.new_attribute('event_name', eventname)
     # each event class has an `opcode` attribute
     struct.new_attribute('opcode', self.opcodes[name])
 
-    entry = INTERFACE.get('Events', {}).get(strip_ns(name), None)
-    if entry is None:
+    if not entry:
         clsname, membername = ('ooxcb.Connection', 'conn')
     else:
         membername = entry['member']
@@ -1031,10 +1040,14 @@ def process_custom_classes(classes):
             add_custom_member(cls, mtype, minfo)
 
 def make_mixins():
+    m = PyFunction('mixin')
     for name, into in INTERFACE.get('Mixins', {}).iteritems():
-        clsname = pythonize_classname(name) + 'Mixin'
-        WRAPPERS[name] = ALL[clsname] = PyClass(clsname)
-        TAIL.append('mixin_class(%s, %s)' % (clsname, into))
+        clsname = into + 'Mixin'
+        WRAPPERS[name] = ALL[clsname] = cls = PyClass(clsname)
+        cls.new_attribute('target_class', into)
+        cls.base = 'Mixin'
+        m.code.append('%s.mixin()' % clsname)
+    TAIL.append(m.generate_code())
 
 def make_xizers():
     for name, info in INTERFACE.get('Xizers', {}).iteritems():
@@ -1044,7 +1057,7 @@ def make_xizers():
 
 def generate_docs():
     gen = Codegen()
-    mod = 'ooxcb.%s' % MODNAME
+    mod = 'ooxcb.protocol.%s' % MODNAME
     heading = mod
     gen(heading)
     gen('=' * len(heading))()

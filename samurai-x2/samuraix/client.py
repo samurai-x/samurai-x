@@ -27,10 +27,11 @@ import logging
 log = logging.getLogger(__name__)
 import weakref
 
-from ooxcb import xproto, timestamp
+from ooxcb import timestamp
+from ooxcb.protocol import xproto
+from ooxcb.protocol.xproto import EventMask
 from ooxcb.list import List
-from ooxcb.xproto import EventMask
-from ooxcb.sizehints import SizeHints
+from ooxcb.contrib.sizehints import SizeHints
 
 from .rect import Rect
 from .base import SXObject

@@ -1,7 +1,7 @@
-ooxcb.render
-============
+ooxcb.protocol.render
+=====================
 
-.. module:: ooxcb.render
+.. module:: ooxcb.protocol.render
 
 .. class:: BadGlyph
 
@@ -31,12 +31,12 @@ ooxcb.render
 
     .. attribute:: green_shift
 
-.. class:: PictType
+.. class:: ScreenMixin
 
-    .. data:: Indexed
+    .. data:: target_class
 
 
-    .. data:: Direct
+    .. method:: get_render_pictformat(self)
 
 
 .. class:: GlyphSetError
@@ -249,6 +249,9 @@ ooxcb.render
     .. attribute:: l
 
 .. class:: DrawableMixin
+
+    .. data:: target_class
+
 
     .. method:: query_filters(self)
 
@@ -479,26 +482,13 @@ ooxcb.render
 
 .. class:: BadGlyphSet
 
-.. class:: QueryPictFormatsReply
+.. class:: PictType
 
-    .. method:: __init__(self, conn)
+    .. data:: Indexed
 
 
-    .. attribute:: num_formats
+    .. data:: Direct
 
-    .. attribute:: num_subpixel
-
-    .. attribute:: screens
-
-    .. attribute:: num_screens
-
-    .. attribute:: formats
-
-    .. attribute:: num_visuals
-
-    .. attribute:: num_depths
-
-    .. attribute:: subpixels
 
 .. class:: SubPixel
 
@@ -757,6 +747,27 @@ ooxcb.render
 
     .. data:: Imprecise
 
+
+.. class:: QueryPictFormatsReply
+
+    .. method:: __init__(self, conn)
+
+
+    .. attribute:: num_formats
+
+    .. attribute:: num_subpixel
+
+    .. attribute:: screens
+
+    .. attribute:: num_screens
+
+    .. attribute:: formats
+
+    .. attribute:: num_visuals
+
+    .. attribute:: num_depths
+
+    .. attribute:: subpixels
 
 .. class:: Glyph
 

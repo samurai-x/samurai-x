@@ -1,7 +1,7 @@
-ooxcb.xtest
-===========
+ooxcb.protocol.xtest
+====================
 
-.. module:: ooxcb.xtest
+.. module:: ooxcb.protocol.xtest
 
 .. class:: GetVersionReply
 
@@ -13,6 +13,9 @@ ooxcb.xtest
     .. attribute:: minor_version
 
 .. class:: WindowMixin
+
+    .. data:: target_class
+
 
     .. method:: compare_cursor(self, cursor)
 

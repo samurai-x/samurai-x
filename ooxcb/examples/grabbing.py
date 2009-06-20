@@ -4,7 +4,8 @@ import sys
 sys.path.append('..')
 
 import ooxcb
-from ooxcb import xproto, keysymdef
+from ooxcb import keysymdef
+from ooxcb.protocol import xproto
 
 conn = ooxcb.connect()
 root = conn.setup.roots[conn.pref_screen].root

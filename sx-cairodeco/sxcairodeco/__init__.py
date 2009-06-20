@@ -131,7 +131,7 @@ from samuraix.plugin import Plugin
 from samuraix.cairo_ext import create_surface
 from samuraix.util import parse_buttonstroke
 from samuraix.rect import Rect
-from ooxcb import xproto
+from ooxcb.protocol import xproto
 from ooxcb.contrib import cairo
 
 from sxactions import ActionInfo

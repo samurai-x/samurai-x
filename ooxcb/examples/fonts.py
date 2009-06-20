@@ -2,14 +2,14 @@ import sys
 sys.path.append('..')
 
 import ooxcb
-import ooxcb.xproto as X
+import ooxcb.protocol.xproto as X
 
 conn = ooxcb.connect()
 
 fonts = conn.core.list_fonts(1, '10x20').reply().names
 font = X.Font.open(conn, fonts[0])
 print font.query().reply()
-print vars(font.query_text_extents('foobar').reply())
+#print vars(font.query_text_extents('foobar').reply())
 
 # TODO: doesn't work :)
 #p = conn.core.get_font_path().reply().path

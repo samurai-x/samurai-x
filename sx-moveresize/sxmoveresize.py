@@ -83,7 +83,7 @@ from samuraix.plugin import Plugin
 from samuraix.rect import Rect
 from samuraix.util import DictProxy
 
-from ooxcb import xproto
+from ooxcb.protocol import xproto
 
 MOUSE_MASK = xproto.EventMask.ButtonPress | xproto.EventMask.ButtonRelease | xproto.EventMask.PointerMotion
 

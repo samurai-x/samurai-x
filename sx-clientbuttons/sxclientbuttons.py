@@ -49,8 +49,8 @@ from samuraix import config
 from samuraix.plugin import Plugin
 from samuraix.util import parse_buttonstroke
 
-from ooxcb.xproto import EventMask
-from ooxcb import xproto
+from ooxcb.protocol import xproto
+from ooxcb.protocol.xproto import EventMask
 
 from sxactions import ActionInfo
 

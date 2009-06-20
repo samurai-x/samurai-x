@@ -7,7 +7,9 @@ If you have written an useful module, too, let us know ;)
 .. toctree::
 
     cairo.rst
+    cursors.rst
     ewmh.rst
     icccm.rst
     pil.rst
+    sizehints.rst
 

@@ -4,7 +4,10 @@ import sys
 sys.path.append('..')
 
 import ooxcb
-from ooxcb import xproto, render
+from ooxcb.protocol import xproto, render
+
+# use the render mixin
+render.mixin()
 
 conn = ooxcb.connect()
 

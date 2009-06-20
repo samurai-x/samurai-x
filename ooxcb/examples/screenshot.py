@@ -2,7 +2,7 @@ import sys
 sys.path.append('..')
 
 import ooxcb
-from ooxcb import xproto
+from ooxcb.protocol import xproto
 import ooxcb.contrib.pil
 
 ooxcb.contrib.pil.mixin()

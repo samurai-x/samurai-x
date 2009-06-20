@@ -83,7 +83,7 @@ from samuraix.plugin import Plugin
 from samuraix.util import OrderedDict
 from samuraix import app
 
-from ooxcb import xproto
+from ooxcb.protocol import xproto
 
 import logging
 log = logging.getLogger(__name__)

@@ -3,7 +3,7 @@ import string
 import ooxcb
 from ooxcb.eventsys import EventDispatcher
 from ooxcb.contrib import cairo
-from ooxcb import xproto
+from ooxcb.protocol import xproto
 
 from ctypes import byref
 

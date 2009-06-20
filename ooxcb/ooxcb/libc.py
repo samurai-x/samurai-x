@@ -23,36 +23,12 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from itertools import chain
+from ctypes import *
 
-def flatten(l):
-    """
-        flatten the list *l*. Example:
+_lib = CDLL('')
 
-        ::
+free = _lib.free
+free.restype = None
+free.argtypes = [POINTER(None)]
 
-            flatten([[1, 2], [3, 4, 5]]) # => [1, 2, 3, 4, 5]
-    """
-    return list(chain.from_iterable(l))
-
-class Iterator(object):
-    """
-        just a flattening iterator. Only for the use in
-        :mod:`xproto`.
-
-        :todo: try to explain :)
-    """
-    def __init__(self, list, groupsize, name, is_list):
-        self.list = list
-        self.groupsize = groupsize
-        self.name = name
-        self.is_list = bool(is_list)
-        
-    def __iter__(self):
-        if len(self.list) == 0:
-            return iter([])
-        else:
-            if isinstance(self.list[0], (list, tuple)):
-                return iter(self.list)
-            else:
-                return iter([self.list])
+__all__ = ['free']

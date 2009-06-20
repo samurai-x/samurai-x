@@ -1,15 +1,14 @@
 # auto generated. yay.
 import ooxcb
 from ooxcb.resource import XNone
-from ooxcb.types import SIZES, make_array
-from ooxcb.builder import build_list
+from ooxcb.types import SIZES, make_array, build_list
 try:
     import cStringIO as StringIO
 except ImportError:
     import StringIO
 from struct import pack, unpack, calcsize
-from ooxcb.xproto import Drawable
-from ooxcb.util import mixin_class
+from ooxcb.protocol.xproto import Drawable, Screen
+from ooxcb.util import Mixin
 
 def unpack_from_stream(fmt, stream, offset=0):
     if offset:
@@ -21,10 +20,6 @@ def unpack_from_stream(fmt, stream, offset=0):
 MAJOR_VERSION = 0
 MINOR_VERSION = 10
 key = ooxcb.ExtensionKey("RENDER")
-
-class PictType(object):
-    Indexed = 0
-    Direct = 1
 
 class Repeat(object):
     _None = 0
@@ -72,6 +67,10 @@ class PictOp(object):
     ConjointAtopReverse = 36
     ConjointXor = 37
 
+class PictType(object):
+    Indexed = 0
+    Direct = 1
+
 class SubPixel(object):
     Unknown = 0
     HorizontalRGB = 1
@@ -112,7 +111,6 @@ class PictFormatError(ooxcb.Error):
 
     def read(self, stream):
         self._address = stream.address
-        root = stream.tell()
 
     def build(self, stream):
         count = 0
@@ -131,7 +129,6 @@ class Directformat(ooxcb.Struct):
 
     def read(self, stream):
         self._address = stream.address
-        root = stream.tell()
         _unpacked = unpack_from_stream("=HHHHHHHH", stream)
         self.red_shift = _unpacked[0]
         self.red_mask = _unpacked[1]
@@ -146,13 +143,25 @@ class Directformat(ooxcb.Struct):
         count = 0
         stream.write(pack("=HHHHHHHH", self.red_shift, self.red_mask, self.green_shift, self.green_mask, self.blue_shift, self.blue_mask, self.alpha_shift, self.alpha_mask))
 
+class ScreenMixin(Mixin):
+    target_class = Screen
+    def get_render_pictformat(self):
+        reply = self.conn.render.query_pict_formats().reply()
+        screen_num = self.conn.setup.roots.index(self)
+        render_screen = reply.screens[screen_num]
+        for d in render_screen.depths:
+            if d.depth == self.root_depth:
+                for v in d.visuals:
+                    if v.visual == self.root_visual:
+                        return v.format
+        raise Exception("Failed to find an appropriate Render pictformat!")
+
 class GlyphSetError(ooxcb.Error):
     def __init__(self, conn):
         ooxcb.Error.__init__(self, conn)
 
     def read(self, stream):
         self._address = stream.address
-        root = stream.tell()
 
     def build(self, stream):
         count = 0
@@ -191,7 +200,6 @@ class PictureError(ooxcb.Error):
 
     def read(self, stream):
         self._address = stream.address
-        root = stream.tell()
 
     def build(self, stream):
         count = 0
@@ -417,7 +425,7 @@ class Picture(ooxcb.Resource):
         mask_format = mask_format.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxBxxxIIIhh", op, src, dst, mask_format, src_x, src_y))
-        for elt in ooxcb.Iterator(points, 2, "points", True):
+        for elt in points:
             buf.write(pack("=ii", *elt))
         return self.conn.render.send_request(ooxcb.Request(self.conn, buf.getvalue(), 12, True, True), \
             ooxcb.VoidCookie())
@@ -431,7 +439,7 @@ class Picture(ooxcb.Resource):
         mask_format = mask_format.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxBxxxIIIhh", op, src, dst, mask_format, src_x, src_y))
-        for elt in ooxcb.Iterator(points, 2, "points", True):
+        for elt in points:
             buf.write(pack("=ii", *elt))
         return self.conn.render.send_request(ooxcb.Request(self.conn, buf.getvalue(), 12, True, False), \
             ooxcb.VoidCookie())
@@ -445,7 +453,7 @@ class Picture(ooxcb.Resource):
         mask_format = mask_format.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxBxxxIIIhh", op, src, dst, mask_format, src_x, src_y))
-        for elt in ooxcb.Iterator(points, 2, "points", True):
+        for elt in points:
             buf.write(pack("=ii", *elt))
         return self.conn.render.send_request(ooxcb.Request(self.conn, buf.getvalue(), 13, True, True), \
             ooxcb.VoidCookie())
@@ -459,7 +467,7 @@ class Picture(ooxcb.Resource):
         mask_format = mask_format.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxBxxxIIIhh", op, src, dst, mask_format, src_x, src_y))
-        for elt in ooxcb.Iterator(points, 2, "points", True):
+        for elt in points:
             buf.write(pack("=ii", *elt))
         return self.conn.render.send_request(ooxcb.Request(self.conn, buf.getvalue(), 13, True, False), \
             ooxcb.VoidCookie())
@@ -816,7 +824,6 @@ class Pictvisual(ooxcb.Struct):
 
     def read(self, stream):
         self._address = stream.address
-        root = stream.tell()
         _unpacked = unpack_from_stream("=II", stream)
         self.visual = _unpacked[0]
         self.format = self.conn.get_from_cache_fallback(_unpacked[1], Pictformat)
@@ -834,7 +841,6 @@ class Spanfix(ooxcb.Struct):
 
     def read(self, stream):
         self._address = stream.address
-        root = stream.tell()
         _unpacked = unpack_from_stream("=iii", stream)
         self.l = _unpacked[0]
         self.r = _unpacked[1]
@@ -844,7 +850,8 @@ class Spanfix(ooxcb.Struct):
         count = 0
         stream.write(pack("=iii", self.l, self.r, self.y))
 
-class DrawableMixin(object):
+class DrawableMixin(Mixin):
+    target_class = Drawable
     def query_filters(self):
         drawable = self.get_internal()
         buf = StringIO.StringIO()
@@ -891,7 +898,6 @@ class Animcursorelt(ooxcb.Struct):
 
     def read(self, stream):
         self._address = stream.address
-        root = stream.tell()
         _unpacked = unpack_from_stream("=II", stream)
         self.cursor = self.conn.get_from_cache_fallback(_unpacked[0], CURSOR)
         self.delay = _unpacked[1]
@@ -1027,9 +1033,9 @@ class renderExtension(ooxcb.Extension):
         picture = picture.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", picture))
-        for elt in ooxcb.Iterator(p1, 2, "p1", False):
+        for elt in p1:
             buf.write(pack("=ii", *elt))
-        for elt in ooxcb.Iterator(p2, 2, "p2", False):
+        for elt in p2:
             buf.write(pack("=ii", *elt))
         buf.write(pack("=I", num_stops))
         buf.write(make_array(stops, "i"))
@@ -1042,9 +1048,9 @@ class renderExtension(ooxcb.Extension):
         picture = picture.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", picture))
-        for elt in ooxcb.Iterator(p1, 2, "p1", False):
+        for elt in p1:
             buf.write(pack("=ii", *elt))
-        for elt in ooxcb.Iterator(p2, 2, "p2", False):
+        for elt in p2:
             buf.write(pack("=ii", *elt))
         buf.write(pack("=I", num_stops))
         buf.write(make_array(stops, "i"))
@@ -1057,9 +1063,9 @@ class renderExtension(ooxcb.Extension):
         picture = picture.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", picture))
-        for elt in ooxcb.Iterator(inner, 2, "inner", False):
+        for elt in inner:
             buf.write(pack("=ii", *elt))
-        for elt in ooxcb.Iterator(outer, 2, "outer", False):
+        for elt in outer:
             buf.write(pack("=ii", *elt))
         buf.write(pack("=iiI", inner_radius, outer_radius, num_stops))
         buf.write(make_array(stops, "i"))
@@ -1072,9 +1078,9 @@ class renderExtension(ooxcb.Extension):
         picture = picture.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", picture))
-        for elt in ooxcb.Iterator(inner, 2, "inner", False):
+        for elt in inner:
             buf.write(pack("=ii", *elt))
-        for elt in ooxcb.Iterator(outer, 2, "outer", False):
+        for elt in outer:
             buf.write(pack("=ii", *elt))
         buf.write(pack("=iiI", inner_radius, outer_radius, num_stops))
         buf.write(make_array(stops, "i"))
@@ -1087,7 +1093,7 @@ class renderExtension(ooxcb.Extension):
         picture = picture.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", picture))
-        for elt in ooxcb.Iterator(center, 2, "center", False):
+        for elt in center:
             buf.write(pack("=ii", *elt))
         buf.write(pack("=iI", angle, num_stops))
         buf.write(make_array(stops, "i"))
@@ -1100,7 +1106,7 @@ class renderExtension(ooxcb.Extension):
         picture = picture.get_internal()
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", picture))
-        for elt in ooxcb.Iterator(center, 2, "center", False):
+        for elt in center:
             buf.write(pack("=ii", *elt))
         buf.write(pack("=iI", angle, num_stops))
         buf.write(make_array(stops, "i"))
@@ -1140,41 +1146,6 @@ class Pictforminfo(ooxcb.Struct):
 class BadGlyphSet(ooxcb.ProtocolException):
     pass
 
-class QueryPictFormatsReply(ooxcb.Reply):
-    def __init__(self, conn):
-        ooxcb.Reply.__init__(self, conn)
-        self.num_formats = None
-        self.num_screens = None
-        self.num_depths = None
-        self.num_visuals = None
-        self.num_subpixel = None
-        self.formats = []
-        self.screens = []
-        self.subpixels = []
-
-    def read(self, stream):
-        self._address = stream.address
-        root = stream.tell()
-        _unpacked = unpack_from_stream("=xxxxxxxxIIIIIxxxx", stream)
-        self.num_formats = _unpacked[0]
-        self.num_screens = _unpacked[1]
-        self.num_depths = _unpacked[2]
-        self.num_visuals = _unpacked[3]
-        self.num_subpixel = _unpacked[4]
-        self.formats = ooxcb.List(self.conn, stream, self.num_formats, Pictforminfo, 28)
-        stream.seek(ooxcb.type_pad(4, stream.tell() - root), 1)
-        self.screens = ooxcb.List(self.conn, stream, self.num_screens, Pictscreen, -1)
-        stream.seek(ooxcb.type_pad(4, stream.tell() - root), 1)
-        self.subpixels = ooxcb.List(self.conn, stream, self.num_subpixel, 'I', 4)
-
-    def build(self, stream):
-        count = 0
-        stream.write(pack("=xxxxxxxxIIIIIxxxx", self.num_formats, self.num_screens, self.num_depths, self.num_visuals, self.num_subpixel))
-        count += 32
-        build_list(self.conn, stream, self.formats, Pictforminfo)
-        build_list(self.conn, stream, self.screens, Pictscreen)
-        build_list(self.conn, stream, self.subpixels, 'I')
-
 class Pointfix(ooxcb.Struct):
     def __init__(self, conn):
         ooxcb.Struct.__init__(self, conn)
@@ -1183,7 +1154,6 @@ class Pointfix(ooxcb.Struct):
 
     def read(self, stream):
         self._address = stream.address
-        root = stream.tell()
         _unpacked = unpack_from_stream("=ii", stream)
         self.x = _unpacked[0]
         self.y = _unpacked[1]
@@ -1206,7 +1176,6 @@ class Indexvalue(ooxcb.Struct):
 
     def read(self, stream):
         self._address = stream.address
-        root = stream.tell()
         _unpacked = unpack_from_stream("=IHHHH", stream)
         self.pixel = _unpacked[0]
         self.red = _unpacked[1]
@@ -1243,7 +1212,6 @@ class QueryPictIndexValuesReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        root = stream.tell()
         _unpacked = unpack_from_stream("=xxxxxxxxIxxxxxxxxxxxxxxxxxxxx", stream)
         self.num_values = _unpacked[0]
         self.values = ooxcb.List(self.conn, stream, self.num_values, Indexvalue, 12)
@@ -1351,7 +1319,6 @@ class QueryVersionReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        root = stream.tell()
         _unpacked = unpack_from_stream("=xxxxxxxxIIxxxxxxxxxxxxxxxx", stream)
         self.major_version = _unpacked[0]
         self.minor_version = _unpacked[1]
@@ -1366,7 +1333,6 @@ class PictOpError(ooxcb.Error):
 
     def read(self, stream):
         self._address = stream.address
-        root = stream.tell()
 
     def build(self, stream):
         count = 0
@@ -1383,7 +1349,6 @@ class Glyphinfo(ooxcb.Struct):
 
     def read(self, stream):
         self._address = stream.address
-        root = stream.tell()
         _unpacked = unpack_from_stream("=HHhhhh", stream)
         self.width = _unpacked[0]
         self.height = _unpacked[1]
@@ -1409,7 +1374,6 @@ class Color(ooxcb.Struct):
 
     def read(self, stream):
         self._address = stream.address
-        root = stream.tell()
         _unpacked = unpack_from_stream("=HHHH", stream)
         self.red = _unpacked[0]
         self.green = _unpacked[1]
@@ -1438,7 +1402,6 @@ class GlyphError(ooxcb.Error):
 
     def read(self, stream):
         self._address = stream.address
-        root = stream.tell()
 
     def build(self, stream):
         count = 0
@@ -1458,7 +1421,6 @@ class Transform(ooxcb.Struct):
 
     def read(self, stream):
         self._address = stream.address
-        root = stream.tell()
         _unpacked = unpack_from_stream("=iiiiiiiii", stream)
         self.matrix11 = _unpacked[0]
         self.matrix12 = _unpacked[1]
@@ -1497,6 +1459,41 @@ class Pictformat(ooxcb.Resource):
 class QueryFiltersCookie(ooxcb.Cookie):
     pass
 
+class QueryPictFormatsReply(ooxcb.Reply):
+    def __init__(self, conn):
+        ooxcb.Reply.__init__(self, conn)
+        self.num_formats = None
+        self.num_screens = None
+        self.num_depths = None
+        self.num_visuals = None
+        self.num_subpixel = None
+        self.formats = []
+        self.screens = []
+        self.subpixels = []
+
+    def read(self, stream):
+        self._address = stream.address
+        root = stream.tell()
+        _unpacked = unpack_from_stream("=xxxxxxxxIIIIIxxxx", stream)
+        self.num_formats = _unpacked[0]
+        self.num_screens = _unpacked[1]
+        self.num_depths = _unpacked[2]
+        self.num_visuals = _unpacked[3]
+        self.num_subpixel = _unpacked[4]
+        self.formats = ooxcb.List(self.conn, stream, self.num_formats, Pictforminfo, 28)
+        stream.seek(ooxcb.type_pad(4, stream.tell() - root), 1)
+        self.screens = ooxcb.List(self.conn, stream, self.num_screens, Pictscreen, -1)
+        stream.seek(ooxcb.type_pad(4, stream.tell() - root), 1)
+        self.subpixels = ooxcb.List(self.conn, stream, self.num_subpixel, 'I', 4)
+
+    def build(self, stream):
+        count = 0
+        stream.write(pack("=xxxxxxxxIIIIIxxxx", self.num_formats, self.num_screens, self.num_depths, self.num_visuals, self.num_subpixel))
+        count += 32
+        build_list(self.conn, stream, self.formats, Pictforminfo)
+        build_list(self.conn, stream, self.screens, Pictscreen)
+        build_list(self.conn, stream, self.subpixels, 'I')
+
 class Glyph(ooxcb.Resource):
     def __init__(self, conn, xid):
         ooxcb.Resource.__init__(self, conn, xid)
@@ -1517,5 +1514,8 @@ for ev in _events.itervalues():
         ev.event_target_class = globals()[ev.event_target_class]
 
 ooxcb._add_ext(key, renderExtension, _events, _errors)
-mixin_class(DrawableMixin, Drawable)
+def mixin():
+    DrawableMixin.mixin()
+    ScreenMixin.mixin()
+
 

@@ -3,7 +3,7 @@ import sys
 from samuraix.plugin import Plugin 
 from samuraix.screen import Screen
 from ooxcb.contrib import cairo
-from ooxcb import xproto
+from ooxcb.protocol import xproto
 import ooxcb
 
 from yahiko.ui import Window

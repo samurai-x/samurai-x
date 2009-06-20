@@ -1,57 +1,97 @@
-all: xproto xtest render composite shape
+all: xproto xtest render composite shape xfixes damage bigreq record
 
-xproto: ../ooxcb/xproto.py ../docs/source/api/xproto.rst
+xproto: ../ooxcb/protocol/xproto.py ../docs/source/api/protocol/xproto.rst
 
-../docs/source/api/xproto.rst: xproto.rst
-	cp xproto.rst ../docs/source/api/xproto.rst
+../docs/source/api/protocol/xproto.rst: xproto.rst
+	cp xproto.rst ../docs/source/api/protocol/xproto.rst
 
-xproto.rst: ../ooxcb/xproto.py
+xproto.rst: ../ooxcb/protocol/xproto.py
 
-../ooxcb/xproto.py: xproto.xml xproto.i
-	python ooxcb_client.py xproto > ../ooxcb/xproto.py
+../ooxcb/protocol/xproto.py: xproto.xml xproto.i
+	python ooxcb_client.py xproto > ../ooxcb/protocol/xproto.py
 
-xtest: ../ooxcb/xtest.py ../docs/source/api/xtest.rst
+xtest: ../ooxcb/protocol/xtest.py ../docs/source/api/protocol/xtest.rst
 
-../docs/source/api/xtest.rst: xtest.rst
-	cp xtest.rst ../docs/source/api/xtest.rst
+../docs/source/api/protocol/xtest.rst: xtest.rst
+	cp xtest.rst ../docs/source/api/protocol/xtest.rst
 
-xtest.rst: ../ooxcb/xtest.py
+xtest.rst: ../ooxcb/protocol/xtest.py
 
-../ooxcb/xtest.py: xtest.xml xtest.i
-	python ooxcb_client.py xtest > ../ooxcb/xtest.py
+../ooxcb/protocol/xtest.py: xtest.xml xtest.i
+	python ooxcb_client.py xtest > ../ooxcb/protocol/xtest.py
 
-render: ../ooxcb/render.py ../docs/source/api/render.rst
+render: ../ooxcb/protocol/render.py ../docs/source/api/protocol/render.rst
 
-../docs/source/api/render.rst: render.rst
-	cp render.rst ../docs/source/api/render.rst
+../docs/source/api/protocol/render.rst: render.rst
+	cp render.rst ../docs/source/api/protocol/render.rst
 
-render.rst: ../ooxcb/render.py
+render.rst: ../ooxcb/protocol/render.py
 
-../ooxcb/render.py: render.xml render.i
-	python ooxcb_client.py render > ../ooxcb/render.py
+../ooxcb/protocol/render.py: render.xml render.i
+	python ooxcb_client.py render > ../ooxcb/protocol/render.py
 
-composite: ../ooxcb/composite.py ../docs/source/api/composite.rst
+composite: ../ooxcb/protocol/composite.py ../docs/source/api/protocol/composite.rst
 
-../docs/source/api/composite.rst: composite.rst
-	cp composite.rst ../docs/source/api/composite.rst
+../docs/source/api/protocol/composite.rst: composite.rst
+	cp composite.rst ../docs/source/api/protocol/composite.rst
 
-composite.rst: ../ooxcb/composite.py
+composite.rst: ../ooxcb/protocol/composite.py
 
-../ooxcb/composite.py: composite.xml composite.i
-	python ooxcb_client.py composite > ../ooxcb/composite.py
+../ooxcb/protocol/composite.py: composite.xml composite.i
+	python ooxcb_client.py composite > ../ooxcb/protocol/composite.py
 
-shape: ../ooxcb/shape.py ../docs/source/api/shape.rst
+shape: ../ooxcb/protocol/shape.py ../docs/source/api/protocol/shape.rst
 
-../docs/source/api/shape.rst: shape.rst
-	cp shape.rst ../docs/source/api/shape.rst
+../docs/source/api/protocol/shape.rst: shape.rst
+	cp shape.rst ../docs/source/api/protocol/shape.rst
 
-shape.rst: ../ooxcb/shape.py
+shape.rst: ../ooxcb/protocol/shape.py
 
-../ooxcb/shape.py: shape.xml shape.i
-	python ooxcb_client.py shape > ../ooxcb/shape.py
+../ooxcb/protocol/shape.py: shape.xml shape.i
+	python ooxcb_client.py shape > ../ooxcb/protocol/shape.py
+
+xfixes: ../ooxcb/protocol/xfixes.py ../docs/source/api/protocol/xfixes.rst
+
+../docs/source/api/protocol/xfixes.rst: xfixes.rst
+	cp xfixes.rst ../docs/source/api/protocol/xfixes.rst
+
+xfixes.rst: ../ooxcb/protocol/xfixes.py
+
+../ooxcb/protocol/xfixes.py: xfixes.xml xfixes.i
+	python ooxcb_client.py xfixes > ../ooxcb/protocol/xfixes.py
+
+damage: ../ooxcb/protocol/damage.py ../docs/source/api/protocol/damage.rst
+
+../docs/source/api/protocol/damage.rst: damage.rst
+	cp damage.rst ../docs/source/api/protocol/damage.rst
+
+damage.rst: ../ooxcb/protocol/damage.py
+
+../ooxcb/protocol/damage.py: damage.xml damage.i
+	python ooxcb_client.py damage > ../ooxcb/protocol/damage.py
+
+bigreq: ../ooxcb/protocol/bigreq.py ../docs/source/api/protocol/bigreq.rst
+
+../docs/source/api/protocol/bigreq.rst: bigreq.rst
+	cp bigreq.rst ../docs/source/api/protocol/bigreq.rst
+
+bigreq.rst: ../ooxcb/protocol/bigreq.py
+
+../ooxcb/protocol/bigreq.py: bigreq.xml bigreq.i
+	python ooxcb_client.py bigreq > ../ooxcb/protocol/bigreq.py
+
+record: ../ooxcb/protocol/record.py ../docs/source/api/protocol/record.rst
+
+../docs/source/api/protocol/record.rst: record.rst
+	cp record.rst ../docs/source/api/protocol/record.rst
+
+record.rst: ../ooxcb/protocol/record.py
+
+../ooxcb/protocol/record.py: record.xml record.i
+	python ooxcb_client.py record > ../ooxcb/protocol/record.py
 
 clean:
-	rm -f ../docs/source/api/{xproto,xtest,render,composite,shape}.rst ../ooxcb/{xproto,xtest,render,composite,shape}.py {xproto,xtest,render,composite,shape}.rst
+	rm -f ../docs/source/api/protocol/{xproto,xtest,render,composite,shape,xfixes,damage,bigreq,record}.rst ../ooxcb/protocol/{xproto,xtest,render,composite,shape,xfixes,damage,bigreq,record}.py {xproto,xtest,render,composite,shape,xfixes,damage,bigreq,record}.rst
 
-.phony: xproto xtest render composite shape
+.phony: xproto xtest render composite shape xfixes damage bigreq record
 

@@ -50,8 +50,8 @@ log = logging.getLogger(__name__)
 from samuraix import config
 from samuraix.plugin import Plugin
 
-from ooxcb.xproto import EventMask
-from ooxcb import xproto
+from ooxcb.protocol import xproto
+from ooxcb.protocol.xproto import EventMask
 
 from sxactions import ActionInfo
 

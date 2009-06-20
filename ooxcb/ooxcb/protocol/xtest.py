@@ -1,15 +1,14 @@
 # auto generated. yay.
 import ooxcb
 from ooxcb.resource import XNone
-from ooxcb.types import SIZES, make_array
-from ooxcb.builder import build_list
+from ooxcb.types import SIZES, make_array, build_list
 try:
     import cStringIO as StringIO
 except ImportError:
     import StringIO
 from struct import pack, unpack, calcsize
-from ooxcb.xproto import Window
-from ooxcb.util import mixin_class
+from ooxcb.protocol.xproto import Window
+from ooxcb.util import Mixin
 
 def unpack_from_stream(fmt, stream, offset=0):
     if offset:
@@ -34,7 +33,6 @@ class GetVersionReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        root = stream.tell()
         _unpacked = unpack_from_stream("=xBxxxxxxH", stream)
         self.major_version = _unpacked[0]
         self.minor_version = _unpacked[1]
@@ -43,7 +41,8 @@ class GetVersionReply(ooxcb.Reply):
         count = 0
         stream.write(pack("=xBxxxxxxH", self.major_version, self.minor_version))
 
-class WindowMixin(object):
+class WindowMixin(Mixin):
+    target_class = Window
     def compare_cursor(self, cursor):
         window = self.get_internal()
         cursor = cursor.get_internal()
@@ -111,7 +110,6 @@ class CompareCursorReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        root = stream.tell()
         _unpacked = unpack_from_stream("=xBxxxxxx", stream)
         self.same = _unpacked[0]
 
@@ -136,5 +134,7 @@ for ev in _events.itervalues():
         ev.event_target_class = globals()[ev.event_target_class]
 
 ooxcb._add_ext(key, xtestExtension, _events, _errors)
-mixin_class(WindowMixin, Window)
+def mixin():
+    WindowMixin.mixin()
+
 

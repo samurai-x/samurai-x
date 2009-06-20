@@ -47,23 +47,48 @@ class cached_property(object):
         setattr(obj, self.name, result)
         return result
 
-def mixin_class(cls, into):
-    """
-        Add all methods of *cls* to the class *into*.
-
-        :todo: We could also use something like `cls.__bases__ += (into,)`.
-    """
-    for name, member in vars(cls).iteritems():
-        try:
-            if isinstance(member, FunctionType):
-                setattr(into, name, member)
-        except TypeError:
-            continue
-
 def mixin_functions(functions, into):
     """
         Add all functions in *functions* to the class *into*.
     """
     for function in functions:
         setattr(into, function.__name__, function)
+
+def _inject_class(cls, meth):
+    def classmeth(_, *args, **kwargs):
+        return meth.__get__(None, cls)(*args, **kwargs)
+    return classmethod(classmeth)
+
+class MixinMeta(type):
+    """
+        a metaclass for mixin classes that transforms all methods
+        to static methods. So the user is able to mix them into
+        the class *or* to call them manually if he wants that.
+    """
+    def __new__(mcs, name, bases, dct):
+        dct['methods'] = methods = {}
+        for name in dct.keys():
+            obj = dct[name]
+            if isinstance(obj, FunctionType): # TODO: add staticmethod?
+                methods[name] = obj
+                dct[name] = staticmethod(obj)
+            elif isinstance(obj, classmethod):
+                if name != 'mixin': # don't wrap the builtin mixin method
+                    methods[name] = obj
+                    dct[name] = _inject_class(dct['target_class'], obj)
+        return type.__new__(mcs, name, bases, dct)
+
+class Mixin(object):
+    __metaclass__ = MixinMeta
+    target_class = None
+    methods = {}
+
+    def __init__(self, *args, **kwargs):
+        raise RuntimeError("You can't instantiate mixin classes.")
+
+    @classmethod
+    def mixin(cls):
+        assert cls.target_class is not None
+        for name, function in cls.methods.iteritems():
+            setattr(cls.target_class, name, function)
 

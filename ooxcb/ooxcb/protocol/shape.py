@@ -1,15 +1,14 @@
 # auto generated. yay.
 import ooxcb
 from ooxcb.resource import XNone
-from ooxcb.types import SIZES, make_array
-from ooxcb.builder import build_list
+from ooxcb.types import SIZES, make_array, build_list
 try:
     import cStringIO as StringIO
 except ImportError:
     import StringIO
 from struct import pack, unpack, calcsize
-from ooxcb.xproto import Window
-from ooxcb.util import mixin_class
+from ooxcb.protocol.xproto import Window
+from ooxcb.util import Mixin
 
 def unpack_from_stream(fmt, stream, offset=0):
     if offset:
@@ -50,7 +49,8 @@ class shapeExtension(ooxcb.Extension):
             QueryVersionCookie(),
             QueryVersionReply)
 
-class WindowMixin(object):
+class WindowMixin(Mixin):
+    target_class = Window
     def shape_rectangles_checked(self, operation, destination_kind, ordering, x_offset, y_offset, rectangles):
         rectangles_len = len(rectangles)
         destination_window = self.get_internal()
@@ -185,7 +185,6 @@ class QueryVersionReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        root = stream.tell()
         _unpacked = unpack_from_stream("=xxxxxxxxHH", stream)
         self.major_version = _unpacked[0]
         self.minor_version = _unpacked[1]
@@ -215,7 +214,6 @@ class NotifyEvent(ooxcb.Event):
 
     def read(self, stream):
         self._address = stream.address
-        root = stream.tell()
         _unpacked = unpack_from_stream("=BBxxIhhHHIBxxxxxxxxxxx", stream)
         self.response_type = _unpacked[0]
         self.shape_kind = _unpacked[1]
@@ -241,7 +239,6 @@ class GetRectanglesReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        root = stream.tell()
         _unpacked = unpack_from_stream("=xBxxxxxxI", stream)
         self.ordering = _unpacked[0]
         self.rectangles_len = _unpacked[1]
@@ -263,7 +260,6 @@ class InputSelectedReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        root = stream.tell()
         _unpacked = unpack_from_stream("=xBxxxxxx", stream)
         self.enabled = _unpacked[0]
 
@@ -287,7 +283,6 @@ class QueryExtentsReply(ooxcb.Reply):
 
     def read(self, stream):
         self._address = stream.address
-        root = stream.tell()
         _unpacked = unpack_from_stream("=xxxxxxxxBBxxhhHHhhHH", stream)
         self.bounding_shaped = _unpacked[0]
         self.clip_shaped = _unpacked[1]
@@ -322,5 +317,7 @@ for ev in _events.itervalues():
         ev.event_target_class = globals()[ev.event_target_class]
 
 ooxcb._add_ext(key, shapeExtension, _events, _errors)
-mixin_class(WindowMixin, Window)
+def mixin():
+    WindowMixin.mixin()
+
 

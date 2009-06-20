@@ -1,7 +1,7 @@
-ooxcb.xproto
-============
+ooxcb.protocol.xproto
+=====================
 
-.. module:: ooxcb.xproto
+.. module:: ooxcb.protocol.xproto
 
 .. class:: GetModifierMappingCookie
 

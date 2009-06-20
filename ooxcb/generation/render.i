@@ -1,5 +1,5 @@
 ImportCode:
-    - "from ooxcb.xproto import Drawable"
+    - "from ooxcb.protocol.xproto import Drawable, Screen"
 
 ResourceClasses:
     - PICTURE
@@ -18,6 +18,7 @@ Ignored:
 
 Mixins:
     DRAWABLE: Drawable
+    SCREEN: Screen
 
 Xizers:
     CP:
@@ -282,5 +283,28 @@ Classes:
                 - "conn.render.create_anim_cursor_checked(cursor, cursors).check()"
                 - "conn.add_to_cache(cid, cursor)"
                 - "return cursor"
+
+    ScreenMixin:
+        - base: Mixin
+        - method:
+            name: get_render_pictformat
+            code:
+                - "reply = self.conn.render.query_pict_formats().reply()"
+                - "screen_num = self.conn.setup.roots.index(self)"
+                - "render_screen = reply.screens[screen_num]"
+                - "for d in render_screen.depths:"
+                - !indent
+                - "if d.depth == self.root_depth:"
+                - !indent
+                - "for v in d.visuals:"
+                - !indent
+                - "if v.visual == self.root_visual:"
+                - !indent
+                - "return v.format"
+                - !dedent
+                - !dedent
+                - !dedent
+                - !dedent
+                - 'raise Exception("Failed to find an appropriate Render pictformat!")' # TODO: better exception
 
 # vim: ft=yaml

@@ -74,7 +74,7 @@ def connect(display='', fd=None, auth_string=None, cls=Connection):
     if CORE is None:
         raise exception.XcbException(
                 "No core protocol object has been set. "
-                "Did you import xcb.xproto?"
+                "Did you import ooxcb.protocol.xproto?"
                 )
 
     conn = cls(CORE)
@@ -146,13 +146,7 @@ def timestamp():
 
 from ooxcb.list import *
 from ooxcb.protobj import *
-from ooxcb.event import *
-from ooxcb.request import *
-from ooxcb.error import *
-from ooxcb.iter import *
 from ooxcb.exception import *
 from ooxcb.cookie import *
-from ooxcb.reply import *
 from ooxcb.ext import *
-from ooxcb.extkey import *
 from ooxcb.resource import *

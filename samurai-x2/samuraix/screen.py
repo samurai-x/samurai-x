@@ -29,8 +29,9 @@ log = logging.getLogger(__name__)
 import sys
 import os.path
 
-from ooxcb import xproto, XNone
-from ooxcb.xproto import EventMask
+from ooxcb import XNone
+from ooxcb.protocol import xproto
+from ooxcb.protocol.xproto import EventMask
 
 from .client import Client
 from .rect import Rect
