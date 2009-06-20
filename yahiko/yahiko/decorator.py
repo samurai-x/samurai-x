@@ -180,6 +180,7 @@ class Decorator(object):
                     # seem to block each other. That's not what we want.
                     # I commented this out, and it seems to work.
                     #xproto.EventMask.SubstructureNotify |
+                    xproto.EventMask.SubstructureRedirect |
                     xproto.EventMask.ButtonPress,
                 )
 
@@ -275,9 +276,16 @@ class Decorator(object):
         #        #on_configure_notify=self.screen_on_configure_notify,
         #)
 
+        client.actor.push_handlers(
+                on_configure_request=self.actor_on_configure_request,
+        )
+
         self.ui.fit()
         self.clientwin.width = None
         self.clientwin.height = None
+
+    def actor_on_configure_request(self, event):
+        self.client.actor.configure(x=event.x, y=event.y)
 
     def window_on_configure_notify(self, event):
         if self._window_configures != 0:
