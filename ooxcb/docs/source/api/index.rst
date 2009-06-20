@@ -10,7 +10,6 @@ ooxcb api documentation
     connection.rst
     constant.rst
     cookie.rst
-    cursors.rst
     eventsys.rst
     exception.rst
     ext.rst
@@ -21,7 +20,6 @@ ooxcb api documentation
     memstream.rst
     protobj.rst
     resource.rst
-    sizehints.rst
     types.rst
     util.rst
 

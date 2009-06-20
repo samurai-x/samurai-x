@@ -5,7 +5,7 @@ def tmpl(s, **kwargs):
     return Template(s).substitute(**kwargs)
 
 EXTENSIONS = ('xproto', 'xtest', 'render', 'composite', 'shape', 'xfixes',
-        'damage', 'bigreq')
+        'damage', 'bigreq', 'record')
 
 print 'all: %s\n' % ' '.join(EXTENSIONS)
 

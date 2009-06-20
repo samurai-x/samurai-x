@@ -31,7 +31,7 @@ from ooxcb import timestamp
 from ooxcb.protocol import xproto
 from ooxcb.protocol.xproto import EventMask
 from ooxcb.list import List
-from ooxcb.sizehints import SizeHints
+from ooxcb.contrib.sizehints import SizeHints
 
 from .rect import Rect
 from .base import SXObject
