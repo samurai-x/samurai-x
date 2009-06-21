@@ -94,9 +94,14 @@ class Screen(SXObject):
             '_NET_WM_STATE_BELOW', '_NET_WM_STATE_DEMANDS_ATTENTION'
             ))
 
+        # the screen number
         self.number = num
         self.info = app.conn.get_setup().roots[num]
+        # the root window 
         self.root = self.info.root
+
+        # set of hints this screen supports 
+        self.supported_hints = set()
 
         # set the check window before setting the MANAGER selection
         self.check_window = self.create_check_window()
@@ -117,8 +122,6 @@ class Screen(SXObject):
         )
 
         self.root.push_handlers(self)
-
-        self.set_supported_hints()
 
     def set_manager_selection(self):
         """
@@ -412,41 +415,10 @@ class Screen(SXObject):
             # TODO: we receive the attributes two times here.
             self.manage(child)
 
-    def set_supported_hints(self):
+    def set_supported_hints(self, supported):
         """
-            set the `_NET_SUPPORTED` atom to a bunch of atoms that
-            we might not support yet, but in the future. Until then,
-            let's hope that nobody notices that.
+            set the `_NET_SUPPORTED` atom to the hints we support 
         """
-        atoms = self.conn.atoms
-
-        supported = [
-            atoms['_NET_SUPPORTED'],
-            atoms['_NET_CLIENT_LIST'],
-            atoms['_NET_NUMBER_OF_DESKTOPS'], # by sx-desktops
-            atoms['_NET_CURRENT_DESKTOP'],
-            atoms['_NET_DESKTOP_NAMES'],
-            atoms['_NET_ACTIVE_WINDOW'],
-            atoms['_NET_CLOSE_WINDOW'],
-
-            atoms['_NET_WM_NAME'],
-            atoms['_NET_WM_ICON_NAME'],
-            atoms['_NET_WM_WINDOW_TYPE'],
-            atoms['_NET_WM_WINDOW_TYPE_NORMAL'],
-            atoms['_NET_WM_WINDOW_TYPE_DOCK'],
-            atoms['_NET_WM_WINDOW_TYPE_SPLASH'],
-            atoms['_NET_WM_WINDOW_TYPE_DIALOG'],
-            atoms['_NET_WM_STATE'],
-            atoms['_NET_WM_STATE_STICKY'],
-            atoms['_NET_WM_STATE_SKIP_TASKBAR'],
-            atoms['_NET_WM_STATE_FULLSCREEN'],
-
-            atoms['UTF8_STRING'],
-        ]
-        # We are not using the reparenting-to-a-fakeroot technique
-        # described in the netwm standard,
-        # so we don't need to set _NET_VIRTUAL_ROOTS.
-        # TODO: ... do we need to set _NET_DESKTOP_LAYOUT? Are we a pager?
         self.root.change_property('_NET_SUPPORTED', 'ATOM', 32,
                 [s.get_internal() for s in supported]) # TODO: nicer conversion
 
