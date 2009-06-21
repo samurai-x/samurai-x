@@ -292,7 +292,7 @@ class Decorator(object):
             geom = self.client.actor.get_geometry().reply()
 
             evt = xproto.ConfigureNotifyEvent(self.client.window.conn)
-            evt.event = self.client.actor
+            evt.event = event.window
             evt.window = self.client.window
             evt.above_sibling = XNone
             evt.x = event.x
@@ -302,6 +302,7 @@ class Decorator(object):
             evt.border_width = 0
             evt.override_redirect = False
             self.client.actor.send_event(xproto.EventMask.StructureNotify, evt)
+            self.client.window.conn.flush()
 
     def window_on_configure_notify(self, event):
         if self._window_configures != 0:
