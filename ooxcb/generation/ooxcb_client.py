@@ -400,6 +400,9 @@ def py_complex(self, name, cls):
     needs_root = False
 
     build_code.append('count = 0')
+    # prework to pad to the correct size
+    if cls.base == 'ooxcb.Event':
+        build_code.append('root = stream.tell()')
     struct = Struct()
     for field in self.fields:
         # This hack is ugly, but it seems to be required for valid send_event stuff.
@@ -495,6 +498,10 @@ def py_complex(self, name, cls):
         # only do that for variable-length structs.
         # However, the check above is very nasty.
         needs_root = True
+    # Events have a fixed size of 32 bytes. Here we pad them to the correct size
+    # in the build code. TODO: this solution is nasty, but at least it works.
+    if cls.base == 'ooxcb.Event':
+        build_code.append(r'stream.write("\0" * (32 - (stream.tell() - root)))')
     if not needs_root:
         read_code.remove('root = stream.tell()')
 

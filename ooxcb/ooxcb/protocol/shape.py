@@ -228,7 +228,9 @@ class NotifyEvent(ooxcb.Event):
 
     def build(self, stream):
         count = 0
+        root = stream.tell()
         stream.write(pack("=BBxxIhhHHIBxxxxxxxxxxx", self.response_type, self.shape_kind, self.affected_window.get_internal(), self.extents_x, self.extents_y, self.extents_width, self.extents_height, self.server_time, self.shaped))
+        stream.write("\0" * (32 - (stream.tell() - root)))
 
 class GetRectanglesReply(ooxcb.Reply):
     def __init__(self, conn):

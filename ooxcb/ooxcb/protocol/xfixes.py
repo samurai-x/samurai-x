@@ -79,7 +79,9 @@ class CursorNotifyEvent(ooxcb.Event):
 
     def build(self, stream):
         count = 0
+        root = stream.tell()
         stream.write(pack("=BBxxIIIIxxxxxxxxxxxx", self.response_type, self.subtype, self.window.get_internal(), self.cursor_serial, self.timestamp, self.name.get_internal()))
+        stream.write("\0" * (32 - (stream.tell() - root)))
 
 class WindowMixin(Mixin):
     target_class = Window
@@ -705,7 +707,9 @@ class SelectionNotifyEvent(ooxcb.Event):
 
     def build(self, stream):
         count = 0
+        root = stream.tell()
         stream.write(pack("=BBxxIIIIIxxxxxxxx", self.response_type, self.subtype, self.window.get_internal(), self.owner.get_internal(), self.selection.get_internal(), self.timestamp, self.selection_timestamp))
+        stream.write("\0" * (32 - (stream.tell() - root)))
 
 class GetCursorImageAndNameReply(ooxcb.Reply):
     def __init__(self, conn):

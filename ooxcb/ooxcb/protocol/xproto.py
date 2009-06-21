@@ -554,7 +554,9 @@ class GraphicsExposureEvent(ooxcb.Event):
 
     def build(self, stream):
         count = 0
+        root = stream.tell()
         stream.write(pack("=BxxxIHHHHHHBxxx", self.response_type, self.drawable.get_internal(), self.x, self.y, self.width, self.height, self.minor_opcode, self.count, self.major_opcode))
+        stream.write("\0" * (32 - (stream.tell() - root)))
 
 class ClientMessageData(ooxcb.Union):
     def __init__(self, conn):
@@ -1229,7 +1231,9 @@ class ConfigureNotifyEvent(ooxcb.Event):
 
     def build(self, stream):
         count = 0
+        root = stream.tell()
         stream.write(pack("=BxxxIIIhhHHHBx", self.response_type, self.event.get_internal(), self.window.get_internal(), self.above_sibling.get_internal(), self.x, self.y, self.width, self.height, self.border_width, self.override_redirect))
+        stream.write("\0" * (32 - (stream.tell() - root)))
 
 class Setup(ooxcb.Struct):
     def __init__(self, conn):
@@ -1315,7 +1319,9 @@ class SelectionClearEvent(ooxcb.Event):
 
     def build(self, stream):
         count = 0
+        root = stream.tell()
         stream.write(pack("=BxxxIII", self.response_type, self.time, self.owner.get_internal(), self.selection.get_internal()))
+        stream.write("\0" * (32 - (stream.tell() - root)))
 
 class GetSelectionOwnerCookie(ooxcb.Cookie):
     pass
@@ -1414,7 +1420,9 @@ class DestroyNotifyEvent(ooxcb.Event):
 
     def build(self, stream):
         count = 0
+        root = stream.tell()
         stream.write(pack("=BxxxII", self.response_type, self.event.get_internal(), self.window.get_internal()))
+        stream.write("\0" * (32 - (stream.tell() - root)))
 
 class QueryKeymapReply(ooxcb.Reply):
     def __init__(self, conn):
@@ -1554,7 +1562,9 @@ class ExposeEvent(ooxcb.Event):
 
     def build(self, stream):
         count = 0
+        root = stream.tell()
         stream.write(pack("=BxxxIHHHHHxx", self.response_type, self.window.get_internal(), self.x, self.y, self.width, self.height, self.count))
+        stream.write("\0" * (32 - (stream.tell() - root)))
 
 class GravityNotifyEvent(ooxcb.Event):
     event_name = "on_gravity_notify"
@@ -1580,7 +1590,9 @@ class GravityNotifyEvent(ooxcb.Event):
 
     def build(self, stream):
         count = 0
+        root = stream.tell()
         stream.write(pack("=BxxxIIhh", self.response_type, self.event.get_internal(), self.window.get_internal(), self.x, self.y))
+        stream.write("\0" * (32 - (stream.tell() - root)))
 
 class GrabKeyboardReply(ooxcb.Reply):
     def __init__(self, conn):
@@ -1675,7 +1687,9 @@ class UnmapNotifyEvent(ooxcb.Event):
 
     def build(self, stream):
         count = 0
+        root = stream.tell()
         stream.write(pack("=BxxxIIBxxx", self.response_type, self.event.get_internal(), self.window.get_internal(), self.from_configure))
+        stream.write("\0" * (32 - (stream.tell() - root)))
 
 class Setupfailed(ooxcb.Struct):
     def __init__(self, conn):
@@ -1784,7 +1798,9 @@ class ConfigureRequestEvent(ooxcb.Event):
 
     def build(self, stream):
         count = 0
+        root = stream.tell()
         stream.write(pack("=BBxxIIIhhHHHH", self.response_type, self.stack_mode, self.parent.get_internal(), self.window.get_internal(), self.sibling.get_internal(), self.x, self.y, self.width, self.height, self.border_width, self.value_mask))
+        stream.write("\0" * (32 - (stream.tell() - root)))
 
 class BadImplementation(ooxcb.ProtocolException):
     pass
@@ -1871,9 +1887,11 @@ class KeymapNotifyEvent(ooxcb.Event):
 
     def build(self, stream):
         count = 0
+        root = stream.tell()
         stream.write(pack("=B", self.response_type))
         count += 1
         build_list(self.conn, stream, self.keys, 'B')
+        stream.write("\0" * (32 - (stream.tell() - root)))
 
 class BadIDChoice(ooxcb.ProtocolException):
     pass
@@ -2038,7 +2056,9 @@ class NoExposureEvent(ooxcb.Event):
 
     def build(self, stream):
         count = 0
+        root = stream.tell()
         stream.write(pack("=BxxxIHBx", self.response_type, self.drawable.get_internal(), self.minor_opcode, self.major_opcode))
+        stream.write("\0" * (32 - (stream.tell() - root)))
 
 class BadPixmap(ooxcb.ProtocolException):
     pass
@@ -2127,7 +2147,9 @@ class EnterNotifyEvent(ooxcb.Event):
 
     def build(self, stream):
         count = 0
+        root = stream.tell()
         stream.write(pack("=BBxxIIIIhhhhHBB", self.response_type, self.detail, self.time, self.root.get_internal(), self.event.get_internal(), self.child.get_internal(), self.root_x, self.root_y, self.event_x, self.event_y, self.state, self.mode, self.same_screen_focus))
+        stream.write("\0" * (32 - (stream.tell() - root)))
 
 class MapRequestEvent(ooxcb.Event):
     event_name = "on_map_request"
@@ -2149,7 +2171,9 @@ class MapRequestEvent(ooxcb.Event):
 
     def build(self, stream):
         count = 0
+        root = stream.tell()
         stream.write(pack("=BxxxII", self.response_type, self.parent.get_internal(), self.window.get_internal()))
+        stream.write("\0" * (32 - (stream.tell() - root)))
 
 class QueryPointerCookie(ooxcb.Cookie):
     pass
@@ -2231,7 +2255,9 @@ class KeyReleaseEvent(ooxcb.Event):
 
     def build(self, stream):
         count = 0
+        root = stream.tell()
         stream.write(pack("=BBxxIIIIhhhhHBx", self.response_type, self.detail, self.time, self.root.get_internal(), self.event.get_internal(), self.child.get_internal(), self.root_x, self.root_y, self.event_x, self.event_y, self.state, self.same_screen))
+        stream.write("\0" * (32 - (stream.tell() - root)))
 
 class QueryTextExtentsCookie(ooxcb.Cookie):
     pass
@@ -2442,7 +2468,9 @@ class ReparentNotifyEvent(ooxcb.Event):
 
     def build(self, stream):
         count = 0
+        root = stream.tell()
         stream.write(pack("=BxxxIIIhhBxxx", self.response_type, self.event.get_internal(), self.window.get_internal(), self.parent.get_internal(), self.x, self.y, self.override_redirect))
+        stream.write("\0" * (32 - (stream.tell() - root)))
 
 class ClientMessageEvent(ooxcb.Event):
     event_name = "on_client_message"
@@ -2468,9 +2496,11 @@ class ClientMessageEvent(ooxcb.Event):
 
     def build(self, stream):
         count = 0
+        root = stream.tell()
         stream.write(pack("=BBxxII", self.response_type, self.format, self.window.get_internal(), self.type.get_internal()))
         count += 12
         self.data.build(stream)
+        stream.write("\0" * (32 - (stream.tell() - root)))
 
     @classmethod
     def create(cls, conn, type, window, format, values):
@@ -2648,7 +2678,9 @@ class ButtonReleaseEvent(ooxcb.Event):
 
     def build(self, stream):
         count = 0
+        root = stream.tell()
         stream.write(pack("=BBxxIIIIhhhhHBx", self.response_type, self.detail, self.time, self.root.get_internal(), self.event.get_internal(), self.child.get_internal(), self.root_x, self.root_y, self.event_x, self.event_y, self.state, self.same_screen))
+        stream.write("\0" * (32 - (stream.tell() - root)))
 
 class Charinfo(ooxcb.Struct):
     def __init__(self, conn):
@@ -3424,7 +3456,9 @@ class ButtonPressEvent(ooxcb.Event):
 
     def build(self, stream):
         count = 0
+        root = stream.tell()
         stream.write(pack("=BBxxIIIIhhhhHBx", self.response_type, self.detail, self.time, self.root.get_internal(), self.event.get_internal(), self.child.get_internal(), self.root_x, self.root_y, self.event_x, self.event_y, self.state, self.same_screen))
+        stream.write("\0" * (32 - (stream.tell() - root)))
 
 class GetKeyboardControlReply(ooxcb.Reply):
     def __init__(self, conn):
@@ -3545,7 +3579,9 @@ class CirculateNotifyEvent(ooxcb.Event):
 
     def build(self, stream):
         count = 0
+        root = stream.tell()
         stream.write(pack("=BxxxIIxxxxBxxx", self.response_type, self.event.get_internal(), self.window.get_internal(), self.place))
+        stream.write("\0" * (32 - (stream.tell() - root)))
 
 class QueryExtensionCookie(ooxcb.Cookie):
     pass
@@ -3641,7 +3677,9 @@ class KeyPressEvent(ooxcb.Event):
 
     def build(self, stream):
         count = 0
+        root = stream.tell()
         stream.write(pack("=BBxxIIIIhhhhHBx", self.response_type, self.detail, self.time, self.root.get_internal(), self.event.get_internal(), self.child.get_internal(), self.root_x, self.root_y, self.event_x, self.event_y, self.state, self.same_screen))
+        stream.write("\0" * (32 - (stream.tell() - root)))
 
 class GetPointerControlReply(ooxcb.Reply):
     def __init__(self, conn):
@@ -3704,7 +3742,9 @@ class LeaveNotifyEvent(ooxcb.Event):
 
     def build(self, stream):
         count = 0
+        root = stream.tell()
         stream.write(pack("=BBxxIIIIhhhhHBB", self.response_type, self.detail, self.time, self.root.get_internal(), self.event.get_internal(), self.child.get_internal(), self.root_x, self.root_y, self.event_x, self.event_y, self.state, self.mode, self.same_screen_focus))
+        stream.write("\0" * (32 - (stream.tell() - root)))
 
 class QueryColorsCookie(ooxcb.Cookie):
     pass
@@ -3780,7 +3820,9 @@ class MapNotifyEvent(ooxcb.Event):
 
     def build(self, stream):
         count = 0
+        root = stream.tell()
         stream.write(pack("=BxxxIIBxxx", self.response_type, self.event.get_internal(), self.window.get_internal(), self.override_redirect))
+        stream.write("\0" * (32 - (stream.tell() - root)))
 
 class GetAtomNameReply(ooxcb.Reply):
     def __init__(self, conn):
@@ -4600,7 +4642,9 @@ class VisibilityNotifyEvent(ooxcb.Event):
 
     def build(self, stream):
         count = 0
+        root = stream.tell()
         stream.write(pack("=BxxxIBxxx", self.response_type, self.window.get_internal(), self.state))
+        stream.write("\0" * (32 - (stream.tell() - root)))
 
 class FocusOutEvent(ooxcb.Event):
     event_name = "on_focus_out"
@@ -4624,7 +4668,9 @@ class FocusOutEvent(ooxcb.Event):
 
     def build(self, stream):
         count = 0
+        root = stream.tell()
         stream.write(pack("=BBxxIBxxx", self.response_type, self.detail, self.event.get_internal(), self.mode))
+        stream.write("\0" * (32 - (stream.tell() - root)))
 
 class Format(ooxcb.Struct):
     def __init__(self, conn):
@@ -4668,7 +4714,9 @@ class ColormapNotifyEvent(ooxcb.Event):
 
     def build(self, stream):
         count = 0
+        root = stream.tell()
         stream.write(pack("=BxxxIIBBxx", self.response_type, self.window.get_internal(), self.colormap.get_internal(), self.new, self.state))
+        stream.write("\0" * (32 - (stream.tell() - root)))
 
 class CirculateRequestEvent(ooxcb.Event):
     event_name = "on_circulate_request"
@@ -4692,7 +4740,9 @@ class CirculateRequestEvent(ooxcb.Event):
 
     def build(self, stream):
         count = 0
+        root = stream.tell()
         stream.write(pack("=BxxxIIxxxxBxxx", self.response_type, self.event.get_internal(), self.window.get_internal(), self.place))
+        stream.write("\0" * (32 - (stream.tell() - root)))
 
 class QueryFontReply(ooxcb.Reply):
     def __init__(self, conn):
@@ -4779,7 +4829,9 @@ class CreateNotifyEvent(ooxcb.Event):
 
     def build(self, stream):
         count = 0
+        root = stream.tell()
         stream.write(pack("=BxxxIIhhHHHBx", self.response_type, self.parent.get_internal(), self.window.get_internal(), self.x, self.y, self.width, self.height, self.border_width, self.override_redirect))
+        stream.write("\0" * (32 - (stream.tell() - root)))
 
 class ResizeRequestEvent(ooxcb.Event):
     event_name = "on_resize_request"
@@ -4803,7 +4855,9 @@ class ResizeRequestEvent(ooxcb.Event):
 
     def build(self, stream):
         count = 0
+        root = stream.tell()
         stream.write(pack("=BxxxIHH", self.response_type, self.window.get_internal(), self.width, self.height))
+        stream.write("\0" * (32 - (stream.tell() - root)))
 
 class QueryColorsReply(ooxcb.Reply):
     def __init__(self, conn):
@@ -4861,7 +4915,9 @@ class MotionNotifyEvent(ooxcb.Event):
 
     def build(self, stream):
         count = 0
+        root = stream.tell()
         stream.write(pack("=BBxxIIIIhhhhHBx", self.response_type, self.detail, self.time, self.root.get_internal(), self.event.get_internal(), self.child.get_internal(), self.root_x, self.root_y, self.event_x, self.event_y, self.state, self.same_screen))
+        stream.write("\0" * (32 - (stream.tell() - root)))
 
 class Atom(ooxcb.Resource):
     def __init__(self, conn, xid):
@@ -5033,7 +5089,9 @@ class MappingNotifyEvent(ooxcb.Event):
 
     def build(self, stream):
         count = 0
+        root = stream.tell()
         stream.write(pack("=BxxxBBBx", self.response_type, self.request, self.first_keycode, self.count))
+        stream.write("\0" * (32 - (stream.tell() - root)))
 
 class GetGeometryReply(ooxcb.Reply):
     def __init__(self, conn):
@@ -5089,7 +5147,9 @@ class SelectionRequestEvent(ooxcb.Event):
 
     def build(self, stream):
         count = 0
+        root = stream.tell()
         stream.write(pack("=BxxxIIIIII", self.response_type, self.time, self.owner.get_internal(), self.requestor.get_internal(), self.selection.get_internal(), self.target.get_internal(), self.property.get_internal()))
+        stream.write("\0" * (32 - (stream.tell() - root)))
 
 class BadWindow(ooxcb.ProtocolException):
     pass
@@ -5159,7 +5219,9 @@ class FocusInEvent(ooxcb.Event):
 
     def build(self, stream):
         count = 0
+        root = stream.tell()
         stream.write(pack("=BBxxIBxxx", self.response_type, self.detail, self.event.get_internal(), self.mode))
+        stream.write("\0" * (32 - (stream.tell() - root)))
 
 class GContext(Fontable):
     def __init__(self, conn, xid):
@@ -5962,7 +6024,9 @@ class SelectionNotifyEvent(ooxcb.Event):
 
     def build(self, stream):
         count = 0
+        root = stream.tell()
         stream.write(pack("=BxxxIIIII", self.response_type, self.time, self.requestor.get_internal(), self.selection.get_internal(), self.target.get_internal(), self.property.get_internal()))
+        stream.write("\0" * (32 - (stream.tell() - root)))
 
 class SetModifierMappingCookie(ooxcb.Cookie):
     pass
@@ -6026,7 +6090,9 @@ class PropertyNotifyEvent(ooxcb.Event):
 
     def build(self, stream):
         count = 0
+        root = stream.tell()
         stream.write(pack("=BxxxIIIBxxx", self.response_type, self.window.get_internal(), self.atom.get_internal(), self.time, self.state))
+        stream.write("\0" * (32 - (stream.tell() - root)))
 
 class GetFontPathReply(ooxcb.Reply):
     def __init__(self, conn):

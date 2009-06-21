@@ -107,10 +107,12 @@ class DamageNotifyEvent(ooxcb.Event):
 
     def build(self, stream):
         count = 0
+        root = stream.tell()
         stream.write(pack("=BBxxIII", self.response_type, self.level, self.drawable.get_internal(), self.damage.get_internal(), self.timestamp))
         count += 16
         self.area.build(stream)
         self.geometry.build(stream)
+        stream.write("\0" * (32 - (stream.tell() - root)))
 
 class Damage(ooxcb.Resource):
     def __init__(self, conn, xid):
