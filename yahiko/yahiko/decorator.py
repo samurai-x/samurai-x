@@ -289,27 +289,7 @@ class Decorator(object):
         if event.window == self.client.window:
             self.client.actor.configure(x=event.x, y=event.y)
 
-            self.client.window.conn.flush()
-
             geom = self.client.actor.get_geometry().reply()
-
-            self.client.window.conn.flush()
-
-            """
-       conf_event = protocol.event.ConfigureNotify(
-            event=self.window,
-            window=self.window,
-            x=self.geometry.x + self.parent_border_width,
-            y=(self.geometry.y + self.parent_border_width +
-               self.title_bar_height),
-            width=self.geometry.width,
-            height=self.geometry.height - self.title_bar_height,
-            above_sibling=X.NONE,
-            border_width=self.parent_border_width,
-            override=False)
-        self.window.send_event(conf_event, event_mask=X.StructureNotifyMask,
-                               propagate=False)
-            """
 
             evt = xproto.ConfigureNotifyEvent(self.client.window.conn)
             evt.event = self.client.window
