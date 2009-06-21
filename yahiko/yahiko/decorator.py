@@ -289,19 +289,40 @@ class Decorator(object):
         if event.window == self.client.window:
             self.client.actor.configure(x=event.x, y=event.y)
 
+            self.client.window.conn.flush()
+
             geom = self.client.actor.get_geometry().reply()
 
+            self.client.window.conn.flush()
+
+            """
+       conf_event = protocol.event.ConfigureNotify(
+            event=self.window,
+            window=self.window,
+            x=self.geometry.x + self.parent_border_width,
+            y=(self.geometry.y + self.parent_border_width +
+               self.title_bar_height),
+            width=self.geometry.width,
+            height=self.geometry.height - self.title_bar_height,
+            above_sibling=X.NONE,
+            border_width=self.parent_border_width,
+            override=False)
+        self.window.send_event(conf_event, event_mask=X.StructureNotifyMask,
+                               propagate=False)
+            """
+
             evt = xproto.ConfigureNotifyEvent(self.client.window.conn)
-            evt.event = event.window
+            evt.event = self.client.window
             evt.window = self.client.window
             evt.above_sibling = XNone
-            evt.x = event.x
-            evt.y = event.y
-            evt.width = geom.width
-            evt.height = geom.height
-            evt.border_width = 0
+            # i think this should be the actual location of the client.window
+            evt.x = geom.x + self.clientwin.rx
+            evt.y = geom.y + self.clientwin.ry
+            evt.width = self.clientwin.rwidth
+            evt.height = self.clientwin.rheight
+            evt.border_width = 1
             evt.override_redirect = False
-            self.client.actor.send_event(xproto.EventMask.StructureNotify, evt)
+            self.client.window.send_event(xproto.EventMask.StructureNotify, evt)
             self.client.window.conn.flush()
 
     def window_on_configure_notify(self, event):
