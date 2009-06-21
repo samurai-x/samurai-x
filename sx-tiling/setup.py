@@ -29,6 +29,8 @@ import sys, os
 setup(name='sx-tiling',
     description="tiling window manager plugin",
     license='BSD',
+    url='http://samurai-x.org',
+    download_url='http://samurai-x.org/downloads/',
     packages=['sxtiling'],
     maintainer="dunk fordyce",
     maintainer_email="dunkfordyce@gmail.com",
