@@ -325,6 +325,16 @@ class SXDesktops(Plugin):
                 self.action_cycle_clients)
         app.plugins['actions'].register('desktops.goto', self.action_goto)
 
+        atoms = app.conn.atoms
+        app.supported_hints.update([
+            atoms['_NET_NUMBER_OF_DESKTOPS'], 
+            atoms['_NET_CURRENT_DESKTOP'],
+            atoms['_NET_DESKTOP_GEOMETRY'],
+            atoms['_NET_DESKTOP_VIEWPORT'],
+            atoms['_NET_DESKTOP_NAMES'],
+            #atoms['_NET_WORKAREA'], # TODO
+        ])
+
     def on_load_config(self, config):
         #self.names = config.get('desktops.names', ['one desktop'])
         self.config = config.get('desktops.desktops', ())
@@ -333,7 +343,7 @@ class SXDesktops(Plugin):
     #    print "sxdesktps read"
     #    self.create_desktops(app.screens, self.config)
 
-    def on_new_screen(self, app, screen):
+    def on_new_screen(self, screen):
         self.create_desktop(screen)
 
     def create_desktop(self, screen):

@@ -67,12 +67,24 @@ class App(SXObject):
         self.fds = {'read': {}, 'write': {}, 'error': {}}
         # timeout used when select'ing
         self.select_timeout = 1.0
+       
+        # this is really set in self.init()
+        self.supported_hints = None
+
 
     def add_fd_handler(self, which_list, fd, callback):
+        """ 
+            add a callback to be called when the main loop detects a
+            read/write/error on the file descriptor fd
+        """
         assert which_list in ('read', 'write', 'error')
         self.fds[which_list][fd] = callback
 
     def remove_fd_handler(self, which_list, fd):
+        """
+            remove a callback to be called when the main loop detects
+            a read/write/error on the file descriptor fd
+        """
         assert which_list in ('read', 'write', 'error')
         del self.fds[which_list][fd]
 
@@ -103,6 +115,41 @@ class App(SXObject):
 
         self.conn = ooxcb.connect()
 
+        # set of hints we support - plugins can add to this set 
+        # if they add support for other hints 
+        # hints will only be set by the app when a screen is added
+        # so if you alter this after the screens have been set 
+        # you will need to call 
+        atoms = self.conn.atoms
+        self.supported_hints = set([
+            atoms['_NET_SUPPORTED'],
+            atoms['_NET_CLIENT_LIST'],
+            atoms['_NET_ACTIVE_WINDOW'], # client.py
+            atoms['_NET_SUPPORTING_WM_CHECK'], # screen.py
+            #atoms['_NET_CLOSE_WINDOW'],
+
+            atoms['_NET_WM_NAME'],
+            atoms['_NET_WM_VISIBLE_NAME'],
+            atoms['_NET_WM_ICON_NAME'],
+            atoms['_NET_WM_DESKTOP'],
+            atoms['_NET_WM_WINDOW_TYPE'],
+            atoms['_NET_WM_WINDOW_TYPE_NORMAL'],
+            atoms['_NET_WM_WINDOW_TYPE_DOCK'],
+            atoms['_NET_WM_WINDOW_TYPE_SPLASH'],
+            atoms['_NET_WM_WINDOW_TYPE_DIALOG'],
+            atoms['_NET_WM_STATE'],
+            atoms['_NET_WM_STATE_STICKY'],
+            atoms['_NET_WM_STATE_SKIP_TASKBAR'],
+            atoms['_NET_WM_STATE_FULLSCREEN'],
+
+            atoms['UTF8_STRING'],
+
+            # We are not using the reparenting-to-a-fakeroot technique
+            # described in the netwm standard,
+            # so we don't need to set _NET_VIRTUAL_ROOTS.
+            # TODO: ... do we need to set _NET_DESKTOP_LAYOUT? Are we a pager?
+        ])
+
         # add the xcb file handles to the list of handles we select 
         fd = self.conn.get_file_descriptor()
         self.add_fd_handler('read', fd, self.do_xcb_events) 
@@ -126,8 +173,9 @@ class App(SXObject):
 
         for i in range(setup.roots_len):
             scr = Screen(self, i)
-            self.dispatch_event('on_new_screen', self, scr)
+            # add to the list of screens 
             self.screens.append(scr)
+            self.dispatch_event('on_new_screen', scr)
 
         signal.signal(signal.SIGINT, self.stop)
         signal.signal(signal.SIGTERM, self.stop)
@@ -255,6 +303,10 @@ class App(SXObject):
         """
         log.info('Got a property notify event ... %s' % \
                 ev.atom.get_name().reply().name.to_string())
+
+    def on_screen_new(self, screen):
+        # set the supported hints 
+        screen.set_supported_hints(self.supported_hints)
 
 App.register_event_type('on_load_config')
 App.register_event_type('on_new_screen')

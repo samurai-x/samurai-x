@@ -32,6 +32,7 @@ setup(name='yahiko',
     author='Dunk Fordyce',
     author_email='dunkfordyce@gmail.com',
     url='http://samurai-x.org',
+    download_url='http://samurai-x.org/downloads/',
     license='BSD',
     packages=['yahiko'],
     package_data={
