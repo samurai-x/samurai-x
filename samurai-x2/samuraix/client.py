@@ -502,7 +502,7 @@ class Client(SXObject):
             log.warning(e)
         self.window.remove_handlers(self)
 
-    def ban(self, withdrawn=True):
+    def ban(self, withdrawn=True, hidden=True):
         """
             Unmap the actor window and set WM_STATE.
 
@@ -510,6 +510,8 @@ class Client(SXObject):
                 `withdrawn`: bool
                     If True, the WM_STATE is set to withdrawn
                     If False, it's Iconic.
+                `hidden`: bool
+                    add `_NET_WM_STATE_HIDDEN` to the net wm state if True
         """
         # TODO: respect sticky?
         log.debug('banning %s' % self)
@@ -522,8 +524,9 @@ class Client(SXObject):
                 'CARDINAL',
                 32,
                 [state, 0]) # TODO: icon window?
-        self.add_net_wm_state('_NET_WM_STATE_HIDDEN')
-        self.update_net_wm_state()
+        if hidden:
+            self.add_net_wm_state('_NET_WM_STATE_HIDDEN')
+            self.update_net_wm_state()
         self.conn.flush()
 
     def user_ban(self, withdrawn=True):

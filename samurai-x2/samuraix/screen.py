@@ -363,6 +363,7 @@ class Screen(SXObject):
                 'WINDOW',
                 32,
                 [c.window.get_internal() for c in self.client_class.all_clients])
+        self.conn.flush()
         # TODO: calling get_internal() is not that nice. we'll have to change that.
 
     def update_active_window(self):

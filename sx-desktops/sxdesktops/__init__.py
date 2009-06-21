@@ -89,6 +89,7 @@ import logging
 log = logging.getLogger(__name__)
 
 from samuraix import config
+from samuraix.client import Client
 from samuraix.plugin import Plugin
 from ooxcb.list import List
 from ooxcb.eventsys import EventDispatcher
@@ -152,6 +153,10 @@ class Desktop(SXObject):
     def __repr__(self):
         return '<Desktop "%s">' % self.name
 
+    @property
+    def active(self):
+        return self.plugin.get_data(self.screen).active_desktop is self
+
     def on_focus(self, client):
         """ a client was focused: move it to top of the focus stack """
         self.clients.move_to_top(client)
@@ -161,12 +166,48 @@ class Desktop(SXObject):
         self.clients.append(client)
         self.dispatch_event('on_new_client', self, client)
 
+        # add handlers for the desktop-specific client messages
+        client.client_message_handlers.register_handler(
+                client.conn.atoms['_NET_WM_DESKTOP'],
+                self.handle_net_wm_desktop)
+
         client.push_handlers(on_focus=self.on_focus)
         client.window.change_property(
                 '_NET_WM_DESKTOP',
                 'CARDINAL',
                 32,
                 [self.idx])
+
+        # check if the desktop is the active one. if not,
+        # "iconify" the client. openbox says that
+        # icccm 4.1.3.1 says that.
+        if not self.active:
+            client.ban(False, False)
+
+        client.conn.flush()
+        if self.active:
+            self.rearrange()
+
+    def handle_net_wm_desktop(self, evt):
+        """
+            handle the _NET_WM_DESKTOP client message. Somebody
+            is requesting to change the desktop of the client.
+        """
+        client = Client.get_by_window(evt.window)
+        if client: # but shouldnt ever be invalid.
+            new_idx = evt.data.data32[0]
+            if new_idx == self.idx: # doesn't change anything, so don't do anything.
+                pass
+            elif new_idx == 0xffffffff: # TODO: show on all desktops
+                log.warning('%s requests to be shown on all desktops - not implemented' % client)
+            else:
+                self.remove_client(client)
+                desktops = self.plugin.get_data(self.screen).desktops
+                if not new_idx < len(desktops):
+                    log.warning('%s requests to be shown on desktop %d - no such desktop' % new_idx)
+                else:
+                    log.debug('Moving %s to desktop %s' % (client, desktops[new_idx]))
+                    desktops[new_idx].add_client(client)
 
     def rearrange(self):
         self.dispatch_event('on_rearrange', self)
@@ -216,9 +257,6 @@ class ScreenData(EventDispatcher):
     # was focused in a on_new_client handler.
     def on_after_new_client(self, screen, client):
         self.add_client(client)
-        # should the new client be focused automatically?
-        if config.get('desktops.autofocus', True):
-            screen.focus(client)
 
     def add_client(self, client):
         """
@@ -240,8 +278,10 @@ class ScreenData(EventDispatcher):
         # so, either the window doesn't have this property
         # or we don't have this desktop index, so place it on the active desktop
         desktop.add_client(client)
-        desktop.rearrange()
-        # TODO: focus it?
+        # should it be focused automatically? but don't do if it isn't
+        # the active desktop (that's the reason for the elif)
+        if (desktop.active and config.get('desktops.autofocus', True)):
+            self.screen.focus(client)
 
     def on_unmanage_client(self, screen, client):
         for desktop in self.desktops:
@@ -289,7 +329,11 @@ class ScreenData(EventDispatcher):
         log.debug('... updating %s %s %s' % (previous_desktop,
             self.active_desktop, previous_desktop.clients))
         for client in previous_desktop.clients:
-            client.ban()
+            # just iconify (see icccm 4.1.3.1), but don't set
+            # _NET_WM_STATE_HIDDEN, because it is invisible
+            # because it isn't on the current desktop, not
+            # because the user has banned it.
+            client.ban(False, False)
 
         for client in self.active_desktop.clients:
             client.unban()
