@@ -1,3 +1,5 @@
+""" dunk's shitty build all script to build and upload everything """
+
 import sys
 import os
 from glob import iglob
