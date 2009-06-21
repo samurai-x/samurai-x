@@ -68,6 +68,7 @@ from samuraix.rect import Rect
 from samuraix.util import parse_buttonstroke
 from ooxcb.protocol import xproto
 from ooxcb.contrib import cairo
+from ooxcb import XNone
 
 from yahiko import ui
 
@@ -285,7 +286,22 @@ class Decorator(object):
         self.clientwin.height = None
 
     def actor_on_configure_request(self, event):
-        self.client.actor.configure(x=event.x, y=event.y)
+        if event.window == self.client.window:
+            self.client.actor.configure(x=event.x, y=event.y)
+
+            geom = self.client.actor.get_geometry().reply()
+
+            evt = xproto.ConfigureNotifyEvent(self.client.window.conn)
+            evt.event = self.client.actor
+            evt.window = self.client.window
+            evt.above_sibling = XNone
+            evt.x = event.x
+            evt.y = event.y
+            evt.width = geom.width
+            evt.height = geom.height
+            evt.border_width = 0
+            evt.override_redirect = False
+            self.client.actor.send_event(xproto.EventMask.StructureNotify, evt)
 
     def window_on_configure_notify(self, event):
         if self._window_configures != 0:
