@@ -576,20 +576,10 @@ class Client(SXObject):
         if bring_forward:
             self.actor.configure(stack_mode=xproto.StackMode.Above)
     
-        self.set_active_window()
         self.conn.flush()
 
         # TODO: grab buttons etc
         self.dispatch_event('on_focus', self)
-
-    def set_active_window(self):
-        """ set _NET_ACTIVE_WINDOW """
-        self.screen.root.change_property(
-            '_NET_ACTIVE_WINDOW', 
-            'WINDOW',
-            32,
-            [self.window.get_internal()],
-        )
 
     def blur(self):
         """
