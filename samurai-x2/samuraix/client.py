@@ -114,6 +114,11 @@ class Client(SXObject):
         self.window.push_handlers(self)
         log.info('New client: Client=%s Window=%s Actor=%s' % (self, self.window, self.actor))
 
+        # initialize self.window_state to a set of atoms
+        window.get_property('_NET_WM_WINDOW_TYPE', 'ATOM').reply().value
+        self.window_type = set(map(self.conn.atoms.get_by_id,
+            window.get_property('_NET_WM_WINDOW_TYPE', 'ATOM').reply().value))
+
         self.window.change_attributes(
                 event_mask =
                     EventMask.StructureNotify |
@@ -249,6 +254,7 @@ class Client(SXObject):
         """
         self.actor.valid = True
         self.actor.push_handlers(on_configure_notify=self.actor_on_configure_notify)
+
         # map actor and window.
         if self.actor is not self.window:
             self.window.map()

@@ -141,11 +141,18 @@ class Decorator(object):
         # Maybe that's not necessary, but it seems to be.
         self._window_configures = 0
 
-        self.watched_atoms = [plugin.app.conn.atoms[name] for name in
+        conn = screen.conn
+
+        self.watched_atoms = [conn.atoms[name] for name in
                 ["WM_NAME", "_NET_WM_NAME", "_NET_WM_VISIBLE_NAME"]
         ]
 
-        self.create_actor_window()
+        if conn.atoms['_NET_WM_WINDOW_TYPE_DOCK'] in client.window_type:
+            # dont do anything with these atm
+            pass
+        else:
+            self.create_actor_window()
+
 
     def create_actor_window(self):
         screen = self.screen
