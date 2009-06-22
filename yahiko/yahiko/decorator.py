@@ -194,8 +194,10 @@ class Decorator(object):
         current = client.screen.info.ewmh_get_current_desktop()
         desktop = client.window.ewmh_get_desktop()
         if (current is None or current == desktop):
+            log.debug('Unbanning %s because it is on the active desktop.' % client)
             client.unban()
         else:
+            log.debug('Banning %s because it is not on an active desktop (active=%s, client\'s=%s)' % (client, current, desktop))
             client.ban(False, False)
 
         self.ui = ui.TopLevelContainer(

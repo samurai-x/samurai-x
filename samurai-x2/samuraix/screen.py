@@ -302,9 +302,9 @@ class Screen(SXObject):
 
         client.init()
 
-        # If we have no focused client yet, use the newly managed client.
-        if self.focused_client is None:
-            self.focus(client)
+        # Don't focus a new client ...
+        #if self.focused_client is None:
+        #    self.focus(client)
 
         self.dispatch_event('on_after_new_client', self, client)
 

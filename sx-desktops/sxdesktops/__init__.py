@@ -282,7 +282,7 @@ class ScreenData(EventDispatcher):
         # or we don't have this desktop index, so place it on the active desktop
         desktop.add_client(client)
         # should it be focused automatically? but don't do if it isn't
-        # the active desktop (that's the reason for the elif)
+        # the active desktop
         if (desktop.active and config.get('desktops.autofocus', True)):
             self.screen.focus(client)
 
