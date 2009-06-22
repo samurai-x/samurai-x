@@ -23,14 +23,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""
-    .. attribute:: XNone
-
-        A single instance that has an internal representation
-        of 0.
-
-"""
-
+from .exception import ProtocolDataError
 from .eventsys import EventDispatcher
 
 class Resource(EventDispatcher):
@@ -76,3 +69,26 @@ class _XNone(object):
         return 0
 
 XNone = _XNone()
+
+def get_internal(obj):
+    """
+        get the stream-ready internal representation of *obj*.
+        There are multiple possible cases:
+
+            * If *obj* has a `get_internal` method, the return value of
+              that will be returned.
+            * If *obj* is an int, it will be returned immediately.
+            * If *obj* is None, 0 will be returned.
+            * If *obj* is something else, a
+              :class:`ProtocolDataError <ooxcb.ProtocolDataError>` will be
+              raised.
+    """
+    if hasattr(obj, 'get_internal'):
+        return obj.get_internal()
+    elif isinstance(obj, int):
+        return obj
+    elif obj is None:
+        return 0
+    else:
+        raise ProtocolDataError("The internal value of %r couldn't be retrieved." % obj)
+

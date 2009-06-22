@@ -1,6 +1,6 @@
 # auto generated. yay.
 import ooxcb
-from ooxcb.resource import XNone
+from ooxcb.resource import get_internal
 from ooxcb.types import SIZES, make_array, build_list
 try:
     import cStringIO as StringIO
@@ -80,92 +80,92 @@ class CursorNotifyEvent(ooxcb.Event):
     def build(self, stream):
         count = 0
         root = stream.tell()
-        stream.write(pack("=BBxxIIIIxxxxxxxxxxxx", self.response_type, self.subtype, self.window.get_internal(), self.cursor_serial, self.timestamp, self.name.get_internal()))
+        stream.write(pack("=BBxxIIIIxxxxxxxxxxxx", self.response_type, self.subtype, get_internal(self.window), self.cursor_serial, self.timestamp, get_internal(self.name)))
         stream.write("\0" * (32 - (stream.tell() - root)))
 
 class WindowMixin(Mixin):
     target_class = Window
     def change_save_set_checked(self, mode, target, map):
-        window = self.get_internal()
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxBBBxI", mode, target, map, window))
         return self.conn.xfixes.send_request(ooxcb.Request(self.conn, buf.getvalue(), 1, True, True), \
             ooxcb.VoidCookie())
 
     def change_save_set(self, mode, target, map):
-        window = self.get_internal()
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxBBBxI", mode, target, map, window))
         return self.conn.xfixes.send_request(ooxcb.Request(self.conn, buf.getvalue(), 1, True, False), \
             ooxcb.VoidCookie())
 
     def select_selection_input_checked(self, selection, event_mask):
-        window = self.get_internal()
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIII", window, selection, event_mask))
         return self.conn.xfixes.send_request(ooxcb.Request(self.conn, buf.getvalue(), 2, True, True), \
             ooxcb.VoidCookie())
 
     def select_selection_input(self, selection, event_mask):
-        window = self.get_internal()
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIII", window, selection, event_mask))
         return self.conn.xfixes.send_request(ooxcb.Request(self.conn, buf.getvalue(), 2, True, False), \
             ooxcb.VoidCookie())
 
     def select_cursor_input_checked(self, event_mask):
-        window = self.get_internal()
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxII", window, event_mask))
         return self.conn.xfixes.send_request(ooxcb.Request(self.conn, buf.getvalue(), 3, True, True), \
             ooxcb.VoidCookie())
 
     def select_cursor_input(self, event_mask):
-        window = self.get_internal()
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxII", window, event_mask))
         return self.conn.xfixes.send_request(ooxcb.Request(self.conn, buf.getvalue(), 3, True, False), \
             ooxcb.VoidCookie())
 
     def set_shape_region_checked(self, dest_kind, x_offset, y_offset, region):
-        dest = self.get_internal()
-        region = region.get_internal()
+        dest = get_internal(self)
+        region = get_internal(region)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIBxxxhhI", dest, dest_kind, x_offset, y_offset, region))
         return self.conn.xfixes.send_request(ooxcb.Request(self.conn, buf.getvalue(), 21, True, True), \
             ooxcb.VoidCookie())
 
     def set_shape_region(self, dest_kind, x_offset, y_offset, region):
-        dest = self.get_internal()
-        region = region.get_internal()
+        dest = get_internal(self)
+        region = get_internal(region)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIBxxxhhI", dest, dest_kind, x_offset, y_offset, region))
         return self.conn.xfixes.send_request(ooxcb.Request(self.conn, buf.getvalue(), 21, True, False), \
             ooxcb.VoidCookie())
 
     def hide_cursor_checked(self):
-        window = self.get_internal()
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", window))
         return self.conn.xfixes.send_request(ooxcb.Request(self.conn, buf.getvalue(), 29, True, True), \
             ooxcb.VoidCookie())
 
     def hide_cursor(self):
-        window = self.get_internal()
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", window))
         return self.conn.xfixes.send_request(ooxcb.Request(self.conn, buf.getvalue(), 29, True, False), \
             ooxcb.VoidCookie())
 
     def show_cursor_checked(self):
-        window = self.get_internal()
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", window))
         return self.conn.xfixes.send_request(ooxcb.Request(self.conn, buf.getvalue(), 30, True, True), \
             ooxcb.VoidCookie())
 
     def show_cursor(self):
-        window = self.get_internal()
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", window))
         return self.conn.xfixes.send_request(ooxcb.Request(self.conn, buf.getvalue(), 30, True, False), \
@@ -236,7 +236,7 @@ class xfixesExtension(ooxcb.Extension):
 
     def create_region_checked(self, region, rectangles):
         rectangles_len = len(rectangles)
-        region = region.get_internal()
+        region = get_internal(region)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", region))
         rectangles.build(buf)
@@ -245,7 +245,7 @@ class xfixesExtension(ooxcb.Extension):
 
     def create_region(self, region, rectangles):
         rectangles_len = len(rectangles)
-        region = region.get_internal()
+        region = get_internal(region)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", region))
         rectangles.build(buf)
@@ -253,71 +253,71 @@ class xfixesExtension(ooxcb.Extension):
             ooxcb.VoidCookie())
 
     def create_region_from_bitmap_checked(self, region, bitmap):
-        region = region.get_internal()
-        bitmap = bitmap.get_internal()
+        region = get_internal(region)
+        bitmap = get_internal(bitmap)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxII", region, bitmap))
         return self.conn.xfixes.send_request(ooxcb.Request(self.conn, buf.getvalue(), 6, True, True), \
             ooxcb.VoidCookie())
 
     def create_region_from_bitmap(self, region, bitmap):
-        region = region.get_internal()
-        bitmap = bitmap.get_internal()
+        region = get_internal(region)
+        bitmap = get_internal(bitmap)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxII", region, bitmap))
         return self.conn.xfixes.send_request(ooxcb.Request(self.conn, buf.getvalue(), 6, True, False), \
             ooxcb.VoidCookie())
 
     def create_region_from_window_checked(self, region, window, kind):
-        region = region.get_internal()
-        window = window.get_internal()
+        region = get_internal(region)
+        window = get_internal(window)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIIBxxx", region, window, kind))
         return self.conn.xfixes.send_request(ooxcb.Request(self.conn, buf.getvalue(), 7, True, True), \
             ooxcb.VoidCookie())
 
     def create_region_from_window(self, region, window, kind):
-        region = region.get_internal()
-        window = window.get_internal()
+        region = get_internal(region)
+        window = get_internal(window)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIIBxxx", region, window, kind))
         return self.conn.xfixes.send_request(ooxcb.Request(self.conn, buf.getvalue(), 7, True, False), \
             ooxcb.VoidCookie())
 
     def create_region_from_g_c_checked(self, region, gc):
-        region = region.get_internal()
-        gc = gc.get_internal()
+        region = get_internal(region)
+        gc = get_internal(gc)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxII", region, gc))
         return self.conn.xfixes.send_request(ooxcb.Request(self.conn, buf.getvalue(), 8, True, True), \
             ooxcb.VoidCookie())
 
     def create_region_from_g_c(self, region, gc):
-        region = region.get_internal()
-        gc = gc.get_internal()
+        region = get_internal(region)
+        gc = get_internal(gc)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxII", region, gc))
         return self.conn.xfixes.send_request(ooxcb.Request(self.conn, buf.getvalue(), 8, True, False), \
             ooxcb.VoidCookie())
 
     def create_region_from_picture_checked(self, region, picture):
-        region = region.get_internal()
-        picture = picture.get_internal()
+        region = get_internal(region)
+        picture = get_internal(picture)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxII", region, picture))
         return self.conn.xfixes.send_request(ooxcb.Request(self.conn, buf.getvalue(), 9, True, True), \
             ooxcb.VoidCookie())
 
     def create_region_from_picture(self, region, picture):
-        region = region.get_internal()
-        picture = picture.get_internal()
+        region = get_internal(region)
+        picture = get_internal(picture)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxII", region, picture))
         return self.conn.xfixes.send_request(ooxcb.Request(self.conn, buf.getvalue(), 9, True, False), \
             ooxcb.VoidCookie())
 
     def get_cursor_name(self, cursor):
-        cursor = cursor.get_internal()
+        cursor = get_internal(cursor)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", cursor))
         return self.conn.xfixes.send_request(ooxcb.Request(self.conn, buf.getvalue(), 24, False, True), \
@@ -325,7 +325,7 @@ class xfixesExtension(ooxcb.Extension):
             GetCursorNameReply)
 
     def get_cursor_name_unchecked(self, cursor):
-        cursor = cursor.get_internal()
+        cursor = get_internal(cursor)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", cursor))
         return self.conn.xfixes.send_request(ooxcb.Request(self.conn, buf.getvalue(), 24, False, False), \
@@ -362,7 +362,7 @@ class GetCursorNameReply(ooxcb.Reply):
 
     def build(self, stream):
         count = 0
-        stream.write(pack("=xxxxxxxxIHxxxxxxxxxxxxxxxxxx", self.atom.get_internal(), self.nbytes))
+        stream.write(pack("=xxxxxxxxIHxxxxxxxxxxxxxxxxxx", get_internal(self.atom), self.nbytes))
         count += 32
         build_list(self.conn, stream, self.name, 'B')
 
@@ -374,14 +374,14 @@ class Region(ooxcb.Resource):
         ooxcb.Resource.__init__(self, conn, xid)
 
     def destroy_checked(self):
-        region = self.get_internal()
+        region = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", region))
         return self.conn.xfixes.send_request(ooxcb.Request(self.conn, buf.getvalue(), 10, True, True), \
             ooxcb.VoidCookie())
 
     def destroy(self):
-        region = self.get_internal()
+        region = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", region))
         return self.conn.xfixes.send_request(ooxcb.Request(self.conn, buf.getvalue(), 10, True, False), \
@@ -389,7 +389,7 @@ class Region(ooxcb.Resource):
 
     def set_checked(self, rectangles):
         rectangles_len = len(rectangles)
-        region = self.get_internal()
+        region = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", region))
         rectangles.build(buf)
@@ -398,7 +398,7 @@ class Region(ooxcb.Resource):
 
     def set(self, rectangles):
         rectangles_len = len(rectangles)
-        region = self.get_internal()
+        region = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", region))
         rectangles.build(buf)
@@ -406,78 +406,78 @@ class Region(ooxcb.Resource):
             ooxcb.VoidCookie())
 
     def copy_checked(self, destination):
-        source = self.get_internal()
-        destination = destination.get_internal()
+        source = get_internal(self)
+        destination = get_internal(destination)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxII", source, destination))
         return self.conn.xfixes.send_request(ooxcb.Request(self.conn, buf.getvalue(), 12, True, True), \
             ooxcb.VoidCookie())
 
     def copy(self, destination):
-        source = self.get_internal()
-        destination = destination.get_internal()
+        source = get_internal(self)
+        destination = get_internal(destination)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxII", source, destination))
         return self.conn.xfixes.send_request(ooxcb.Request(self.conn, buf.getvalue(), 12, True, False), \
             ooxcb.VoidCookie())
 
     def union_checked(self, source2, destination):
-        source1 = self.get_internal()
-        source2 = source2.get_internal()
-        destination = destination.get_internal()
+        source1 = get_internal(self)
+        source2 = get_internal(source2)
+        destination = get_internal(destination)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIII", source1, source2, destination))
         return self.conn.xfixes.send_request(ooxcb.Request(self.conn, buf.getvalue(), 13, True, True), \
             ooxcb.VoidCookie())
 
     def union(self, source2, destination):
-        source1 = self.get_internal()
-        source2 = source2.get_internal()
-        destination = destination.get_internal()
+        source1 = get_internal(self)
+        source2 = get_internal(source2)
+        destination = get_internal(destination)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIII", source1, source2, destination))
         return self.conn.xfixes.send_request(ooxcb.Request(self.conn, buf.getvalue(), 13, True, False), \
             ooxcb.VoidCookie())
 
     def intersect_checked(self, source2, destination):
-        source1 = self.get_internal()
-        source2 = source2.get_internal()
-        destination = destination.get_internal()
+        source1 = get_internal(self)
+        source2 = get_internal(source2)
+        destination = get_internal(destination)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIII", source1, source2, destination))
         return self.conn.xfixes.send_request(ooxcb.Request(self.conn, buf.getvalue(), 14, True, True), \
             ooxcb.VoidCookie())
 
     def intersect(self, source2, destination):
-        source1 = self.get_internal()
-        source2 = source2.get_internal()
-        destination = destination.get_internal()
+        source1 = get_internal(self)
+        source2 = get_internal(source2)
+        destination = get_internal(destination)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIII", source1, source2, destination))
         return self.conn.xfixes.send_request(ooxcb.Request(self.conn, buf.getvalue(), 14, True, False), \
             ooxcb.VoidCookie())
 
     def subtract_checked(self, source2, destination):
-        source1 = self.get_internal()
-        source2 = source2.get_internal()
-        destination = destination.get_internal()
+        source1 = get_internal(self)
+        source2 = get_internal(source2)
+        destination = get_internal(destination)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIII", source1, source2, destination))
         return self.conn.xfixes.send_request(ooxcb.Request(self.conn, buf.getvalue(), 15, True, True), \
             ooxcb.VoidCookie())
 
     def subtract(self, source2, destination):
-        source1 = self.get_internal()
-        source2 = source2.get_internal()
-        destination = destination.get_internal()
+        source1 = get_internal(self)
+        source2 = get_internal(source2)
+        destination = get_internal(destination)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIII", source1, source2, destination))
         return self.conn.xfixes.send_request(ooxcb.Request(self.conn, buf.getvalue(), 15, True, False), \
             ooxcb.VoidCookie())
 
     def invert_checked(self, bounds, destination):
-        source = self.get_internal()
-        destination = destination.get_internal()
+        source = get_internal(self)
+        destination = get_internal(destination)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", source))
         bounds.build(buf)
@@ -486,8 +486,8 @@ class Region(ooxcb.Resource):
             ooxcb.VoidCookie())
 
     def invert(self, bounds, destination):
-        source = self.get_internal()
-        destination = destination.get_internal()
+        source = get_internal(self)
+        destination = get_internal(destination)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", source))
         bounds.build(buf)
@@ -496,37 +496,37 @@ class Region(ooxcb.Resource):
             ooxcb.VoidCookie())
 
     def translate_checked(self, dx, dy):
-        region = self.get_internal()
+        region = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIhh", region, dx, dy))
         return self.conn.xfixes.send_request(ooxcb.Request(self.conn, buf.getvalue(), 17, True, True), \
             ooxcb.VoidCookie())
 
     def translate(self, dx, dy):
-        region = self.get_internal()
+        region = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIhh", region, dx, dy))
         return self.conn.xfixes.send_request(ooxcb.Request(self.conn, buf.getvalue(), 17, True, False), \
             ooxcb.VoidCookie())
 
     def extents_checked(self, destination):
-        source = self.get_internal()
-        destination = destination.get_internal()
+        source = get_internal(self)
+        destination = get_internal(destination)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxII", source, destination))
         return self.conn.xfixes.send_request(ooxcb.Request(self.conn, buf.getvalue(), 18, True, True), \
             ooxcb.VoidCookie())
 
     def extents(self, destination):
-        source = self.get_internal()
-        destination = destination.get_internal()
+        source = get_internal(self)
+        destination = get_internal(destination)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxII", source, destination))
         return self.conn.xfixes.send_request(ooxcb.Request(self.conn, buf.getvalue(), 18, True, False), \
             ooxcb.VoidCookie())
 
     def fetch(self):
-        region = self.get_internal()
+        region = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", region))
         return self.conn.xfixes.send_request(ooxcb.Request(self.conn, buf.getvalue(), 19, False, True), \
@@ -534,7 +534,7 @@ class Region(ooxcb.Resource):
             FetchRegionReply)
 
     def fetch_unchecked(self):
-        region = self.get_internal()
+        region = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", region))
         return self.conn.xfixes.send_request(ooxcb.Request(self.conn, buf.getvalue(), 19, False, False), \
@@ -542,16 +542,16 @@ class Region(ooxcb.Resource):
             FetchRegionReply)
 
     def expand_checked(self, destination, left, right, top, bottom):
-        source = self.get_internal()
-        destination = destination.get_internal()
+        source = get_internal(self)
+        destination = get_internal(destination)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIIHHHH", source, destination, left, right, top, bottom))
         return self.conn.xfixes.send_request(ooxcb.Request(self.conn, buf.getvalue(), 28, True, True), \
             ooxcb.VoidCookie())
 
     def expand(self, destination, left, right, top, bottom):
-        source = self.get_internal()
-        destination = destination.get_internal()
+        source = get_internal(self)
+        destination = get_internal(destination)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIIHHHH", source, destination, left, right, top, bottom))
         return self.conn.xfixes.send_request(ooxcb.Request(self.conn, buf.getvalue(), 28, True, False), \
@@ -600,16 +600,16 @@ class Region(ooxcb.Resource):
 class PictureMixin(Mixin):
     target_class = Picture
     def set_clip_region_checked(self, region, x_origin, y_origin):
-        picture = self.get_internal()
-        region = region.get_internal()
+        picture = get_internal(self)
+        region = get_internal(region)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIIhh", picture, region, x_origin, y_origin))
         return self.conn.xfixes.send_request(ooxcb.Request(self.conn, buf.getvalue(), 22, True, True), \
             ooxcb.VoidCookie())
 
     def set_clip_region(self, region, x_origin, y_origin):
-        picture = self.get_internal()
-        region = region.get_internal()
+        picture = get_internal(self)
+        region = get_internal(region)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIIhh", picture, region, x_origin, y_origin))
         return self.conn.xfixes.send_request(ooxcb.Request(self.conn, buf.getvalue(), 22, True, False), \
@@ -648,16 +648,16 @@ class GetCursorImageReply(ooxcb.Reply):
 class GContextMixin(Mixin):
     target_class = GContext
     def set_clip_region_checked(self, region, x_origin, y_origin):
-        gc = self.get_internal()
-        region = region.get_internal()
+        gc = get_internal(self)
+        region = get_internal(region)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIIhh", gc, region, x_origin, y_origin))
         return self.conn.xfixes.send_request(ooxcb.Request(self.conn, buf.getvalue(), 20, True, True), \
             ooxcb.VoidCookie())
 
     def set_clip_region(self, region, x_origin, y_origin):
-        gc = self.get_internal()
-        region = region.get_internal()
+        gc = get_internal(self)
+        region = get_internal(region)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIIhh", gc, region, x_origin, y_origin))
         return self.conn.xfixes.send_request(ooxcb.Request(self.conn, buf.getvalue(), 20, True, False), \
@@ -708,7 +708,7 @@ class SelectionNotifyEvent(ooxcb.Event):
     def build(self, stream):
         count = 0
         root = stream.tell()
-        stream.write(pack("=BBxxIIIIIxxxxxxxx", self.response_type, self.subtype, self.window.get_internal(), self.owner.get_internal(), self.selection.get_internal(), self.timestamp, self.selection_timestamp))
+        stream.write(pack("=BBxxIIIIIxxxxxxxx", self.response_type, self.subtype, get_internal(self.window), get_internal(self.owner), get_internal(self.selection), self.timestamp, self.selection_timestamp))
         stream.write("\0" * (32 - (stream.tell() - root)))
 
 class GetCursorImageAndNameReply(ooxcb.Reply):
@@ -745,7 +745,7 @@ class GetCursorImageAndNameReply(ooxcb.Reply):
 
     def build(self, stream):
         count = 0
-        stream.write(pack("=xxxxxxxxhhHHHHIIHxx", self.x, self.y, self.width, self.height, self.xhot, self.yhot, self.cursor_serial, self.cursor_atom.get_internal(), self.nbytes))
+        stream.write(pack("=xxxxxxxxhhHHHHIIHxx", self.x, self.y, self.width, self.height, self.xhot, self.yhot, self.cursor_serial, get_internal(self.cursor_atom), self.nbytes))
         count += 32
         build_list(self.conn, stream, self.name, 'B')
         build_list(self.conn, stream, self.cursor_image, 'I')
@@ -778,16 +778,16 @@ class CursorMixin(Mixin):
             ooxcb.VoidCookie())
 
     def change_checked(self, destination):
-        source = self.get_internal()
-        destination = destination.get_internal()
+        source = get_internal(self)
+        destination = get_internal(destination)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxII", source, destination))
         return self.conn.xfixes.send_request(ooxcb.Request(self.conn, buf.getvalue(), 26, True, True), \
             ooxcb.VoidCookie())
 
     def change(self, destination):
-        source = self.get_internal()
-        destination = destination.get_internal()
+        source = get_internal(self)
+        destination = get_internal(destination)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxII", source, destination))
         return self.conn.xfixes.send_request(ooxcb.Request(self.conn, buf.getvalue(), 26, True, False), \

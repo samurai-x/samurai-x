@@ -40,14 +40,6 @@ Xizers:
         length_out: rectangles_len
         seq_out: rectangles
 
-    MaskNone:
-        type: lazy_none
-        value: mask
-
-    MaskFormatNone:
-        type: lazy_none
-        value: mask_format
-
 Requests:
     QueryFilters:
         subject: drawable
@@ -76,8 +68,6 @@ Requests:
 
     Composite:
         subject: src
-        precode:
-            - !xizer "MaskNone"
         defaults:
             src_x: 0
             src_y: 0
@@ -96,8 +86,6 @@ Requests:
             src_x: 0
             src_y: 0
             mask_format: None
-        precode:
-            - !xizer "MaskFormatNone"
 
     Triangles:
         subject: src
@@ -105,8 +93,6 @@ Requests:
             src_x: 0
             src_y: 0
             mask_format: None
-        precode:
-            - !xizer "MaskFormatNone"
 
     TriStrip:
         subject: src
@@ -114,8 +100,6 @@ Requests:
             src_x: 0
             src_y: 0
             mask_format: None
-        precode:
-            - !xizer "MaskFormatNone"
 
     TriFan:
         subject: src
@@ -123,8 +107,6 @@ Requests:
             src_x: 0
             src_y: 0
             mask_format: None
-        precode:
-            - !xizer "MaskFormatNone"
 
     CompositeGlyphs8:
         subject: src
@@ -133,8 +115,6 @@ Requests:
             src_x: 0
             src_y: 0
             mask_format: None
-        precode:
-            - !xizer "MaskFormatNone"
 
     CompositeGlyphs16:
         subject: src
@@ -143,8 +123,6 @@ Requests:
             src_x: 0
             src_y: 0
             mask_format: None
-        precode:
-            - !xizer "MaskFormatNone"
 
     CompositeGlyphs32:
         subject: src
@@ -153,8 +131,6 @@ Requests:
             src_x: 0
             src_y: 0
             mask_format: None
-        precode:
-            - !xizer "MaskFormatNone"
 
     SetPictureTransform:
         subject: picture

@@ -1,6 +1,6 @@
 # auto generated. yay.
 import ooxcb
-from ooxcb.resource import XNone
+from ooxcb.resource import get_internal
 from ooxcb.types import SIZES, make_array, build_list
 try:
     import cStringIO as StringIO
@@ -44,8 +44,8 @@ class GetVersionReply(ooxcb.Reply):
 class WindowMixin(Mixin):
     target_class = Window
     def compare_cursor(self, cursor):
-        window = self.get_internal()
-        cursor = cursor.get_internal()
+        window = get_internal(self)
+        cursor = get_internal(cursor)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxII", window, cursor))
         return self.conn.xtest.send_request(ooxcb.Request(self.conn, buf.getvalue(), 1, False, True), \
@@ -53,8 +53,8 @@ class WindowMixin(Mixin):
             CompareCursorReply)
 
     def compare_cursor_unchecked(self, cursor):
-        window = self.get_internal()
-        cursor = cursor.get_internal()
+        window = get_internal(self)
+        cursor = get_internal(cursor)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxII", window, cursor))
         return self.conn.xtest.send_request(ooxcb.Request(self.conn, buf.getvalue(), 1, False, False), \
@@ -78,14 +78,14 @@ class xtestExtension(ooxcb.Extension):
             GetVersionReply)
 
     def fake_input_checked(self, type, detail=0, time=0, window=XNone, rootX=0, rootY=0, deviceid=0):
-        window = window.get_internal()
+        window = get_internal(window)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxBBxxIIxxxxxxxxHHxxxxxxxB", type, detail, time, window, rootX, rootY, deviceid))
         return self.conn.xtest.send_request(ooxcb.Request(self.conn, buf.getvalue(), 2, True, True), \
             ooxcb.VoidCookie())
 
     def fake_input(self, type, detail=0, time=0, window=XNone, rootX=0, rootY=0, deviceid=0):
-        window = window.get_internal()
+        window = get_internal(window)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxBBxxIIxxxxxxxxHHxxxxxxxB", type, detail, time, window, rootX, rootY, deviceid))
         return self.conn.xtest.send_request(ooxcb.Request(self.conn, buf.getvalue(), 2, True, False), \

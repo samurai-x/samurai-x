@@ -1,6 +1,6 @@
 # auto generated. yay.
 import ooxcb
-from ooxcb.resource import XNone
+from ooxcb.resource import get_internal
 from ooxcb.types import SIZES, make_array, build_list
 try:
     import cStringIO as StringIO
@@ -38,82 +38,82 @@ class GetOverlayWindowReply(ooxcb.Reply):
 
     def build(self, stream):
         count = 0
-        stream.write(pack("=xxxxxxxxIxxxxxxxxxxxxxxxxxxxx", self.overlay_win.get_internal()))
+        stream.write(pack("=xxxxxxxxIxxxxxxxxxxxxxxxxxxxx", get_internal(self.overlay_win)))
 
 class WindowMixin(Mixin):
     target_class = Window
     def redirect_checked(self, update=Redirect.Automatic):
-        window = self.get_internal()
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIBxxx", window, update))
         return self.conn.composite.send_request(ooxcb.Request(self.conn, buf.getvalue(), 1, True, True), \
             ooxcb.VoidCookie())
 
     def redirect(self, update=Redirect.Automatic):
-        window = self.get_internal()
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIBxxx", window, update))
         return self.conn.composite.send_request(ooxcb.Request(self.conn, buf.getvalue(), 1, True, False), \
             ooxcb.VoidCookie())
 
     def redirect_subwindows_checked(self, update=Redirect.Automatic):
-        window = self.get_internal()
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIBxxx", window, update))
         return self.conn.composite.send_request(ooxcb.Request(self.conn, buf.getvalue(), 2, True, True), \
             ooxcb.VoidCookie())
 
     def redirect_subwindows(self, update=Redirect.Automatic):
-        window = self.get_internal()
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIBxxx", window, update))
         return self.conn.composite.send_request(ooxcb.Request(self.conn, buf.getvalue(), 2, True, False), \
             ooxcb.VoidCookie())
 
     def unredirect_checked(self, update=Redirect.Automatic):
-        window = self.get_internal()
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIBxxx", window, update))
         return self.conn.composite.send_request(ooxcb.Request(self.conn, buf.getvalue(), 3, True, True), \
             ooxcb.VoidCookie())
 
     def unredirect(self, update=Redirect.Automatic):
-        window = self.get_internal()
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIBxxx", window, update))
         return self.conn.composite.send_request(ooxcb.Request(self.conn, buf.getvalue(), 3, True, False), \
             ooxcb.VoidCookie())
 
     def unredirect_subwindows_checked(self, update=Redirect.Automatic):
-        window = self.get_internal()
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIBxxx", window, update))
         return self.conn.composite.send_request(ooxcb.Request(self.conn, buf.getvalue(), 4, True, True), \
             ooxcb.VoidCookie())
 
     def unredirect_subwindows(self, update=Redirect.Automatic):
-        window = self.get_internal()
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIBxxx", window, update))
         return self.conn.composite.send_request(ooxcb.Request(self.conn, buf.getvalue(), 4, True, False), \
             ooxcb.VoidCookie())
 
     def name_pixmap_checked(self, pixmap):
-        window = self.get_internal()
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxII", window, pixmap))
         return self.conn.composite.send_request(ooxcb.Request(self.conn, buf.getvalue(), 6, True, True), \
             ooxcb.VoidCookie())
 
     def name_pixmap(self, pixmap):
-        window = self.get_internal()
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxII", window, pixmap))
         return self.conn.composite.send_request(ooxcb.Request(self.conn, buf.getvalue(), 6, True, False), \
             ooxcb.VoidCookie())
 
     def get_overlay_window(self):
-        window = self.get_internal()
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", window))
         return self.conn.composite.send_request(ooxcb.Request(self.conn, buf.getvalue(), 7, False, True), \
@@ -121,7 +121,7 @@ class WindowMixin(Mixin):
             GetOverlayWindowReply)
 
     def get_overlay_window_unchecked(self):
-        window = self.get_internal()
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", window))
         return self.conn.composite.send_request(ooxcb.Request(self.conn, buf.getvalue(), 7, False, False), \
@@ -129,14 +129,14 @@ class WindowMixin(Mixin):
             GetOverlayWindowReply)
 
     def release_overlay_window_checked(self):
-        window = self.get_internal()
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", window))
         return self.conn.composite.send_request(ooxcb.Request(self.conn, buf.getvalue(), 8, True, True), \
             ooxcb.VoidCookie())
 
     def release_overlay_window(self):
-        window = self.get_internal()
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", window))
         return self.conn.composite.send_request(ooxcb.Request(self.conn, buf.getvalue(), 8, True, False), \
@@ -191,16 +191,16 @@ class compositeExtension(ooxcb.Extension):
             QueryVersionReply)
 
     def create_region_from_border_clip_checked(self, region, window):
-        region = region.get_internal()
-        window = window.get_internal()
+        region = get_internal(region)
+        window = get_internal(window)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxII", region, window))
         return self.conn.composite.send_request(ooxcb.Request(self.conn, buf.getvalue(), 5, True, True), \
             ooxcb.VoidCookie())
 
     def create_region_from_border_clip(self, region, window):
-        region = region.get_internal()
-        window = window.get_internal()
+        region = get_internal(region)
+        window = get_internal(window)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxII", region, window))
         return self.conn.composite.send_request(ooxcb.Request(self.conn, buf.getvalue(), 5, True, False), \

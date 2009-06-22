@@ -163,7 +163,7 @@ def make_lazy_atom_xizer(name, conn='self.conn'):
     code.append(DEDENT)
     return lambda code=code: code
 
-def make_values_xizer(enum_name, values_dict_name, mask_out='value_mask', list_out='value_list', xize=[]):
+def make_values_xizer(enum_name, values_dict_name, mask_out='value_mask', list_out='value_list', xize=()):
     """
         make a simple values xizer code list and return it.
         A values xizer takes all values from the values dict
@@ -192,15 +192,16 @@ def make_values_xizer(enum_name, values_dict_name, mask_out='value_mask', list_o
             value=value
             ))
 
-        suffix = ''
-        if key in xize:
-            suffix += '.get_internal()'
-
-        code.append(template('$list_out.append($values_dict_name["$key"]$suffix)',
-            list_out=list_out,
+        s = template('$values_dict_name["$key"]',
             values_dict_name=values_dict_name,
             key=key,
-            suffix=suffix
+            )
+        if key in xize:
+            s = 'get_internal(%s)' % s
+
+        code.append(template('$list_out.append($s)',
+            list_out=list_out,
+            s=s
             ))
         code.append(DEDENT)
 
@@ -226,15 +227,6 @@ def make_mask_xizer(iterable_in, enum_name, mask_out):
             DEDENT])
     return lambda code=code: code
 
-def make_lazy_none_xizer(value, from_='None', to='XNone'):
-    code = ['if %s is %s:' % (value, from_),
-            INDENT,
-                '%s = %s' % (value, to),
-            DEDENT,
-            ]
-
-    return lambda code=code: code
-
 XIZER_MAKERS = {
         'values': make_values_xizer,
         'string': make_string_xizer,
@@ -244,7 +236,6 @@ XIZER_MAKERS = {
         'rectangles': make_rectangles_xizer,
         'mask': make_mask_xizer,
         'lazy_atom': make_lazy_atom_xizer,
-        'lazy_none': make_lazy_none_xizer,
         }
 XIZERS = {}
 
@@ -381,7 +372,7 @@ def py_complex(self, name, cls):
             ))
 
             if modifier != '%s':
-                build_fields.append('self.%s.get_internal()' % prefix_if_needed(field.field_name))
+                build_fields.append('get_internal(self.%s)' % prefix_if_needed(field.field_name))
             else:
                 build_fields.append('self.%s' % prefix_if_needed(field.field_name))
             cls.add_instance_attribute(prefix_if_needed(field.field_name), '') # TODO: description
@@ -499,7 +490,7 @@ def py_complex(self, name, cls):
         # However, the check above is very nasty.
         needs_root = True
     # Events have a fixed size of 32 bytes. Here we pad them to the correct size
-    # in the build code. TODO: this solution is nasty, but at least it works.
+    # in the build code.TODO: this solution is nasty, but at least it works.
     if cls.base == 'ooxcb.Event':
         build_code.append(r'stream.write("\0" * (32 - (stream.tell() - root)))')
     if not needs_root:
@@ -511,7 +502,7 @@ def py_open(self):
 
     py('# auto generated. yay.') \
       ('import ooxcb') \
-      ('from ooxcb.resource import XNone') \
+      ('from ooxcb.resource import get_internal') \
       ('from ooxcb.types import SIZES, make_array, build_list') \
       ('try:').indent() \
                 ('import cStringIO as StringIO') \
@@ -576,7 +567,6 @@ def py_simple(self, name):
         init = cls.new_method('__init__')
         init.arguments.extend(['conn', 'xid'])
         init.code.append('ooxcb.Resource.__init__(self, conn, xid)')
-        # the magic `get_internal` method is from `Resource`
         WRAPPERS[strip_ns(name)] = cls
         ALL[clsname] = cls
 
@@ -821,15 +811,17 @@ def request_helper(self, name, void, regular):
     if 'initcode' in reqinfo:
         meth.code.extend(reqinfo['initcode'])
     else:
-        # Check if we have to append some `.get_internal()` somewhere
+        # Check if we have to add some `get_internal()` somewhere
         for field in self.fields:
             if (is_wrapped(field.py_type) and
                 field is not subject_field and
                 field.field_name not in reqinfo.get('do_not_xize', []) and
                 field.type.is_simple) :
-                    meth.code.append('%s = %s.get_internal()' %  (field.field_name, field.field_name))
+                    meth.code.append('%s = get_internal(%s)' % (field.field_name, field.field_name))
             if field is subject_field:
-                meth.code.append('%s = self.get_internal()' % field.field_name)
+                # Well, that's not really necessary, because `self` will never
+                # be None or an int instance.
+                meth.code.append('%s = get_internal(self)' % field.field_name)
 
         meth.code.append('buf = StringIO.StringIO()')
 
