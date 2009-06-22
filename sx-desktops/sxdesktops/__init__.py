@@ -139,6 +139,7 @@ class FocusStack(list):
                 return True
         return False
 
+
 class Desktop(SXObject):
     def __init__(self, plugin, screen, name, idx, config):
         SXObject.__init__(self)
@@ -224,6 +225,10 @@ class Desktop(SXObject):
             client.remove_handlers(on_focus=self.on_focus)
             self.dispatch_event('on_unmanage_client', self, client)
             return True
+    
+    def calculate_work_area(self):
+        return (0, 0, self.screen.root.width, self.screen.root.height)
+
 
 Desktop.register_event_type('on_new_client')
 Desktop.register_event_type('on_rearrange')
@@ -349,6 +354,11 @@ class ScreenData(EventDispatcher):
         clients = self.active_desktop.clients
         self.screen.focus(clients.next()) # TODO: respect offset
 
+    def update_workarea(self):
+        for desktop in self.desktops:
+            pass
+            
+
 ScreenData.register_event_type('on_change_desktop')
 
 
@@ -391,9 +401,9 @@ class SXDesktops(Plugin):
     #    self.create_desktops(app.screens, self.config)
 
     def on_new_screen(self, screen):
-        self.create_desktop(screen)
+        self.create_desktops(screen)
 
-    def create_desktop(self, screen):
+    def create_desktops(self, screen):
         # TODO: every screen has the same desktops?
         desktops = []
         for idx, (name, info) in enumerate(self.config):
@@ -418,6 +428,10 @@ class SXDesktops(Plugin):
                     (desktop.name for desktop in desktops)
                 )
         )
+
+        #screen.push_handlers(
+        #        on_map_request=self.screen_on_map_request,
+        #)
 
         # TODO: support _NET_WORKAREA, maybe _NET_SHOWING_DESKTOP?
 

@@ -276,13 +276,15 @@ class Screen(SXObject):
             being managed if it is unsuitable (ie a dock
             or override-redirected window)
         """
+        # we dont want to do this here as we still want to manage these windows 
+        # its down to the decorator what to decorate or not 
         # check window type
-        window_type = map(self.conn.atoms.get_by_id,
-            window.get_property('_NET_WM_WINDOW_TYPE', 'ATOM').reply().value)
-        if self.conn.atoms['_NET_WM_WINDOW_TYPE_DOCK'] in window_type:
-            log.debug('%s not managing %s - is a dock.' % (self, window))
-            # TODO: ignore other types, too?
-            return
+        #window_type = map(self.conn.atoms.get_by_id,
+        #    window.get_property('_NET_WM_WINDOW_TYPE', 'ATOM').reply().value)
+        #if self.conn.atoms['_NET_WM_WINDOW_TYPE_DOCK'] in window_type:
+        #    log.debug('%s not managing %s - is a dock.' % (self, window))
+        #    # TODO: ignore other types, too?
+        #    return
 
         attributes = window.get_attributes().reply()
         geom = window.get_geometry().reply()
