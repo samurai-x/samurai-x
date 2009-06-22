@@ -1,6 +1,6 @@
 # auto generated. yay.
 import ooxcb
-from ooxcb.resource import XNone
+from ooxcb.resource import get_internal
 from ooxcb.types import SIZES, make_array, build_list
 try:
     import cStringIO as StringIO
@@ -44,16 +44,16 @@ class damageExtension(ooxcb.Extension):
             QueryVersionReply)
 
     def create_checked(self, damage, drawable, level):
-        damage = damage.get_internal()
-        drawable = drawable.get_internal()
+        damage = get_internal(damage)
+        drawable = get_internal(drawable)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIIBxxx", damage, drawable, level))
         return self.conn.damage.send_request(ooxcb.Request(self.conn, buf.getvalue(), 1, True, True), \
             ooxcb.VoidCookie())
 
     def create(self, damage, drawable, level):
-        damage = damage.get_internal()
-        drawable = drawable.get_internal()
+        damage = get_internal(damage)
+        drawable = get_internal(drawable)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIIBxxx", damage, drawable, level))
         return self.conn.damage.send_request(ooxcb.Request(self.conn, buf.getvalue(), 1, True, False), \
@@ -62,16 +62,16 @@ class damageExtension(ooxcb.Extension):
 class DrawableMixin(Mixin):
     target_class = Drawable
     def damage_add_checked(self, region):
-        drawable = self.get_internal()
-        region = region.get_internal()
+        drawable = get_internal(self)
+        region = get_internal(region)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxII", drawable, region))
         return self.conn.damage.send_request(ooxcb.Request(self.conn, buf.getvalue(), 4, True, True), \
             ooxcb.VoidCookie())
 
     def damage_add(self, region):
-        drawable = self.get_internal()
-        region = region.get_internal()
+        drawable = get_internal(self)
+        region = get_internal(region)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxII", drawable, region))
         return self.conn.damage.send_request(ooxcb.Request(self.conn, buf.getvalue(), 4, True, False), \
@@ -108,7 +108,7 @@ class DamageNotifyEvent(ooxcb.Event):
     def build(self, stream):
         count = 0
         root = stream.tell()
-        stream.write(pack("=BBxxIII", self.response_type, self.level, self.drawable.get_internal(), self.damage.get_internal(), self.timestamp))
+        stream.write(pack("=BBxxIII", self.response_type, self.level, get_internal(self.drawable), get_internal(self.damage), self.timestamp))
         count += 16
         self.area.build(stream)
         self.geometry.build(stream)
@@ -119,32 +119,32 @@ class Damage(ooxcb.Resource):
         ooxcb.Resource.__init__(self, conn, xid)
 
     def destroy_checked(self):
-        damage = self.get_internal()
+        damage = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", damage))
         return self.conn.damage.send_request(ooxcb.Request(self.conn, buf.getvalue(), 2, True, True), \
             ooxcb.VoidCookie())
 
     def destroy(self):
-        damage = self.get_internal()
+        damage = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", damage))
         return self.conn.damage.send_request(ooxcb.Request(self.conn, buf.getvalue(), 2, True, False), \
             ooxcb.VoidCookie())
 
     def subtract_checked(self, repair, parts):
-        damage = self.get_internal()
-        repair = repair.get_internal()
-        parts = parts.get_internal()
+        damage = get_internal(self)
+        repair = get_internal(repair)
+        parts = get_internal(parts)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIII", damage, repair, parts))
         return self.conn.damage.send_request(ooxcb.Request(self.conn, buf.getvalue(), 3, True, True), \
             ooxcb.VoidCookie())
 
     def subtract(self, repair, parts):
-        damage = self.get_internal()
-        repair = repair.get_internal()
-        parts = parts.get_internal()
+        damage = get_internal(self)
+        repair = get_internal(repair)
+        parts = get_internal(parts)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIII", damage, repair, parts))
         return self.conn.damage.send_request(ooxcb.Request(self.conn, buf.getvalue(), 3, True, False), \

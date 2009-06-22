@@ -1,6 +1,6 @@
 # auto generated. yay.
 import ooxcb
-from ooxcb.resource import XNone
+from ooxcb.resource import get_internal
 from ooxcb.types import SIZES, make_array, build_list
 try:
     import cStringIO as StringIO
@@ -21,7 +21,7 @@ class Drawable(ooxcb.Resource):
         ooxcb.Resource.__init__(self, conn, xid)
 
     def get_geometry(self):
-        drawable = self.get_internal()
+        drawable = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", drawable))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 14, False, True), \
@@ -29,7 +29,7 @@ class Drawable(ooxcb.Resource):
             GetGeometryReply)
 
     def get_geometry_unchecked(self):
-        drawable = self.get_internal()
+        drawable = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", drawable))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 14, False, False), \
@@ -37,7 +37,7 @@ class Drawable(ooxcb.Resource):
             GetGeometryReply)
 
     def get_image(self, format, x, y, width, height, plane_mask):
-        drawable = self.get_internal()
+        drawable = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxIhhHHI", format, drawable, x, y, width, height, plane_mask))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 73, False, True), \
@@ -45,7 +45,7 @@ class Drawable(ooxcb.Resource):
             GetImageReply)
 
     def get_image_unchecked(self, format, x, y, width, height, plane_mask):
-        drawable = self.get_internal()
+        drawable = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxIhhHHI", format, drawable, x, y, width, height, plane_mask))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 73, False, False), \
@@ -53,7 +53,7 @@ class Drawable(ooxcb.Resource):
             GetImageReply)
 
     def query_best_size(self, _class, width, height):
-        drawable = self.get_internal()
+        drawable = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxIHH", _class, drawable, width, height))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 97, False, True), \
@@ -61,7 +61,7 @@ class Drawable(ooxcb.Resource):
             QueryBestSizeReply)
 
     def query_best_size_unchecked(self, _class, width, height):
-        drawable = self.get_internal()
+        drawable = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxIHH", _class, drawable, width, height))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 97, False, False), \
@@ -517,7 +517,7 @@ class TranslateCoordinatesReply(ooxcb.Reply):
 
     def build(self, stream):
         count = 0
-        stream.write(pack("=xBxxxxxxIHH", self.same_screen, self.child.get_internal(), self.dst_x, self.dst_y))
+        stream.write(pack("=xBxxxxxxIHH", self.same_screen, get_internal(self.child), self.dst_x, self.dst_y))
 
 class QueryBestSizeCookie(ooxcb.Cookie):
     pass
@@ -555,7 +555,7 @@ class GraphicsExposureEvent(ooxcb.Event):
     def build(self, stream):
         count = 0
         root = stream.tell()
-        stream.write(pack("=BxxxIHHHHHHBxxx", self.response_type, self.drawable.get_internal(), self.x, self.y, self.width, self.height, self.minor_opcode, self.count, self.major_opcode))
+        stream.write(pack("=BxxxIHHHHHHBxxx", self.response_type, get_internal(self.drawable), self.x, self.y, self.width, self.height, self.minor_opcode, self.count, self.major_opcode))
         stream.write("\0" * (32 - (stream.tell() - root)))
 
 class ClientMessageData(ooxcb.Union):
@@ -629,7 +629,7 @@ class QueryTreeReply(ooxcb.Reply):
 
     def build(self, stream):
         count = 0
-        stream.write(pack("=xxxxxxxxIIHxxxxxxxxxxxxxx", self.root.get_internal(), self.parent.get_internal(), self.children_len))
+        stream.write(pack("=xxxxxxxxIIHxxxxxxxxxxxxxx", get_internal(self.root), get_internal(self.parent), self.children_len))
         count += 32
         build_list(self.conn, stream, self.children, 'I')
 
@@ -712,7 +712,7 @@ class GetWindowAttributesReply(ooxcb.Reply):
 
     def build(self, stream):
         count = 0
-        stream.write(pack("=xBxxxxxxIHBBIIBBBBIIIHxx", self.backing_store, self.visual, self._class, self.bit_gravity, self.win_gravity, self.backing_planes, self.backing_pixel, self.save_under, self.map_is_installed, self.map_state, self.override_redirect, self.colormap.get_internal(), self.all_event_masks, self.your_event_mask, self.do_not_propagate_mask))
+        stream.write(pack("=xBxxxxxxIHBBIIBBBBIIIHxx", self.backing_store, self.visual, self._class, self.bit_gravity, self.win_gravity, self.backing_planes, self.backing_pixel, self.save_under, self.map_is_installed, self.map_state, self.override_redirect, get_internal(self.colormap), self.all_event_masks, self.your_event_mask, self.do_not_propagate_mask))
 
 class AllocColorCookie(ooxcb.Cookie):
     pass
@@ -740,65 +740,65 @@ class Colormap(ooxcb.Resource):
         ooxcb.Resource.__init__(self, conn, xid)
 
     def free_checked(self):
-        cmap = self.get_internal()
+        cmap = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", cmap))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 79, True, True), \
             ooxcb.VoidCookie())
 
     def free(self):
-        cmap = self.get_internal()
+        cmap = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", cmap))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 79, True, False), \
             ooxcb.VoidCookie())
 
     def copy_colormap_and_free_checked(self, mid):
-        mid = mid.get_internal()
-        src_cmap = self.get_internal()
+        mid = get_internal(mid)
+        src_cmap = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxII", mid, src_cmap))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 80, True, True), \
             ooxcb.VoidCookie())
 
     def copy_colormap_and_free(self, mid):
-        mid = mid.get_internal()
-        src_cmap = self.get_internal()
+        mid = get_internal(mid)
+        src_cmap = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxII", mid, src_cmap))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 80, True, False), \
             ooxcb.VoidCookie())
 
     def install_checked(self):
-        cmap = self.get_internal()
+        cmap = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", cmap))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 81, True, True), \
             ooxcb.VoidCookie())
 
     def install(self):
-        cmap = self.get_internal()
+        cmap = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", cmap))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 81, True, False), \
             ooxcb.VoidCookie())
 
     def uninstall_checked(self):
-        cmap = self.get_internal()
+        cmap = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", cmap))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 82, True, True), \
             ooxcb.VoidCookie())
 
     def uninstall(self):
-        cmap = self.get_internal()
+        cmap = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", cmap))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 82, True, False), \
             ooxcb.VoidCookie())
 
     def alloc_color(self, red, green, blue):
-        cmap = self.get_internal()
+        cmap = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIHHHxx", cmap, red, green, blue))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 84, False, True), \
@@ -806,7 +806,7 @@ class Colormap(ooxcb.Resource):
             AllocColorReply)
 
     def alloc_color_unchecked(self, red, green, blue):
-        cmap = self.get_internal()
+        cmap = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIHHHxx", cmap, red, green, blue))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 84, False, False), \
@@ -815,7 +815,7 @@ class Colormap(ooxcb.Resource):
 
     def alloc_named_color(self, name):
         name_len = len(name)
-        cmap = self.get_internal()
+        cmap = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIHxx", cmap, name_len))
         buf.write(make_array(name, "B"))
@@ -825,7 +825,7 @@ class Colormap(ooxcb.Resource):
 
     def alloc_named_color_unchecked(self, name):
         name_len = len(name)
-        cmap = self.get_internal()
+        cmap = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIHxx", cmap, name_len))
         buf.write(make_array(name, "B"))
@@ -834,7 +834,7 @@ class Colormap(ooxcb.Resource):
             AllocNamedColorReply)
 
     def alloc_color_cells(self, contiguous, colors, planes):
-        cmap = self.get_internal()
+        cmap = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxIHH", contiguous, cmap, colors, planes))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 86, False, True), \
@@ -842,7 +842,7 @@ class Colormap(ooxcb.Resource):
             AllocColorCellsReply)
 
     def alloc_color_cells_unchecked(self, contiguous, colors, planes):
-        cmap = self.get_internal()
+        cmap = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxIHH", contiguous, cmap, colors, planes))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 86, False, False), \
@@ -850,7 +850,7 @@ class Colormap(ooxcb.Resource):
             AllocColorCellsReply)
 
     def alloc_color_planes(self, contiguous, colors, reds, greens, blues):
-        cmap = self.get_internal()
+        cmap = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxIHHHH", contiguous, cmap, colors, reds, greens, blues))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 87, False, True), \
@@ -858,7 +858,7 @@ class Colormap(ooxcb.Resource):
             AllocColorPlanesReply)
 
     def alloc_color_planes_unchecked(self, contiguous, colors, reds, greens, blues):
-        cmap = self.get_internal()
+        cmap = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxIHHHH", contiguous, cmap, colors, reds, greens, blues))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 87, False, False), \
@@ -867,7 +867,7 @@ class Colormap(ooxcb.Resource):
 
     def free_colors_checked(self, pixels, plane_mask):
         pixels_len = len(pixels)
-        cmap = self.get_internal()
+        cmap = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxII", cmap, plane_mask))
         buf.write(make_array(pixels, "I"))
@@ -876,7 +876,7 @@ class Colormap(ooxcb.Resource):
 
     def free_colors(self, pixels, plane_mask):
         pixels_len = len(pixels)
-        cmap = self.get_internal()
+        cmap = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxII", cmap, plane_mask))
         buf.write(make_array(pixels, "I"))
@@ -885,7 +885,7 @@ class Colormap(ooxcb.Resource):
 
     def store_colors_checked(self, items):
         items_len = len(items)
-        cmap = self.get_internal()
+        cmap = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", cmap))
         for elt in items:
@@ -895,7 +895,7 @@ class Colormap(ooxcb.Resource):
 
     def store_colors(self, items):
         items_len = len(items)
-        cmap = self.get_internal()
+        cmap = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", cmap))
         for elt in items:
@@ -905,7 +905,7 @@ class Colormap(ooxcb.Resource):
 
     def store_named_color_checked(self, flags, pixel, name):
         name_len = len(name)
-        cmap = self.get_internal()
+        cmap = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxIIHxx", flags, cmap, pixel, name_len))
         buf.write(make_array(name, "B"))
@@ -914,7 +914,7 @@ class Colormap(ooxcb.Resource):
 
     def store_named_color(self, flags, pixel, name):
         name_len = len(name)
-        cmap = self.get_internal()
+        cmap = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxIIHxx", flags, cmap, pixel, name_len))
         buf.write(make_array(name, "B"))
@@ -923,7 +923,7 @@ class Colormap(ooxcb.Resource):
 
     def query_colors(self, pixels):
         pixels_len = len(pixels)
-        cmap = self.get_internal()
+        cmap = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", cmap))
         buf.write(make_array(pixels, "I"))
@@ -933,7 +933,7 @@ class Colormap(ooxcb.Resource):
 
     def query_colors_unchecked(self, pixels):
         pixels_len = len(pixels)
-        cmap = self.get_internal()
+        cmap = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", cmap))
         buf.write(make_array(pixels, "I"))
@@ -943,7 +943,7 @@ class Colormap(ooxcb.Resource):
 
     def lookup_color(self, name):
         name_len = len(name)
-        cmap = self.get_internal()
+        cmap = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIHxx", cmap, name_len))
         buf.write(make_array(name, "B"))
@@ -953,7 +953,7 @@ class Colormap(ooxcb.Resource):
 
     def lookup_color_unchecked(self, name):
         name_len = len(name)
-        cmap = self.get_internal()
+        cmap = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIHxx", cmap, name_len))
         buf.write(make_array(name, "B"))
@@ -1158,7 +1158,7 @@ class Fontable(ooxcb.Resource):
         ooxcb.Resource.__init__(self, conn, xid)
 
     def query(self):
-        font = self.get_internal()
+        font = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", font))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 47, False, True), \
@@ -1166,7 +1166,7 @@ class Fontable(ooxcb.Resource):
             QueryFontReply)
 
     def query_unchecked(self):
-        font = self.get_internal()
+        font = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", font))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 47, False, False), \
@@ -1175,7 +1175,7 @@ class Fontable(ooxcb.Resource):
 
     def query_text_extents(self, string):
         string_len = len(string)
-        font = self.get_internal()
+        font = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=x", ))
         buf.write(pack("=B", (string_len & 1)))
@@ -1187,7 +1187,7 @@ class Fontable(ooxcb.Resource):
 
     def query_text_extents_unchecked(self, string):
         string_len = len(string)
-        font = self.get_internal()
+        font = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=x", ))
         buf.write(pack("=B", (string_len & 1)))
@@ -1232,7 +1232,7 @@ class ConfigureNotifyEvent(ooxcb.Event):
     def build(self, stream):
         count = 0
         root = stream.tell()
-        stream.write(pack("=BxxxIIIhhHHHBx", self.response_type, self.event.get_internal(), self.window.get_internal(), self.above_sibling.get_internal(), self.x, self.y, self.width, self.height, self.border_width, self.override_redirect))
+        stream.write(pack("=BxxxIIIhhHHHBx", self.response_type, get_internal(self.event), get_internal(self.window), get_internal(self.above_sibling), self.x, self.y, self.width, self.height, self.border_width, self.override_redirect))
         stream.write("\0" * (32 - (stream.tell() - root)))
 
 class Setup(ooxcb.Struct):
@@ -1320,7 +1320,7 @@ class SelectionClearEvent(ooxcb.Event):
     def build(self, stream):
         count = 0
         root = stream.tell()
-        stream.write(pack("=BxxxIII", self.response_type, self.time, self.owner.get_internal(), self.selection.get_internal()))
+        stream.write(pack("=BxxxIII", self.response_type, self.time, get_internal(self.owner), get_internal(self.selection)))
         stream.write("\0" * (32 - (stream.tell() - root)))
 
 class GetSelectionOwnerCookie(ooxcb.Cookie):
@@ -1421,7 +1421,7 @@ class DestroyNotifyEvent(ooxcb.Event):
     def build(self, stream):
         count = 0
         root = stream.tell()
-        stream.write(pack("=BxxxII", self.response_type, self.event.get_internal(), self.window.get_internal()))
+        stream.write(pack("=BxxxII", self.response_type, get_internal(self.event), get_internal(self.window)))
         stream.write("\0" * (32 - (stream.tell() - root)))
 
 class QueryKeymapReply(ooxcb.Reply):
@@ -1510,14 +1510,14 @@ class Font(Fontable):
         ooxcb.Resource.__init__(self, conn, xid)
 
     def close_checked(self):
-        font = self.get_internal()
+        font = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", font))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 46, True, True), \
             ooxcb.VoidCookie())
 
     def close(self):
-        font = self.get_internal()
+        font = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", font))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 46, True, False), \
@@ -1563,7 +1563,7 @@ class ExposeEvent(ooxcb.Event):
     def build(self, stream):
         count = 0
         root = stream.tell()
-        stream.write(pack("=BxxxIHHHHHxx", self.response_type, self.window.get_internal(), self.x, self.y, self.width, self.height, self.count))
+        stream.write(pack("=BxxxIHHHHHxx", self.response_type, get_internal(self.window), self.x, self.y, self.width, self.height, self.count))
         stream.write("\0" * (32 - (stream.tell() - root)))
 
 class GravityNotifyEvent(ooxcb.Event):
@@ -1591,7 +1591,7 @@ class GravityNotifyEvent(ooxcb.Event):
     def build(self, stream):
         count = 0
         root = stream.tell()
-        stream.write(pack("=BxxxIIhh", self.response_type, self.event.get_internal(), self.window.get_internal(), self.x, self.y))
+        stream.write(pack("=BxxxIIhh", self.response_type, get_internal(self.event), get_internal(self.window), self.x, self.y))
         stream.write("\0" * (32 - (stream.tell() - root)))
 
 class GrabKeyboardReply(ooxcb.Reply):
@@ -1688,7 +1688,7 @@ class UnmapNotifyEvent(ooxcb.Event):
     def build(self, stream):
         count = 0
         root = stream.tell()
-        stream.write(pack("=BxxxIIBxxx", self.response_type, self.event.get_internal(), self.window.get_internal(), self.from_configure))
+        stream.write(pack("=BxxxIIBxxx", self.response_type, get_internal(self.event), get_internal(self.window), self.from_configure))
         stream.write("\0" * (32 - (stream.tell() - root)))
 
 class Setupfailed(ooxcb.Struct):
@@ -1799,7 +1799,7 @@ class ConfigureRequestEvent(ooxcb.Event):
     def build(self, stream):
         count = 0
         root = stream.tell()
-        stream.write(pack("=BBxxIIIhhHHHH", self.response_type, self.stack_mode, self.parent.get_internal(), self.window.get_internal(), self.sibling.get_internal(), self.x, self.y, self.width, self.height, self.border_width, self.value_mask))
+        stream.write(pack("=BBxxIIIhhHHHH", self.response_type, self.stack_mode, get_internal(self.parent), get_internal(self.window), get_internal(self.sibling), self.x, self.y, self.width, self.height, self.border_width, self.value_mask))
         stream.write("\0" * (32 - (stream.tell() - root)))
 
 class BadImplementation(ooxcb.ProtocolException):
@@ -1939,28 +1939,28 @@ class Cursor(ooxcb.Resource):
         ooxcb.Resource.__init__(self, conn, xid)
 
     def free_checked(self):
-        cursor = self.get_internal()
+        cursor = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", cursor))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 95, True, True), \
             ooxcb.VoidCookie())
 
     def free(self):
-        cursor = self.get_internal()
+        cursor = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", cursor))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 95, True, False), \
             ooxcb.VoidCookie())
 
     def recolor_checked(self, fore_red, fore_green, fore_blue, back_red, back_green, back_blue):
-        cursor = self.get_internal()
+        cursor = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIHHHHHH", cursor, fore_red, fore_green, fore_blue, back_red, back_green, back_blue))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 96, True, True), \
             ooxcb.VoidCookie())
 
     def recolor(self, fore_red, fore_green, fore_blue, back_red, back_green, back_blue):
-        cursor = self.get_internal()
+        cursor = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIHHHHHH", cursor, fore_red, fore_green, fore_blue, back_red, back_green, back_blue))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 96, True, False), \
@@ -2057,7 +2057,7 @@ class NoExposureEvent(ooxcb.Event):
     def build(self, stream):
         count = 0
         root = stream.tell()
-        stream.write(pack("=BxxxIHBx", self.response_type, self.drawable.get_internal(), self.minor_opcode, self.major_opcode))
+        stream.write(pack("=BxxxIHBx", self.response_type, get_internal(self.drawable), self.minor_opcode, self.major_opcode))
         stream.write("\0" * (32 - (stream.tell() - root)))
 
 class BadPixmap(ooxcb.ProtocolException):
@@ -2148,7 +2148,7 @@ class EnterNotifyEvent(ooxcb.Event):
     def build(self, stream):
         count = 0
         root = stream.tell()
-        stream.write(pack("=BBxxIIIIhhhhHBB", self.response_type, self.detail, self.time, self.root.get_internal(), self.event.get_internal(), self.child.get_internal(), self.root_x, self.root_y, self.event_x, self.event_y, self.state, self.mode, self.same_screen_focus))
+        stream.write(pack("=BBxxIIIIhhhhHBB", self.response_type, self.detail, self.time, get_internal(self.root), get_internal(self.event), get_internal(self.child), self.root_x, self.root_y, self.event_x, self.event_y, self.state, self.mode, self.same_screen_focus))
         stream.write("\0" * (32 - (stream.tell() - root)))
 
 class MapRequestEvent(ooxcb.Event):
@@ -2172,7 +2172,7 @@ class MapRequestEvent(ooxcb.Event):
     def build(self, stream):
         count = 0
         root = stream.tell()
-        stream.write(pack("=BxxxII", self.response_type, self.parent.get_internal(), self.window.get_internal()))
+        stream.write(pack("=BxxxII", self.response_type, get_internal(self.parent), get_internal(self.window)))
         stream.write("\0" * (32 - (stream.tell() - root)))
 
 class QueryPointerCookie(ooxcb.Cookie):
@@ -2256,7 +2256,7 @@ class KeyReleaseEvent(ooxcb.Event):
     def build(self, stream):
         count = 0
         root = stream.tell()
-        stream.write(pack("=BBxxIIIIhhhhHBx", self.response_type, self.detail, self.time, self.root.get_internal(), self.event.get_internal(), self.child.get_internal(), self.root_x, self.root_y, self.event_x, self.event_y, self.state, self.same_screen))
+        stream.write(pack("=BBxxIIIIhhhhHBx", self.response_type, self.detail, self.time, get_internal(self.root), get_internal(self.event), get_internal(self.child), self.root_x, self.root_y, self.event_x, self.event_y, self.state, self.same_screen))
         stream.write("\0" * (32 - (stream.tell() - root)))
 
 class QueryTextExtentsCookie(ooxcb.Cookie):
@@ -2314,7 +2314,7 @@ class GetPropertyReply(ooxcb.Reply):
 
     def build(self, stream):
         count = 0
-        stream.write(pack("=xBxxxxxxIIIxxxxxxxxxxxx", self.format, self.type.get_internal(), self.bytes_after, self.value_len))
+        stream.write(pack("=xBxxxxxxIIIxxxxxxxxxxxx", self.format, get_internal(self.type), self.bytes_after, self.value_len))
         count += 32
         build_list(self.conn, stream, self.value, 'B')
 
@@ -2413,7 +2413,7 @@ class Screen(ooxcb.Struct):
 
     def build(self, stream):
         count = 0
-        stream.write(pack("=IIIIIHHHHHHIBBBB", self.root.get_internal(), self.default_colormap.get_internal(), self.white_pixel, self.black_pixel, self.current_input_masks, self.width_in_pixels, self.height_in_pixels, self.width_in_millimeters, self.height_in_millimeters, self.min_installed_maps, self.max_installed_maps, self.root_visual, self.backing_stores, self.save_unders, self.root_depth, self.allowed_depths_len))
+        stream.write(pack("=IIIIIHHHHHHIBBBB", get_internal(self.root), get_internal(self.default_colormap), self.white_pixel, self.black_pixel, self.current_input_masks, self.width_in_pixels, self.height_in_pixels, self.width_in_millimeters, self.height_in_millimeters, self.min_installed_maps, self.max_installed_maps, self.root_visual, self.backing_stores, self.save_unders, self.root_depth, self.allowed_depths_len))
         count += 40
         build_list(self.conn, stream, self.allowed_depths, Depth)
 
@@ -2469,7 +2469,7 @@ class ReparentNotifyEvent(ooxcb.Event):
     def build(self, stream):
         count = 0
         root = stream.tell()
-        stream.write(pack("=BxxxIIIhhBxxx", self.response_type, self.event.get_internal(), self.window.get_internal(), self.parent.get_internal(), self.x, self.y, self.override_redirect))
+        stream.write(pack("=BxxxIIIhhBxxx", self.response_type, get_internal(self.event), get_internal(self.window), get_internal(self.parent), self.x, self.y, self.override_redirect))
         stream.write("\0" * (32 - (stream.tell() - root)))
 
 class ClientMessageEvent(ooxcb.Event):
@@ -2497,7 +2497,7 @@ class ClientMessageEvent(ooxcb.Event):
     def build(self, stream):
         count = 0
         root = stream.tell()
-        stream.write(pack("=BBxxII", self.response_type, self.format, self.window.get_internal(), self.type.get_internal()))
+        stream.write(pack("=BBxxII", self.response_type, self.format, get_internal(self.window), get_internal(self.type)))
         count += 12
         self.data.build(stream)
         stream.write("\0" * (32 - (stream.tell() - root)))
@@ -2679,7 +2679,7 @@ class ButtonReleaseEvent(ooxcb.Event):
     def build(self, stream):
         count = 0
         root = stream.tell()
-        stream.write(pack("=BBxxIIIIhhhhHBx", self.response_type, self.detail, self.time, self.root.get_internal(), self.event.get_internal(), self.child.get_internal(), self.root_x, self.root_y, self.event_x, self.event_y, self.state, self.same_screen))
+        stream.write(pack("=BBxxIIIIhhhhHBx", self.response_type, self.detail, self.time, get_internal(self.root), get_internal(self.event), get_internal(self.child), self.root_x, self.root_y, self.event_x, self.event_y, self.state, self.same_screen))
         stream.write("\0" * (32 - (stream.tell() - root)))
 
 class Charinfo(ooxcb.Struct):
@@ -2712,8 +2712,8 @@ class BadLength(ooxcb.ProtocolException):
 class xprotoExtension(ooxcb.Extension):
     header = "xproto"
     def create_window_checked(self, depth, wid, parent, x, y, width, height, border_width, _class, visual, value_mask, value_list):
-        wid = wid.get_internal()
-        parent = parent.get_internal()
+        wid = get_internal(wid)
+        parent = get_internal(parent)
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxIIhhHHHHII", depth, wid, parent, x, y, width, height, border_width, _class, visual, value_mask))
         buf.write(make_array(value_list, "I"))
@@ -2721,8 +2721,8 @@ class xprotoExtension(ooxcb.Extension):
             ooxcb.VoidCookie())
 
     def create_window(self, depth, wid, parent, x, y, width, height, border_width, _class, visual, value_mask, value_list):
-        wid = wid.get_internal()
-        parent = parent.get_internal()
+        wid = get_internal(wid)
+        parent = get_internal(parent)
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxIIhhHHHHII", depth, wid, parent, x, y, width, height, border_width, _class, visual, value_mask))
         buf.write(make_array(value_list, "I"))
@@ -2760,14 +2760,14 @@ class xprotoExtension(ooxcb.Extension):
             ooxcb.VoidCookie())
 
     def change_active_pointer_grab_checked(self, cursor, time, event_mask):
-        cursor = cursor.get_internal()
+        cursor = get_internal(cursor)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIIHxx", cursor, time, event_mask))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 30, True, True), \
             ooxcb.VoidCookie())
 
     def change_active_pointer_grab(self, cursor, time, event_mask):
-        cursor = cursor.get_internal()
+        cursor = get_internal(cursor)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIIHxx", cursor, time, event_mask))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 30, True, False), \
@@ -2822,24 +2822,16 @@ class xprotoExtension(ooxcb.Extension):
             ooxcb.VoidCookie())
 
     def warp_pointer_checked(self, src_window, dst_window, src_x, src_y, src_width, src_height, dst_x, dst_y):
-        if src_w is None:
-            src_w = XNone
-        if dest_w is None:
-            dest_w = XNone
-        src_window = src_window.get_internal()
-        dst_window = dst_window.get_internal()
+        src_window = get_internal(src_window)
+        dst_window = get_internal(dst_window)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIIhhHHhh", src_window, dst_window, src_x, src_y, src_width, src_height, dst_x, dst_y))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 41, True, True), \
             ooxcb.VoidCookie())
 
     def warp_pointer(self, src_window, dst_window, src_x, src_y, src_width, src_height, dst_x, dst_y):
-        if src_w is None:
-            src_w = XNone
-        if dest_w is None:
-            dest_w = XNone
-        src_window = src_window.get_internal()
-        dst_window = dst_window.get_internal()
+        src_window = get_internal(src_window)
+        dst_window = get_internal(dst_window)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIIhhHHhh", src_window, dst_window, src_x, src_y, src_width, src_height, dst_x, dst_y))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 41, True, False), \
@@ -2875,7 +2867,7 @@ class xprotoExtension(ooxcb.Extension):
 
     def open_font_checked(self, fid, name):
         name_len = len(name)
-        fid = fid.get_internal()
+        fid = get_internal(fid)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIHxx", fid, name_len))
         buf.write(make_array(name, "B"))
@@ -2884,7 +2876,7 @@ class xprotoExtension(ooxcb.Extension):
 
     def open_font(self, fid, name):
         name_len = len(name)
-        fid = fid.get_internal()
+        fid = get_internal(fid)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIHxx", fid, name_len))
         buf.write(make_array(name, "B"))
@@ -2960,24 +2952,24 @@ class xprotoExtension(ooxcb.Extension):
             GetFontPathReply)
 
     def create_pixmap_checked(self, depth, pid, drawable, width, height):
-        pid = pid.get_internal()
-        drawable = drawable.get_internal()
+        pid = get_internal(pid)
+        drawable = get_internal(drawable)
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxIIHH", depth, pid, drawable, width, height))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 53, True, True), \
             ooxcb.VoidCookie())
 
     def create_pixmap(self, depth, pid, drawable, width, height):
-        pid = pid.get_internal()
-        drawable = drawable.get_internal()
+        pid = get_internal(pid)
+        drawable = get_internal(drawable)
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxIIHH", depth, pid, drawable, width, height))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 53, True, False), \
             ooxcb.VoidCookie())
 
     def create_g_c_checked(self, cid, drawable, value_mask, value_list):
-        cid = cid.get_internal()
-        drawable = drawable.get_internal()
+        cid = get_internal(cid)
+        drawable = get_internal(drawable)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIII", cid, drawable, value_mask))
         buf.write(make_array(value_list, "I"))
@@ -2985,8 +2977,8 @@ class xprotoExtension(ooxcb.Extension):
             ooxcb.VoidCookie())
 
     def create_g_c(self, cid, drawable, value_mask, value_list):
-        cid = cid.get_internal()
-        drawable = drawable.get_internal()
+        cid = get_internal(cid)
+        drawable = get_internal(drawable)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIII", cid, drawable, value_mask))
         buf.write(make_array(value_list, "I"))
@@ -2994,56 +2986,52 @@ class xprotoExtension(ooxcb.Extension):
             ooxcb.VoidCookie())
 
     def create_colormap_checked(self, alloc, mid, window, visual):
-        mid = mid.get_internal()
-        window = window.get_internal()
+        mid = get_internal(mid)
+        window = get_internal(window)
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxIII", alloc, mid, window, visual))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 78, True, True), \
             ooxcb.VoidCookie())
 
     def create_colormap(self, alloc, mid, window, visual):
-        mid = mid.get_internal()
-        window = window.get_internal()
+        mid = get_internal(mid)
+        window = get_internal(window)
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxIII", alloc, mid, window, visual))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 78, True, False), \
             ooxcb.VoidCookie())
 
     def create_cursor_checked(self, cid, source, mask, fore_red, fore_green, fore_blue, back_red, back_green, back_blue, x, y):
-        if mask is None:
-            mask = XNone
-        cid = cid.get_internal()
-        source = source.get_internal()
-        mask = mask.get_internal()
+        cid = get_internal(cid)
+        source = get_internal(source)
+        mask = get_internal(mask)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIIIHHHHHHHH", cid, source, mask, fore_red, fore_green, fore_blue, back_red, back_green, back_blue, x, y))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 93, True, True), \
             ooxcb.VoidCookie())
 
     def create_cursor(self, cid, source, mask, fore_red, fore_green, fore_blue, back_red, back_green, back_blue, x, y):
-        if mask is None:
-            mask = XNone
-        cid = cid.get_internal()
-        source = source.get_internal()
-        mask = mask.get_internal()
+        cid = get_internal(cid)
+        source = get_internal(source)
+        mask = get_internal(mask)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIIIHHHHHHHH", cid, source, mask, fore_red, fore_green, fore_blue, back_red, back_green, back_blue, x, y))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 93, True, False), \
             ooxcb.VoidCookie())
 
     def create_glyph_cursor_checked(self, cid, source_font, mask_font, source_char, mask_char, fore_red, fore_green, fore_blue, back_red, back_green, back_blue):
-        cid = cid.get_internal()
-        source_font = source_font.get_internal()
-        mask_font = mask_font.get_internal()
+        cid = get_internal(cid)
+        source_font = get_internal(source_font)
+        mask_font = get_internal(mask_font)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIIIHHHHHHHH", cid, source_font, mask_font, source_char, mask_char, fore_red, fore_green, fore_blue, back_red, back_green, back_blue))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 94, True, True), \
             ooxcb.VoidCookie())
 
     def create_glyph_cursor(self, cid, source_font, mask_font, source_char, mask_char, fore_red, fore_green, fore_blue, back_red, back_green, back_blue):
-        cid = cid.get_internal()
-        source_font = source_font.get_internal()
-        mask_font = mask_font.get_internal()
+        cid = get_internal(cid)
+        source_font = get_internal(source_font)
+        mask_font = get_internal(mask_font)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIIIHHHHHHHH", cid, source_font, mask_font, source_char, mask_char, fore_red, fore_green, fore_blue, back_red, back_green, back_blue))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 94, True, False), \
@@ -3457,7 +3445,7 @@ class ButtonPressEvent(ooxcb.Event):
     def build(self, stream):
         count = 0
         root = stream.tell()
-        stream.write(pack("=BBxxIIIIhhhhHBx", self.response_type, self.detail, self.time, self.root.get_internal(), self.event.get_internal(), self.child.get_internal(), self.root_x, self.root_y, self.event_x, self.event_y, self.state, self.same_screen))
+        stream.write(pack("=BBxxIIIIhhhhHBx", self.response_type, self.detail, self.time, get_internal(self.root), get_internal(self.event), get_internal(self.child), self.root_x, self.root_y, self.event_x, self.event_y, self.state, self.same_screen))
         stream.write("\0" * (32 - (stream.tell() - root)))
 
 class GetKeyboardControlReply(ooxcb.Reply):
@@ -3580,7 +3568,7 @@ class CirculateNotifyEvent(ooxcb.Event):
     def build(self, stream):
         count = 0
         root = stream.tell()
-        stream.write(pack("=BxxxIIxxxxBxxx", self.response_type, self.event.get_internal(), self.window.get_internal(), self.place))
+        stream.write(pack("=BxxxIIxxxxBxxx", self.response_type, get_internal(self.event), get_internal(self.window), self.place))
         stream.write("\0" * (32 - (stream.tell() - root)))
 
 class QueryExtensionCookie(ooxcb.Cookie):
@@ -3637,7 +3625,7 @@ class InternAtomReply(ooxcb.Reply):
 
     def build(self, stream):
         count = 0
-        stream.write(pack("=xxxxxxxxI", self.atom.get_internal()))
+        stream.write(pack("=xxxxxxxxI", get_internal(self.atom)))
 
 class KeyPressEvent(ooxcb.Event):
     event_name = "on_key_press"
@@ -3678,7 +3666,7 @@ class KeyPressEvent(ooxcb.Event):
     def build(self, stream):
         count = 0
         root = stream.tell()
-        stream.write(pack("=BBxxIIIIhhhhHBx", self.response_type, self.detail, self.time, self.root.get_internal(), self.event.get_internal(), self.child.get_internal(), self.root_x, self.root_y, self.event_x, self.event_y, self.state, self.same_screen))
+        stream.write(pack("=BBxxIIIIhhhhHBx", self.response_type, self.detail, self.time, get_internal(self.root), get_internal(self.event), get_internal(self.child), self.root_x, self.root_y, self.event_x, self.event_y, self.state, self.same_screen))
         stream.write("\0" * (32 - (stream.tell() - root)))
 
 class GetPointerControlReply(ooxcb.Reply):
@@ -3743,7 +3731,7 @@ class LeaveNotifyEvent(ooxcb.Event):
     def build(self, stream):
         count = 0
         root = stream.tell()
-        stream.write(pack("=BBxxIIIIhhhhHBB", self.response_type, self.detail, self.time, self.root.get_internal(), self.event.get_internal(), self.child.get_internal(), self.root_x, self.root_y, self.event_x, self.event_y, self.state, self.mode, self.same_screen_focus))
+        stream.write(pack("=BBxxIIIIhhhhHBB", self.response_type, self.detail, self.time, get_internal(self.root), get_internal(self.event), get_internal(self.child), self.root_x, self.root_y, self.event_x, self.event_y, self.state, self.mode, self.same_screen_focus))
         stream.write("\0" * (32 - (stream.tell() - root)))
 
 class QueryColorsCookie(ooxcb.Cookie):
@@ -3778,14 +3766,14 @@ class Pixmap(Drawable):
         ooxcb.Resource.__init__(self, conn, xid)
 
     def free_checked(self):
-        pixmap = self.get_internal()
+        pixmap = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", pixmap))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 54, True, True), \
             ooxcb.VoidCookie())
 
     def free(self):
-        pixmap = self.get_internal()
+        pixmap = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", pixmap))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 54, True, False), \
@@ -3821,7 +3809,7 @@ class MapNotifyEvent(ooxcb.Event):
     def build(self, stream):
         count = 0
         root = stream.tell()
-        stream.write(pack("=BxxxIIBxxx", self.response_type, self.event.get_internal(), self.window.get_internal(), self.override_redirect))
+        stream.write(pack("=BxxxIIBxxx", self.response_type, get_internal(self.event), get_internal(self.window), self.override_redirect))
         stream.write("\0" * (32 - (stream.tell() - root)))
 
 class GetAtomNameReply(ooxcb.Reply):
@@ -3856,7 +3844,7 @@ class Fontprop(ooxcb.Struct):
 
     def build(self, stream):
         count = 0
-        stream.write(pack("=II", self.name.get_internal(), self.value))
+        stream.write(pack("=II", get_internal(self.name), self.value))
 
 class Window(Drawable):
     def __init__(self, conn, xid):
@@ -3866,7 +3854,7 @@ class Window(Drawable):
         value_mask, value_list = 0, []
         if "back_pixmap" in values:
             value_mask |= 1
-            value_list.append(values["back_pixmap"].get_internal())
+            value_list.append(get_internal(values["back_pixmap"]))
         if "back_pixel" in values:
             value_mask |= 2
             value_list.append(values["back_pixel"])
@@ -3905,11 +3893,11 @@ class Window(Drawable):
             value_list.append(values["dont_propagate"])
         if "colormap" in values:
             value_mask |= 8192
-            value_list.append(values["colormap"].get_internal())
+            value_list.append(get_internal(values["colormap"]))
         if "cursor" in values:
             value_mask |= 16384
-            value_list.append(values["cursor"].get_internal())
-        window = self.get_internal()
+            value_list.append(get_internal(values["cursor"]))
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxII", window, value_mask))
         buf.write(make_array(value_list, "I"))
@@ -3920,7 +3908,7 @@ class Window(Drawable):
         value_mask, value_list = 0, []
         if "back_pixmap" in values:
             value_mask |= 1
-            value_list.append(values["back_pixmap"].get_internal())
+            value_list.append(get_internal(values["back_pixmap"]))
         if "back_pixel" in values:
             value_mask |= 2
             value_list.append(values["back_pixel"])
@@ -3959,11 +3947,11 @@ class Window(Drawable):
             value_list.append(values["dont_propagate"])
         if "colormap" in values:
             value_mask |= 8192
-            value_list.append(values["colormap"].get_internal())
+            value_list.append(get_internal(values["colormap"]))
         if "cursor" in values:
             value_mask |= 16384
-            value_list.append(values["cursor"].get_internal())
-        window = self.get_internal()
+            value_list.append(get_internal(values["cursor"]))
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxII", window, value_mask))
         buf.write(make_array(value_list, "I"))
@@ -3971,7 +3959,7 @@ class Window(Drawable):
             ooxcb.VoidCookie())
 
     def get_attributes(self):
-        window = self.get_internal()
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", window))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 3, False, True), \
@@ -3979,7 +3967,7 @@ class Window(Drawable):
             GetWindowAttributesReply)
 
     def get_attributes_unchecked(self):
-        window = self.get_internal()
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", window))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 3, False, False), \
@@ -3987,114 +3975,114 @@ class Window(Drawable):
             GetWindowAttributesReply)
 
     def destroy_checked(self):
-        window = self.get_internal()
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", window))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 4, True, True), \
             ooxcb.VoidCookie())
 
     def destroy(self):
-        window = self.get_internal()
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", window))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 4, True, False), \
             ooxcb.VoidCookie())
 
     def destroy_subwindows_checked(self):
-        window = self.get_internal()
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", window))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 5, True, True), \
             ooxcb.VoidCookie())
 
     def destroy_subwindows(self):
-        window = self.get_internal()
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", window))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 5, True, False), \
             ooxcb.VoidCookie())
 
     def change_save_set_checked(self, mode):
-        window = self.get_internal()
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxI", mode, window))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 6, True, True), \
             ooxcb.VoidCookie())
 
     def change_save_set(self, mode):
-        window = self.get_internal()
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxI", mode, window))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 6, True, False), \
             ooxcb.VoidCookie())
 
     def reparent_checked(self, parent, x=0, y=0):
-        window = self.get_internal()
-        parent = parent.get_internal()
+        window = get_internal(self)
+        parent = get_internal(parent)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIIhh", window, parent, x, y))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 7, True, True), \
             ooxcb.VoidCookie())
 
     def reparent(self, parent, x=0, y=0):
-        window = self.get_internal()
-        parent = parent.get_internal()
+        window = get_internal(self)
+        parent = get_internal(parent)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIIhh", window, parent, x, y))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 7, True, False), \
             ooxcb.VoidCookie())
 
     def map_checked(self):
-        window = self.get_internal()
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", window))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 8, True, True), \
             ooxcb.VoidCookie())
 
     def map(self):
-        window = self.get_internal()
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", window))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 8, True, False), \
             ooxcb.VoidCookie())
 
     def map_subwindows_checked(self):
-        window = self.get_internal()
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", window))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 9, True, True), \
             ooxcb.VoidCookie())
 
     def map_subwindows(self):
-        window = self.get_internal()
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", window))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 9, True, False), \
             ooxcb.VoidCookie())
 
     def unmap_checked(self):
-        window = self.get_internal()
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", window))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 10, True, True), \
             ooxcb.VoidCookie())
 
     def unmap(self):
-        window = self.get_internal()
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", window))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 10, True, False), \
             ooxcb.VoidCookie())
 
     def unmap_subwindows_checked(self):
-        window = self.get_internal()
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", window))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 11, True, True), \
             ooxcb.VoidCookie())
 
     def unmap_subwindows(self):
-        window = self.get_internal()
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", window))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 11, True, False), \
@@ -4175,21 +4163,21 @@ class Window(Drawable):
             ooxcb.VoidCookie())
 
     def circulate_window_checked(self, direction):
-        window = self.get_internal()
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxI", direction, window))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 13, True, True), \
             ooxcb.VoidCookie())
 
     def circulate_window(self, direction):
-        window = self.get_internal()
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxI", direction, window))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 13, True, False), \
             ooxcb.VoidCookie())
 
     def query_tree(self):
-        window = self.get_internal()
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", window))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 15, False, True), \
@@ -4197,7 +4185,7 @@ class Window(Drawable):
             QueryTreeReply)
 
     def query_tree_unchecked(self):
-        window = self.get_internal()
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", window))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 15, False, False), \
@@ -4231,8 +4219,8 @@ class Window(Drawable):
     def delete_property_checked(self, property):
         if isinstance(property, basestring):
             property = self.conn.atoms[property]
-        window = self.get_internal()
-        property = property.get_internal()
+        window = get_internal(self)
+        property = get_internal(property)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxII", window, property))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 19, True, True), \
@@ -4241,8 +4229,8 @@ class Window(Drawable):
     def delete_property(self, property):
         if isinstance(property, basestring):
             property = self.conn.atoms[property]
-        window = self.get_internal()
-        property = property.get_internal()
+        window = get_internal(self)
+        property = get_internal(property)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxII", window, property))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 19, True, False), \
@@ -4253,9 +4241,9 @@ class Window(Drawable):
             property = self.conn.atoms[property]
         if isinstance(type, basestring):
             type = self.conn.atoms[type]
-        window = self.get_internal()
-        property = property.get_internal()
-        type = type.get_internal()
+        window = get_internal(self)
+        property = get_internal(property)
+        type = get_internal(type)
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxIIIII", delete, window, property, type, long_offset, long_length))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 20, False, True), \
@@ -4267,9 +4255,9 @@ class Window(Drawable):
             property = self.conn.atoms[property]
         if isinstance(type, basestring):
             type = self.conn.atoms[type]
-        window = self.get_internal()
-        property = property.get_internal()
-        type = type.get_internal()
+        window = get_internal(self)
+        property = get_internal(property)
+        type = get_internal(type)
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxIIIII", delete, window, property, type, long_offset, long_length))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 20, False, False), \
@@ -4277,7 +4265,7 @@ class Window(Drawable):
             GetPropertyReply)
 
     def list_properties(self):
-        window = self.get_internal()
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", window))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 21, False, True), \
@@ -4285,7 +4273,7 @@ class Window(Drawable):
             ListPropertiesReply)
 
     def list_properties_unchecked(self):
-        window = self.get_internal()
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", window))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 21, False, False), \
@@ -4309,13 +4297,9 @@ class Window(Drawable):
             ooxcb.VoidCookie())
 
     def grab_pointer(self, event_mask, owner_events=True, pointer_mode=GrabMode.Async, keyboard_mode=GrabMode.Async, confine_to=None, cursor=None, time=Time.CurrentTime):
-        if confine_to is None:
-            confine_to = XNone
-        if cursor is None:
-            cursor = XNone
-        grab_window = self.get_internal()
-        confine_to = confine_to.get_internal()
-        cursor = cursor.get_internal()
+        grab_window = get_internal(self)
+        confine_to = get_internal(confine_to)
+        cursor = get_internal(cursor)
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxIHBBIII", owner_events, grab_window, event_mask, pointer_mode, keyboard_mode, confine_to, cursor, time))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 26, False, True), \
@@ -4323,53 +4307,49 @@ class Window(Drawable):
             GrabPointerReply)
 
     def grab_pointer_unchecked(self, event_mask, owner_events=True, pointer_mode=GrabMode.Async, keyboard_mode=GrabMode.Async, confine_to=None, cursor=None, time=Time.CurrentTime):
-        if confine_to is None:
-            confine_to = XNone
-        if cursor is None:
-            cursor = XNone
-        grab_window = self.get_internal()
-        confine_to = confine_to.get_internal()
-        cursor = cursor.get_internal()
+        grab_window = get_internal(self)
+        confine_to = get_internal(confine_to)
+        cursor = get_internal(cursor)
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxIHBBIII", owner_events, grab_window, event_mask, pointer_mode, keyboard_mode, confine_to, cursor, time))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 26, False, False), \
             GrabPointerCookie(),
             GrabPointerReply)
 
-    def grab_button_checked(self, event_mask, button, modifiers, owner_events=True, pointer_mode=GrabMode.Async, keyboard_mode=GrabMode.Async, confine_to=XNone, cursor=XNone):
-        grab_window = self.get_internal()
-        confine_to = confine_to.get_internal()
-        cursor = cursor.get_internal()
+    def grab_button_checked(self, event_mask, button, modifiers, owner_events=True, pointer_mode=GrabMode.Async, keyboard_mode=GrabMode.Async, confine_to=None, cursor=None):
+        grab_window = get_internal(self)
+        confine_to = get_internal(confine_to)
+        cursor = get_internal(cursor)
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxIHBBIIBxH", owner_events, grab_window, event_mask, pointer_mode, keyboard_mode, confine_to, cursor, button, modifiers))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 28, True, True), \
             ooxcb.VoidCookie())
 
-    def grab_button(self, event_mask, button, modifiers, owner_events=True, pointer_mode=GrabMode.Async, keyboard_mode=GrabMode.Async, confine_to=XNone, cursor=XNone):
-        grab_window = self.get_internal()
-        confine_to = confine_to.get_internal()
-        cursor = cursor.get_internal()
+    def grab_button(self, event_mask, button, modifiers, owner_events=True, pointer_mode=GrabMode.Async, keyboard_mode=GrabMode.Async, confine_to=None, cursor=None):
+        grab_window = get_internal(self)
+        confine_to = get_internal(confine_to)
+        cursor = get_internal(cursor)
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxIHBBIIBxH", owner_events, grab_window, event_mask, pointer_mode, keyboard_mode, confine_to, cursor, button, modifiers))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 28, True, False), \
             ooxcb.VoidCookie())
 
     def ungrab_button_checked(self, button, modifiers):
-        grab_window = self.get_internal()
+        grab_window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxIHxx", button, grab_window, modifiers))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 29, True, True), \
             ooxcb.VoidCookie())
 
     def ungrab_button(self, button, modifiers):
-        grab_window = self.get_internal()
+        grab_window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxIHxx", button, grab_window, modifiers))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 29, True, False), \
             ooxcb.VoidCookie())
 
     def grab_keyboard(self, owner_events=True, time=Time.CurrentTime, pointer_mode=GrabMode.Async, keyboard_mode=GrabMode.Async):
-        grab_window = self.get_internal()
+        grab_window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxIIBBxx", owner_events, grab_window, time, pointer_mode, keyboard_mode))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 31, False, True), \
@@ -4377,7 +4357,7 @@ class Window(Drawable):
             GrabKeyboardReply)
 
     def grab_keyboard_unchecked(self, owner_events=True, time=Time.CurrentTime, pointer_mode=GrabMode.Async, keyboard_mode=GrabMode.Async):
-        grab_window = self.get_internal()
+        grab_window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxIIBBxx", owner_events, grab_window, time, pointer_mode, keyboard_mode))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 31, False, False), \
@@ -4385,35 +4365,35 @@ class Window(Drawable):
             GrabKeyboardReply)
 
     def grab_key_checked(self, key, modifiers, owner_events=True, pointer_mode=GrabMode.Async, keyboard_mode=GrabMode.Async):
-        grab_window = self.get_internal()
+        grab_window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxIHBBBxxx", owner_events, grab_window, modifiers, key, pointer_mode, keyboard_mode))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 33, True, True), \
             ooxcb.VoidCookie())
 
     def grab_key(self, key, modifiers, owner_events=True, pointer_mode=GrabMode.Async, keyboard_mode=GrabMode.Async):
-        grab_window = self.get_internal()
+        grab_window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxIHBBBxxx", owner_events, grab_window, modifiers, key, pointer_mode, keyboard_mode))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 33, True, False), \
             ooxcb.VoidCookie())
 
     def ungrab_key_checked(self, key, modifiers):
-        grab_window = self.get_internal()
+        grab_window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxIHxx", key, grab_window, modifiers))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 34, True, True), \
             ooxcb.VoidCookie())
 
     def ungrab_key(self, key, modifiers):
-        grab_window = self.get_internal()
+        grab_window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxIHxx", key, grab_window, modifiers))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 34, True, False), \
             ooxcb.VoidCookie())
 
     def query_pointer(self):
-        window = self.get_internal()
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", window))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 38, False, True), \
@@ -4421,7 +4401,7 @@ class Window(Drawable):
             QueryPointerReply)
 
     def query_pointer_unchecked(self):
-        window = self.get_internal()
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", window))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 38, False, False), \
@@ -4429,7 +4409,7 @@ class Window(Drawable):
             QueryPointerReply)
 
     def get_motion_events(self, start, stop):
-        window = self.get_internal()
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIII", window, start, stop))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 39, False, True), \
@@ -4437,7 +4417,7 @@ class Window(Drawable):
             GetMotionEventsReply)
 
     def get_motion_events_unchecked(self, start, stop):
-        window = self.get_internal()
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIII", window, start, stop))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 39, False, False), \
@@ -4445,8 +4425,8 @@ class Window(Drawable):
             GetMotionEventsReply)
 
     def translate_coordinates(self, dst_window, src_x, src_y):
-        src_window = self.get_internal()
-        dst_window = dst_window.get_internal()
+        src_window = get_internal(self)
+        dst_window = get_internal(dst_window)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIIhh", src_window, dst_window, src_x, src_y))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 40, False, True), \
@@ -4454,8 +4434,8 @@ class Window(Drawable):
             TranslateCoordinatesReply)
 
     def translate_coordinates_unchecked(self, dst_window, src_x, src_y):
-        src_window = self.get_internal()
-        dst_window = dst_window.get_internal()
+        src_window = get_internal(self)
+        dst_window = get_internal(dst_window)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIIhh", src_window, dst_window, src_x, src_y))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 40, False, False), \
@@ -4463,35 +4443,35 @@ class Window(Drawable):
             TranslateCoordinatesReply)
 
     def set_input_focus_checked(self, revert_to=InputFocus.PointerRoot, time=Time.CurrentTime):
-        focus = self.get_internal()
+        focus = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxII", revert_to, focus, time))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 42, True, True), \
             ooxcb.VoidCookie())
 
     def set_input_focus(self, revert_to=InputFocus.PointerRoot, time=Time.CurrentTime):
-        focus = self.get_internal()
+        focus = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxII", revert_to, focus, time))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 42, True, False), \
             ooxcb.VoidCookie())
 
     def clear_area_checked(self, x, y, width, height, exposures=False):
-        window = self.get_internal()
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxIhhHH", exposures, window, x, y, width, height))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 61, True, True), \
             ooxcb.VoidCookie())
 
     def clear_area(self, x, y, width, height, exposures=False):
-        window = self.get_internal()
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxIhhHH", exposures, window, x, y, width, height))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 61, True, False), \
             ooxcb.VoidCookie())
 
     def list_installed_colormaps(self):
-        window = self.get_internal()
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", window))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 83, False, True), \
@@ -4499,7 +4479,7 @@ class Window(Drawable):
             ListInstalledColormapsReply)
 
     def list_installed_colormaps_unchecked(self):
-        window = self.get_internal()
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", window))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 83, False, False), \
@@ -4511,7 +4491,7 @@ class Window(Drawable):
         for atom in atoms_:
             atoms.append(atom.get_internal())
         atoms_len = len(atoms_)
-        window = self.get_internal()
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIHh", window, atoms_len, delta))
         buf.write(make_array(atoms, "I"))
@@ -4523,7 +4503,7 @@ class Window(Drawable):
         for atom in atoms_:
             atoms.append(atom.get_internal())
         atoms_len = len(atoms_)
-        window = self.get_internal()
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIHh", window, atoms_len, delta))
         buf.write(make_array(atoms, "I"))
@@ -4537,7 +4517,7 @@ class Window(Drawable):
         value_mask, value_list = 0, []
         if "back_pixmap" in values:
             value_mask |= 1
-            value_list.append(values["back_pixmap"].get_internal())
+            value_list.append(get_internal(values["back_pixmap"]))
         if "back_pixel" in values:
             value_mask |= 2
             value_list.append(values["back_pixel"])
@@ -4576,10 +4556,10 @@ class Window(Drawable):
             value_list.append(values["dont_propagate"])
         if "colormap" in values:
             value_mask |= 8192
-            value_list.append(values["colormap"].get_internal())
+            value_list.append(get_internal(values["colormap"]))
         if "cursor" in values:
             value_mask |= 16384
-            value_list.append(values["cursor"].get_internal())
+            value_list.append(get_internal(values["cursor"]))
         conn.core.create_window_checked(depth, win, parent, x, y, width, height, border_width, _class, visual, value_mask, value_list).check()
         conn.add_to_cache(wid, win)
         return win
@@ -4643,7 +4623,7 @@ class VisibilityNotifyEvent(ooxcb.Event):
     def build(self, stream):
         count = 0
         root = stream.tell()
-        stream.write(pack("=BxxxIBxxx", self.response_type, self.window.get_internal(), self.state))
+        stream.write(pack("=BxxxIBxxx", self.response_type, get_internal(self.window), self.state))
         stream.write("\0" * (32 - (stream.tell() - root)))
 
 class FocusOutEvent(ooxcb.Event):
@@ -4669,7 +4649,7 @@ class FocusOutEvent(ooxcb.Event):
     def build(self, stream):
         count = 0
         root = stream.tell()
-        stream.write(pack("=BBxxIBxxx", self.response_type, self.detail, self.event.get_internal(), self.mode))
+        stream.write(pack("=BBxxIBxxx", self.response_type, self.detail, get_internal(self.event), self.mode))
         stream.write("\0" * (32 - (stream.tell() - root)))
 
 class Format(ooxcb.Struct):
@@ -4715,7 +4695,7 @@ class ColormapNotifyEvent(ooxcb.Event):
     def build(self, stream):
         count = 0
         root = stream.tell()
-        stream.write(pack("=BxxxIIBBxx", self.response_type, self.window.get_internal(), self.colormap.get_internal(), self.new, self.state))
+        stream.write(pack("=BxxxIIBBxx", self.response_type, get_internal(self.window), get_internal(self.colormap), self.new, self.state))
         stream.write("\0" * (32 - (stream.tell() - root)))
 
 class CirculateRequestEvent(ooxcb.Event):
@@ -4741,7 +4721,7 @@ class CirculateRequestEvent(ooxcb.Event):
     def build(self, stream):
         count = 0
         root = stream.tell()
-        stream.write(pack("=BxxxIIxxxxBxxx", self.response_type, self.event.get_internal(), self.window.get_internal(), self.place))
+        stream.write(pack("=BxxxIIxxxxBxxx", self.response_type, get_internal(self.event), get_internal(self.window), self.place))
         stream.write("\0" * (32 - (stream.tell() - root)))
 
 class QueryFontReply(ooxcb.Reply):
@@ -4830,7 +4810,7 @@ class CreateNotifyEvent(ooxcb.Event):
     def build(self, stream):
         count = 0
         root = stream.tell()
-        stream.write(pack("=BxxxIIhhHHHBx", self.response_type, self.parent.get_internal(), self.window.get_internal(), self.x, self.y, self.width, self.height, self.border_width, self.override_redirect))
+        stream.write(pack("=BxxxIIhhHHHBx", self.response_type, get_internal(self.parent), get_internal(self.window), self.x, self.y, self.width, self.height, self.border_width, self.override_redirect))
         stream.write("\0" * (32 - (stream.tell() - root)))
 
 class ResizeRequestEvent(ooxcb.Event):
@@ -4856,7 +4836,7 @@ class ResizeRequestEvent(ooxcb.Event):
     def build(self, stream):
         count = 0
         root = stream.tell()
-        stream.write(pack("=BxxxIHH", self.response_type, self.window.get_internal(), self.width, self.height))
+        stream.write(pack("=BxxxIHH", self.response_type, get_internal(self.window), self.width, self.height))
         stream.write("\0" * (32 - (stream.tell() - root)))
 
 class QueryColorsReply(ooxcb.Reply):
@@ -4916,7 +4896,7 @@ class MotionNotifyEvent(ooxcb.Event):
     def build(self, stream):
         count = 0
         root = stream.tell()
-        stream.write(pack("=BBxxIIIIhhhhHBx", self.response_type, self.detail, self.time, self.root.get_internal(), self.event.get_internal(), self.child.get_internal(), self.root_x, self.root_y, self.event_x, self.event_y, self.state, self.same_screen))
+        stream.write(pack("=BBxxIIIIhhhhHBx", self.response_type, self.detail, self.time, get_internal(self.root), get_internal(self.event), get_internal(self.child), self.root_x, self.root_y, self.event_x, self.event_y, self.state, self.same_screen))
         stream.write("\0" * (32 - (stream.tell() - root)))
 
 class Atom(ooxcb.Resource):
@@ -4924,7 +4904,7 @@ class Atom(ooxcb.Resource):
         ooxcb.Resource.__init__(self, conn, xid)
 
     def get_name(self):
-        atom = self.get_internal()
+        atom = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", atom))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 17, False, True), \
@@ -4932,7 +4912,7 @@ class Atom(ooxcb.Resource):
             GetAtomNameReply)
 
     def get_name_unchecked(self):
-        atom = self.get_internal()
+        atom = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", atom))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 17, False, False), \
@@ -4940,27 +4920,23 @@ class Atom(ooxcb.Resource):
             GetAtomNameReply)
 
     def set_selection_owner_checked(self, owner=None, time=0):
-        if owner is None:
-            owner = XNone
-        owner = owner.get_internal()
-        selection = self.get_internal()
+        owner = get_internal(owner)
+        selection = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIII", owner, selection, time))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 22, True, True), \
             ooxcb.VoidCookie())
 
     def set_selection_owner(self, owner=None, time=0):
-        if owner is None:
-            owner = XNone
-        owner = owner.get_internal()
-        selection = self.get_internal()
+        owner = get_internal(owner)
+        selection = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIII", owner, selection, time))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 22, True, False), \
             ooxcb.VoidCookie())
 
     def get_selection_owner(self):
-        selection = self.get_internal()
+        selection = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", selection))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 23, False, True), \
@@ -4968,7 +4944,7 @@ class Atom(ooxcb.Resource):
             GetSelectionOwnerReply)
 
     def get_selection_owner_unchecked(self):
-        selection = self.get_internal()
+        selection = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", selection))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 23, False, False), \
@@ -4976,24 +4952,20 @@ class Atom(ooxcb.Resource):
             GetSelectionOwnerReply)
 
     def convert_selection_checked(self, requestor, target, property=None, time=0):
-        if property is None:
-            property = XNone
-        requestor = requestor.get_internal()
-        selection = self.get_internal()
-        target = target.get_internal()
-        property = property.get_internal()
+        requestor = get_internal(requestor)
+        selection = get_internal(self)
+        target = get_internal(target)
+        property = get_internal(property)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIIIII", requestor, selection, target, property, time))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 24, True, True), \
             ooxcb.VoidCookie())
 
     def convert_selection(self, requestor, target, property=None, time=0):
-        if property is None:
-            property = XNone
-        requestor = requestor.get_internal()
-        selection = self.get_internal()
-        target = target.get_internal()
-        property = property.get_internal()
+        requestor = get_internal(requestor)
+        selection = get_internal(self)
+        target = get_internal(target)
+        property = get_internal(property)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIIIII", requestor, selection, target, property, time))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 24, True, False), \
@@ -5065,7 +5037,7 @@ class GetInputFocusReply(ooxcb.Reply):
 
     def build(self, stream):
         count = 0
-        stream.write(pack("=xBxxxxxxI", self.revert_to, self.focus.get_internal()))
+        stream.write(pack("=xBxxxxxxI", self.revert_to, get_internal(self.focus)))
 
 class MappingNotifyEvent(ooxcb.Event):
     event_name = "on_mapping_notify"
@@ -5117,7 +5089,7 @@ class GetGeometryReply(ooxcb.Reply):
 
     def build(self, stream):
         count = 0
-        stream.write(pack("=xBxxxxxxIhhHHHxx", self.depth, self.root.get_internal(), self.x, self.y, self.width, self.height, self.border_width))
+        stream.write(pack("=xBxxxxxxIhhHHHxx", self.depth, get_internal(self.root), self.x, self.y, self.width, self.height, self.border_width))
 
 class SelectionRequestEvent(ooxcb.Event):
     event_name = "on_selection_request"
@@ -5148,7 +5120,7 @@ class SelectionRequestEvent(ooxcb.Event):
     def build(self, stream):
         count = 0
         root = stream.tell()
-        stream.write(pack("=BxxxIIIIII", self.response_type, self.time, self.owner.get_internal(), self.requestor.get_internal(), self.selection.get_internal(), self.target.get_internal(), self.property.get_internal()))
+        stream.write(pack("=BxxxIIIIII", self.response_type, self.time, get_internal(self.owner), get_internal(self.requestor), get_internal(self.selection), get_internal(self.target), get_internal(self.property)))
         stream.write("\0" * (32 - (stream.tell() - root)))
 
 class BadWindow(ooxcb.ProtocolException):
@@ -5220,7 +5192,7 @@ class FocusInEvent(ooxcb.Event):
     def build(self, stream):
         count = 0
         root = stream.tell()
-        stream.write(pack("=BBxxIBxxx", self.response_type, self.detail, self.event.get_internal(), self.mode))
+        stream.write(pack("=BBxxIBxxx", self.response_type, self.detail, get_internal(self.event), self.mode))
         stream.write("\0" * (32 - (stream.tell() - root)))
 
 class GContext(Fontable):
@@ -5273,7 +5245,7 @@ class GContext(Fontable):
             value_list.append(values["tile_stipple_origin_y"])
         if "font" in values:
             value_mask |= 16384
-            value_list.append(values["font"].get_internal())
+            value_list.append(get_internal(values["font"]))
         if "subwindow_mode" in values:
             value_mask |= 32768
             value_list.append(values["subwindow_mode"])
@@ -5298,7 +5270,7 @@ class GContext(Fontable):
         if "arc_mode" in values:
             value_mask |= 4194304
             value_list.append(values["arc_mode"])
-        gc = self.get_internal()
+        gc = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxII", gc, value_mask))
         buf.write(make_array(value_list, "I"))
@@ -5351,7 +5323,7 @@ class GContext(Fontable):
             value_list.append(values["tile_stipple_origin_y"])
         if "font" in values:
             value_mask |= 16384
-            value_list.append(values["font"].get_internal())
+            value_list.append(get_internal(values["font"]))
         if "subwindow_mode" in values:
             value_mask |= 32768
             value_list.append(values["subwindow_mode"])
@@ -5376,7 +5348,7 @@ class GContext(Fontable):
         if "arc_mode" in values:
             value_mask |= 4194304
             value_list.append(values["arc_mode"])
-        gc = self.get_internal()
+        gc = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxII", gc, value_mask))
         buf.write(make_array(value_list, "I"))
@@ -5431,8 +5403,8 @@ class GContext(Fontable):
             value_mask |= 2097152
         if "arc_mode" in values:
             value_mask |= 4194304
-        src_gc = self.get_internal()
-        dst_gc = dst_gc.get_internal()
+        src_gc = get_internal(self)
+        dst_gc = get_internal(dst_gc)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIII", src_gc, dst_gc, value_mask))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 57, True, True), \
@@ -5486,8 +5458,8 @@ class GContext(Fontable):
             value_mask |= 2097152
         if "arc_mode" in values:
             value_mask |= 4194304
-        src_gc = self.get_internal()
-        dst_gc = dst_gc.get_internal()
+        src_gc = get_internal(self)
+        dst_gc = get_internal(dst_gc)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIII", src_gc, dst_gc, value_mask))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 57, True, False), \
@@ -5495,7 +5467,7 @@ class GContext(Fontable):
 
     def set_dashes_checked(self, dash_offset, dashes):
         dashes_len = len(dashes)
-        gc = self.get_internal()
+        gc = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIHH", gc, dash_offset, dashes_len))
         buf.write(make_array(dashes, "B"))
@@ -5504,7 +5476,7 @@ class GContext(Fontable):
 
     def set_dashes(self, dash_offset, dashes):
         dashes_len = len(dashes)
-        gc = self.get_internal()
+        gc = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIHH", gc, dash_offset, dashes_len))
         buf.write(make_array(dashes, "B"))
@@ -5532,50 +5504,50 @@ class GContext(Fontable):
             ooxcb.VoidCookie())
 
     def free_checked(self):
-        gc = self.get_internal()
+        gc = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", gc))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 60, True, True), \
             ooxcb.VoidCookie())
 
     def free(self):
-        gc = self.get_internal()
+        gc = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", gc))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 60, True, False), \
             ooxcb.VoidCookie())
 
     def copy_area_checked(self, src_drawable, dst_drawable, src_x, src_y, dst_x, dst_y, width, height):
-        src_drawable = src_drawable.get_internal()
-        dst_drawable = dst_drawable.get_internal()
-        gc = self.get_internal()
+        src_drawable = get_internal(src_drawable)
+        dst_drawable = get_internal(dst_drawable)
+        gc = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIIIhhhhHH", src_drawable, dst_drawable, gc, src_x, src_y, dst_x, dst_y, width, height))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 62, True, True), \
             ooxcb.VoidCookie())
 
     def copy_area(self, src_drawable, dst_drawable, src_x, src_y, dst_x, dst_y, width, height):
-        src_drawable = src_drawable.get_internal()
-        dst_drawable = dst_drawable.get_internal()
-        gc = self.get_internal()
+        src_drawable = get_internal(src_drawable)
+        dst_drawable = get_internal(dst_drawable)
+        gc = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIIIhhhhHH", src_drawable, dst_drawable, gc, src_x, src_y, dst_x, dst_y, width, height))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 62, True, False), \
             ooxcb.VoidCookie())
 
     def copy_plane_checked(self, src_drawable, dst_drawable, src_x, src_y, dst_x, dst_y, width, height, bit_plane):
-        src_drawable = src_drawable.get_internal()
-        dst_drawable = dst_drawable.get_internal()
-        gc = self.get_internal()
+        src_drawable = get_internal(src_drawable)
+        dst_drawable = get_internal(dst_drawable)
+        gc = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIIIhhhhHHI", src_drawable, dst_drawable, gc, src_x, src_y, dst_x, dst_y, width, height, bit_plane))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 63, True, True), \
             ooxcb.VoidCookie())
 
     def copy_plane(self, src_drawable, dst_drawable, src_x, src_y, dst_x, dst_y, width, height, bit_plane):
-        src_drawable = src_drawable.get_internal()
-        dst_drawable = dst_drawable.get_internal()
-        gc = self.get_internal()
+        src_drawable = get_internal(src_drawable)
+        dst_drawable = get_internal(dst_drawable)
+        gc = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIIIhhhhHHI", src_drawable, dst_drawable, gc, src_x, src_y, dst_x, dst_y, width, height, bit_plane))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 63, True, False), \
@@ -5583,8 +5555,8 @@ class GContext(Fontable):
 
     def poly_point_checked(self, drawable, points, coordinate_mode=0):
         points_len = len(points)
-        drawable = drawable.get_internal()
-        gc = self.get_internal()
+        drawable = get_internal(drawable)
+        gc = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxII", coordinate_mode, drawable, gc))
         for elt in points:
@@ -5594,8 +5566,8 @@ class GContext(Fontable):
 
     def poly_point(self, drawable, points, coordinate_mode=0):
         points_len = len(points)
-        drawable = drawable.get_internal()
-        gc = self.get_internal()
+        drawable = get_internal(drawable)
+        gc = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxII", coordinate_mode, drawable, gc))
         for elt in points:
@@ -5605,8 +5577,8 @@ class GContext(Fontable):
 
     def poly_line_checked(self, drawable, points, coordinate_mode=0):
         points_len = len(points)
-        drawable = drawable.get_internal()
-        gc = self.get_internal()
+        drawable = get_internal(drawable)
+        gc = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxII", coordinate_mode, drawable, gc))
         for elt in points:
@@ -5616,8 +5588,8 @@ class GContext(Fontable):
 
     def poly_line(self, drawable, points, coordinate_mode=0):
         points_len = len(points)
-        drawable = drawable.get_internal()
-        gc = self.get_internal()
+        drawable = get_internal(drawable)
+        gc = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxII", coordinate_mode, drawable, gc))
         for elt in points:
@@ -5627,8 +5599,8 @@ class GContext(Fontable):
 
     def poly_segment_checked(self, drawable, segments):
         segments_len = len(segments)
-        drawable = drawable.get_internal()
-        gc = self.get_internal()
+        drawable = get_internal(drawable)
+        gc = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxII", drawable, gc))
         for elt in segments:
@@ -5638,8 +5610,8 @@ class GContext(Fontable):
 
     def poly_segment(self, drawable, segments):
         segments_len = len(segments)
-        drawable = drawable.get_internal()
-        gc = self.get_internal()
+        drawable = get_internal(drawable)
+        gc = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxII", drawable, gc))
         for elt in segments:
@@ -5691,8 +5663,8 @@ class GContext(Fontable):
 
     def fill_poly_checked(self, drawable, points, shape=0, coordinate_mode=0):
         points_len = len(points)
-        drawable = drawable.get_internal()
-        gc = self.get_internal()
+        drawable = get_internal(drawable)
+        gc = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIIBBxx", drawable, gc, shape, coordinate_mode))
         for elt in points:
@@ -5702,8 +5674,8 @@ class GContext(Fontable):
 
     def fill_poly(self, drawable, points, shape=0, coordinate_mode=0):
         points_len = len(points)
-        drawable = drawable.get_internal()
-        gc = self.get_internal()
+        drawable = get_internal(drawable)
+        gc = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIIBBxx", drawable, gc, shape, coordinate_mode))
         for elt in points:
@@ -5755,8 +5727,8 @@ class GContext(Fontable):
 
     def put_image_checked(self, drawable, format, width, height, dst_x, dst_y, depth, left_pad, data):
         data_len = len(data)
-        drawable = drawable.get_internal()
-        gc = self.get_internal()
+        drawable = get_internal(drawable)
+        gc = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxIIHHhhBBxx", format, drawable, gc, width, height, dst_x, dst_y, left_pad, depth))
         buf.write(make_array(data, "B"))
@@ -5765,8 +5737,8 @@ class GContext(Fontable):
 
     def put_image(self, drawable, format, width, height, dst_x, dst_y, depth, left_pad, data):
         data_len = len(data)
-        drawable = drawable.get_internal()
-        gc = self.get_internal()
+        drawable = get_internal(drawable)
+        gc = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxIIHHhhBBxx", format, drawable, gc, width, height, dst_x, dst_y, left_pad, depth))
         buf.write(make_array(data, "B"))
@@ -5778,8 +5750,8 @@ class GContext(Fontable):
             string = string.encode("utf-8")
         items_len = len(string)
         items = map(ord, string)
-        drawable = drawable.get_internal()
-        gc = self.get_internal()
+        drawable = get_internal(drawable)
+        gc = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIIhh", drawable, gc, x, y))
         buf.write(make_array(items, "B"))
@@ -5791,8 +5763,8 @@ class GContext(Fontable):
             string = string.encode("utf-8")
         items_len = len(string)
         items = map(ord, string)
-        drawable = drawable.get_internal()
-        gc = self.get_internal()
+        drawable = get_internal(drawable)
+        gc = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIIhh", drawable, gc, x, y))
         buf.write(make_array(items, "B"))
@@ -5804,8 +5776,8 @@ class GContext(Fontable):
             raise XcbException("`string` has to be an unicode string")
         items = string.encode("utf-16be")
         items_len = len(items) / 2 # should work
-        drawable = drawable.get_internal()
-        gc = self.get_internal()
+        drawable = get_internal(drawable)
+        gc = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIIhh", drawable, gc, x, y))
         buf.write(make_array(items, "B"))
@@ -5817,8 +5789,8 @@ class GContext(Fontable):
             raise XcbException("`string` has to be an unicode string")
         items = string.encode("utf-16be")
         items_len = len(items) / 2 # should work
-        drawable = drawable.get_internal()
-        gc = self.get_internal()
+        drawable = get_internal(drawable)
+        gc = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIIhh", drawable, gc, x, y))
         buf.write(make_array(items, "B"))
@@ -5830,8 +5802,8 @@ class GContext(Fontable):
             string = string.encode("utf-8")
         string_len = len(string)
         string = map(ord, string)
-        drawable = drawable.get_internal()
-        gc = self.get_internal()
+        drawable = get_internal(drawable)
+        gc = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxIIhh", string_len, drawable, gc, x, y))
         buf.write(make_array(string, "B"))
@@ -5843,8 +5815,8 @@ class GContext(Fontable):
             string = string.encode("utf-8")
         string_len = len(string)
         string = map(ord, string)
-        drawable = drawable.get_internal()
-        gc = self.get_internal()
+        drawable = get_internal(drawable)
+        gc = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxIIhh", string_len, drawable, gc, x, y))
         buf.write(make_array(string, "B"))
@@ -5853,8 +5825,8 @@ class GContext(Fontable):
 
     def image_text16_checked(self, drawable, x, y, string):
         string_len = len(string)
-        drawable = drawable.get_internal()
-        gc = self.get_internal()
+        drawable = get_internal(drawable)
+        gc = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxIIhh", string_len, drawable, gc, x, y))
         buf.write(string.encode("utf-16be"))
@@ -5863,8 +5835,8 @@ class GContext(Fontable):
 
     def image_text16(self, drawable, x, y, string):
         string_len = len(string)
-        drawable = drawable.get_internal()
-        gc = self.get_internal()
+        drawable = get_internal(drawable)
+        gc = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xBxxIIhh", string_len, drawable, gc, x, y))
         buf.write(string.encode("utf-16be"))
@@ -5920,7 +5892,7 @@ class GContext(Fontable):
             value_list.append(values["tile_stipple_origin_y"])
         if "font" in values:
             value_mask |= 16384
-            value_list.append(values["font"].get_internal())
+            value_list.append(get_internal(values["font"]))
         if "subwindow_mode" in values:
             value_mask |= 32768
             value_list.append(values["subwindow_mode"])
@@ -5996,7 +5968,7 @@ class QueryPointerReply(ooxcb.Reply):
 
     def build(self, stream):
         count = 0
-        stream.write(pack("=xBxxxxxxIIhhhhHxx", self.same_screen, self.root.get_internal(), self.child.get_internal(), self.root_x, self.root_y, self.win_x, self.win_y, self.mask))
+        stream.write(pack("=xBxxxxxxIIhhhhHxx", self.same_screen, get_internal(self.root), get_internal(self.child), self.root_x, self.root_y, self.win_x, self.win_y, self.mask))
 
 class SelectionNotifyEvent(ooxcb.Event):
     event_name = "on_selection_notify"
@@ -6025,7 +5997,7 @@ class SelectionNotifyEvent(ooxcb.Event):
     def build(self, stream):
         count = 0
         root = stream.tell()
-        stream.write(pack("=BxxxIIIII", self.response_type, self.time, self.requestor.get_internal(), self.selection.get_internal(), self.target.get_internal(), self.property.get_internal()))
+        stream.write(pack("=BxxxIIIII", self.response_type, self.time, get_internal(self.requestor), get_internal(self.selection), get_internal(self.target), get_internal(self.property)))
         stream.write("\0" * (32 - (stream.tell() - root)))
 
 class SetModifierMappingCookie(ooxcb.Cookie):
@@ -6046,7 +6018,7 @@ class GetSelectionOwnerReply(ooxcb.Reply):
 
     def build(self, stream):
         count = 0
-        stream.write(pack("=xxxxxxxxI", self.owner.get_internal()))
+        stream.write(pack("=xxxxxxxxI", get_internal(self.owner)))
 
 class WindowError(ooxcb.Error):
     def __init__(self, conn):
@@ -6091,7 +6063,7 @@ class PropertyNotifyEvent(ooxcb.Event):
     def build(self, stream):
         count = 0
         root = stream.tell()
-        stream.write(pack("=BxxxIIIBxxx", self.response_type, self.window.get_internal(), self.atom.get_internal(), self.time, self.state))
+        stream.write(pack("=BxxxIIIBxxx", self.response_type, get_internal(self.window), get_internal(self.atom), self.time, self.state))
         stream.write("\0" * (32 - (stream.tell() - root)))
 
 class GetFontPathReply(ooxcb.Reply):

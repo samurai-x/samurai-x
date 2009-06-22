@@ -42,3 +42,5 @@ class ProtocolException(XcbException):
     """
     pass
 
+class ProtocolDataError(XcbException):
+    pass

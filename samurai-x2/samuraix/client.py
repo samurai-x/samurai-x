@@ -259,7 +259,8 @@ class Client(SXObject):
         if self.actor is not self.window:
             self.window.map()
         # "unban" to get a valid WM_STATE property.
-        self.unban()
+        # ... removed that because the decorator plugin does that.
+        #self.unban()
 
     def msg_active_window(self, evt):
         """
@@ -339,6 +340,16 @@ class Client(SXObject):
             self.dispatch_event('on_handle_net_wm_state',
                     second in self.state, second, source_indication)
 
+    @property
+    def viewable(self):
+        """
+            is True if the client is on the currently active desktop
+            -> it could be shown.
+        """
+        current = self.screen.info.ewmh_get_current_desktop()
+        desktop = self.window.ewmh_get_desktop()
+        return (current is None or current == desktop)
+
     def on_map_notify(self, evt):
         """
             window's event handler for map notify events
@@ -346,6 +357,9 @@ class Client(SXObject):
         state = self.window.icccm_get_wm_state()
         if not state:
             log.warning('got map notify, but window does not have WM_STATE set')
+            return
+        if not self.viewable:
+            log.warning('got map notify, but client is not viewable')
             return
         # Iconic -> Normal
         if state.state == xproto.WMState.Iconic:

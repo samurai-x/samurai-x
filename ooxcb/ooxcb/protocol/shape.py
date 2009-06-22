@@ -1,6 +1,6 @@
 # auto generated. yay.
 import ooxcb
-from ooxcb.resource import XNone
+from ooxcb.resource import get_internal
 from ooxcb.types import SIZES, make_array, build_list
 try:
     import cStringIO as StringIO
@@ -53,7 +53,7 @@ class WindowMixin(Mixin):
     target_class = Window
     def shape_rectangles_checked(self, operation, destination_kind, ordering, x_offset, y_offset, rectangles):
         rectangles_len = len(rectangles)
-        destination_window = self.get_internal()
+        destination_window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxBBBxIhh", operation, destination_kind, ordering, destination_window, x_offset, y_offset))
         rectangles.build(buf)
@@ -62,7 +62,7 @@ class WindowMixin(Mixin):
 
     def shape_rectangles(self, operation, destination_kind, ordering, x_offset, y_offset, rectangles):
         rectangles_len = len(rectangles)
-        destination_window = self.get_internal()
+        destination_window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxBBBxIhh", operation, destination_kind, ordering, destination_window, x_offset, y_offset))
         rectangles.build(buf)
@@ -70,53 +70,53 @@ class WindowMixin(Mixin):
             ooxcb.VoidCookie())
 
     def shape_mask_checked(self, operation, destination_kind, x_offset, y_offset, source_bitmap):
-        destination_window = self.get_internal()
-        source_bitmap = source_bitmap.get_internal()
+        destination_window = get_internal(self)
+        source_bitmap = get_internal(source_bitmap)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxBBxxIhhI", operation, destination_kind, destination_window, x_offset, y_offset, source_bitmap))
         return self.conn.shape.send_request(ooxcb.Request(self.conn, buf.getvalue(), 2, True, True), \
             ooxcb.VoidCookie())
 
     def shape_mask(self, operation, destination_kind, x_offset, y_offset, source_bitmap):
-        destination_window = self.get_internal()
-        source_bitmap = source_bitmap.get_internal()
+        destination_window = get_internal(self)
+        source_bitmap = get_internal(source_bitmap)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxBBxxIhhI", operation, destination_kind, destination_window, x_offset, y_offset, source_bitmap))
         return self.conn.shape.send_request(ooxcb.Request(self.conn, buf.getvalue(), 2, True, False), \
             ooxcb.VoidCookie())
 
     def shape_combine_checked(self, operation, destination_kind, source_kind, x_offset, y_offset, source_window):
-        destination_window = self.get_internal()
-        source_window = source_window.get_internal()
+        destination_window = get_internal(self)
+        source_window = get_internal(source_window)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxBBBxIhhI", operation, destination_kind, source_kind, destination_window, x_offset, y_offset, source_window))
         return self.conn.shape.send_request(ooxcb.Request(self.conn, buf.getvalue(), 3, True, True), \
             ooxcb.VoidCookie())
 
     def shape_combine(self, operation, destination_kind, source_kind, x_offset, y_offset, source_window):
-        destination_window = self.get_internal()
-        source_window = source_window.get_internal()
+        destination_window = get_internal(self)
+        source_window = get_internal(source_window)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxBBBxIhhI", operation, destination_kind, source_kind, destination_window, x_offset, y_offset, source_window))
         return self.conn.shape.send_request(ooxcb.Request(self.conn, buf.getvalue(), 3, True, False), \
             ooxcb.VoidCookie())
 
     def shape_offset_checked(self, destination_kind, x_offset, y_offset):
-        destination_window = self.get_internal()
+        destination_window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxBxxxIhh", destination_kind, destination_window, x_offset, y_offset))
         return self.conn.shape.send_request(ooxcb.Request(self.conn, buf.getvalue(), 4, True, True), \
             ooxcb.VoidCookie())
 
     def shape_offset(self, destination_kind, x_offset, y_offset):
-        destination_window = self.get_internal()
+        destination_window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxBxxxIhh", destination_kind, destination_window, x_offset, y_offset))
         return self.conn.shape.send_request(ooxcb.Request(self.conn, buf.getvalue(), 4, True, False), \
             ooxcb.VoidCookie())
 
     def shape_query_extents(self):
-        destination_window = self.get_internal()
+        destination_window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", destination_window))
         return self.conn.shape.send_request(ooxcb.Request(self.conn, buf.getvalue(), 5, False, True), \
@@ -124,7 +124,7 @@ class WindowMixin(Mixin):
             QueryExtentsReply)
 
     def shape_query_extents_unchecked(self):
-        destination_window = self.get_internal()
+        destination_window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", destination_window))
         return self.conn.shape.send_request(ooxcb.Request(self.conn, buf.getvalue(), 5, False, False), \
@@ -132,21 +132,21 @@ class WindowMixin(Mixin):
             QueryExtentsReply)
 
     def shape_select_input_checked(self, enable):
-        destination_window = self.get_internal()
+        destination_window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIBxxx", destination_window, enable))
         return self.conn.shape.send_request(ooxcb.Request(self.conn, buf.getvalue(), 6, True, True), \
             ooxcb.VoidCookie())
 
     def shape_select_input(self, enable):
-        destination_window = self.get_internal()
+        destination_window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIBxxx", destination_window, enable))
         return self.conn.shape.send_request(ooxcb.Request(self.conn, buf.getvalue(), 6, True, False), \
             ooxcb.VoidCookie())
 
     def shape_input_selected(self):
-        destination_window = self.get_internal()
+        destination_window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", destination_window))
         return self.conn.shape.send_request(ooxcb.Request(self.conn, buf.getvalue(), 7, False, True), \
@@ -154,7 +154,7 @@ class WindowMixin(Mixin):
             InputSelectedReply)
 
     def shape_input_selected_unchecked(self):
-        destination_window = self.get_internal()
+        destination_window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", destination_window))
         return self.conn.shape.send_request(ooxcb.Request(self.conn, buf.getvalue(), 7, False, False), \
@@ -162,7 +162,7 @@ class WindowMixin(Mixin):
             InputSelectedReply)
 
     def shape_get_rectangles(self, source_kind):
-        window = self.get_internal()
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIBxxx", window, source_kind))
         return self.conn.shape.send_request(ooxcb.Request(self.conn, buf.getvalue(), 8, False, True), \
@@ -170,7 +170,7 @@ class WindowMixin(Mixin):
             GetRectanglesReply)
 
     def shape_get_rectangles_unchecked(self, source_kind):
-        window = self.get_internal()
+        window = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIBxxx", window, source_kind))
         return self.conn.shape.send_request(ooxcb.Request(self.conn, buf.getvalue(), 8, False, False), \
@@ -229,7 +229,7 @@ class NotifyEvent(ooxcb.Event):
     def build(self, stream):
         count = 0
         root = stream.tell()
-        stream.write(pack("=BBxxIhhHHIBxxxxxxxxxxx", self.response_type, self.shape_kind, self.affected_window.get_internal(), self.extents_x, self.extents_y, self.extents_width, self.extents_height, self.server_time, self.shaped))
+        stream.write(pack("=BBxxIhhHHIBxxxxxxxxxxx", self.response_type, self.shape_kind, get_internal(self.affected_window), self.extents_x, self.extents_y, self.extents_width, self.extents_height, self.server_time, self.shaped))
         stream.write("\0" * (32 - (stream.tell() - root)))
 
 class GetRectanglesReply(ooxcb.Reply):

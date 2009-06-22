@@ -1,6 +1,6 @@
 # auto generated. yay.
 import ooxcb
-from ooxcb.resource import XNone
+from ooxcb.resource import get_internal
 from ooxcb.types import SIZES, make_array, build_list
 try:
     import cStringIO as StringIO
@@ -215,7 +215,7 @@ class Picture(ooxcb.Resource):
             value_list.append(values["repeat"])
         if "alpha_map" in values:
             value_mask |= 2
-            value_list.append(values["alpha_map"].get_internal())
+            value_list.append(get_internal(values["alpha_map"]))
         if "alpha_x_origin" in values:
             value_mask |= 4
             value_list.append(values["alpha_x_origin"])
@@ -230,7 +230,7 @@ class Picture(ooxcb.Resource):
             value_list.append(values["clip_y_origin"])
         if "clip_mask" in values:
             value_mask |= 64
-            value_list.append(values["clip_mask"].get_internal())
+            value_list.append(get_internal(values["clip_mask"]))
         if "graphics_exposure" in values:
             value_mask |= 128
             value_list.append(values["graphics_exposure"])
@@ -245,11 +245,11 @@ class Picture(ooxcb.Resource):
             value_list.append(values["poly_mode"])
         if "dither" in values:
             value_mask |= 2048
-            value_list.append(values["dither"].get_internal())
+            value_list.append(get_internal(values["dither"]))
         if "component_alpha" in values:
             value_mask |= 4096
             value_list.append(values["component_alpha"])
-        picture = self.get_internal()
+        picture = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxII", picture, value_mask))
         buf.write(make_array(value_list, "I"))
@@ -263,7 +263,7 @@ class Picture(ooxcb.Resource):
             value_list.append(values["repeat"])
         if "alpha_map" in values:
             value_mask |= 2
-            value_list.append(values["alpha_map"].get_internal())
+            value_list.append(get_internal(values["alpha_map"]))
         if "alpha_x_origin" in values:
             value_mask |= 4
             value_list.append(values["alpha_x_origin"])
@@ -278,7 +278,7 @@ class Picture(ooxcb.Resource):
             value_list.append(values["clip_y_origin"])
         if "clip_mask" in values:
             value_mask |= 64
-            value_list.append(values["clip_mask"].get_internal())
+            value_list.append(get_internal(values["clip_mask"]))
         if "graphics_exposure" in values:
             value_mask |= 128
             value_list.append(values["graphics_exposure"])
@@ -293,11 +293,11 @@ class Picture(ooxcb.Resource):
             value_list.append(values["poly_mode"])
         if "dither" in values:
             value_mask |= 2048
-            value_list.append(values["dither"].get_internal())
+            value_list.append(get_internal(values["dither"]))
         if "component_alpha" in values:
             value_mask |= 4096
             value_list.append(values["component_alpha"])
-        picture = self.get_internal()
+        picture = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxII", picture, value_mask))
         buf.write(make_array(value_list, "I"))
@@ -306,7 +306,7 @@ class Picture(ooxcb.Resource):
 
     def set_clip_rectangles_checked(self, clip_x_origin, clip_y_origin, rectangles):
         rectangles_len = len(rectangles)
-        picture = self.get_internal()
+        picture = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIhh", picture, clip_x_origin, clip_y_origin))
         for elt in rectangles:
@@ -316,7 +316,7 @@ class Picture(ooxcb.Resource):
 
     def set_clip_rectangles(self, clip_x_origin, clip_y_origin, rectangles):
         rectangles_len = len(rectangles)
-        picture = self.get_internal()
+        picture = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIhh", picture, clip_x_origin, clip_y_origin))
         for elt in rectangles:
@@ -325,36 +325,32 @@ class Picture(ooxcb.Resource):
             ooxcb.VoidCookie())
 
     def free_checked(self):
-        picture = self.get_internal()
+        picture = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", picture))
         return self.conn.render.send_request(ooxcb.Request(self.conn, buf.getvalue(), 7, True, True), \
             ooxcb.VoidCookie())
 
     def free(self):
-        picture = self.get_internal()
+        picture = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", picture))
         return self.conn.render.send_request(ooxcb.Request(self.conn, buf.getvalue(), 7, True, False), \
             ooxcb.VoidCookie())
 
     def composite_checked(self, op, mask, dst, width, height, src_x=0, src_y=0, mask_x=0, mask_y=0, dst_x=0, dst_y=0):
-        if mask is None:
-            mask = XNone
-        src = self.get_internal()
-        mask = mask.get_internal()
-        dst = dst.get_internal()
+        src = get_internal(self)
+        mask = get_internal(mask)
+        dst = get_internal(dst)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxBxxxIIIhhhhhhHH", op, src, mask, dst, src_x, src_y, mask_x, mask_y, dst_x, dst_y, width, height))
         return self.conn.render.send_request(ooxcb.Request(self.conn, buf.getvalue(), 8, True, True), \
             ooxcb.VoidCookie())
 
     def composite(self, op, mask, dst, width, height, src_x=0, src_y=0, mask_x=0, mask_y=0, dst_x=0, dst_y=0):
-        if mask is None:
-            mask = XNone
-        src = self.get_internal()
-        mask = mask.get_internal()
-        dst = dst.get_internal()
+        src = get_internal(self)
+        mask = get_internal(mask)
+        dst = get_internal(dst)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxBxxxIIIhhhhhhHH", op, src, mask, dst, src_x, src_y, mask_x, mask_y, dst_x, dst_y, width, height))
         return self.conn.render.send_request(ooxcb.Request(self.conn, buf.getvalue(), 8, True, False), \
@@ -362,11 +358,9 @@ class Picture(ooxcb.Resource):
 
     def trapezoids_checked(self, op, dst, traps, mask_format=None, src_x=0, src_y=0):
         traps_len = len(traps)
-        if mask_format is None:
-            mask_format = XNone
-        src = self.get_internal()
-        dst = dst.get_internal()
-        mask_format = mask_format.get_internal()
+        src = get_internal(self)
+        dst = get_internal(dst)
+        mask_format = get_internal(mask_format)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxBxxxIIIhh", op, src, dst, mask_format, src_x, src_y))
         for elt in traps:
@@ -376,11 +370,9 @@ class Picture(ooxcb.Resource):
 
     def trapezoids(self, op, dst, traps, mask_format=None, src_x=0, src_y=0):
         traps_len = len(traps)
-        if mask_format is None:
-            mask_format = XNone
-        src = self.get_internal()
-        dst = dst.get_internal()
-        mask_format = mask_format.get_internal()
+        src = get_internal(self)
+        dst = get_internal(dst)
+        mask_format = get_internal(mask_format)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxBxxxIIIhh", op, src, dst, mask_format, src_x, src_y))
         for elt in traps:
@@ -390,11 +382,9 @@ class Picture(ooxcb.Resource):
 
     def triangles_checked(self, op, dst, triangles, mask_format=None, src_x=0, src_y=0):
         triangles_len = len(triangles)
-        if mask_format is None:
-            mask_format = XNone
-        src = self.get_internal()
-        dst = dst.get_internal()
-        mask_format = mask_format.get_internal()
+        src = get_internal(self)
+        dst = get_internal(dst)
+        mask_format = get_internal(mask_format)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxBxxxIIIhh", op, src, dst, mask_format, src_x, src_y))
         for elt in triangles:
@@ -404,11 +394,9 @@ class Picture(ooxcb.Resource):
 
     def triangles(self, op, dst, triangles, mask_format=None, src_x=0, src_y=0):
         triangles_len = len(triangles)
-        if mask_format is None:
-            mask_format = XNone
-        src = self.get_internal()
-        dst = dst.get_internal()
-        mask_format = mask_format.get_internal()
+        src = get_internal(self)
+        dst = get_internal(dst)
+        mask_format = get_internal(mask_format)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxBxxxIIIhh", op, src, dst, mask_format, src_x, src_y))
         for elt in triangles:
@@ -418,11 +406,9 @@ class Picture(ooxcb.Resource):
 
     def tri_strip_checked(self, op, dst, points, mask_format=None, src_x=0, src_y=0):
         points_len = len(points)
-        if mask_format is None:
-            mask_format = XNone
-        src = self.get_internal()
-        dst = dst.get_internal()
-        mask_format = mask_format.get_internal()
+        src = get_internal(self)
+        dst = get_internal(dst)
+        mask_format = get_internal(mask_format)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxBxxxIIIhh", op, src, dst, mask_format, src_x, src_y))
         for elt in points:
@@ -432,11 +418,9 @@ class Picture(ooxcb.Resource):
 
     def tri_strip(self, op, dst, points, mask_format=None, src_x=0, src_y=0):
         points_len = len(points)
-        if mask_format is None:
-            mask_format = XNone
-        src = self.get_internal()
-        dst = dst.get_internal()
-        mask_format = mask_format.get_internal()
+        src = get_internal(self)
+        dst = get_internal(dst)
+        mask_format = get_internal(mask_format)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxBxxxIIIhh", op, src, dst, mask_format, src_x, src_y))
         for elt in points:
@@ -446,11 +430,9 @@ class Picture(ooxcb.Resource):
 
     def tri_fan_checked(self, op, dst, points, mask_format=None, src_x=0, src_y=0):
         points_len = len(points)
-        if mask_format is None:
-            mask_format = XNone
-        src = self.get_internal()
-        dst = dst.get_internal()
-        mask_format = mask_format.get_internal()
+        src = get_internal(self)
+        dst = get_internal(dst)
+        mask_format = get_internal(mask_format)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxBxxxIIIhh", op, src, dst, mask_format, src_x, src_y))
         for elt in points:
@@ -460,11 +442,9 @@ class Picture(ooxcb.Resource):
 
     def tri_fan(self, op, dst, points, mask_format=None, src_x=0, src_y=0):
         points_len = len(points)
-        if mask_format is None:
-            mask_format = XNone
-        src = self.get_internal()
-        dst = dst.get_internal()
-        mask_format = mask_format.get_internal()
+        src = get_internal(self)
+        dst = get_internal(dst)
+        mask_format = get_internal(mask_format)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxBxxxIIIhh", op, src, dst, mask_format, src_x, src_y))
         for elt in points:
@@ -474,12 +454,10 @@ class Picture(ooxcb.Resource):
 
     def composite_glyphs8_checked(self, op, dst, glyphset, glyphcmds, mask_format=None, src_x=0, src_y=0):
         glyphcmds_len = len(glyphcmds)
-        if mask_format is None:
-            mask_format = XNone
-        src = self.get_internal()
-        dst = dst.get_internal()
-        mask_format = mask_format.get_internal()
-        glyphset = glyphset.get_internal()
+        src = get_internal(self)
+        dst = get_internal(dst)
+        mask_format = get_internal(mask_format)
+        glyphset = get_internal(glyphset)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxBxxxIIIIhh", op, src, dst, mask_format, glyphset, src_x, src_y))
         buf.write(make_array(glyphcmds, "B"))
@@ -488,12 +466,10 @@ class Picture(ooxcb.Resource):
 
     def composite_glyphs8(self, op, dst, glyphset, glyphcmds, mask_format=None, src_x=0, src_y=0):
         glyphcmds_len = len(glyphcmds)
-        if mask_format is None:
-            mask_format = XNone
-        src = self.get_internal()
-        dst = dst.get_internal()
-        mask_format = mask_format.get_internal()
-        glyphset = glyphset.get_internal()
+        src = get_internal(self)
+        dst = get_internal(dst)
+        mask_format = get_internal(mask_format)
+        glyphset = get_internal(glyphset)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxBxxxIIIIhh", op, src, dst, mask_format, glyphset, src_x, src_y))
         buf.write(make_array(glyphcmds, "B"))
@@ -502,12 +478,10 @@ class Picture(ooxcb.Resource):
 
     def composite_glyphs16_checked(self, op, dst, glyphset, glyphcmds, mask_format=None, src_x=0, src_y=0):
         glyphcmds_len = len(glyphcmds)
-        if mask_format is None:
-            mask_format = XNone
-        src = self.get_internal()
-        dst = dst.get_internal()
-        mask_format = mask_format.get_internal()
-        glyphset = glyphset.get_internal()
+        src = get_internal(self)
+        dst = get_internal(dst)
+        mask_format = get_internal(mask_format)
+        glyphset = get_internal(glyphset)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxBxxxIIIIhh", op, src, dst, mask_format, glyphset, src_x, src_y))
         buf.write(make_array(glyphcmds, "B"))
@@ -516,12 +490,10 @@ class Picture(ooxcb.Resource):
 
     def composite_glyphs16(self, op, dst, glyphset, glyphcmds, mask_format=None, src_x=0, src_y=0):
         glyphcmds_len = len(glyphcmds)
-        if mask_format is None:
-            mask_format = XNone
-        src = self.get_internal()
-        dst = dst.get_internal()
-        mask_format = mask_format.get_internal()
-        glyphset = glyphset.get_internal()
+        src = get_internal(self)
+        dst = get_internal(dst)
+        mask_format = get_internal(mask_format)
+        glyphset = get_internal(glyphset)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxBxxxIIIIhh", op, src, dst, mask_format, glyphset, src_x, src_y))
         buf.write(make_array(glyphcmds, "B"))
@@ -530,12 +502,10 @@ class Picture(ooxcb.Resource):
 
     def composite_glyphs32_checked(self, op, dst, glyphset, glyphcmds, mask_format=None, src_x=0, src_y=0):
         glyphcmds_len = len(glyphcmds)
-        if mask_format is None:
-            mask_format = XNone
-        src = self.get_internal()
-        dst = dst.get_internal()
-        mask_format = mask_format.get_internal()
-        glyphset = glyphset.get_internal()
+        src = get_internal(self)
+        dst = get_internal(dst)
+        mask_format = get_internal(mask_format)
+        glyphset = get_internal(glyphset)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxBxxxIIIIhh", op, src, dst, mask_format, glyphset, src_x, src_y))
         buf.write(make_array(glyphcmds, "B"))
@@ -544,12 +514,10 @@ class Picture(ooxcb.Resource):
 
     def composite_glyphs32(self, op, dst, glyphset, glyphcmds, mask_format=None, src_x=0, src_y=0):
         glyphcmds_len = len(glyphcmds)
-        if mask_format is None:
-            mask_format = XNone
-        src = self.get_internal()
-        dst = dst.get_internal()
-        mask_format = mask_format.get_internal()
-        glyphset = glyphset.get_internal()
+        src = get_internal(self)
+        dst = get_internal(dst)
+        mask_format = get_internal(mask_format)
+        glyphset = get_internal(glyphset)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxBxxxIIIIhh", op, src, dst, mask_format, glyphset, src_x, src_y))
         buf.write(make_array(glyphcmds, "B"))
@@ -558,7 +526,7 @@ class Picture(ooxcb.Resource):
 
     def fill_rectangles_checked(self, op, color, rects):
         rects_len = len(rects)
-        dst = self.get_internal()
+        dst = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxBxxxI", op, dst))
         color.build(buf)
@@ -569,7 +537,7 @@ class Picture(ooxcb.Resource):
 
     def fill_rectangles(self, op, color, rects):
         rects_len = len(rects)
-        dst = self.get_internal()
+        dst = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxBxxxI", op, dst))
         color.build(buf)
@@ -579,7 +547,7 @@ class Picture(ooxcb.Resource):
             ooxcb.VoidCookie())
 
     def set_transform_checked(self, transform):
-        picture = self.get_internal()
+        picture = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", picture))
         transform.build(buf)
@@ -587,7 +555,7 @@ class Picture(ooxcb.Resource):
             ooxcb.VoidCookie())
 
     def set_transform(self, transform):
-        picture = self.get_internal()
+        picture = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", picture))
         transform.build(buf)
@@ -597,7 +565,7 @@ class Picture(ooxcb.Resource):
     def set_filter_checked(self, filter, values):
         filter_len = len(filter)
         values_len = len(values)
-        picture = self.get_internal()
+        picture = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIHxx", picture, filter_len))
         buf.write(make_array(filter, "B"))
@@ -608,7 +576,7 @@ class Picture(ooxcb.Resource):
     def set_filter(self, filter, values):
         filter_len = len(filter)
         values_len = len(values)
-        picture = self.get_internal()
+        picture = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIHxx", picture, filter_len))
         buf.write(make_array(filter, "B"))
@@ -618,7 +586,7 @@ class Picture(ooxcb.Resource):
 
     def add_traps_checked(self, traps, x_off=0, y_off=0):
         traps_len = len(traps)
-        picture = self.get_internal()
+        picture = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIhh", picture, x_off, y_off))
         for elt in traps:
@@ -628,7 +596,7 @@ class Picture(ooxcb.Resource):
 
     def add_traps(self, traps, x_off=0, y_off=0):
         traps_len = len(traps)
-        picture = self.get_internal()
+        picture = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIhh", picture, x_off, y_off))
         for elt in traps:
@@ -646,7 +614,7 @@ class Picture(ooxcb.Resource):
             value_list.append(values["repeat"])
         if "alpha_map" in values:
             value_mask |= 2
-            value_list.append(values["alpha_map"].get_internal())
+            value_list.append(get_internal(values["alpha_map"]))
         if "alpha_x_origin" in values:
             value_mask |= 4
             value_list.append(values["alpha_x_origin"])
@@ -661,7 +629,7 @@ class Picture(ooxcb.Resource):
             value_list.append(values["clip_y_origin"])
         if "clip_mask" in values:
             value_mask |= 64
-            value_list.append(values["clip_mask"].get_internal())
+            value_list.append(get_internal(values["clip_mask"]))
         if "graphics_exposure" in values:
             value_mask |= 128
             value_list.append(values["graphics_exposure"])
@@ -676,7 +644,7 @@ class Picture(ooxcb.Resource):
             value_list.append(values["poly_mode"])
         if "dither" in values:
             value_mask |= 2048
-            value_list.append(values["dither"].get_internal())
+            value_list.append(get_internal(values["dither"]))
         if "component_alpha" in values:
             value_mask |= 4096
             value_list.append(values["component_alpha"])
@@ -743,30 +711,30 @@ class Glyphset(ooxcb.Resource):
         ooxcb.Resource.__init__(self, conn, xid)
 
     def reference_checked(self, existing):
-        gsid = self.get_internal()
-        existing = existing.get_internal()
+        gsid = get_internal(self)
+        existing = get_internal(existing)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxII", gsid, existing))
         return self.conn.render.send_request(ooxcb.Request(self.conn, buf.getvalue(), 18, True, True), \
             ooxcb.VoidCookie())
 
     def reference(self, existing):
-        gsid = self.get_internal()
-        existing = existing.get_internal()
+        gsid = get_internal(self)
+        existing = get_internal(existing)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxII", gsid, existing))
         return self.conn.render.send_request(ooxcb.Request(self.conn, buf.getvalue(), 18, True, False), \
             ooxcb.VoidCookie())
 
     def free_checked(self):
-        glyphset = self.get_internal()
+        glyphset = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", glyphset))
         return self.conn.render.send_request(ooxcb.Request(self.conn, buf.getvalue(), 19, True, True), \
             ooxcb.VoidCookie())
 
     def free(self):
-        glyphset = self.get_internal()
+        glyphset = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", glyphset))
         return self.conn.render.send_request(ooxcb.Request(self.conn, buf.getvalue(), 19, True, False), \
@@ -775,7 +743,7 @@ class Glyphset(ooxcb.Resource):
     def add_glyphs_checked(self, glyphids, glyphs, data):
         glyphs_len = len(glyphs)
         data_len = len(data)
-        glyphset = self.get_internal()
+        glyphset = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxII", glyphset, glyphs_len))
         buf.write(make_array(glyphids, "I"))
@@ -788,7 +756,7 @@ class Glyphset(ooxcb.Resource):
     def add_glyphs(self, glyphids, glyphs, data):
         glyphs_len = len(glyphs)
         data_len = len(data)
-        glyphset = self.get_internal()
+        glyphset = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxII", glyphset, glyphs_len))
         buf.write(make_array(glyphids, "I"))
@@ -800,7 +768,7 @@ class Glyphset(ooxcb.Resource):
 
     def free_glyphs_checked(self, glyphs):
         glyphs_len = len(glyphs)
-        glyphset = self.get_internal()
+        glyphset = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", glyphset))
         buf.write(make_array(glyphs, "I"))
@@ -809,7 +777,7 @@ class Glyphset(ooxcb.Resource):
 
     def free_glyphs(self, glyphs):
         glyphs_len = len(glyphs)
-        glyphset = self.get_internal()
+        glyphset = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", glyphset))
         buf.write(make_array(glyphs, "I"))
@@ -830,7 +798,7 @@ class Pictvisual(ooxcb.Struct):
 
     def build(self, stream):
         count = 0
-        stream.write(pack("=II", self.visual, self.format.get_internal()))
+        stream.write(pack("=II", self.visual, get_internal(self.format)))
 
 class Spanfix(ooxcb.Struct):
     def __init__(self, conn):
@@ -853,7 +821,7 @@ class Spanfix(ooxcb.Struct):
 class DrawableMixin(Mixin):
     target_class = Drawable
     def query_filters(self):
-        drawable = self.get_internal()
+        drawable = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", drawable))
         return self.conn.render.send_request(ooxcb.Request(self.conn, buf.getvalue(), 29, False, True), \
@@ -861,7 +829,7 @@ class DrawableMixin(Mixin):
             QueryFiltersReply)
 
     def query_filters_unchecked(self):
-        drawable = self.get_internal()
+        drawable = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", drawable))
         return self.conn.render.send_request(ooxcb.Request(self.conn, buf.getvalue(), 29, False, False), \
@@ -886,7 +854,7 @@ class Pictscreen(ooxcb.Struct):
 
     def build(self, stream):
         count = 0
-        stream.write(pack("=II", self.num_depths, self.fallback.get_internal()))
+        stream.write(pack("=II", self.num_depths, get_internal(self.fallback)))
         count += 8
         build_list(self.conn, stream, self.depths, Pictdepth)
 
@@ -904,7 +872,7 @@ class Animcursorelt(ooxcb.Struct):
 
     def build(self, stream):
         count = 0
-        stream.write(pack("=II", self.cursor.get_internal(), self.delay))
+        stream.write(pack("=II", get_internal(self.cursor), self.delay))
 
 class GlyphSet(object):
     @classmethod
@@ -946,9 +914,9 @@ class renderExtension(ooxcb.Extension):
             QueryPictFormatsReply)
 
     def create_picture_checked(self, pid, drawable, format, value_mask, value_list):
-        pid = pid.get_internal()
-        drawable = drawable.get_internal()
-        format = format.get_internal()
+        pid = get_internal(pid)
+        drawable = get_internal(drawable)
+        format = get_internal(format)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIIII", pid, drawable, format, value_mask))
         buf.write(make_array(value_list, "I"))
@@ -956,9 +924,9 @@ class renderExtension(ooxcb.Extension):
             ooxcb.VoidCookie())
 
     def create_picture(self, pid, drawable, format, value_mask, value_list):
-        pid = pid.get_internal()
-        drawable = drawable.get_internal()
-        format = format.get_internal()
+        pid = get_internal(pid)
+        drawable = get_internal(drawable)
+        format = get_internal(format)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIIII", pid, drawable, format, value_mask))
         buf.write(make_array(value_list, "I"))
@@ -966,30 +934,30 @@ class renderExtension(ooxcb.Extension):
             ooxcb.VoidCookie())
 
     def create_glyph_set_checked(self, gsid, format):
-        gsid = gsid.get_internal()
-        format = format.get_internal()
+        gsid = get_internal(gsid)
+        format = get_internal(format)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxII", gsid, format))
         return self.conn.render.send_request(ooxcb.Request(self.conn, buf.getvalue(), 17, True, True), \
             ooxcb.VoidCookie())
 
     def create_glyph_set(self, gsid, format):
-        gsid = gsid.get_internal()
-        format = format.get_internal()
+        gsid = get_internal(gsid)
+        format = get_internal(format)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxII", gsid, format))
         return self.conn.render.send_request(ooxcb.Request(self.conn, buf.getvalue(), 17, True, False), \
             ooxcb.VoidCookie())
 
     def create_cursor_checked(self, cid, source, x, y):
-        source = source.get_internal()
+        source = get_internal(source)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIIHH", cid, source, x, y))
         return self.conn.render.send_request(ooxcb.Request(self.conn, buf.getvalue(), 27, True, True), \
             ooxcb.VoidCookie())
 
     def create_cursor(self, cid, source, x, y):
-        source = source.get_internal()
+        source = get_internal(source)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxIIHH", cid, source, x, y))
         return self.conn.render.send_request(ooxcb.Request(self.conn, buf.getvalue(), 27, True, False), \
@@ -1014,7 +982,7 @@ class renderExtension(ooxcb.Extension):
             ooxcb.VoidCookie())
 
     def create_solid_fill_checked(self, picture, color):
-        picture = picture.get_internal()
+        picture = get_internal(picture)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", picture))
         color.build(buf)
@@ -1022,7 +990,7 @@ class renderExtension(ooxcb.Extension):
             ooxcb.VoidCookie())
 
     def create_solid_fill(self, picture, color):
-        picture = picture.get_internal()
+        picture = get_internal(picture)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", picture))
         color.build(buf)
@@ -1030,7 +998,7 @@ class renderExtension(ooxcb.Extension):
             ooxcb.VoidCookie())
 
     def create_linear_gradient_checked(self, picture, p1, p2, num_stops, stops, colors):
-        picture = picture.get_internal()
+        picture = get_internal(picture)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", picture))
         for elt in p1:
@@ -1045,7 +1013,7 @@ class renderExtension(ooxcb.Extension):
             ooxcb.VoidCookie())
 
     def create_linear_gradient(self, picture, p1, p2, num_stops, stops, colors):
-        picture = picture.get_internal()
+        picture = get_internal(picture)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", picture))
         for elt in p1:
@@ -1060,7 +1028,7 @@ class renderExtension(ooxcb.Extension):
             ooxcb.VoidCookie())
 
     def create_radial_gradient_checked(self, picture, inner, outer, inner_radius, outer_radius, num_stops, stops, colors):
-        picture = picture.get_internal()
+        picture = get_internal(picture)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", picture))
         for elt in inner:
@@ -1075,7 +1043,7 @@ class renderExtension(ooxcb.Extension):
             ooxcb.VoidCookie())
 
     def create_radial_gradient(self, picture, inner, outer, inner_radius, outer_radius, num_stops, stops, colors):
-        picture = picture.get_internal()
+        picture = get_internal(picture)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", picture))
         for elt in inner:
@@ -1090,7 +1058,7 @@ class renderExtension(ooxcb.Extension):
             ooxcb.VoidCookie())
 
     def create_conical_gradient_checked(self, picture, center, angle, num_stops, stops, colors):
-        picture = picture.get_internal()
+        picture = get_internal(picture)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", picture))
         for elt in center:
@@ -1103,7 +1071,7 @@ class renderExtension(ooxcb.Extension):
             ooxcb.VoidCookie())
 
     def create_conical_gradient(self, picture, center, angle, num_stops, stops, colors):
-        picture = picture.get_internal()
+        picture = get_internal(picture)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", picture))
         for elt in center:
@@ -1138,7 +1106,7 @@ class Pictforminfo(ooxcb.Struct):
 
     def build(self, stream):
         count = 0
-        stream.write(pack("=IBBxx", self.id.get_internal(), self.type, self.depth))
+        stream.write(pack("=IBBxx", get_internal(self.id), self.type, self.depth))
         count += 8
         self.direct.build(stream)
         stream.write(pack("=I", self.colormap))
@@ -1441,7 +1409,7 @@ class Pictformat(ooxcb.Resource):
         ooxcb.Resource.__init__(self, conn, xid)
 
     def query_pict_index_values(self):
-        format = self.get_internal()
+        format = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", format))
         return self.conn.render.send_request(ooxcb.Request(self.conn, buf.getvalue(), 2, False, True), \
@@ -1449,7 +1417,7 @@ class Pictformat(ooxcb.Resource):
             QueryPictIndexValuesReply)
 
     def query_pict_index_values_unchecked(self):
-        format = self.get_internal()
+        format = get_internal(self)
         buf = StringIO.StringIO()
         buf.write(pack("=xxxxI", format))
         return self.conn.render.send_request(ooxcb.Request(self.conn, buf.getvalue(), 2, False, False), \

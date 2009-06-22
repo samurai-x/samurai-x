@@ -183,34 +183,6 @@ Xizers:
         type: lazy_atom
         name: selection
 
-    CursorNone:
-        type: lazy_none
-        value: cursor
-
-    MaskNone:
-        type: lazy_none
-        value: mask
-
-    ConfineToNone:
-        type: lazy_none
-        value: confine_to
-
-    OwnerNone:
-        type: lazy_none
-        value: owner
-
-    PropertyNone:
-        type: lazy_none
-        value: property
-
-    SrcWindowNone:
-        type: lazy_none
-        value: src_w
-
-    DestWindowNone:
-        type: lazy_none
-        value: dest_w
-
 ClassAliases:
     GCONTEXT: GContext
 
@@ -227,9 +199,7 @@ Requests:
     WarpPointer:
         # That's not a method of a window, because it is not clear
         # if src_w or dest_w is the subject.
-        precode:
-            - !xizer "SrcWindowNone"
-            - !xizer "DestWindowNone"
+        blubb: blah
 
     ListFonts:
         arguments: ["max_names", "pattern"]
@@ -311,9 +281,8 @@ Requests:
     # TODO: should the selection stuff really be in the Atom objects?
     SetSelectionOwner:
         subject: selection
-        precode: [!xizer "OwnerNone"]
         defaults:
-            owner: None
+            owner: 'None'
             time: 0 # CurrentTime
 
     GetSelectionOwner:
@@ -321,9 +290,8 @@ Requests:
 
     ConvertSelection:
         subject: selection
-        precode: [!xizer "PropertyNone"]
         defaults:
-            property: None
+            property: 'None'
             time: 0 # CurrentTime
 
     # Window objects
@@ -458,8 +426,8 @@ Requests:
             owner_events: True
             pointer_mode: GrabMode.Async
             keyboard_mode: GrabMode.Async
-            confine_to: XNone
-            cursor: XNone
+            confine_to: 'None'
+            cursor: 'None'
 
     ReparentWindow:
         name: reparent
@@ -483,11 +451,6 @@ Requests:
             time: Time.CurrentTime
             confine_to: 'None'
             cursor: 'None'
-        precode:
-            - !xizer "ConfineToNone"
-            - !xizer "CursorNone"
-
-        # TODO: (!!!) confine_to can be None. Maybe with a xizer? -- is XNone the cool solution?
 
     UngrabPointer:
         defaults:
@@ -773,8 +736,7 @@ Requests:
     # no need to wrap CreateGlyphCursor, it is alright
 
     CreateCursor:
-        precode:
-            - !xizer "MaskNone"
+        blah: blubb
 
     FreeCursor:
         subject: cursor
