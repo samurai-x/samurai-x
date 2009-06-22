@@ -306,8 +306,17 @@ class Screen(SXObject):
         if self.focused_client is None:
             self.focus(client)
 
-        self.update_client_list()
         self.dispatch_event('on_after_new_client', self, client)
+
+        # We update the client list after the 'on_after_new_client' event here.
+        # That is because (at least) bbpager reacts to changes of the
+        # _NET_CLIENT_LIST property. If it is updated before the window gets
+        # a _NET_WM_DESKTOP property (it gets one in sx-desktops'
+        # 'on_after_new_client' event handler), bbpager won't display the new
+        # window in its preview. So we update the client list after having
+        # done everything else.
+        # Maybe that's not the best way, but it works.
+        self.update_client_list()
         return client
 
     def unmanage(self, client):

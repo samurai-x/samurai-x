@@ -181,7 +181,9 @@ class Desktop(SXObject):
         # check if the desktop is the active one. if not,
         # "iconify" the client. openbox says that
         # icccm 4.1.3.1 says that.
-        if not self.active:
+        if self.active:
+            client.unban()
+        else:
             client.ban(False, False)
 
         client.conn.flush()
@@ -206,8 +208,9 @@ class Desktop(SXObject):
                 if not new_idx < len(desktops):
                     log.warning('%s requests to be shown on desktop %d - no such desktop' % new_idx)
                 else:
-                    log.debug('Moving %s to desktop %s' % (client, desktops[new_idx]))
-                    desktops[new_idx].add_client(client)
+                    desktop = desktops[new_idx]
+                    log.debug('Moving %s to desktop %s' % (client, desktop))
+                    desktop.add_client(client)
 
     def rearrange(self):
         self.dispatch_event('on_rearrange', self)

@@ -186,10 +186,18 @@ class Decorator(object):
                 )
 
         client.window.reparent(client.actor)
-
-        client.actor.map()
         log.debug('created client actor client=%s actor=%s', client, client.actor)
-        
+
+        # check if we are on the active desktop. unban/ban
+        # the client to get a valid WM_STATE and map the
+        # actor window if needed.
+        current = client.screen.info.ewmh_get_current_desktop()
+        desktop = client.window.ewmh_get_desktop()
+        if (current is None or current == desktop):
+            client.unban()
+        else:
+            client.ban(False, False)
+
         self.ui = ui.TopLevelContainer(
                 client.actor, 
                 screen.info.get_root_visual_type(),
