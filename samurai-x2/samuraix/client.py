@@ -103,9 +103,17 @@ class Client(SXObject):
         self.client_message_handlers = ClientMessageHandlers()
         self.install_handlers()
 
-        self.state = set() # a set of Atom instances, values for _NET_WM_STATE
         self.protocols = set() # a set of Atom instances, values for WM_PROTOCOLS
         self.wm_hints = None
+
+        # initialize self.window_type to a set of atoms
+        self.window_type = set(map(self.conn.atoms.get_by_id,
+            window.get_property('_NET_WM_WINDOW_TYPE', 'ATOM').reply().value))
+
+        # initialize self.state
+        self.state = set(map(self.conn.atoms.get_by_id,
+            window.get_property('_NET_WM_STATE', 'ATOM').reply().value))
+
         self.screen = screen
         self.window = window
         self.window.valid = True
@@ -113,11 +121,6 @@ class Client(SXObject):
         self.actor = window
         self.window.push_handlers(self)
         log.info('New client: Client=%s Window=%s Actor=%s' % (self, self.window, self.actor))
-
-        # initialize self.window_state to a set of atoms
-        window.get_property('_NET_WM_WINDOW_TYPE', 'ATOM').reply().value
-        self.window_type = set(map(self.conn.atoms.get_by_id,
-            window.get_property('_NET_WM_WINDOW_TYPE', 'ATOM').reply().value))
 
         self.window.change_attributes(
                 event_mask =
