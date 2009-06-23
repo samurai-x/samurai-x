@@ -382,7 +382,7 @@ class Client(SXObject):
                 self.user_unban()
         else:
             log.warning('Cannot handle _NET_WM_STATE thingy %s :(',
-                    atom.get_name().reply().name.to_string())
+                    atom.get_name().reply().name)
 
     def process_netwm_client_message(self, evt):
         """
@@ -425,7 +425,7 @@ class Client(SXObject):
             just a debug printout at the moment
         """
         log.debug('Got property notify event: %s changed in %s.' %
-                (evt.atom.get_name().reply().name.to_string(), evt.window))
+                (evt.atom.get_name().reply().name, evt.window))
 
     def on_client_message(self, evt):
         """
@@ -434,7 +434,7 @@ class Client(SXObject):
             :meth:`process_netwm_client_message`.
         """
         log.debug('Got client message event: %s, data32: %s' %
-                (evt.type.get_name().reply().name.to_string(), evt.data.data32))
+                (evt.type.get_name().reply().name, evt.data.data32))
         self.process_netwm_client_message(evt)
 
     def actor_on_configure_notify(self, evt):

@@ -358,7 +358,7 @@ class GetCursorNameReply(ooxcb.Reply):
         _unpacked = unpack_from_stream("=xxxxxxxxIHxxxxxxxxxxxxxxxxxx", stream)
         self.atom = self.conn.atoms.get_by_id(_unpacked[0])
         self.nbytes = _unpacked[1]
-        self.name = ooxcb.List(self.conn, stream, self.nbytes, 'B', 1)
+        self.name = ooxcb.List(self.conn, stream, self.nbytes, 'B', 1).to_string()
 
     def build(self, stream):
         count = 0
@@ -739,7 +739,7 @@ class GetCursorImageAndNameReply(ooxcb.Reply):
         self.cursor_serial = _unpacked[6]
         self.cursor_atom = self.conn.atoms.get_by_id(_unpacked[7])
         self.nbytes = _unpacked[8]
-        self.name = ooxcb.List(self.conn, stream, self.nbytes, 'B', 1)
+        self.name = ooxcb.List(self.conn, stream, self.nbytes, 'B', 1).to_string()
         stream.seek(ooxcb.type_pad(4, stream.tell() - root), 1)
         self.cursor_image = ooxcb.List(self.conn, stream, (self.width * self.height), 'I', 4)
 

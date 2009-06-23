@@ -13,7 +13,7 @@ Requests:
         defaults:
             detail: 0
             time: 0
-            window: XNone
+            window: None
             rootX: 0
             rootY: 0
             deviceid: 0

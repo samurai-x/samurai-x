@@ -58,7 +58,7 @@ class ClientMessageHandlers(object):
             return self._handlers[evt.type](evt)
         except KeyError:
             log.warning('No handler for the %s client message yet!' % \
-                    (evt.type.get_name().reply().name.to_string()))
+                    (evt.type.get_name().reply().name))
 
 class OrderedDict(DictMixin):
     """

@@ -34,10 +34,10 @@ ooxcb.protocol.xtest
     .. method:: get_version_unchecked(self, major_version, minor_version)
 
 
-    .. method:: fake_input_checked(self, type, detail=0, time=0, window=XNone, rootX=0, rootY=0, deviceid=0)
+    .. method:: fake_input_checked(self, type, detail=0, time=0, window=None, rootX=0, rootY=0, deviceid=0)
 
 
-    .. method:: fake_input(self, type, detail=0, time=0, window=XNone, rootX=0, rootY=0, deviceid=0)
+    .. method:: fake_input(self, type, detail=0, time=0, window=None, rootX=0, rootY=0, deviceid=0)
 
 
     .. method:: grab_control_checked(self, impervious)

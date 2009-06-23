@@ -95,7 +95,7 @@ class AtomDict(dict):
             atom = Atom(self.conn, aid)
             if self.do_name_lookup:
                 self._by_id[aid] = atom
-                name = atom.get_name().reply().name.to_string()
+                name = atom.get_name().reply().name
                 self[name] = atom
             return atom
 
