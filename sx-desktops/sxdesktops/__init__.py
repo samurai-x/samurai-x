@@ -104,6 +104,12 @@ def cycle_indices(current, offset, length):
 
 
 class FocusStack(list):
+    """ 
+        focus stack implementation based on a list 
+    
+        the last item in the list is the focused item
+    """
+
     def move_to_top(self, client):
         if self.current() is client:
             return
@@ -184,7 +190,7 @@ class Desktop(SXObject):
         # icccm 4.1.3.1 says that.
         if self.active:
             client.unban()
-        else:
+        elif client.conn.atoms['_NET_WM_STATE_STICKY'] not in client.state:
             client.ban(False, False)
 
         client.conn.flush()
@@ -271,7 +277,7 @@ class ScreenData(EventDispatcher):
             add a client. if the window as a _NET_WM_DESKTOP example,
             respect it, otherwise place it on the active desktop.
         """
-        desktop = self.active_desktop
+        desktops = [self.active_desktop]
         reply = client.window.get_property('_NET_WM_DESKTOP', 'CARDINAL').reply()
         if reply.exists:
             # has a property like this
@@ -279,17 +285,22 @@ class ScreenData(EventDispatcher):
             if desktop_idx < len(self.desktops):
                 # we have this desktop!
                 log.debug('Placing %s on desktop %d' % (client, desktop_idx))
-                desktop = self.desktops[desktop_idx]
+                desktops = [self.desktops[desktop_idx]]
             elif desktop_idx == 0xffffffff:
-                # it wants to place it on all desktops ... TODO
-                log.warning('%s wants to be placed on all desktops, not implemented yet' % client)
-        # so, either the window doesn't have this property
-        # or we don't have this desktop index, so place it on the active desktop
-        desktop.add_client(client)
-        # should it be focused automatically? but don't do if it isn't
-        # the active desktop
-        if (desktop.active and config.get('desktops.autofocus', True)):
-            self.screen.focus(client)
+                desktops = self.desktops
+
+        if self.screen.conn.atoms['_NET_WM_STATE_STICKY'] in client.state:
+            desktops = self.desktops
+
+        for desktop in desktops:
+            # so, either the window doesn't have this property
+            # or we don't have this desktop index, so place it on the active desktop
+            desktop.add_client(client)
+
+            # should it be focused automatically? but don't do if it isn't
+            # the active desktop
+            if (desktop.active and config.get('desktops.autofocus', True)):
+                self.screen.focus(client)
 
     def on_unmanage_client(self, screen, client):
         for desktop in self.desktops:
