@@ -147,11 +147,7 @@ class Decorator(object):
                 ["WM_NAME", "_NET_WM_NAME", "_NET_WM_VISIBLE_NAME"]
         ]
 
-        if conn.atoms['_NET_WM_WINDOW_TYPE_DOCK'] in client.window_type:
-            # dont do anything with these atm
-            pass
-        else:
-            self.create_actor_window()
+        self.create_actor_window()
 
 
     def create_actor_window(self):
@@ -405,10 +401,16 @@ class DecoratorPlugin(Plugin):
                 self.create_decoration(screen, client)
 
     def on_new_client(self, screen, client):
-        self.create_decoration(screen, client)
+        if client.conn.atoms['_NET_WM_WINDOW_TYPE_DOCK'] not in client.window_type:
+            self.create_decoration(screen, client)
 
     def on_unmanage_client(self, screen, client):
-        self.get_data(client).remove()
+        # attempt to remove the decoration 
+        # the window might not actually of been decorated
+        try:
+            self.get_data(client).remove()
+        except KeyError:
+            pass
 
     def create_decoration(self, screen, client):
         # to have proper transparency, the actor window
