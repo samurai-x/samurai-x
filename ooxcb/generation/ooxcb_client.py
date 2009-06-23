@@ -450,9 +450,14 @@ def py_complex(self, name, cls):
                         (get_expr(field.type.expr),
                             field.py_listtype,
                             field.py_listsize))
-                if field.py_type in INTERFACE.get('ResourceClasses', []):
+                if field.py_type == 'char':
+                    # convert a list of chars to strings
+                    lread_code = '%s.to_string()' % lread_code
+                elif field.py_type in INTERFACE.get('ResourceClasses', []):
                     # is a resource. wrap them.
                     lread_code = '[%s for w in %s]' % (get_modifier(field) % 'w', lread_code)
+                elif field.py_type == 'ATOM': # TODO: hey, to have this hardcoded is not cool!
+                    lread_code = 'map(self.conn.atoms.get_by_id, %s)' % lread_code
             read_code.append('self.%s = %s' % (prefix_if_needed(field.field_name), lread_code))
             cls.add_instance_attribute(prefix_if_needed(field.field_name), '') # TODO: description
 

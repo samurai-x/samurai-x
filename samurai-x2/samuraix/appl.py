@@ -302,7 +302,7 @@ class App(SXObject):
             That just writes a message to the log for now.
         """
         log.info('Got a property notify event ... %s' % \
-                ev.atom.get_name().reply().name.to_string())
+                ev.atom.get_name().reply().name)
 
     def on_screen_new(self, screen):
         # set the supported hints 

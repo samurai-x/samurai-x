@@ -1103,7 +1103,7 @@ class Setupauthenticate(ooxcb.Struct):
         _unpacked = unpack_from_stream("=BxxxxxH", stream)
         self.status = _unpacked[0]
         self.length = _unpacked[1]
-        self.reason = ooxcb.List(self.conn, stream, (self.length * 4), 'B', 1)
+        self.reason = ooxcb.List(self.conn, stream, (self.length * 4), 'B', 1).to_string()
         self.size = stream.tell() - root
 
     def build(self, stream):
@@ -1282,7 +1282,7 @@ class Setup(ooxcb.Struct):
         self.bitmap_format_scanline_pad = _unpacked[15]
         self.min_keycode = _unpacked[16]
         self.max_keycode = _unpacked[17]
-        self.vendor = ooxcb.List(self.conn, stream, self.vendor_len, 'B', 1)
+        self.vendor = ooxcb.List(self.conn, stream, self.vendor_len, 'B', 1).to_string()
         stream.seek(ooxcb.type_pad(8, stream.tell() - root), 1)
         self.pixmap_formats = ooxcb.List(self.conn, stream, self.pixmap_formats_len, Format, 8)
         stream.seek(ooxcb.type_pad(4, stream.tell() - root), 1)
@@ -1618,7 +1618,7 @@ class ListPropertiesReply(ooxcb.Reply):
         self._address = stream.address
         _unpacked = unpack_from_stream("=xxxxxxxxHxxxxxxxxxxxxxxxxxxxxxx", stream)
         self.atoms_len = _unpacked[0]
-        self.atoms = ooxcb.List(self.conn, stream, self.atoms_len, 'I', 4)
+        self.atoms = map(self.conn.atoms.get_by_id, ooxcb.List(self.conn, stream, self.atoms_len, 'I', 4))
 
     def build(self, stream):
         count = 0
@@ -1710,7 +1710,7 @@ class Setupfailed(ooxcb.Struct):
         self.protocol_major_version = _unpacked[2]
         self.protocol_minor_version = _unpacked[3]
         self.length = _unpacked[4]
-        self.reason = ooxcb.List(self.conn, stream, self.reason_len, 'B', 1)
+        self.reason = ooxcb.List(self.conn, stream, self.reason_len, 'B', 1).to_string()
         self.size = stream.tell() - root
 
     def build(self, stream):
@@ -1857,9 +1857,9 @@ class Setuprequest(ooxcb.Struct):
         self.protocol_minor_version = _unpacked[2]
         self.authorization_protocol_name_len = _unpacked[3]
         self.authorization_protocol_data_len = _unpacked[4]
-        self.authorization_protocol_name = ooxcb.List(self.conn, stream, self.authorization_protocol_name_len, 'B', 1)
+        self.authorization_protocol_name = ooxcb.List(self.conn, stream, self.authorization_protocol_name_len, 'B', 1).to_string()
         stream.seek(ooxcb.type_pad(1, stream.tell() - root), 1)
-        self.authorization_protocol_data = ooxcb.List(self.conn, stream, self.authorization_protocol_data_len, 'B', 1)
+        self.authorization_protocol_data = ooxcb.List(self.conn, stream, self.authorization_protocol_data_len, 'B', 1).to_string()
         self.size = stream.tell() - root
 
     def build(self, stream):
@@ -2598,7 +2598,7 @@ class ListFontsWithInfoReply(ooxcb.Reply):
         stream.seek(ooxcb.type_pad(8, stream.tell() - root), 1)
         self.properties = ooxcb.List(self.conn, stream, self.properties_len, Fontprop, 8)
         stream.seek(ooxcb.type_pad(1, stream.tell() - root), 1)
-        self.name = ooxcb.List(self.conn, stream, self.name_len, 'B', 1)
+        self.name = ooxcb.List(self.conn, stream, self.name_len, 'B', 1).to_string()
 
     def build(self, stream):
         count = 0
@@ -3496,7 +3496,7 @@ class Str(ooxcb.Struct):
         root = stream.tell()
         _unpacked = unpack_from_stream("=B", stream)
         self.name_len = _unpacked[0]
-        self.name = ooxcb.List(self.conn, stream, self.name_len, 'B', 1)
+        self.name = ooxcb.List(self.conn, stream, self.name_len, 'B', 1).to_string()
         self.size = stream.tell() - root
 
     def build(self, stream):
@@ -3822,7 +3822,7 @@ class GetAtomNameReply(ooxcb.Reply):
         self._address = stream.address
         _unpacked = unpack_from_stream("=xxxxxxxxHxxxxxxxxxxxxxxxxxxxxxx", stream)
         self.name_len = _unpacked[0]
-        self.name = ooxcb.List(self.conn, stream, self.name_len, 'B', 1)
+        self.name = ooxcb.List(self.conn, stream, self.name_len, 'B', 1).to_string()
 
     def build(self, stream):
         count = 0
