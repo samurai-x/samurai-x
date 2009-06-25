@@ -1003,11 +1003,6 @@ def after_install(options, home_dir):
     subprocess.call([os.path.normpath(join('..', home_dir, 'bin', 'python')), 'setup.py', 'develop'])
     os.chdir('..')
     print home_dir
-    os.chdir('sx-allplugins')
-    print str(([os.path.normpath(join('..', home_dir, 'bin', 'python')), 'setup.py', 'develop']))
-    subprocess.call([os.path.normpath(join('..', home_dir, 'bin', 'python')), 'setup.py', 'develop'])
-    os.chdir('..')
-    print home_dir
     os.chdir('sx-desktops')
     print str(([os.path.normpath(join('..', home_dir, 'bin', 'python')), 'setup.py', 'develop']))
     subprocess.call([os.path.normpath(join('..', home_dir, 'bin', 'python')), 'setup.py', 'develop'])
@@ -1059,6 +1054,11 @@ def after_install(options, home_dir):
     os.chdir('..')
     print home_dir
     os.chdir('sx-clientbuttons')
+    print str(([os.path.normpath(join('..', home_dir, 'bin', 'python')), 'setup.py', 'develop']))
+    subprocess.call([os.path.normpath(join('..', home_dir, 'bin', 'python')), 'setup.py', 'develop'])
+    os.chdir('..')
+    print home_dir
+    os.chdir('sx-bookmarks')
     print str(([os.path.normpath(join('..', home_dir, 'bin', 'python')), 'setup.py', 'develop']))
     subprocess.call([os.path.normpath(join('..', home_dir, 'bin', 'python')), 'setup.py', 'develop'])
     os.chdir('..')

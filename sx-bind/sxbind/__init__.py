@@ -178,7 +178,7 @@ class SXBind(Plugin):
             # ... call the action
             self.app.plugins['actions'].emit(self.bindings[key], info)
         else:
-            log.warning('received an invalid key press event: %s' % key)
+            log.warning('received an invalid key press event: %s' % (key,))
 
     def bind_key_to_action(self, modifiers, keycode, line):
         """

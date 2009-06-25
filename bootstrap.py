@@ -978,7 +978,6 @@ def after_install(options, home_dir):
     subprocess.call([join(home_dir, 'bin', 'easy_install'), 'sx-bind'])
     subprocess.call([join(home_dir, 'bin', 'easy_install'), 'sx-cairodeco'])
     subprocess.call([join(home_dir, 'bin', 'easy_install'), 'sx-tiling'])
-    subprocess.call([join(home_dir, 'bin', 'easy_install'), 'sx-allplugins'])
     subprocess.call([join(home_dir, 'bin', 'easy_install'), 'sx-desktops'])
     subprocess.call([join(home_dir, 'bin', 'easy_install'), 'sx-moveresize'])
     subprocess.call([join(home_dir, 'bin', 'easy_install'), 'sx-background'])
@@ -990,6 +989,7 @@ def after_install(options, home_dir):
     subprocess.call([join(home_dir, 'bin', 'easy_install'), 'sx-help'])
     subprocess.call([join(home_dir, 'bin', 'easy_install'), 'sx-gobject'])
     subprocess.call([join(home_dir, 'bin', 'easy_install'), 'sx-clientbuttons'])
+    subprocess.call([join(home_dir, 'bin', 'easy_install'), 'sx-bookmarks'])
     subprocess.call([join(home_dir, 'bin', 'easy_install'), 'sx-simpledeco'])
     subprocess.call([join(home_dir, 'bin', 'easy_install'), 'sx-web'])
 

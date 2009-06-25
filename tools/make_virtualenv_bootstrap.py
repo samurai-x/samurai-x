@@ -13,9 +13,10 @@ if not os.path.exists('samurai-x2/setup.py'):
 to_install = [
     'ooxcb',
     'samurai-x2',
-    'yahiko',
+    'yahiko'
 ]
-to_install.extend(p for p in iglob('sx-*') if os.path.exists(os.path.join(p, 'setup.py')))
+to_install.extend(p for p in iglob('sx-*')
+        if os.path.exists(os.path.join(p, 'setup.py')) and not p.startswith('sx-allplugins'))
 
 print "will install: ", ", ".join(to_install)
 
