@@ -42,6 +42,9 @@ setup(name='yahiko',
     entry_points="""
     [samuraix.plugin]
     yahiko_decorator = yahiko.decorator:DecoratorPlugin
+
+    [console_scripts]
+    yahiko-statusbar = yahiko.statusbar:run
     """,
 )
 

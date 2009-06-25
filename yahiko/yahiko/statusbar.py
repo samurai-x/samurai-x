@@ -8,6 +8,8 @@ from ooxcb.contrib import cairo
 
 from yahiko import ui
 
+import ooxcb.contrib.ewmh
+ooxcb.contrib.ewmh.mixin()
 
 class Slot(object):
     def __init__(self, status_bar):
@@ -28,6 +30,7 @@ class HelloWorldSlot(Slot):
                 },
         )
 
+
 class ActiveClientSlot(Slot):
     def __init__(self, status_bar):
         Slot.__init__(self, status_bar)
@@ -38,11 +41,18 @@ class ActiveClientSlot(Slot):
                 },
         )
 
-        self.status_bar.screen.root.push_handlers(on_client_message=self.on_client_message)
+        self.status_bar.screen.root.change_attributes(
+            event_mask=
+                xproto.EventMask.PropertyChange,
+        )
+        self.status_bar.screen.root.push_handlers(on_property_notify=self.on_property_notify)
         
-    def on_client_message(self, event):
-        print event 
-        
+    def on_property_notify(self, event):
+        if event.atom == self.status_bar.conn.atoms['_NET_ACTIVE_WINDOW']:
+            win = self.status_bar.screen.root.get_property('_NET_ACTIVE_WINDOW', 'WINDOW').reply().value.to_windows()[0]
+            self.window.text = win.ewmh_get_window_name()           
+            print self.window.text
+            self.window.dirty()
 
 
 class StatusBar(object):
