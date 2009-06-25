@@ -28,6 +28,7 @@ from UserDict import DictMixin
 import logging
 log = logging.getLogger(__name__)
 
+from ooxcb.protocol import xproto
 from ooxcb.protocol.xproto import ModMask
 
 class ClientMessageHandlers(object):
@@ -245,3 +246,26 @@ MODIFIERS = {
         'mod4': ModMask._4,
         'mod5': ModMask._5,
         }
+
+def wait_for_key(screen, callback):
+    """
+        grab the keyboard, wait until the user presses an arbitrary key
+        and call *callback*. *callback* is required to have this function
+        signature::
+
+            def callback(keycode)
+
+    """
+    def on_key_press(evt):
+        screen.root.remove_handlers(
+                on_key_press=on_key_press
+                )
+        screen.conn.core.ungrab_keyboard()
+        callback(evt.detail)
+        return True
+
+    screen.root.grab_keyboard()
+    screen.root.push_handlers(
+            on_key_press=on_key_press
+            )
+    screen.conn.flush()
