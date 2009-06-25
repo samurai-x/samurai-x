@@ -88,6 +88,38 @@ def ewmh_get_desktop(window):
     else:
         return reply.value[0]
 
+def ewmh_get_window_name(window):
+    """
+        returns the window title you should use.
+        Since it respects the icccm and the ewmh standard,
+        it will use:
+
+         * _NET_WM_VISIBLE_NAME if available. if not,
+         * _NET_WM_NAME if available. if not,
+         * WM_NAME
+
+        If `WM_NAME` is not available, it will return an empty string.
+
+        .. note:: WM_NAME's encoding is latin-1, _NET_WM_NAME and
+                _NET_WM_VISIBLE_NAME are utf-8-encoded.
+    """
+    # try _NET_WM_VISIBLE_NAME
+    encoding = 'utf-8'
+    reply = window.get_property(
+            '_NET_WM_VISIBLE_NAME', 'UTF8_STRING').reply()
+    if not reply.exists:
+        # try _NET_WM_NAME
+        reply = window.get_property(
+                '_NET_WM_NAME', 'UTF8_STRING').reply()
+        if not reply.exists:
+            # use WM_NAME ( has ... to ... exist! )
+            reply = window.get_property(
+                    'WM_NAME', 'STRING').reply()
+            encoding = 'latin-1'
+            if not reply.exists:
+                return ''
+    return reply.value.to_string().decode(encoding)
+
 def mixin():
     """
         mix em all
@@ -103,4 +135,5 @@ def mixin():
         ), Screen)
     mixin_functions((
         ewmh_get_desktop,
+        ewmh_get_window_name,
         ), Window)
