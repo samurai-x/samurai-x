@@ -44,9 +44,16 @@ import functools
 
 import gobject
 
-import dbus
-import dbus.service
-import dbus.mainloop.glib
+try:
+    from yaydbus.bus import SessionBus
+    from yaydbus import service
+    YAYDBUS = True
+except Exception, e:
+    print e
+    import dbus
+    from dbus import service
+    import dbus.mainloop.glib
+    YAYDBUS = False
 
 from samuraix.plugin import Plugin
 
@@ -61,24 +68,20 @@ def sxmethod(interface, **kwargs):
     """ 
         decorator like dbus.service.method() but automatically adds in the sx bus name
     """
-    return dbus.service.method('%s.%s' % (DEFAULT_BUS_NAME, interface), **kwargs)
+    return service.method('%s.%s' % (DEFAULT_BUS_NAME, interface), **kwargs)
 
 def sxsignal(interface, **kwargs):
     """ 
         decorator like dbus.service.signal() but automatically adds in the sx bus name
     """
-    return dbus.service.signal('%s.%s' % (DEFAULT_BUS_NAME, interface), **kwargs)
+    return service.signal('%s.%s' % (DEFAULT_BUS_NAME, interface), **kwargs)
 
 
-class DBusObject(dbus.service.Object):
-    def __init__(self, app, conn=None, object_path=None, bus_name=None):
+class DBusObject(service.Object):
+    def __init__(self, app, *args, **kwargs):
         self.app = app 
 
-        dbus.service.Object.__init__(self, 
-                conn=conn, 
-                object_path=object_path, 
-                bus_name=bus_name,
-        )
+        service.Object.__init__(self, *args, **kwargs)
         
     @sxmethod("DBusInterface", in_signature='s', out_signature='s')
     def hello(self, name):   
@@ -89,27 +92,41 @@ class SXDBus(Plugin):
     key = 'dbus'
 
     def __init__(self, app):
-        dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
-
-        self.session_bus = dbus.SessionBus()
-        self.name = dbus.service.BusName(DEFAULT_BUS_NAME, self.session_bus)
-
         self.objects = {}
+        if YAYDBUS:
+            self.session_bus = SessionBus()
+            app.add_fd_handler('read', self.session_bus, self.process_dbus)
+        else:
+            dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 
-        self.register('dbus', functools.partial(DBusObject, app))
+            self.session_bus = dbus.SessionBus()
+            self.name = service.BusName(DEFAULT_BUS_NAME, self.session_bus)
+
+            self.register('dbus', functools.partial(DBusObject, app))
+
+    def process_dbus(self):
+        bus.receive_one()
 
     def register(self, name, cls, path=None):
         """ register a new dbus object """
-
         log.info('registering %s: %s', name, cls)
-        self.objects[name] = cls(
-                conn=self.session_bus, 
-                object_path=path or ("/%s" % name),
-                bus_name=self.name,
-        )
+
+        if YAYDBUS:
+            self.objects[name] = self.session_bus.make_object(path or ("/%s" % name), cls)
+        else:
+            self.objects[name] = cls(
+                    conn=self.session_bus, 
+                    object_path=path or ("/%s" % name),
+                    bus_name=self.name,
+            )
 
 
 if __name__ == '__main__':
     plugin = SXDBus(None)
-    mainloop = gobject.MainLoop()
-    mainloop.run()
+    if YAYDBUS:
+        from yaydbus.mainloop import Mainloop
+        m = Mainloop((plugin.session_bus,))
+        m.run()
+    else:
+        mainloop = gobject.MainLoop()
+        mainloop.run()

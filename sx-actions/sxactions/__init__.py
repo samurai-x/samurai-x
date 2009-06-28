@@ -321,7 +321,7 @@ class SXActions(Plugin):
         app.push_handlers(on_ready=self.on_ready)
 
     def on_ready(self, app):
-        if 'dbus' in app.plugins:
+        if False and 'dbus' in app.plugins:
             import sxactions.dbusobj
             import functools
             app.plugins['dbus'].register(

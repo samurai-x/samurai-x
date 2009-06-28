@@ -1,10 +1,15 @@
-import dbus 
+try:
+    from yaydbus.service import Object
+    YAYDBUS = True
+except ImportError:
+    from dbus.service import Object
+    YAYDBUS = False
 from sxdbus import sxmethod
 
-class ActionsObject(dbus.service.Object):
-    def __init__(self, plugin, **kwargs):
+class ActionsObject(Object):
+    def __init__(self, plugin, *args, **kwargs):
         self.plugin = plugin
-        dbus.service.Object.__init__(self, **kwargs)
+        Object.__init__(self, *args, **kwargs)
 
     @sxmethod("ActionsInterface", in_signature='s', out_signature='')
     def action(self, action):
