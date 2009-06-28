@@ -1,0 +1,27 @@
+<input type="text" id="interactive_input" />
+
+<div id="interactive_output">
+
+</div>
+
+<script type="text/javascript">
+$(document).ready(function() {
+    $('#interactive_input').keydown(function(e) {
+        if( e.keyCode == 13 ) {
+            try {
+            $.getJSON("/interactive/input", {'input': $(this).val()}, function(data) {
+                var html = []
+                $.each(data.stdout, function() {
+                    html.push(this+"<br />");
+                });
+                if( data.stdout ) 
+                    $('#interactive_output').prepend(html.join(""));
+            });
+            $(this).val('');
+            } catch (e) {
+            console.log(e);
+            }
+        }
+    });
+});
+</script>

@@ -1,0 +1,23 @@
+<%!
+import sys
+%>
+<div id="plugins_list">
+    % for name, plugin in app.plugins.iteritems():
+    <div>
+        <h3><a href="#">${name}</a></h3>
+        <div>
+            <ul>
+                <li>Object: ${str(plugin)|h}</li>
+                <li>Module: ${plugin.__module__}</li>
+                <li>Path: ${sys.modules[plugin.__module__].__file__}</li>
+            </ul>
+        </div>
+    </div>
+    % endfor
+</div>
+
+##<script type="text/javascript">
+##$(document).ready(function () {
+##    $("#plugins_list").accordion({ header: "h3" });
+##});
+##</script>

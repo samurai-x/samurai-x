@@ -5,15 +5,12 @@ import sys
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
-		<title>jQuery UI Example Page</title>
-		<link type="text/css" href="css/dark-hive/jquery-ui-1.7.2.custom.css" rel="stylesheet" />	
-		<script type="text/javascript" src="js/jquery-1.3.2.min.js"></script>
-		<script type="text/javascript" src="js/jquery-ui-1.7.2.custom.min.js"></script>
+		<title>samurai-x</title>
+		<link type="text/css" href="/static/css/custom-theme/jquery-ui-1.7.2.custom.css" rel="stylesheet" />	
+		<script type="text/javascript" src="/static/js/jquery-1.3.2.min.js"></script>
+		<script type="text/javascript" src="/static/js/jquery-ui-1.7.2.custom.min.js"></script>
 		<script type="text/javascript">
-			$(function(){
-				// Accordion
-				$("#plugins").accordion({ header: "h3" });
-				// Tabs
+			$(document).ready(function(){
 				$('#tabs').tabs();
 			});
 		</script>
@@ -25,38 +22,21 @@ import sys
 
 	<body>
 
-    <h1 class="title">Samurai-X</h1>
+    <div style="text-align:right">
+    <img src="/static/img/samuraix-small.png" />
+    </div>
     
     <div id="tabs">
         <ul>
-            <li><a href="#tabs-plugins">Plugins</a></li>
-            <li><a href="#tabs-config">Config</a></li>
-            <li><a href="#tabs-status">Status</a></li>
+            % for tab in all_tabs.itervalues():
+                <li><a href="#tab-${tab.htmlname}">${tab.name}</a></li>
+            % endfor
         </ul>
-        <div id="tabs-plugins">
-
-            <div id="plugins">
-                % for name, plugin in app.plugins.iteritems():
-                <div>
-                    <h3><a href="#">${name}</a></h3>
-                    <div>
-                        <ul>
-                            <li>Object: ${str(plugin)|h}</li>
-                            <li>Module: ${plugin.__module__}</li>
-                            <li>Path: ${sys.modules[plugin.__module__].__file__}</li>
-                        </ul>
-                    </div>
-                </div>
-                % endfor
+        % for tab in all_tabs.itervalues():
+            <div id="tab-${tab.htmlname}">
+                ${tab.html()}
             </div>
-
-        </div>
-        <div id="tabs-config">
-        </div>
-        <div id="tabs-status">
-        </div>
-    </div>
-
+        % endfor
 	</body>
 </html>
 

@@ -45,10 +45,14 @@
 """
 
 import os
+import sys
 import socket
 import wsgiref
 from wsgiref import simple_server
 import mimetypes
+import code
+import json
+from StringIO import StringIO
 
 import samuraix
 from samuraix.plugin import Plugin
@@ -59,11 +63,13 @@ from webob import exc
 
 from mako.template import Template
 from mako.lookup import TemplateLookup
+from mako.filters import html_escape
 
 import logging
 log = logging.getLogger(__name__)
 
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
+static_dir = os.path.join(os.path.dirname(__file__), 'static')
 
 template_lookup = TemplateLookup(
         directories=[template_dir], 
@@ -77,37 +83,111 @@ def render(templatename, **kwargs):
 
 
 class WSGIApp(object):
-    def __init__(self, app):
-        self.app = app 
+    def __init__(self, plugin):
+        self.plugin = plugin 
 
     def __call__(self, environ, start_response):
         req = Request(environ)
         if req.environ['REMOTE_ADDR'] != '127.0.0.1':
             resp = exc.HTTPBadRequest(str(e))
-        try:
+        else:
             resp = self.process(req)
-        except ValueError, e:
-            resp = exc.HTTPBadRequest(str(e))
-        except exc.HTTPException, e:
-            resp = e
+            #try:
+            #    resp = self.process(req)
+            #except ValueError, e:
+            #    resp = exc.HTTPBadRequest(str(e))
+            #except exc.HTTPException, e:
+            #    resp = e
         return resp(environ, start_response)
 
     def process(self, request):
-        fn = request.environ['PATH_INFO'][1:]
-        if not fn:
-            fn = 'index.html'
-        if fn.endswith('.html'):
+        if request.path_info == '/':
             content_type="text/html"
-            body = render(fn, app=self.app)
+            body = render('index.html',     
+                    app=self.plugin.app, 
+                    plugin=self.plugin,
+                    all_tabs=Tab.all_tabs,
+            )
         else:
-            ffn = os.path.join(template_dir, fn)
-            content_type = mimetypes.guess_type(ffn)[0]
-            body = open(ffn).read()
-            
+            url_parts = request.path_info[1:].split('/', 1)
+            tab_name = url_parts[0]
+            if len(url_parts) > 1:
+                rest = url_parts[1]
+            else:
+                rest = ''
+            if tab_name == 'static':
+                ffn = os.path.join(static_dir, rest)
+                content_type = mimetypes.guess_type(ffn)[0]
+                body = open(ffn).read()
+            else:
+                tab = Tab.all_tabs[tab_name]
+                request.script_name = '/' + tab_name
+                request.path_info = '/' + rest
+                return tab(request)
         return Response(
-                content_type=content_type, 
+                content_type=content_type,
                 body=body,
         )
+            
+
+class Tab(object):
+    all_tabs = {}
+
+    def __init__(self, plugin, name, htmlname=None):
+        self.plugin = plugin 
+        self.name = name 
+        self.htmlname = htmlname or name.lower().replace(' ', '_')
+        self.all_tabs[self.htmlname] = self
+
+    def __call__(self, request):
+        return Response(
+            body=request.path_info)          
+
+
+class PluginsTab(Tab):
+    def html(self):
+        return render("/tabs/plugins/index.html", app=self.plugin.app)
+
+class YahikoDecoratorTab(Tab):
+    def html(self):
+        return render("/tabs/yahiko/index.html", app=self.plugin.app)
+
+
+class WebConsole(code.InteractiveConsole):
+    def start_buffer(self):
+        self.wbuf = StringIO()
+
+    def write(self, data):
+        self.wbuf.write(data)
+    
+    def get_buffer(self):
+        return self.wbuf.getvalue()
+
+
+class InteractiveTab(Tab):
+    def __init__(self, plugin, name, htmlname=None):
+        Tab.__init__(self, plugin, name, htmlname=htmlname)
+        self.console = WebConsole({'app':self.plugin.app})
+
+    def html(self):
+        return render("/tabs/interactive/index.html")
+
+    def __call__(self, request):
+        if request.path_info == '/':
+            return Response(
+                    body=render("/tabs/interactive/index.html"),
+            )
+        elif request.path_info == '/input':
+            self.console.start_buffer()
+            sys.stdout = StringIO()
+            self.console.push(request.params['input'])
+            out = html_escape(sys.stdout.getvalue()).splitlines()
+            sys.stdout = sys.__stdout__
+            err = self.console.get_buffer().splitlines()
+            return Response(
+                content_type="text/javascript",
+                body=json.dumps({'stderr': err, 'stdout': out}),
+            )
 
 
 class SXWeb(Plugin):
@@ -117,6 +197,10 @@ class SXWeb(Plugin):
         self.app = app
         app.push_handlers(self)
 
+        PluginsTab(self, 'Plugins')
+        #Tab(self, 'Config')
+        InteractiveTab(self, 'interactive')
+
     def on_load_config(self, config):
         self.config = DictProxy(config, self.key+'.')
         self.port = self.config.get('port', 8000)
@@ -124,15 +208,13 @@ class SXWeb(Plugin):
     def on_ready(self, app):
         log.info('serving on port %s', self.port)
         
-        wsgiapp = WSGIApp(app)
+        wsgiapp = WSGIApp(self)
 
         try:
             self.httpd = simple_server.make_server('', self.port, wsgiapp)
         except socket.error, e:
             log.error('cannot launch web server: %s', str(e))
             return 
-
-        print dir(self.httpd)
 
         app.add_fd_handler('read', self.httpd.socket, self.httpd.handle_request)
 
