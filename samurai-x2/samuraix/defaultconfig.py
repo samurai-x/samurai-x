@@ -75,6 +75,7 @@ config = {
             'Meta+p': 'desktops.cycle offset=-1',
             'meta+X': 'spawn cmdline="xterm"',
             'Meta+Q': 'quit',
+            'Meta+d': 'decorator.toggle_decoration',
             # and shortcuts to reach an arbitrary desktop very fast
             'Meta+1': 'desktops.goto index=0',
             'Meta+2': 'desktops.goto index=1',

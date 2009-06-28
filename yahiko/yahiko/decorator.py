@@ -143,9 +143,6 @@ class Decorator(object):
 
         conn = screen.conn
 
-        self.watched_atoms = [conn.atoms[name] for name in
-                ["WM_NAME", "_NET_WM_NAME", "_NET_WM_VISIBLE_NAME"]
-        ]
 
         self.create_actor_window()
 
@@ -277,6 +274,7 @@ class Decorator(object):
                 on_focus=self.on_focus,
                 #on_updated_geom=self.on_updated_geom,
                 on_blur=self.on_blur,
+                on_handle_net_wm_state=self.on_handle_net_wm_state,
         )
 
         client.window.push_handlers(
@@ -354,10 +352,21 @@ class Decorator(object):
             if a window changes a watched atom, redraw
             the title bar.
         """
-        if (evt.atom in self.watched_atoms and not self._obsolete):
+        if self.obsolete:
+            return 
+
+        if (evt.atom in (
+                self.conn.atoms['WM_NAME'],
+                self.conn.atoms['_NET_WM_NAME'],
+                self.conn.atoms['_NET_WM_VISIBLE_NAME'],
+            )):
             title_text = self.client.get_window_title().encode('utf-8') # <- TODO: is that too expensive?
             if title_text != self.title.text:
                 self.title.dirty()
+
+    # erk ... if we remove ourselves then we wont we able to come back...
+    #def on_handle_net_wm_state(self, present, atom, source_indication):
+    #    if atom == self.conn.atoms['_NET_WM_STATE_FULLSCREEN']:
 
     def remove(self):
         """ the end. """
@@ -379,6 +388,8 @@ class Decorator(object):
         self.ui.remove_handlers()
 
         self.plugin.remove_data(self.client)
+        self.client.actor = self.client.window
+
         del self.client
         del self.ui
 
@@ -389,7 +400,8 @@ class DecoratorPlugin(Plugin):
     def __init__(self, app):
         self.app = app
         app.push_handlers(self)
-        self.bindings = {}
+        app.plugins['actions'].register(
+                'decorator.toggle_decoration', self.action_toggle_decoration)
 
     def on_load_config(self, config):
         self.config = config
@@ -417,3 +429,18 @@ class DecoratorPlugin(Plugin):
         # has to use the same colormap as the foreign window.
         decorator = Decorator(self, screen, client)
         self.attach_data_to(client, decorator)
+
+    def action_toggle_decoration(self, info):
+        screen = info['screen']
+        client = info.get('client', screen.focused_client)
+        try:
+            decorator = self.get_data(client)
+        except KeyError:
+            self.create_decoration(screen, client)
+        else:
+            decorator.remove()
+    
+
+
+
+
