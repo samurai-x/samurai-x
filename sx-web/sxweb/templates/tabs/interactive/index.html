@@ -1,4 +1,4 @@
-<input type="text" id="interactive_input" />
+<input type="text" id="interactive_input" size="50" />
 
 <div id="interactive_output">
 
@@ -6,16 +6,40 @@
 
 <script type="text/javascript">
 $(document).ready(function() {
+    var history = [];
+    var history_idx = 0;
     $('#interactive_input').keydown(function(e) {
-        if( e.keyCode == 13 ) {
+        if( e.keyCode == 38 ) {
+            history_idx -= 1;
+            if( history_idx < 0 ) history_idx = 0;
+            $('#interactive_input').val(history[history_idx]);
+        }
+        else if( e.keyCode == 40 ) {
+            history_idx += 1;
+            if( history_idx >= history.length ) {
+                history_idx = history.length;
+                $('#interactive_input').val('');
+            }
+            else {
+                $('#interactive_input').val(history[history_idx]);
+            }
+        }
+        else if( e.keyCode == 13 ) {
             try {
+            $('#interactive_output').prepend("<span style='color: green'>"+$(this).val() + "</span><br />");
+            history.push($(this).val());
+            history_idx = history.length;
             $.getJSON("/interactive/input", {'input': $(this).val()}, function(data) {
                 var html = []
                 $.each(data.stdout, function() {
                     html.push(this+"<br />");
                 });
+                $.each(data.stderr, function() {
+                    html.push("<span style='color:red'>"+this+"</span><br />");
+                });
                 if( data.stdout ) 
                     $('#interactive_output').prepend(html.join(""));
+            
             });
             $(this).val('');
             } catch (e) {
