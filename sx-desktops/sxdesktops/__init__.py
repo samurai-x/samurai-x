@@ -174,6 +174,7 @@ class Desktop(SXObject):
         self.dispatch_event('on_new_client', self, client)
 
         # add handlers for the desktop-specific client messages
+        # FIXME i dont think we clean up after these properly in remove_client
         client.client_message_handlers.register_handler(
                 client.conn.atoms['_NET_WM_DESKTOP'],
                 self.handle_net_wm_desktop)
@@ -210,14 +211,17 @@ class Desktop(SXObject):
             elif new_idx == 0xffffffff: # TODO: show on all desktops
                 log.warning('%s requests to be shown on all desktops - not implemented' % client)
             else:
-                self.remove_client(client)
-                desktops = self.plugin.get_data(self.screen).desktops
                 if not new_idx < len(desktops):
                     log.warning('%s requests to be shown on desktop %d - no such desktop' % new_idx)
                 else:
                     desktop = desktops[new_idx]
-                    log.debug('Moving %s to desktop %s' % (client, desktop))
-                    desktop.add_client(client)
+                    self.move_client_to_desktop(client, desktop)
+
+    def move_client_to_desktop(self, client, desktop):
+        log.debug('Moving %s to desktop %s' % (client, desktop))
+        self.remove_client(client)
+        desktops = self.plugin.get_data(self.screen).desktops
+        desktop.add_client(client)
 
     def rearrange(self):
         self.dispatch_event('on_rearrange', self)
@@ -365,6 +369,12 @@ class ScreenData(EventDispatcher):
         clients = self.active_desktop.clients
         self.screen.focus(clients.next()) # TODO: respect offset
 
+    def move_client_to_desktop(self, client, new_desktop):
+        for desktop in self.desktops:
+            if client in desktop.clients:
+                desktop.move_client_to_desktop(client, new_desktop)
+                break
+
     def update_workarea(self):
         for desktop in self.desktops:
             pass
@@ -392,6 +402,7 @@ class SXDesktops(Plugin):
         app.plugins['actions'].register('desktops.cycle_clients',
                 self.action_cycle_clients)
         app.plugins['actions'].register('desktops.goto', self.action_goto)
+        app.plugins['actions'].register('desktops.move_client', self.action_move_client)
 
         atoms = app.conn.atoms
         app.supported_hints.update([
@@ -470,3 +481,22 @@ class SXDesktops(Plugin):
 
         """
         self.get_data(info['screen']).set_active_desktop_idx(info['index'])
+
+    def action_move_client(self, info):
+        """
+            move a client to a specific desktop 
+            
+            parameters:
+                `index`: int 
+                    desktop index, starting at 0 (required)
+
+        """
+        screen = info['screen']
+        index = info.get('index')
+        screen_data = self.get_data(screen)
+        if index is None or index >= len(screen_data.desktops) or index < 0:
+            log.warning("Invalid desktop index %s" % index)
+            return 
+        screen_data.move_client_to_desktop(
+            info.get('client', screen.focused_client),
+            screen_data.desktops[index])
