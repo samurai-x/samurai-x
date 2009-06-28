@@ -1,0 +1,301 @@
+from __future__ import with_statement
+
+import os
+import socket
+from getpass import getuser
+from threading import RLock
+
+from . import protocol
+from .introspection import parse_introspection
+from .proxy import ProxyObject
+from .protocol import Message
+from .service import Object, Interface
+from .streams import SocketStream
+from .matchrules import MatchRule
+from .auth import AuthHandler
+
+class SessionError(Exception):
+    pass
+
+class DBusException(Exception):
+    def __init__(self, name, description=''):
+        self.name = name
+        self.description = description
+
+    def __str__(self):
+        return '%s: %s' % (self.name, self.description)
+
+DBUS_NAME_FLAG_ALLOW_REPLACEMENT = 0x1
+DBUS_NAME_FLAG_REPLACE_EXISTING = 0x2
+DBUS_NAME_FLAG_DO_NOT_QUEUE = 0x4
+
+DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER = 1
+DBUS_REQUEST_NAME_REPLY_IN_QUEUE = 2
+DBUS_REQUEST_NAME_REPLY_EXISTS = 3
+DBUS_REQUEST_NAME_REPLY_ALREADY_OWNER = 4
+
+class Bus(object):
+    def __init__(self, path):
+        self.address = None
+        self.guid = None
+        self.path = None
+        self.unique_name = ''
+        self.bus_names = []
+        self.signal_handlers = {} # {(path, member, interface): [func, func]}
+        self.objects = {}
+        self.interfaces = {}
+        
+        self.socket_lock = RLock()
+
+        self.socket = None
+        self.socket_stream = None
+        self.calls = {}
+        self.replies = {}
+        self.type = ''
+        self._parse_path(path)
+        self.connect()
+
+    def make_object(self, name, cls=Object):
+        ret = self.objects[name] = cls(self, name)
+        return ret
+
+    def request_name(self, name, allow_replacement=True, replace_existing=True, do_not_queue=False):
+        """
+            returns True if self could get the name.
+        """
+        flags = 0
+        if allow_replacement:
+            flags |= DBUS_NAME_FLAG_ALLOW_REPLACEMENT
+        if replace_existing:
+            flags |= DBUS_NAME_FLAG_REPLACE_EXISTING
+        if do_not_queue:
+            flags |= DBUS_NAME_FLAG_DO_NOT_QUEUE
+        code = self.proxy.RequestName(name, flags)[0]
+        if code in (DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER,
+                DBUS_REQUEST_NAME_REPLY_ALREADY_OWNER):
+            self.bus_names.append(name)
+            return True
+        else:
+            # TODO: should raise an exception?
+            return False
+
+    def _parse_path(self, path):
+        for elem in path.split(','):
+            key, value = elem.split('=')
+            if key == 'unix':
+                self.address = value
+                self.type = 'unix'
+            elif key == 'unix:abstract':
+                self.address = '\x00' + value
+                self.type = 'unix:abstract'
+            elif key == 'guid':
+                self.guid = value
+            else:
+                raise SessionError("Unknown key/value pair: %r=%r" % (key, value))
+
+    def fileno(self):
+        """
+            returns socket's file descriptor to make `select` happy.
+        """
+        return self.socket.fileno()
+
+    def get_reply_by_serial(self, serial):
+        while serial not in self.replies:
+            self.receive_one()
+        return self.replies.pop(serial)
+
+    def get_reply(self, msg):
+        del self.calls[msg.serial]
+        return self.get_reply_by_serial(msg.serial)
+
+    def get_object(self, path, destination, introspect=True):
+        return ProxyObject(self, path, destination, introspect)
+
+    def make_interface(self, interface):
+        if interface not in self.interfaces:
+            self.interfaces[interface] = Interface(self, interface)
+        return self.interfaces[interface]
+
+    def add_match(self, matchrule):
+        self.proxy.AddMatch(matchrule.to_dbus())
+
+    def remove_match(self, matchrule):
+        self.proxy.RemoveMatch(matchrule.to_dbus())
+
+    def add_signal_handler(self, path, member, interface, func):
+        self.signal_handlers.setdefault((path, member, interface), []).append(func)
+        # register a match rule ...
+        self.add_match(MatchRule(
+            type='signal',
+            path=path,
+            member=member
+            ))
+
+    def signal_handler(self, path, member, interface):
+        def deco(func):
+            self.add_signal_handler(path, member, interface, func)
+            return func
+        return deco
+
+    def remove_signal_handler(self, path, member, interface, func):
+        info = (path, member, interface)
+        if info in self.signal_handlers:
+            self.signal_handlers[info].remove(func)
+        self.remove_match(MatchRule(
+            type='signal',
+            path=path,
+            member=member
+            ))
+
+    def dispatch_signal(self, msg):
+        info = (msg.path, msg.member, msg.interface)
+        if info not in self.signal_handlers:
+            return False
+        for func in reversed(self.signal_handlers[info]):
+            if func(msg):
+                return
+        
+    def connect(self):
+        # Doesn't need to be locked because it happens
+        # in the initialization.
+        if self.type in ('unix', 'unix:abstract'):
+            self.socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+            self.socket.connect(self.address)
+        else:
+            raise SessionError("Unknown connection type: %r" % self.type)
+        self.socket.setblocking(1)
+        self.socket.sendall('\0')
+        self.socket_stream = SocketStream(self.socket.fileno())
+        self.auth()
+
+        self.send_hello()
+        # after having sent the Hello, we can use Introspect and create
+        # a nice proxy object!
+        self.proxy = self.get_object('/org/freedesktop/DBus', 'org.freedesktop.DBus')
+
+    def send_hello(self):
+        reply = self.send_method_call_sync(
+                path='/org/freedesktop/DBus',
+                destination='org.freedesktop.DBus',
+                interface='org.freedesktop.DBus',
+                member='Hello',
+                )
+        self.unique_name = reply.body[0]
+        self.bus_names.append(self.unique_name)
+
+    def send_method_return(self, msg, signature, body):
+        msg = Message(
+                type=protocol.METHOD_RETURN,
+                serial=protocol.SERIALS.next(), # TODO: want one?
+                reply_serial=msg.serial,
+                destination=msg.sender,
+                signature=signature,
+                body=body,
+                )
+        if signature:
+            msg.marshal_body()
+        self.send(msg)
+        return msg
+
+    def send_method_call(self, path, destination, member, interface='', signature='', body=()):
+        serial = protocol.SERIALS.next()
+        msg = Message(
+                type=protocol.METHOD_CALL,
+                serial=serial,
+                path=path,
+                interface=interface,
+                destination=destination,
+                member=member,
+                signature=signature,
+                body=body
+                )
+        if signature:
+            msg.marshal_body()
+        self.calls[serial] = msg
+        self.send(msg)
+        return msg
+
+    def send_method_call_sync(self, *args, **kwargs):
+        return self.get_reply(self.send_method_call(*args, **kwargs))
+
+    def send_error(self, msg, name, description=''):
+        signature = ''
+        body = ()
+        if description:
+            signature = 's'
+            body = (description,)
+        error = Message(
+                type=protocol.ERROR,
+                reply_serial=msg.serial,
+                serial=protocol.SERIALS.next(), # do we need any?
+                destination=msg.sender,
+                error_name=name,
+                signature=signature,
+                body=body
+                )
+        self.send(error)
+        return error
+
+    def dispatch_call(self, msg):
+        path = msg.path
+        try:
+            return self.objects[path].dispatch_call(msg)
+            # TODO: catch keyerror
+        except DBusException, e:
+            seld.send_error(msg, e.name, e.description)
+
+    def send(self, msg):
+        with self.socket_lock:
+            self.socket.sendall(msg.marshal_simple())
+
+    def auth(self):
+        """
+            authenticate.
+        """
+        au = AuthHandler(self.socket)
+        mechanisms = au.get_mechanisms()
+        if 'DBUS_COOKIE_SHA1' in mechanisms:
+            au.auth_dbus_cookie_sha1(getuser())
+        else:
+            raise NotImplementedError("No implemented auth mechanisms available: %r" % mechanisms)
+
+    def receive_one(self):
+        with self.socket_lock:
+            self.socket_stream.reset_count()
+            msg = Message.create_from_socketstream(self.socket_stream)
+        if msg.type == protocol.METHOD_RETURN:
+            print 'GOTACHA', vars(msg)
+            self.replies[msg.reply_serial] = msg
+        elif msg.type == protocol.SIGNAL:
+            self.dispatch_signal(msg)
+        elif msg.type == protocol.ERROR:
+            self.raise_error(msg)
+        elif msg.type == protocol.METHOD_CALL:
+            self.dispatch_call(msg)
+        else:
+            print vars(msg)
+            print 'Unknown message type'
+
+    def raise_error(self, msg):
+        name = msg.error_name
+        description = '(no description given)'
+        if (len(msg.body) == 1 and isinstance(msg.body, basestring)):
+            description = msg.body[0]
+        raise DBusException(name, description)
+
+    def introspect(self, path, destination):
+        return parse_introspection(path,
+                    self.send_method_call_sync(
+                    path,
+                    destination,
+                    'Introspect',
+                    'org.freedesktop.DBus.Introspectable',
+                    ).body[0])
+
+def get_session_bus_path():
+    return os.environ["DBUS_SESSION_BUS_ADDRESS"]
+
+class SessionBus(Bus):
+    def __init__(self):
+        Bus.__init__(self, get_session_bus_path())
+
