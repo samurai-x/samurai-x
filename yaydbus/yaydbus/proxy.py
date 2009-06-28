@@ -16,7 +16,12 @@ class ProxyMethod(object):
         raise NotImplementedError()
 
     def __call__(self, *args, **kwargs):
-        return self.bus.get_reply(self.async(*args, **kwargs)).body[0]
+        ret = self.bus.get_reply(self.async(*args, **kwargs)).body
+        if ret:
+            assert len(ret) == 1
+            return ret[0]
+        else:
+            return None
 
 class SillyProxyMethod(ProxyMethod):
     def __init__(self, bus, path, destination, name):

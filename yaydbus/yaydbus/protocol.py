@@ -100,7 +100,6 @@ class Message(object):
                     self._get_header_fields()
                     )
                    )
-        print vars(self)
         marshal.align(stream, 8)
         stream.write(self.body_data)
 
