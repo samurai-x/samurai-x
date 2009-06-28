@@ -70,7 +70,7 @@ class Bus(object):
             flags |= DBUS_NAME_FLAG_REPLACE_EXISTING
         if do_not_queue:
             flags |= DBUS_NAME_FLAG_DO_NOT_QUEUE
-        code = self.proxy.RequestName(name, flags)[0]
+        code = self.proxy.RequestName(name, flags)
         if code in (DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER,
                 DBUS_REQUEST_NAME_REPLY_ALREADY_OWNER):
             self.bus_names.append(name)
@@ -264,7 +264,6 @@ class Bus(object):
             self.socket_stream.reset_count()
             msg = Message.create_from_socketstream(self.socket_stream)
         if msg.type == protocol.METHOD_RETURN:
-            print 'GOTACHA', vars(msg)
             self.replies[msg.reply_serial] = msg
         elif msg.type == protocol.SIGNAL:
             self.dispatch_signal(msg)
