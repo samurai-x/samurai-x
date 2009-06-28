@@ -61,7 +61,7 @@ class Message(object):
         self.reply_serial = None
         self.destination = None
         self.sender = None
-        self.signature = None
+        self.signature = ''
 
         self.__dict__.update(properties)
 
