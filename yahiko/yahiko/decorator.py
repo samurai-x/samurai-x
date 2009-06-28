@@ -274,7 +274,7 @@ class Decorator(object):
                 on_focus=self.on_focus,
                 #on_updated_geom=self.on_updated_geom,
                 on_blur=self.on_blur,
-                on_handle_net_wm_state=self.on_handle_net_wm_state,
+                #on_handle_net_wm_state=self.on_handle_net_wm_state,
         )
 
         client.window.push_handlers(
@@ -352,13 +352,15 @@ class Decorator(object):
             if a window changes a watched atom, redraw
             the title bar.
         """
-        if self.obsolete:
+        if self._obsolete:
             return 
 
+        conn = self.screen.conn
+
         if (evt.atom in (
-                self.conn.atoms['WM_NAME'],
-                self.conn.atoms['_NET_WM_NAME'],
-                self.conn.atoms['_NET_WM_VISIBLE_NAME'],
+                conn.atoms['WM_NAME'],
+                conn.atoms['_NET_WM_NAME'],
+                conn.atoms['_NET_WM_VISIBLE_NAME'],
             )):
             title_text = self.client.get_window_title().encode('utf-8') # <- TODO: is that too expensive?
             if title_text != self.title.text:
