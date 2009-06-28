@@ -104,7 +104,7 @@ class Object(object):
     def dispatch_call(self, msg):
         name = msg.member
         interface = self.get_interface_implementing(name)
-        assert interface
+        assert interface, "couldnt find %s" % name 
         member = interface.members[name]
         self._bus.send_method_return(msg, member.out_signature, member.call(self, msg))
 

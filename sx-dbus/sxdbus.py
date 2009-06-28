@@ -102,10 +102,13 @@ class SXDBus(Plugin):
             self.session_bus = dbus.SessionBus()
             self.name = service.BusName(DEFAULT_BUS_NAME, self.session_bus)
 
-            self.register('dbus', functools.partial(DBusObject, app))
+        if YAYDBUS:
+            self.session_bus.request_name(DEFAULT_BUS_NAME)
+            self.session_bus.request_name(DEFAULT_BUS_NAME+'.DBusService')
+        self.register('dbus', functools.partial(DBusObject, app))
 
     def process_dbus(self):
-        bus.receive_one()
+        self.session_bus.receive_one()
 
     def register(self, name, cls, path=None):
         """ register a new dbus object """
