@@ -99,8 +99,8 @@ class SimpleMarshaller(Marshaller):
         return unpack_from_stream(self.structcode, stream)[0]
 
 class Struct(Marshaller):
-    def __init__(self, dbuscode, marshallers):
-        Marshaller.__init__(self, dbuscode, 8)
+    def __init__(self, dbuscode, marshallers, align_to=8):
+        Marshaller.__init__(self, dbuscode, align_to)
         self.marshallers = marshallers
 
     def marshal(self, stream, members):
@@ -213,21 +213,20 @@ class VariantMarshaller(Marshaller):
         # then the value
         # read it from a substream. I think that has something
         # to do with alignmnt, though I am not sure :)
-        substream = StringIO()
-        parse_signature(dbuscode).marshal(substream, (value,))
-        stream.write(substream.getvalue())
+        parse_signature(dbuscode).marshal(stream, (value,))
 
     def unmarshal(self, stream):
         # No alignment skipping here because StringMarshaller.unmarshal
         # already does that.
         #skip_alignment(stream, self.align_to)
         dbuscode = MARSHALLERS['g'].unmarshal(stream)
-        substream = StreamSlice(stream)
-        val = parse_signature(dbuscode).unmarshal(substream)[0]
+        val = parse_signature(dbuscode).unmarshal(stream)[0]
         return val
 
 class Signature(Struct):
-    pass
+    def __init__(self, dbuscode, marshallers):
+        # Don't align signatures.
+        Struct.__init__(self, dbuscode, marshallers, 1)
 
 def _parse_once(signature, idx=0, accept_dict_entry=False):
     marshaller = None
