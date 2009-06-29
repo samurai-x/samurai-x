@@ -26,8 +26,6 @@
 from cStringIO import StringIO
 from struct import pack, unpack, calcsize
 
-from .streams import StreamSlice
-
 class MarshallingError(Exception):
     pass
 
