@@ -2,6 +2,7 @@ from __future__ import with_statement
 
 import os
 import socket
+import re
 from getpass import getuser
 from threading import RLock
 
@@ -291,8 +292,49 @@ class Bus(object):
                     'org.freedesktop.DBus.Introspectable',
                     ).body[0])
 
+SESSION_PATH_VAR = "DBUS_SESSION_BUS_ADDRESS"
+SESSION_FILE = os.path.expanduser('~/.dbus/session-bus/%s-%d')
+DISPLAY_REGEX = r'([^:]+)*:{1,2}(\d+)(?:\.(\d+))?'
+MACHINE_ID_FILE = '/var/lib/dbus/machine-id'
+
+def get_session_bus_path_from_file(filename):
+    with open(filename, 'r') as f:
+        for line in f.xreadlines():
+            if line.startswith(SESSION_PATH_VAR):
+                var, value = line.split('=', 1)
+                return value
+    raise SessionError("No session bus address found in %s" % filename)
+
+def get_machine_id():
+    """
+        return the id of the machine.
+        We could also use `dbus-uuidgen`.
+    """
+    with open(MACHINE_ID_FILE, 'r') as f:
+        return f.read().strip()
+
+def parse_display(display):
+    all = re.findall(DISPLAY_REGEX, display)
+    matches = all[0]
+    if matches[0]:
+        raise NotImplementedError('foreign servers not yet implemented')
+    host = ''
+    number = int(matches[1])
+    screen = 0
+    if matches[2]:
+        screen = int(matches[2])
+    return (host, number, screen)
+
+def get_display_id():
+    return parse_display(os.environ["DISPLAY"])[1]
+
 def get_session_bus_path():
-    return os.environ["DBUS_SESSION_BUS_ADDRESS"]
+    if SESSION_PATH_VAR in os.environ:
+        return os.environ[SESSION_PATH_VAR]
+    else:
+        machine = get_machine_id()
+        display = get_display_id()
+        return get_session_bus_path_from_file(SESSION_FILE % (machine, display))
 
 class SessionBus(Bus):
     def __init__(self):
