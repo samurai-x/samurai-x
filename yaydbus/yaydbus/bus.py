@@ -78,9 +78,9 @@ class Bus(object):
         self._parse_path(path)
         self.connect()
 
-    def make_object(self, name, cls=Object):
-        ret = self.objects[name] = cls(self, name)
-        return ret
+    def add_object(self, obj):
+        self.objects[obj._path] = obj
+        return obj
 
     def request_name(self, name, allow_replacement=True, replace_existing=True, do_not_queue=False):
         """

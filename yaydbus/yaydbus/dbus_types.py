@@ -39,15 +39,27 @@ BUILTIN_SIGNATURES = (
 class DBusTypeError(Exception):
     pass
 
-def get_signature(type_):
-    if issubclass(type_, DBusType):
-        return type_.get_signature()
-    else:
-        for builtin, signature in BUILTIN_SIGNATURES:
-            if issubclass(type_, builtin):
-                return signature
+def get_signature(obj):
+    if isinstance(obj, type):
+        if issubclass(obj, DBusType):
+            return obj.get_signature()
         else:
-            raise DBusTypeError("Couldn't guess signature of %r" % type_)
+            for builtin, signature in BUILTIN_SIGNATURES:
+                if issubclass(obj, builtin):
+                    return signature
+            else:
+                raise DBusTypeError("Couldn't guess signature of %r" % obj)
+    else:
+        if isinstance(obj, DBusType):
+            return type(obj).get_signature()
+        elif isinstance(obj, list) and obj:
+            return 'a' + get_signature(obj[0])
+        else:
+            for builtin, signature in BUILTIN_SIGNATURES:
+                if isinstance(obj, builtin):
+                    return signature
+            else:
+                raise DBusTypeError("Couldn't guess signature of %r" % obj)
 
 def is_marshallable(obj):
     if isinstance(obj, DBusType):
@@ -64,13 +76,16 @@ def get_marshallable(code, obj):
             return Variant(obj)
         else:
             return obj
+    elif code[0] == 'a':
+        # is an array.
+        return Array_from_signature(code)(obj)
     elif is_marshallable(obj):
         return obj
     else:
         raise DBusTypeError("Couldn't guess how to make %r marshallable!" % obj)
 
 def guess_signature(args):
-    return ''.join([get_signature(type(arg)) for arg in args])
+    return ''.join([get_signature(arg) for arg in args])
 
 def get_marshallable_bunch(signature, args):
     sig = parse_signature(signature)
@@ -133,7 +148,7 @@ class Variant(list, DBusType):
         return 'v'
 
     def __init__(self, value):
-        list.__init__(self, [get_signature(type(value)), value])
+        list.__init__(self, [get_signature(value), value])
 
 def Struct(*elems):
     sig = '(%s)' % ''.join(map(get_signature, elems))
@@ -145,6 +160,14 @@ def Struct(*elems):
 
 def Array(elem):
     sig = 'a' + get_signature(elem)
+    class _DBusArray(list, DBusType):
+        @classmethod
+        def get_signature(cls):
+            return sig
+    return _DBusArray
+
+def Array_from_signature(elem):
+    sig = 'a' + elem
     class _DBusArray(list, DBusType):
         @classmethod
         def get_signature(cls):

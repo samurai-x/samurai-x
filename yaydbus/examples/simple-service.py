@@ -8,6 +8,26 @@ from yaydbus.mainloop import Mainloop
 from yaydbus.dbus_types import UInt32, Variant
 
 class TestObject(Object):
+    def __init__(self, bus):
+        Object.__init__(self, bus, '/com/example/SimpleService/Test')
+        self.items = []
+
+    @method('com.example.SimpleService', in_signature='v')
+    def PushItem(self, item):
+        self.items.append(item)
+
+    @method('com.example.SimpleService', out_signature='v')
+    def PopItem(self):
+        return self.items.pop()
+
+    @method('com.example.SimpleService')
+    def PrintItems(self):
+        print 'My Items'
+        print '========'
+        for idx, item in enumerate(self.items):
+            print ' %d) %r' % (idx, item)
+        print
+
     @method('com.example.SimpleService')
     @annotate(i=UInt32, return_=UInt32)
     def ExpensiveCalculation(self, i):
@@ -26,7 +46,7 @@ class TestObject(Object):
 
 bus = SessionBus()
 bus.request_name('com.example.SimpleService')
-obj = bus.make_object('/com/example/SimpleService/Test', TestObject)
+obj = bus.add_object(TestObject(bus))
 
 mainloop = Mainloop([bus])
 mainloop.run()

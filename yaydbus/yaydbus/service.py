@@ -29,7 +29,7 @@ from types import FunctionType
 
 from . import introspection
 from .marshal import parse_signature
-from .dbus_types import get_signature
+from .dbus_types import get_signature, get_marshallable_bunch
 from .matchrules import MatchRule
 
 class MethodError(Exception):
@@ -45,7 +45,9 @@ def get_signature_from_annotations(func, get_in=True, get_out=True):
     try:
         annotations = func.func_annotations
     except AttributeError:
-        raise MethodError("Exported methods need function annotations.")
+        #raise MethodError("Exported methods need function annotations.")
+        # Just don't raise. No function annotations are valid, too.
+        annotations = {}
     args, varargs, varkw, defaults = inspect.getargspec(func)
     if varargs or varkw:
         raise MethodError("Exported methods can't have varargs or varkws.")
@@ -54,7 +56,7 @@ def get_signature_from_annotations(func, get_in=True, get_out=True):
     if get_in:
         for arg in args[1:]: # skip `self`
             if arg not in annotations:
-                raise MethodError("Missing annotation for %s!" % arg)
+                raise MethodError("Missing annotation for `%s`!" % arg)
             else:
                 in_signature += _get_signature_lazily(annotations[arg])
     if get_out:
@@ -116,7 +118,10 @@ class Method(Introspectable):
     def call(self, obj, msg):
         assert msg.signature == self.in_signature
         ret = self.callable(obj, *msg.body)
-        return (ret,)
+        if ret is None:
+            return ()
+        else:
+            return get_marshallable_bunch(self.out_signature, [ret])
 
 class Signal(Introspectable):
     def __init__(self, callable, name=None, signature=None, annotations=None):
