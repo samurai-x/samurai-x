@@ -31,8 +31,18 @@ def get_signature_from_annotations(func, get_in=True, get_out=True):
         except KeyError:
             raise MethodError("Missing annotation for return type!")
     return (in_signature, out_signature)
+
+class Introspectable(object):
+    @property
+    def introspection(self):
+        if self._introspection is None:
+            self.update_introspection()
+        return self._introspection
+
+    def update_introspection(self):
+        raise NotImplementedError()
     
-class Method(object):
+class Method(Introspectable):
     def __init__(self, callable, name=None, in_signature=None, out_signature=None, annotations=None):
         if name is None:
             name = callable.__name__
@@ -51,15 +61,10 @@ class Method(object):
         self.in_signature = in_signature
         self.out_signature = out_signature
         self.annotations = annotations
-        self.introspection = None
-        self.set_introspection()
+        self._introspection = None
+        self.update_introspection()
 
-    def get_introspection(self):
-        if not self.introspection:
-            self.set_introspection()
-        return self.introspection
-
-    def set_introspection(self):
+    def update_introspection(self):
         # get the introspection object
         in_args_dbuscodes = [m.dbuscode for m in parse_signature(self.in_signature).marshallers]
         in_args_names = inspect.getargspec(self.callable)[0] # TODO: default arguments and stuff
@@ -68,7 +73,7 @@ class Method(object):
             args.append(introspection.MethodArgument(name, dbuscode, 'in'))
         if self.out_signature:
             args.append(introspection.MethodArgument(None, parse_signature(self.out_signature).dbuscode, 'out'))
-        self.introspection = introspection.Method(self.name, args, self.annotations)
+        self._introspection = introspection.Method(self.name, args, self.annotations)
 
     def call(self, obj, msg):
         assert msg.signature == self.in_signature
@@ -89,21 +94,16 @@ class ObjectMeta(type):
         dct['_methods'] = methods
         return type.__new__(mcs, name, bases, dct)
 
-class Interface(object):
+class Interface(Introspectable):
     def __init__(self, bus, name):
         self.bus = bus
         self.name = name
         self.members = {}
-        self.introspection = None
+        self._introspection = None
 
-    def get_introspection(self):
-        if not self.introspection:
-            self.set_introspection()
-        return self.introspection
-
-    def set_introspection(self):
-        self.introspection = introspection.Interface(self.name,
-                [m.get_introspection() for m in self.members.itervalues()])
+    def update_introspection(self):
+        self._introspection = introspection.Interface(self.name,
+                [m.introspection for m in self.members.itervalues()])
 
     def add_member(self, member):
         self.members[member.name] = member
@@ -123,7 +123,7 @@ def dbus_annotation(key, value):
         return func
     return deco
 
-class Object(object):
+class Object(Introspectable):
     __metaclass__ = ObjectMeta
 
     def __init__(self, bus, path):
@@ -131,7 +131,7 @@ class Object(object):
         self._path = path
         self._interfaces = set()
         self._register()
-        self.introspection = None
+        self._introspection = None
 
     def _register(self):
         # register a match rule
@@ -143,13 +143,9 @@ class Object(object):
             # now we're implementing a method from this interface!
             self._interfaces.add(interface)
 
-    def get_introspection(self):
-        if not self.introspection:
-            self.set_introspection()
-        return self.introspection
-
-    def set_introspection(self):
-        self.introspection = introspection.Node(self._path, [m.get_introspection() for m in self._interfaces])
+    def update_introspection(self):
+        self._introspection = introspection.Node(self._path,
+                [m.introspection for m in self._interfaces])
 
     def get_interface_implementing(self, name):
         for interface in self._interfaces:
@@ -166,4 +162,4 @@ class Object(object):
 
     @method('org.freedesktop.DBus.Introspectable', in_signature='', out_signature='s')
     def Introspect(self):
-        return introspection.to_string(self.get_introspection())
+        return introspection.to_string(self.introspection)
