@@ -15,3 +15,6 @@ class Mainloop(object):
     def add_bus(self, bus):
         self.busses.add(bus)
 
+    def quit(self):
+        self.running = False
+

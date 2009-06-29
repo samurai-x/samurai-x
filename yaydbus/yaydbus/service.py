@@ -10,6 +10,12 @@ from .matchrules import MatchRule
 class MethodError(Exception):
     pass
 
+def _get_signature_lazily(s):
+    if isinstance(s, basestring):
+        return s
+    else:
+        return get_signature(s)
+
 def get_signature_from_annotations(func, get_in=True, get_out=True):
     try:
         annotations = func.func_annotations
@@ -19,15 +25,16 @@ def get_signature_from_annotations(func, get_in=True, get_out=True):
     if varargs or varkw:
         raise MethodError("Exported methods can't have varargs or varkws.")
     in_signature = ''
+    out_signature = ''
     if get_in:
-        for arg in args:
+        for arg in args[1:]: # skip `self`
             if arg not in annotations:
                 raise MethodError("Missing annotation for %s!" % arg)
             else:
-                in_signature += get_signature(annotations[arg])
+                in_signature += _get_signature_lazily(annotations[arg])
     if get_out:
         try:
-            out_signature = annotations['return']
+            out_signature = _get_signature_lazily(annotations['return'])
         except KeyError:
             raise MethodError("Missing annotation for return type!")
     return (in_signature, out_signature)
@@ -52,6 +59,9 @@ class Method(Introspectable):
             annotations.update(getattr(callable, '_dbus_annotations'))
         self.name = name
         self.callable = callable
+        if in_signature is None:
+            if len(inspect.getargspec(callable)[0]) == 1: # no args except self, no in_signature
+                in_signature = ''
         if (in_signature is None or out_signature is None):
             in_s, out_s = get_signature_from_annotations(callable, in_signature is None, out_signature is None)
             if in_signature is None:
@@ -80,6 +90,39 @@ class Method(Introspectable):
         ret = self.callable(obj, *msg.body)
         return (ret,)
 
+class Signal(Introspectable):
+    def __init__(self, callable, name=None, signature=None, annotations=None):
+        if name is None:
+            name = callable.__name__
+        if annotations is None:
+            annotations = {}
+        if hasattr(callable, '_dbus_annotations'):
+            annotations.update(getattr(callable, '_dbus_annotations'))
+        if signature is None:
+            signature, _ = get_signature_from_annotations(callable, True, False)
+        self.name = name
+        self.callable = callable
+        self.signature = signature
+        self.annotations = annotations
+        self._introspection = None
+        self.update_introspection()
+
+    def update_introspection(self):
+        # get the introspection object
+        args = [introspection.SignalArgument(None, t.dbuscode, 'out')
+                for t in  parse_signature(self.signature).marshallers]
+        self._introspection = introspection.Method(self.name, args, self.annotations)
+
+    def __call__(self, obj, *args, **kwargs):
+        assert not kwargs # TODO
+        try:
+            self.callable(obj, *args)
+        except:
+            raise
+        else:
+            # successful.
+            obj.emit_signal(self, args)
+
 class ObjectMeta(type):
     def __new__(mcs, name, bases, dct):
         methods = []
@@ -90,6 +133,10 @@ class ObjectMeta(type):
             if hasattr(member, '_dbus_method'):
                 methods.append((member._dbus_interface, member._dbus_method))
                 del member._dbus_method
+                del member._dbus_interface
+            if hasattr(member, '_dbus_signal'):
+                methods.append((member._dbus_interface, member._dbus_signal))
+                del member._dbus_signal
                 del member._dbus_interface
         dct['_methods'] = methods
         return type.__new__(mcs, name, bases, dct)
@@ -113,6 +160,16 @@ def method(interface, name=None, in_signature=None, out_signature=None):
         func._dbus_method = Method(func, name, in_signature, out_signature)
         func._dbus_interface = interface
         return func
+    return deco
+
+def signal(interface, name=None, signature=None):
+    def deco(func):
+        signal = Signal(func, name, signature)
+        def f(*args, **kwargs):
+            return signal(*args, **kwargs)
+        f._dbus_signal = signal
+        f._dbus_interface = interface
+        return f
     return deco
 
 def dbus_annotation(key, value):
@@ -146,6 +203,16 @@ class Object(Introspectable):
     def update_introspection(self):
         self._introspection = introspection.Node(self._path,
                 [m.introspection for m in self._interfaces])
+
+    def emit_signal(self, signal, args):
+        interface = self.get_interface_implementing(signal.name)
+        assert interface, "no interface implementing %s - wtf?" % signal.name
+        self._bus.send_signal(
+                self._path,
+                interface.name,
+                signal.name,
+                signal.signature,
+                args)
 
     def get_interface_implementing(self, name):
         for interface in self._interfaces:

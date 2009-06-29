@@ -195,6 +195,21 @@ class Bus(object):
         self.send(msg)
         return msg
 
+    def send_signal(self, path, interface, signal, signature='', body=()):
+        serial = protocol.SERIALS.next()
+        msg = Message(
+                type=protocol.SIGNAL,
+                serial=serial,
+                path=path,
+                interface=interface,
+                member=signal,
+                signature=signature,
+                body=body)
+        if signature:
+            msg.marshal_body()
+        self.send(msg)
+        return msg
+
     def send_method_call(self, path, destination, member, interface='', signature='', body=()):
         serial = protocol.SERIALS.next()
         msg = Message(
