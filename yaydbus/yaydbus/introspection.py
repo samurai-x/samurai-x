@@ -98,7 +98,10 @@ class Method(object):
         return '<Method "%s" at 0x%x>' % (self.name, id(self))
 
     def get_input_signature(self):
-        return ''.join(arg.type for arg in self.args if arg.direction == 'in')
+        return ''.join(arg.type for arg in self.get_arguments('in'))
+
+    def get_arguments(self, direction):
+        return [arg for arg in self.args if arg.direction == direction]
 
     def to_xml(self):
         element = Element('method', name=self.name)
@@ -248,7 +251,7 @@ def parse_node(element, is_root=False, firstname=''):
     # name is optional the root node
     if (name is None and not is_root):
         raise IntrospectionError('Malformed XML data: non-root <node> has no name attribute')
-    if name is None:
+    if is_root:
         name = firstname
     else:
         name = join_path(firstname, name)

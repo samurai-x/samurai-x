@@ -102,10 +102,13 @@ class Signature(str, DBusType):
     def get_signature(cls):
         return 'g'
 
-class Variant(DBusType):
+class Variant(list, DBusType):
     @classmethod
     def get_signature(cls):
         return 'v'
+
+    def __init__(self, value):
+        list.__init__(self, [get_signature(type(value)), value])
 
 def Struct(*elems):
     sig = '(%s)' % ''.join(map(get_signature, elems))

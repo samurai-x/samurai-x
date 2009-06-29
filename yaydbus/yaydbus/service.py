@@ -61,7 +61,10 @@ def get_signature_from_annotations(func, get_in=True, get_out=True):
         try:
             out_signature = _get_signature_lazily(annotations['return'])
         except KeyError:
-            raise MethodError("Missing annotation for return type!")
+            #raise MethodError("Missing annotation for return type!")
+            # If the return value is left out, the method does not
+            # have a return type.
+            pass
     return (in_signature, out_signature)
 
 class Introspectable(object):
@@ -102,7 +105,7 @@ class Method(Introspectable):
     def update_introspection(self):
         # get the introspection object
         in_args_dbuscodes = [m.dbuscode for m in parse_signature(self.in_signature).marshallers]
-        in_args_names = inspect.getargspec(self.callable)[0] # TODO: default arguments and stuff
+        in_args_names = inspect.getargspec(self.callable)[0][1:] # TODO: default arguments and stuff
         args = []
         for dbuscode, name in zip(in_args_dbuscodes, in_args_names):
             args.append(introspection.MethodArgument(name, dbuscode, 'in'))
@@ -149,7 +152,7 @@ class Signal(Introspectable):
             obj.emit_signal(self, args)
 
 class ObjectMeta(type):
-    def __new__(mcs, name, bases, dct):
+    def __new__(mcs, clsname, bases, dct):
         methods = []
         for base in bases:
             if hasattr(base, '_methods'):
@@ -164,7 +167,7 @@ class ObjectMeta(type):
                 del member._dbus_signal
                 del member._dbus_interface
         dct['_methods'] = methods
-        return type.__new__(mcs, name, bases, dct)
+        return type.__new__(mcs, clsname, bases, dct)
 
 class Interface(Introspectable):
     def __init__(self, bus, name):

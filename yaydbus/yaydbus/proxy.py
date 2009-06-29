@@ -84,6 +84,9 @@ class IntrospectableProxyMethod(ProxyMethod):
         if kwargs:
             raise ProxyError("introspectable proxy methods don't support keyword arguments (yet)")
         signature = self.method.get_input_signature()
+        if len(self.method.get_arguments('in')) != len(py_args):
+            raise ProxyError("You passed an incorrect number of arguments (required: %d, got: %d)" % (
+                len(self.method.get_arguments('in')), len(py_args)))
         return self.bus.send_method_call(
                 self.path,
                 self.destination,
