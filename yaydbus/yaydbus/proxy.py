@@ -25,7 +25,7 @@
 
 from .marshal import parse_signature
 from .protocol import join_path
-from .dbus_types import get_signature
+from .dbus_types import get_marshallable_bunch, guess_signature
 
 class ProxyError(Exception):
     pass
@@ -54,7 +54,7 @@ class SillyProxyMethod(ProxyMethod):
         self.name = name
         self.signature = None
 
-    def async(self, *args, **kwargs):
+    def async(self, *py_args, **kwargs):
         interface = self.interface
         if '__interface__' in kwargs:
             interface = kwargs.pop('__interface__')
@@ -62,7 +62,8 @@ class SillyProxyMethod(ProxyMethod):
             raise ProxyError("silly proxy methods don't support keyword arguments.")
         # if we have no signature set, try to guess it from the arguments
         if self.signature is None:
-            self.signature = ''.join(map(get_signature, map(type, args)))
+            self.signature = guess_signature(py_args)
+        args = get_marshallable_bunch(signature, py_args)
         return self.bus.send_method_call(
                 self.path,
                 self.destination,
@@ -87,13 +88,14 @@ class IntrospectableProxyMethod(ProxyMethod):
         if len(self.method.get_arguments('in')) != len(py_args):
             raise ProxyError("You passed an incorrect number of arguments (required: %d, got: %d)" % (
                 len(self.method.get_arguments('in')), len(py_args)))
+        args = get_marshallable_bunch(signature, py_args)
         return self.bus.send_method_call(
                 self.path,
                 self.destination,
                 self.method.name,
                 interface,
                 signature,
-                py_args
+                args
                 )
 
 class ProxyObject(object):

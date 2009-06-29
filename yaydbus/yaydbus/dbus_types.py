@@ -23,6 +23,8 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+from operator import itemgetter
+
 from .marshal import parse_signature
 
 BUILTIN_SIGNATURES = (
@@ -47,12 +49,35 @@ def get_signature(type_):
         else:
             raise DBusTypeError("Couldn't guess signature of %r" % type_)
 
-def marshal_bunch(args):
-    # first, get the signature
-    signature = ''.join([get_signature(type(arg)) for arg in args])
-    print signature
-    # then marshal it
-    return parse_signature(signature).marshal_simple(args)
+def is_marshallable(obj):
+    if isinstance(obj, DBusType):
+        return True
+    elif isinstance(obj, tuple(map(itemgetter(0), BUILTIN_SIGNATURES))):
+        return True
+    else:
+        return False
+
+def get_marshallable(code, obj):
+    if code == 'v':
+        # Should be a variant ...
+        if not isinstance(obj, Variant):
+            return Variant(obj)
+        else:
+            return obj
+    elif is_marshallable(obj):
+        return obj
+    else:
+        raise DBusTypeError("Couldn't guess how to make %r marshallable!" % obj)
+
+def guess_signature(args):
+    return ''.join([get_signature(type(arg)) for arg in args])
+
+def get_marshallable_bunch(signature, args):
+    sig = parse_signature(signature)
+    margs = []
+    for marshaller, arg in zip(sig.marshallers, args):
+        margs.append(get_marshallable(marshaller.dbuscode, arg))
+    return margs
 
 class DBusType(object):
     pass
