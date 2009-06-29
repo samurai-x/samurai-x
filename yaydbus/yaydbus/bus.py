@@ -4,7 +4,6 @@ import os
 import socket
 import re
 from getpass import getuser
-from threading import RLock
 
 from . import protocol
 from .introspection import parse_introspection
@@ -46,8 +45,6 @@ class Bus(object):
         self.objects = {}
         self.interfaces = {}
         
-        self.socket_lock = RLock()
-
         self.socket = None
         self.socket_stream = None
         self.calls = {}
@@ -246,8 +243,7 @@ class Bus(object):
             seld.send_error(msg, e.name, e.description)
 
     def send(self, msg):
-        with self.socket_lock:
-            self.socket.sendall(msg.marshal_simple())
+        self.socket.sendall(msg.marshal_simple())
 
     def auth(self):
         """
@@ -261,9 +257,8 @@ class Bus(object):
             raise NotImplementedError("No implemented auth mechanisms available: %r" % mechanisms)
 
     def receive_one(self):
-        with self.socket_lock:
-            self.socket_stream.reset_count()
-            msg = Message.create_from_socketstream(self.socket_stream)
+        self.socket_stream.reset_count()
+        msg = Message.create_from_socketstream(self.socket_stream)
         if msg.type == protocol.METHOD_RETURN:
             self.replies[msg.reply_serial] = msg
         elif msg.type == protocol.SIGNAL:
