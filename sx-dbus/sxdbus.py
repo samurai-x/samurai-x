@@ -113,13 +113,18 @@ class SXDBus(Plugin):
     def register(self, name, cls, path=None):
         """ register a new dbus object """
         log.info('registering %s: %s', name, cls)
+        
+        if path is None:
+            path = "/%s" % name
 
         if YAYDBUS:
-            self.objects[name] = self.session_bus.make_object(path or ("/%s" % name), cls)
+            self.objects[name] = self.session_bus.add_object(
+                    cls(self.session_bus, path),
+            )
         else:
             self.objects[name] = cls(
                     conn=self.session_bus, 
-                    object_path=path or ("/%s" % name),
+                    object_path=path,
                     bus_name=self.name,
             )
 
