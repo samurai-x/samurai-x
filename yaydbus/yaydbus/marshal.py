@@ -129,6 +129,9 @@ class Array(Marshaller):
 
     def marshal(self, stream, members):
         align(stream, self.align_to)
+        # Python dict -> array of DICT_ENTRY
+        if isinstance(self.marshaller, DictEntry):
+            members = members.items()
         substream = StringIO()
         for obj in members:
             self.marshaller.marshal(substream, obj)
@@ -148,6 +151,9 @@ class Array(Marshaller):
             ret.append(self.marshaller.unmarshal(stream))
             if (stream.tell() - root) >= size:
                 break
+        # array of DICT_ENTRY -> Python dict
+        if isinstance(self.marshaller, DictEntry):
+            ret = dict(ret)
         return ret
 
 class StringMarshaller(Marshaller):

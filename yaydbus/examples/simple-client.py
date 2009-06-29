@@ -20,3 +20,5 @@ proxy.PushItem(Array(int)([1, 2, 3, 4, 5, 6]))
 proxy.PrintItems()
 print 'Popped:', proxy.PopItem()
 proxy.PrintItems()
+
+print proxy.GetItem({'one': 'value1', 'two': 'value2'}, 'two')

@@ -76,6 +76,8 @@ def get_marshallable(code, obj):
             return Variant(obj)
         else:
             return obj
+    elif code.startswith('a{'): # an array of dict_entrys -> a dictionary
+        return Dictionary_from_signature(code)(obj)
     elif code[0] == 'a':
         # is an array.
         return Array_from_signature(code)(obj)
@@ -181,4 +183,19 @@ def DictEntry(*elems):
         def get_signature(cls):
             return sig
     return _DBusEntry
+
+def Dictionary(key_type, value_type):
+    sig = 'a{%s%s}' % (get_signature(key_type), get_signature(value_type))
+    class _DBusDictionary(dict, DBusType):
+        @classmethod
+        def get_signature(cls):
+            return sig
+    return _DBusDictionary
+
+def Dictionary_from_signature(sig):
+    class _DBusDictionary(dict, DBusType):
+        @classmethod
+        def get_signature(cls):
+            return sig
+    return _DBusDictionary
 

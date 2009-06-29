@@ -5,7 +5,7 @@ from yaydbus.bus import SessionBus
 from yaydbus.service import Object, signal, method
 from yaydbus.util import annotate
 from yaydbus.mainloop import Mainloop
-from yaydbus.dbus_types import UInt32, Variant
+from yaydbus.dbus_types import UInt32, Variant, Dictionary
 
 class TestObject(Object):
     def __init__(self, bus):
@@ -43,6 +43,11 @@ class TestObject(Object):
     @method('com.example.SimpleService', in_signature='v', out_signature='s')
     def Repr(self, value):
         return repr(value)
+
+    @method('com.example.SimpleService')
+    @annotate(dic=Dictionary(str, str), key=str, return_=str)
+    def GetItem(self, dic, key):
+        return dic[key]
 
 bus = SessionBus()
 bus.request_name('com.example.SimpleService')
