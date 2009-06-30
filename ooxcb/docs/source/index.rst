@@ -13,6 +13,7 @@ Contents:
     introduction.rst
     getting-started.rst
     oo.rst
+    howto.rst
     integration.rst
     api/index.rst
 
