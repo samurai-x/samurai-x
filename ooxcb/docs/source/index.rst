@@ -14,7 +14,6 @@ Contents:
     getting-started.rst
     oo.rst
     howto.rst
-    integration.rst
     api/index.rst
 
 Indices and tables
