@@ -32,8 +32,7 @@ That's the minimal skeleton to integrate ooxcb into the gobject mainloop::
     import gobject
 
     def ooxcb_callback(source, cb_condition, connection):
-        while True:
-            if not connection.alive: # `if connection.conn:` for ooxcb 1.0
+        while connection.alive: # `if connection.conn:` for ooxcb 1.0
                 break
             evt = connection.poll_for_event()
             if evt is None:
