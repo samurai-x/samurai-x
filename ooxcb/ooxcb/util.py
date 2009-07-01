@@ -79,6 +79,16 @@ class MixinMeta(type):
         return type.__new__(mcs, name, bases, dct)
 
 class Mixin(object):
+    """
+        Base class for all mixins.
+        They should have one class attribute set:
+
+        .. attribute:: target_class
+
+            The class this class provides some additional methods for.
+
+        Do not try to instantiate.
+    """
     __metaclass__ = MixinMeta
     target_class = None
     methods = {}
@@ -88,6 +98,9 @@ class Mixin(object):
 
     @classmethod
     def mixin(cls):
+        """
+            mix all additional methods into the target class.
+        """
         assert cls.target_class is not None
         for name, function in cls.methods.iteritems():
             setattr(cls.target_class, name, function)

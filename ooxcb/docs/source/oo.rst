@@ -1,7 +1,7 @@
 The 'oo' of 'ooxcb'
 ===================
 
-... stands for *object oriented*. Yes, ooxcb tries to be as object oriented as possible, 
+... stands for *object oriented*. Yes, ooxcb tries to be as object oriented as possible,
 like Python.
 
 The X world often is object oriented. There are some server-side things that are identified
@@ -90,7 +90,7 @@ Let's take the xtest example. If you want to call the
     # Now we can call them, just as they were regular methods.
     my_window.compare_cursor(my_cursor)
 
-If you don't like mixins, you can achive the same without them::
+If you don't like mixins, you can achieve the same without them::
 
     import ooxcb.protocol.xtest
     # We don't call .mixin() here.
@@ -111,6 +111,67 @@ the modules inside :mod:`ooxcb.contrib` (e.g. :mod:`ooxcb.contrib.ewmh`). Howeve
 these don't necessarily use the concept of *classes* whose methods are mixed into
 other classes; it is also possible that they just add a defined set of functions as methods
 to a class. For more information, just check out the corresponding module documentation.
+
+Using it in your code
+~~~~~~~~~~~~~~~~~~~~~
+
+ooxcb provides two kinds of mixins.
+
+Mixin Functions
+^^^^^^^^^^^^^^^
+
+Let's say you have this function::
+
+    def say_hello(window, greet):
+        print "%s! My XID is: %d!" % (greet, window.get_internal())
+
+Of course you're already able to call ``say_hello(my_window, "Hello World")``.
+But say you want to be able to call it using ``my_window.say_hello("Hello World")``,
+you have to use ooxcb's mixin functions capabilities::
+
+    from ooxcb.protocol.xproto import Window
+    from ooxcb.util import mixin_functions
+
+    mixin_functions([say_hello], Window)
+
+The first argument of :func:`mixin_functions <ooxcb.util.mixin_functions>` is an iterable
+containing functions that should mixed into the class passed in the second argument.
+
+The mixin code should reside within a function called ``mixin`` within your
+module to allow the user to use it with or without mixins.
+
+Mixin classes
+^^^^^^^^^^^^^
+
+If you have some more functions, it might be more convenient to use a mixin class
+instead of ordinary functions::
+
+    from ooxcb.protocol.xproto import Window
+    from ooxcb.util import Mixin
+
+    class WindowMixin(Mixin):
+        target_class = Window
+
+        def say_hello(self, greet):
+            print "%s! My XID is: %d!" % (greet, self.get_internal())
+
+.. note:: It's not required that mixin classes should be named like this
+          (Original class + 'Mixin'), but it's a convention.
+
+If you now want to add all methods you have defined to the target class you
+have specified in the class attribute `target_class`, you can use the
+:meth:`mixin <ooxcb.util.Mixin.mixin>` class method::
+
+    WindowMixin.mixin()
+
+Now you can use the methods of `WindowMixin` as they were regular methods
+of :class:`ooxcb.protocol.xproto.Window`::
+
+    my_window.say_hello("Hello World")
+
+But you can also use the methods the mixin class defines this way::
+
+    WindowMixin.say_hello(my_window, "Hello World")
 
 .. _xpyb: http://cgit.freedesktop.org/xcb/xpyb
 .. _weak value dictionary: http://docs.python.org/library/weakref.html#weakref.WeakValueDictionary
