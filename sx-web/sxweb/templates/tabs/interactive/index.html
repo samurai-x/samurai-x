@@ -53,6 +53,7 @@ $(document).ready(function() {
                     if( html.length ) 
                         $output.append(html.join(""));
                     $prompt.html(data.prompt);
+                    $("html,body").animate({scrollTop: $prompt.offset().top-20},500);
                 
                 });
             }
