@@ -592,7 +592,13 @@ class Client(SXObject):
         """
             Focus the client. Do not call that, use
             `Screen.focus` instead.
+
+            As first, it dispatches the `on_before_focus` event.
+            Then it grabs the input focus and raises the client window
+            if *bring_forward* is True.
+            After that, `on_focus` is dispatched.
         """
+        self.dispatch_event('on_before_focus', self)
         # grab the input focus
         self.set_input_focus()
         # set it abvoe
@@ -618,6 +624,7 @@ class Client(SXObject):
         """
         return self.window.ewmh_get_window_name()
 
+Client.register_event_type('on_before_focus')
 Client.register_event_type('on_focus')
 Client.register_event_type('on_blur')
 Client.register_event_type('on_handle_net_wm_state')
