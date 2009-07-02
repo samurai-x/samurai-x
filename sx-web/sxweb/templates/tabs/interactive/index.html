@@ -1,8 +1,8 @@
 <input type="text" id="interactive_input" size="50" />
 
-<div id="interactive_output">
+<pre id="interactive_output">
 
-</div>
+</pre>
 
 <script type="text/javascript">
 $(document).ready(function() {
@@ -32,10 +32,10 @@ $(document).ready(function() {
             $.getJSON("/interactive/input", {'input': $(this).val()}, function(data) {
                 var html = []
                 $.each(data.stdout, function() {
-                    html.push(this+"<br />");
+                    html.push(this.replace('\t', '    ')+"<br />");
                 });
                 $.each(data.stderr, function() {
-                    html.push("<span style='color:red'>"+this+"</span><br />");
+                    html.push("<span style='color:red'>"+this.replace('\t', '    ')+"</span><br />");
                 });
                 if( data.stdout ) 
                     $('#interactive_output').prepend(html.join(""));
