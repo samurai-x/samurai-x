@@ -46,6 +46,7 @@ config = {
         'sxmoveresize',
         'sxclientbuttons',
         'sxfocus',
+        'sxbookmarks',
     ],
 
     # Here we create 10 desktops. You can find more
@@ -98,6 +99,9 @@ config = {
             'Shift+Meta+8': 'desktops.move_client index=7',
             'Shift+Meta+9': 'desktops.move_client index=8',
             'Shift+Meta+0': 'desktops.move_client index=9',
+            # for the bookmarks extension.
+            'meta+b': 'bookmarks.set_key',
+            'meta+g': 'bookmarks.activate_key',
         },
 
     # That is the configuration for the sx-clientbuttons plugin.

@@ -169,6 +169,18 @@ class Desktop(SXObject):
         self.clients.move_to_top(client)
         self.rearrange()
 
+    def on_before_focus(self, client):
+        """
+            s-x attempts to focus a client.
+            If the client is not member of the currently active desktop,
+            activate its desktop.
+
+            .. todo:: should this behaviour be configurable?
+        """
+        if not self.active:
+            idx = client.window.ewmh_get_desktop()
+            self.plugin.get_data(self.screen).set_active_desktop_idx(idx)
+
     def add_client(self, client):
         self.clients.append(client)
         self.dispatch_event('on_new_client', self, client)
@@ -179,7 +191,10 @@ class Desktop(SXObject):
                 client.conn.atoms['_NET_WM_DESKTOP'],
                 self.handle_net_wm_desktop)
 
-        client.push_handlers(on_focus=self.on_focus)
+        client.push_handlers(
+                on_focus=self.on_focus,
+                on_before_focus=self.on_before_focus
+                )
         client.window.change_property(
                 '_NET_WM_DESKTOP',
                 'CARDINAL',
@@ -232,7 +247,10 @@ class Desktop(SXObject):
         except ValueError:
             return False
         else:
-            client.remove_handlers(on_focus=self.on_focus)
+            client.remove_handlers(
+                    on_focus=self.on_focus,
+                    on_before_focus=self.on_before_focus
+                    )
             self.dispatch_event('on_unmanage_client', self, client)
             return True
     
