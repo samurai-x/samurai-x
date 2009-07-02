@@ -33,25 +33,29 @@ $(document).ready(function() {
         }
         else if( e.keyCode == 13 ) {
             try {
-            $output.append("<span style='color: green'>" + $prompt.html() + $input.val() + "</span><br />");
-            history.push($input.val());
-            history_idx = history.length;
-            $.getJSON("/interactive/input", {'input': $input.val()}, function(data) {
-                var html = []
-                $.each(data.stdout, function() {
-                    var t = this.replace('\t', '    ')
-                    html.push(t+"<br />");
+            if( $input.val() == 'cls()' ) {
+                $output.html('');
+            }
+            else {
+                $output.append("<span style='color: green'>" + $prompt.html() + $input.val() + "</span><br />");
+                history.push($input.val());
+                history_idx = history.length;
+                $.getJSON("/interactive/input", {'input': $input.val()}, function(data) {
+                    var html = []
+                    $.each(data.stdout, function() {
+                        var t = this.replace('\t', '    ')
+                        html.push(t+"<br />");
+                    });
+                    $.each(data.stderr, function() {
+                        var t = this.replace('\t', '    ').replace('\n', '');
+                        html.push("<span style='color:red'>"+t+"</span><br />");
+                    });
+                    if( html.length ) 
+                        $output.append(html.join(""));
+                    $prompt.html(data.prompt);
+                
                 });
-                $.each(data.stderr, function() {
-                    var t = this.replace('\t', '    ').replace('\n', '');
-                    html.push("<span style='color:red'>"+t+"</span><br />");
-                });
-                if( html.length ) 
-                    $output.append(html.join(""));
-                console.log('prompt', data.prompt)
-                $prompt.html(data.prompt);
-            
-            });
+            }
             $input.val('');
             } catch (e) {
             console.log(e);
