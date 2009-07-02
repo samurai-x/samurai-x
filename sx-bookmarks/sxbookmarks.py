@@ -23,6 +23,56 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+"""
+    sx-bookmarks is a simple plugin for bookmarking windows. You can
+    assign ("set") a unique "bookmark key" to the currently focused
+    window to easily jump back to this window at any time (i.e.
+    "activate the bookmark"). You can assign multiple bookmarks to one window.
+
+    Example: You focus a window, press ``Meta+b e`` ... and at any time
+    you want to, you can press ``Meta+g e`` to jump to the window's desktop
+    and focus it.
+
+    sx-bookmarks doesn't have dependencies and isn't configurable.
+
+    Actions
+    -------
+
+    .. function:: bookmarks.set(name)
+        :module:
+
+        Associate the bookmark *name* to the currently focused window.
+
+    .. function:: bookmarks.set_key()
+        :module:
+
+        Grab the keyboard, wait for the user pressing an arbitrary key
+        and assign that key to the currently focused window.
+
+    .. function:: bookmarks.activate(name)
+        :module:
+
+        Activate the bookmark *name*. If needed, jump to another desktop.
+        If there is no such bookmark, print a warning to the log.
+
+    .. function:: bookmarks.activate_key()
+        :module:
+
+        Grab the keyboard, wait for the user pressing an arbitrary key
+        and pass that key to :func:`bookmarks.activate` as bookmark name.
+
+    Example
+    -------
+
+    A typical configuration for sx-bookmarks would look like that::
+
+        'bind.keys': {
+            'meta+b': 'bookmarks.set_key',
+            'meta+g': 'bookmarks.activate_key'
+        }
+
+"""
+
 import logging
 log = logging.getLogger(__name__)
 
