@@ -180,13 +180,17 @@ class InteractiveTab(Tab):
         elif request.path_info == '/input':
             self.console.start_buffer()
             sys.stdout = StringIO()
-            self.console.push(request.params['input'])
+            more = self.console.push(request.params['input'])
+            if more:
+                prompt = '... '
+            else:
+                prompt = '>>> '
             out = html_escape(sys.stdout.getvalue()).splitlines()
             sys.stdout = sys.__stdout__
-            err = self.console.get_buffer().splitlines()
+            err = html_escape(self.console.get_buffer()).splitlines()
             return Response(
                 content_type="text/javascript",
-                body=json.dumps({'stderr': err, 'stdout': out}),
+                body=json.dumps({'stderr': err, 'stdout': out, 'prompt': html_escape(prompt)}),
             )
 
 

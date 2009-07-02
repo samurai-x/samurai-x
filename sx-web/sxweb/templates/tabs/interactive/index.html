@@ -1,47 +1,58 @@
-<input type="text" id="interactive_input" size="50" />
 
 <pre id="interactive_output">
 
 </pre>
+<pre id="interactive_prompt" style="display: inline;">&gt;&gt;&gt; </pre><input type="text" id="interactive_input" size="50" style="font-family: console;"/>
 
 <script type="text/javascript">
 $(document).ready(function() {
     var history = [];
     var history_idx = 0;
-    $('#interactive_input').keydown(function(e) {
+    var $input = $('#interactive_input');
+    var $output = $('#interactive_output');
+    var $prompt = $('#interactive_prompt');
+    $input.keydown(function(e) {
         if( e.keyCode == 38 ) {
             history_idx -= 1;
             if( history_idx < 0 ) history_idx = 0;
-            $('#interactive_input').val(history[history_idx]);
+            $input.val(history[history_idx]);
         }
         else if( e.keyCode == 40 ) {
             history_idx += 1;
             if( history_idx >= history.length ) {
                 history_idx = history.length;
-                $('#interactive_input').val('');
+                $input.val('');
             }
             else {
-                $('#interactive_input').val(history[history_idx]);
+                $input.val(history[history_idx]);
             }
+        }
+        else if( e.keyCode == 9 ) {
+            $input.val($input.val() + "    ");
+            window.setTimeout(function() { $input.focus(); }, 1);
         }
         else if( e.keyCode == 13 ) {
             try {
-            $('#interactive_output').prepend("<span style='color: green'>"+$(this).val() + "</span><br />");
-            history.push($(this).val());
+            $output.append("<span style='color: green'>" + $prompt.html() + $input.val() + "</span><br />");
+            history.push($input.val());
             history_idx = history.length;
-            $.getJSON("/interactive/input", {'input': $(this).val()}, function(data) {
+            $.getJSON("/interactive/input", {'input': $input.val()}, function(data) {
                 var html = []
                 $.each(data.stdout, function() {
-                    html.push(this.replace('\t', '    ')+"<br />");
+                    var t = this.replace('\t', '    ')
+                    html.push(t+"<br />");
                 });
                 $.each(data.stderr, function() {
-                    html.push("<span style='color:red'>"+this.replace('\t', '    ')+"</span><br />");
+                    var t = this.replace('\t', '    ').replace('\n', '');
+                    html.push("<span style='color:red'>"+t+"</span><br />");
                 });
-                if( data.stdout ) 
-                    $('#interactive_output').prepend(html.join(""));
+                if( html.length ) 
+                    $output.append(html.join(""));
+                console.log('prompt', data.prompt)
+                $prompt.html(data.prompt);
             
             });
-            $(this).val('');
+            $input.val('');
             } catch (e) {
             console.log(e);
             }
