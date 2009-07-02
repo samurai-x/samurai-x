@@ -52,8 +52,11 @@ class SXBookmarks(Plugin):
     def action_set(self, info):
         screen = info['screen']
         name = info['name']
-        log.debug('Setting bookmark "%s" to %s' % (name, screen.focused_client))
-        self.get_data(screen)[name] = screen.focused_client
+        if screen.focused_client is None:
+            log.warning('No focused client, no bookmark!')
+        else:
+            log.debug('Setting bookmark "%s" to %s' % (name, screen.focused_client))
+            self.get_data(screen)[name] = screen.focused_client
 
     def action_activate(self, info):
         screen = info['screen']
