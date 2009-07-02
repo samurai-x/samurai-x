@@ -26,6 +26,8 @@
 import logging
 log = logging.getLogger(__name__)
 
+from weakref import WeakValueDictionary
+
 from samuraix.plugin import Plugin
 from samuraix.util import wait_for_key
 
@@ -45,8 +47,8 @@ class SXBookmarks(Plugin):
     def on_new_screen(self, screen):
         self.attach_data_to(
                 screen,
-                {})
-    
+                WeakValueDictionary())
+
     def action_set(self, info):
         screen = info['screen']
         name = info['name']
