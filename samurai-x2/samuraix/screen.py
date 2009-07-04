@@ -27,7 +27,7 @@ import logging
 log = logging.getLogger(__name__)
 
 import sys
-import os.path
+import gc
 
 from ooxcb import XNone
 from ooxcb.protocol import xproto
@@ -332,6 +332,10 @@ class Screen(SXObject):
         self.update_client_list()
         self.clients.remove(client)
         self.dispatch_event('on_unmanage_client', self, client)
+        # make the application call `gc.collect()` as soon
+        # as possible to collect `client`.
+        # TODO: solve that more nicely.
+        self.app.add_function_to_call(gc.collect)
         log.info('Unmanaged %s' % client)
 
     def on_unmanage_client(self, screen, client):
@@ -346,6 +350,7 @@ class Screen(SXObject):
                 new_client = iter(self.clients).next() # TODO: expensive?
             except StopIteration:
                 pass
+            self.focus(new_client)
 
     def on_client_removed(self, client):
         """

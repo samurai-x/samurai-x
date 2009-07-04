@@ -261,6 +261,7 @@ def wait_for_key(screen, callback):
                 on_key_press=on_key_press
                 )
         screen.conn.core.ungrab_keyboard()
+        screen.conn.flush()
         callback(evt.detail)
         return True
 

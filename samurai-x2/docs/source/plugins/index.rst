@@ -7,6 +7,7 @@ Plugins
     sx-actions.rst
     sx-autoclient.rst
     sx-bind.rst
+    sx-bookmarks.rst
     sx-cairodeco.rst
     sx-clientbuttons.rst
     sx-dbus.rst

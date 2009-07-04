@@ -26,6 +26,7 @@
 import logging
 log = logging.getLogger(__name__)
 import weakref
+import gc
 
 from ooxcb import timestamp
 from ooxcb.protocol import xproto
@@ -134,6 +135,15 @@ class Client(SXObject):
         self.update_protocols()
         self.apply_normal_hints()
         self.conn.flush()
+
+    def get_referrers(self):
+        """
+            returns a list of all referrers to *self*, presented by
+            Python's :mod:`gc` module.
+
+            That's here for debugging using sx-web's interface.
+        """
+        return gc.get_referrers(self)
 
     def __repr__(self):
         return '<Client at 0x%x for %s>' % (id(self), repr(self.window))
@@ -523,7 +533,12 @@ class Client(SXObject):
             del self.window_2_client_map[self.window]
         except (ValueError, KeyError), e:
             log.warning(e)
+        # remove all leftover event handlers
         self.window.remove_handlers(self)
+        self.actor.remove_handlers(on_configure_notify=self.actor_on_configure_notify)
+        # delete that one (it references method of `self`) to help
+        # the Python garbage collector
+        del self.client_message_handlers
 
     def ban(self, withdrawn=True, hidden=True):
         """

@@ -68,6 +68,11 @@ class App(SXObject):
         # timeout used when select'ing
         self.select_timeout = 1.0
        
+        # a list of functions that should be called in the next
+        # iteration of the mainloop. That's not nice and should
+        # be removed. Currently, it's used to make the Python gc
+        # collect client objects.
+        self.functions_to_call = []
         # this is really set in self.init()
         self.supported_hints = None
 
@@ -268,7 +273,25 @@ class App(SXObject):
 
         self.conn.disconnect()
 
+    def add_function_to_call(self, func):
+        """
+            add a function that should be called in the next
+            mainloop iteration.
+
+            .. note:: Don't use that if you can avoid it,
+                      it might be removed.
+
+        """
+        self.functions_to_call.append(func)
+
     def do_xcb_events(self):
+        # process all "functions to call". That seems to be required
+        # to be done outside the loop, otherwise `gc.collect()` (see
+        # samuraix.screen.Screen.unmanage) won't work - no idea why.
+        if self.functions_to_call:
+            for func in self.functions_to_call:
+                func()
+            self.functions_to_call = []
         # might as well process all events in the queue...
         while True:
             try:
