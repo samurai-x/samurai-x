@@ -4,6 +4,8 @@ import copy
 import socket
 import SocketServer
 from select import select
+from datetime import datetime
+import time
 
 import ooxcb
 from ooxcb.protocol import xproto
@@ -72,15 +74,9 @@ class LabelSlot(Slot):
     text = property(_get_text, _set_text)
 
 
-class ActiveClientSlot(Slot):
+class ActiveClientSlot(LabelSlot):
     def __init__(self, status_bar, name):
-        Slot.__init__(self, status_bar, name)
-        self.window = ui.Label(
-                text="",
-                style={
-                    'text.color': (1.0, 1.0, 1.0),
-                },
-        )
+        LabelSlot.__init__(self, status_bar, name)
 
         self.status_bar.screen.root.change_attributes(
             event_mask=
@@ -91,8 +87,17 @@ class ActiveClientSlot(Slot):
     def on_property_notify(self, event):
         if event.atom == self.status_bar.conn.atoms['_NET_ACTIVE_WINDOW']:
             win = self.status_bar.screen.root.get_property('_NET_ACTIVE_WINDOW', 'WINDOW').reply().value.to_windows()[0]
-            self.window.text = win.ewmh_get_window_name()           
-            self.window.dirty()
+            self.text = win.ewmh_get_window_name()           
+
+
+class ClockSlot(LabelSlot):
+    def __init__(self, status_bar, name):
+        LabelSlot.__init__(self, status_bar, name)
+
+        self.status_bar.app.add_timer(1, self.update_label)
+
+    def update_label(self):
+        self.text = datetime.now().strftime('%H:%I:%S')
 
 
 class StatusBar(object):
@@ -156,6 +161,7 @@ class App(object):
         self.fds = {'read': {}, 'write': {}, 'error': {}}
         # timeout used when select'ing
         self.select_timeout = 1.0
+        self.timers = {}
 
         fd = self.conn.get_file_descriptor()
         self.add_fd_handler('read', fd, self.do_xcb_events) 
@@ -168,6 +174,7 @@ class App(object):
         self.status_bar.add_slot(LabelSlot(self.status_bar, 's2', "to"))
         self.status_bar.add_slot(LabelSlot(self.status_bar, 's3', "you"))
         self.status_bar.add_slot(ActiveClientSlot(self.status_bar, 's4'))
+        self.status_bar.add_slot(ClockSlot(self.status_bar, 's5'))
 
         #HOST=""
         #PORT=9000
@@ -192,6 +199,9 @@ class App(object):
         """
         assert which_list in ('read', 'write', 'error')
         del self.fds[which_list][fd]
+
+    def add_timer(self, seconds, func):
+        self.timers[func] = (time.time() + seconds, seconds)   
 
     def stop(self):
         self.running = False
@@ -244,6 +254,12 @@ class App(object):
                     self.fds['write'][fd]()
                 for fd in xready:
                     self.fds['error'][fd]()
+
+            now = time.time()
+            for func, (timeout, secs) in self.timers.iteritems():
+                if timeout < now:
+                    func()
+                    self.timers[func] = (now+secs, secs)
 
         self.conn.disconnect()
 

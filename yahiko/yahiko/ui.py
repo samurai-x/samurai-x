@@ -159,7 +159,8 @@ class Window(EventDispatcher):
         self.parent.grab_input(control or self)
 
     def dirty(self, control=None):
-        self.parent.dirty(control or self)
+        if self.parent:
+            self.parent.dirty(control or self)
 
 
 Window.register_event_type('on_button_press')
