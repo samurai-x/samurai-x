@@ -3,6 +3,7 @@ from __future__ import with_statement
 import copy
 import socket
 import SocketServer
+from select import select
 
 import ooxcb
 from ooxcb.protocol import xproto
@@ -13,43 +14,49 @@ from yahiko import ui
 import ooxcb.contrib.ewmh
 ooxcb.contrib.ewmh.mixin()
 
-import gobject
+from yaydbus.bus import SessionBus
+from yaydbus import service
 
-import dbus
-import dbus.service
-import dbus.mainloop.glib
-
-
-DEFAULT_BUS_NAME = 'org.yahiko.statusbar'
+import logging
+log = logging.getLogger(__name__)
 
 
+class SlotInterface(service.Object):
+    def __init__(self, slot, path):
+        self.slot = slot 
+        service.Object.__init__(self, slot.status_bar.app.bus, path)
 
-class DBusObject(dbus.service.Object):
-    def __init__(self, app, conn=None, object_path=None, bus_name=None):
-        self.app = app 
-
-        dbus.service.Object.__init__(self, 
-                conn=conn, 
-                object_path=object_path, 
-                bus_name=bus_name,
-        )
-        
-    @sxmethod("DBusInterface", in_signature='s', out_signature='s')
-    def hello(self, name):   
-        return "hello %s" % name
 
 class Slot(object):
-    def __init__(self, status_bar):
+    dbus_class = SlotInterface
+
+    def __init__(self, status_bar, name):
         self.status_bar = status_bar
         self.window = None
+        self.name = name
+
+        self.dbus = self.dbus_class(self, '/org/yahiko/status_bar/%s' % name)
+        self.status_bar.app.bus.add_object(self.dbus)
 
     def get_window(self):
         return self.window
 
 
-class HelloWorldSlot(Slot):
-    def __init__(self, status_bar, text="hello"):
-        Slot.__init__(self, status_bar)
+class LabelSlotInterface(SlotInterface):
+    @service.method('org.yahiko.status_bar.LabelSlotInterface', in_signature='s')
+    def set_text(self, text):
+        self.slot.text = text
+
+    @service.method('org.yahiko.status_bar.LabelSlotInterface', out_signature='s')
+    def get_text(self):
+        return self.slot.text
+    
+
+class LabelSlot(Slot):
+    dbus_class = LabelSlotInterface
+
+    def __init__(self, status_bar, name, text="hello"):
+        Slot.__init__(self, status_bar, name)
         self.window = ui.Label(
                 text=text,
                 style={
@@ -57,10 +64,17 @@ class HelloWorldSlot(Slot):
                 },
         )
 
+    def _get_text(self):
+        return self.window.text
+    def _set_text(self, text):
+        self.window.text = text
+        self.window.dirty()
+    text = property(_get_text, _set_text)
+
 
 class ActiveClientSlot(Slot):
-    def __init__(self, status_bar):
-        Slot.__init__(self, status_bar)
+    def __init__(self, status_bar, name):
+        Slot.__init__(self, status_bar, name)
         self.window = ui.Label(
                 text="",
                 style={
@@ -79,32 +93,6 @@ class ActiveClientSlot(Slot):
             win = self.status_bar.screen.root.get_property('_NET_ACTIVE_WINDOW', 'WINDOW').reply().value.to_windows()[0]
             self.window.text = win.ewmh_get_window_name()           
             self.window.dirty()
-
-
-def sbmethod(interface, **kwargs):
-    """ 
-        decorator like dbus.service.method() but automatically adds in the sx bus name
-    """
-    return dbus.service.method('%s.%s' % (DEFAULT_BUS_NAME, interface), **kwargs)
-
-def sbsignal(interface, **kwargs):
-    """ 
-        decorator like dbus.service.signal() but automatically adds in the sx bus name
-    """
-    return dbus.service.signal('%s.%s' % (DEFAULT_BUS_NAME, interface), **kwargs)
-
-
-class DBusObject(dbus.service.Object):
-    def __init__(self, status_bar, conn=None, object_path=None, bus_name=None):
-        self.status_bar = status_bar
-        dbus.service.Object.__init__(self, 
-                conn=conn,
-                object_path=object_path, 
-                bus_name=bus_name,
-        )
-
-    @sbmethod("DBusInterface", in_signature="s,s", out_signature="")
-    def update(self, name
 
 
 class StatusBar(object):
@@ -157,49 +145,110 @@ class StatusBar(object):
         self.ui.dirty()
 
 
-class StatusBarHandler(SocketServer.StreamRequestHandler):
-    def handle(self):
-        # self.rfile is a file-like object created by the handler;
-        # we can now use e.g. readline() instead of raw recv() calls
-        self.data = self.rfile.readline().strip()
-        print "%s wrote:" % self.client_address[0]
-        print self.data
-        # Likewise, self.wfile is a file-like object used to write back
-        # to the client
-        self.wfile.write(self.data.upper())
-
 
 class App(object):
     def __init__(self, conn, screen):
         self.conn = conn
         self.status_bar = StatusBar(self, screen)
-        self.status_bar.add_slot(HelloWorldSlot(self.status_bar, "hello"))
-        self.status_bar.add_slot(HelloWorldSlot(self.status_bar, "to"))
-        self.status_bar.add_slot(HelloWorldSlot(self.status_bar, "you"))
-        self.status_bar.add_slot(ActiveClientSlot(self.status_bar))
         self.running = True
 
-        HOST=""
-        PORT=9000
-        self.server = SocketServer.TCPServer((HOST, PORT), StatusBarHandler)
-        self.server.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        # filehandles used when select'ing 
+        self.fds = {'read': {}, 'write': {}, 'error': {}}
+        # timeout used when select'ing
+        self.select_timeout = 1.0
+
+        fd = self.conn.get_file_descriptor()
+        self.add_fd_handler('read', fd, self.do_xcb_events) 
+        
+        self.bus = SessionBus()
+        self.add_fd_handler('read', self.bus, self.process_dbus)
+        self.bus.request_name('org.yahiko.status_bar')
+
+        self.status_bar.add_slot(LabelSlot(self.status_bar, 's1', "hello"))
+        self.status_bar.add_slot(LabelSlot(self.status_bar, 's2', "to"))
+        self.status_bar.add_slot(LabelSlot(self.status_bar, 's3', "you"))
+        self.status_bar.add_slot(ActiveClientSlot(self.status_bar, 's4'))
+
+        #HOST=""
+        #PORT=9000
+        #self.server = SocketServer.TCPServer((HOST, PORT), StatusBarHandler)
+        #self.server.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+
+    def process_dbus(self):
+        self.bus.receive_one()
+
+    def add_fd_handler(self, which_list, fd, callback):
+        """ 
+            add a callback to be called when the main loop detects a
+            read/write/error on the file descriptor fd
+        """
+        assert which_list in ('read', 'write', 'error')
+        self.fds[which_list][fd] = callback
+
+    def remove_fd_handler(self, which_list, fd):
+        """
+            remove a callback to be called when the main loop detects
+            a read/write/error on the file descriptor fd
+        """
+        assert which_list in ('read', 'write', 'error')
+        del self.fds[which_list][fd]
 
     def stop(self):
         self.running = False
 
     def run(self):
-        mainloop = self.mainloop = gobject.MainLoop()
-        fd = self.conn.get_file_descriptor()
-        gobject.io_add_watch(fd, gobject.IO_IN, self.do_xcb_events)
-        gobject.io_add_watch(self.server.socket.fileno(), gobject.IO_IN, self.server.handle_request)
-        dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
+        """
+            Start the mainloop. It uses `select` to poll the file descriptor
+            for events and dispatches them.
+            All exceptions are caught and logged, so samurai-x won't crash.
+            If `self.running` is False for some reason, samurai-x will
+            disconnect and stop.
+        """
+        self.running = True
 
-        self.session_bus = dbus.SessionBus()
-        self.name = dbus.service.BusName(DEFAULT_BUS_NAME, self.session_bus)
+        # process any events that are waiting first
+        while True:
+            try:
+                ev = self.conn.poll_for_event()
+            except Exception, e:
+                log.exception(e)
+            else:
+                if ev is None:
+                    break
+                try:
+                    ev.dispatch()
+                except Exception, e:
+                    log.exception(e)
 
-        mainloop.run()
+        while self.running:
+            #log.debug('selecting...')
+            try:
+                rready, wready, xready = select(
+                        self.fds['read'].keys(),
+                        self.fds['write'].keys(),
+                        self.fds['error'].keys(),
+                        self.select_timeout
+                )
+            except Exception, e:
+                # error 4 is when a signal has been caught
+                if e.args[0] == 4:
+                    pass
+                else:
+                    log.exception(str((e, type(e), dir(e), e.args)))
+                    raise
+            else:
+                # should catch errors in these?
+                for fd in rready:
+                    self.fds['read'][fd]()
+                for fd in wready:
+                    self.fds['write'][fd]()
+                for fd in xready:
+                    self.fds['error'][fd]()
 
-    def do_xcb_events(self, source, condition):
+        self.conn.disconnect()
+
+
+    def do_xcb_events(self):
         # might as well process all events in the queue...
         while True:
             try:

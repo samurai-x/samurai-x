@@ -366,9 +366,27 @@ class Decorator(object):
             if title_text != self.title.text:
                 self.title.dirty()
 
-    # erk ... if we remove ourselves then we wont we able to come back...
-    #def on_handle_net_wm_state(self, present, atom, source_indication):
-    #    if atom == self.conn.atoms['_NET_WM_STATE_FULLSCREEN']:
+    def on_handle_net_wm_state(self, present, atom, source_indication):
+        if atom == self.conn.atoms['_NET_WM_STATE_FULLSCREEN']:
+            if present:
+                self.temporary_remove()
+            else:
+                self.restore_temporary_remove()
+
+    def temporary_remove(self):
+        self._stashed_actor = self.client.actor
+        self._stashed_actor.ban()
+        self.client.window.reparent(self.client.screen.root,
+                self.client.geom.x,
+                self.client.geom.y)
+        self.client.actor = self.client.window
+    
+    def restore_temporary_remove(self):
+        self.client.actor = self._stashed_actor
+        self.client.actor.unban()
+        self.client.window.reparent(self.client.actor,
+                self.client.geom.x,
+                self.client.geom.y)
 
     def remove(self):
         """ the end. """
