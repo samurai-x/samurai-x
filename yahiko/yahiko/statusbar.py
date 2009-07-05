@@ -28,7 +28,7 @@ import samuraix.main as sxmain
 import logging
 log = logging.getLogger(__name__)
 
-DEFAULT_LOGFILE = os.path.join(gettempdir(), 'sx.lastrun.log')
+DEFAULT_LOGFILE = os.path.join(gettempdir(), 'yahiko-statusbar.lastrun.log')
 
 class SlotInterface(service.Object):
     def __init__(self, slot, path):
