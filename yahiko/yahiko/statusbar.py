@@ -1,11 +1,14 @@
 from __future__ import with_statement
 
+import os
+from optparse import OptionParser
 import copy
 import socket
 import SocketServer
 from select import select
 from datetime import datetime
 import time
+from tempfile import gettempdir
 
 import ooxcb
 from ooxcb.protocol import xproto
@@ -20,9 +23,12 @@ ooxcb.contrib.ewmh.mixin()
 from yaydbus.bus import SessionBus
 from yaydbus import service
 
+import samuraix.main as sxmain
+
 import logging
 log = logging.getLogger(__name__)
 
+DEFAULT_LOGFILE = os.path.join(gettempdir(), 'sx.lastrun.log')
 
 class SlotInterface(service.Object):
     def __init__(self, slot, path):
@@ -102,17 +108,38 @@ class ClockSlot(LabelSlot):
 
 
 class StatusBar(object):
-    def __init__(self, app, screen):
+
+    default_config = {
+        'x': "50%",
+        'width': "90%",
+        'height': 15,
+        'slots': [
+            (ActiveClientSlot, 'active_client'),
+            (ClockSlot, 'clock'),
+        ],
+        'style': {
+            'background.style': 'fill',
+            'background.color': (0.2, 0.2, 0.2),
+            'border.color': (255, 255, 255),
+            'border.width': 1.0,
+            'layout.padding': 5,
+        }
+    }
+
+    def __init__(self, app, screen, config):
         self.app = app
         self.conn = app.conn
         self.screen = screen
+        self.config = self.default_config.copy()
+        if config:
+            self.config.update(config)
+
+        self.massage_config()
 
         visualtype = screen.get_root_visual_type()
-        self.width = width = 300
-        self.height = height = 25
-        root_geom = screen.root.get_geometry().reply()
         self.win = xproto.Window.create_toplevel_on_screen(self.conn, screen,
-                width=width, height=height,
+                y=self.config['height'],
+                width=self.config['width'], height=self.config['height'],
                 back_pixel=screen.white_pixel,
                 event_mask=(0
                     | xproto.EventMask.Exposure
@@ -141,9 +168,14 @@ class StatusBar(object):
                 ]),
         )
         self.win.change_property('_NET_WM_STRUT', 'CARDINAL', 32,
-                [0, 0, 0, height],
+                [0, 0, 0, self.config['height']],
         )
         self.win.map()
+        root_geom = self.screen.root.get_geometry().reply()
+        self.win.configure(
+                x=self.config['x']-(self.config['width']/2), 
+                y=root_geom.height - self.config['height'],
+        )
 
         @self.win.event
         def on_key_press(event):
@@ -153,17 +185,36 @@ class StatusBar(object):
         self.ui = ui.TopLevelContainer(
                 self.win,
                 visualtype,
-                style={
-                    'background.style': 'fill',
-                    'background.color': (0.2, 0.2, 0.2),
-                    'border.color': (255, 255, 255),
-                    'border.width': 1.0,
-                    'layout.padding': 5,
-                },
+                style=self.config['style'],
                 layouter=ui.HorizontalLayouter,
         )
 
         self.slots = []
+
+        for slot in self.config['slots']:
+            slot_cls = slot[0]
+            slot_name = slot[1]
+            slot_args = slot[2:]
+            self.add_slot(slot_cls(self, slot_name, *slot_args))
+
+    def massage_config(self):
+        root_geom = self.screen.root.get_geometry().reply()
+        def parse_number(s, max):
+            if type(s) is str:
+                s = s.strip()
+                if s.endswith('%'):
+                    s = (max / 100) * float(s[:-1])
+                elif not s.isdigit():
+                    log.error('unknown format %s' % s)
+
+            return int(s)
+
+        self.config['width'] = parse_number(
+                self.config['width'], root_geom.width)
+        self.config['height'] = parse_number(
+                self.config['height'], root_geom.height)
+        self.config['x'] = parse_number(
+                self.config['x'], root_geom.width)
 
     def add_slot(self, item):
         self.slots.append(item)
@@ -172,11 +223,10 @@ class StatusBar(object):
         self.ui.dirty()
 
 
-
 class App(object):
-    def __init__(self, conn, screen):
+    def __init__(self, conn, screen, config_path=None):
         self.conn = conn
-        self.status_bar = StatusBar(self, screen)
+
         self.running = True
 
         # filehandles used when select'ing 
@@ -192,20 +242,17 @@ class App(object):
         self.add_fd_handler('read', self.bus, self.process_dbus)
         self.bus.request_name('org.yahiko.status_bar')
 
-        self.status_bar.add_slot(LabelSlot(self.status_bar, 's1', "hello"))
-        self.status_bar.add_slot(LabelSlot(self.status_bar, 's2', "to"))
-        self.status_bar.add_slot(LabelSlot(self.status_bar, 's3', "you"))
-        self.status_bar.add_slot(ActiveClientSlot(self.status_bar, 's4'))
-        self.status_bar.add_slot(ClockSlot(self.status_bar, 's5'))
+        if config_path:
+            user_config = sxmain.load_user_config(config_path)
+        else:
+            user_config = None
+        self.status_bar = StatusBar(self, screen, user_config)
 
-
-        #HOST=""
-        #PORT=9000
-        #self.server = SocketServer.TCPServer((HOST, PORT), StatusBarHandler)
-        #self.server.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-
-    def process_dbus(self):
-        self.bus.receive_one()
+        #self.status_bar.add_slot(LabelSlot(self.status_bar, 's1', "hello"))
+        #self.status_bar.add_slot(LabelSlot(self.status_bar, 's2', "to"))
+        #self.status_bar.add_slot(LabelSlot(self.status_bar, 's3', "you"))
+        #self.status_bar.add_slot(ActiveClientSlot(self.status_bar, 's4'))
+        #self.status_bar.add_slot(ClockSlot(self.status_bar, 's5'))
 
     def add_fd_handler(self, which_list, fd, callback):
         """ 
@@ -290,6 +337,9 @@ class App(object):
 
         self.conn.disconnect()
 
+    def process_dbus(self):
+        self.bus.receive_one()
+
     def do_xcb_events(self):
         # might as well process all events in the queue...
         while True:
@@ -309,11 +359,88 @@ class App(object):
         return True
 
 
+def configure_logging(options, file_level=logging.DEBUG, console_level=logging.DEBUG):
+    """
+        Set up the logging for the client.
+
+        :param file_level: level of logging for files
+        :param console_level: level of logging for the console
+    """
+    console = logging.StreamHandler()
+    console.setLevel(console_level)
+    formatter = FDFormatter('[%(asctime)s %(levelname)s %(name)s] %(message)s')
+    console.setFormatter(formatter)
+    # reset the handlers incase its a restart
+    logging.getLogger('').handlers = []
+    logging.getLogger('').addHandler(console)
+    logging.root.setLevel(logging.DEBUG)
+    lastlog = logging.FileHandler(options.logfile, 'w')
+    lastlog.setLevel(file_level)
+    formatter = logging.Formatter(
+            '[%(asctime)s %(levelname)s %(name)s %(lineno)d] %(message)s')
+    lastlog.setFormatter(formatter)
+    logging.getLogger('').addHandler(lastlog)
+
+    # parse logging levels string, format is:
+    #   <logger_name>:<level_name>[,<logger_name2>:<level_name2>[,...]]
+    # where logger_name is the name of a logger eg samuraix.main
+    # and level_name is a name as described in the logging module
+    # such as DEBUG/INFO/ERROR
+    for setting in getattr(options, 'logging_levels', '').split(','):
+        setting = setting.strip()
+        if not setting:
+            continue
+        name, level = setting.split(':')
+        logger = logging.getLogger(name)
+        logger.setLevel(getattr(logging, level))
+
+    log.info('logging everything to %s' % options.logfile)
+
+
+def parse_options():
+    """
+        Parse the command line options and return them. The command-line
+        arguments are ignored, since we aren't accepting any.
+    """
+    parser = OptionParser()
+    parser.add_option('-c', '--config', dest='configpath',
+            help='use samurai-x2 configuration from PATH (default: %default)', metavar='FILE',
+            default='~/.samuraix/apps/yahiko_statusbar/')
+
+    parser.add_option('-f', '--logfile', dest='logfile',
+            help='save the samurai-x2 log file to FILE', metavar='FILE',
+            default=DEFAULT_LOGFILE)
+
+    parser.add_option('', '--default-config', dest='print_default_config',
+            help='print the default configuration to stdout',
+            action='store_true',
+            default=False)
+
+    parser.add_option('-s', '--synchronous-check', dest='synchronous_check',
+            help='turn on synchronous checks (useful for debugging)',
+            action='store_true',
+            default=False)
+
+    parser.add_option('-l', '--logging', dest='logging_levels',
+            help='set a logging handler to a specific debug level',
+            default='',
+    )
+
+    options, args = parser.parse_args()
+    return options
+
+
 def run():
+    options = parse_options()
+    if options.print_default_config:
+        from pprint import pprint
+        pprint(StatusBar.default_config)
+        return 
+    sxmain.configure_logging(options)
     conn = ooxcb.connect()
     try:
         screen = conn.setup.roots[conn.pref_screen]
-        app = App(conn, screen)
+        app = App(conn, screen, config_path=options.configpath)
         app.run()
     finally:
         conn.disconnect()

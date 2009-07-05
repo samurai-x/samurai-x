@@ -90,6 +90,7 @@ def ewmh_get_desktop(window):
     else:
         return reply.value[0]
 
+# TODO emwh_get_visible_window_name/get_window_name
 def ewmh_get_window_name(window):
     """
         returns the window title you should use.
@@ -122,11 +123,13 @@ def ewmh_get_window_name(window):
                 return ''
     return reply.value.to_string().decode(encoding)
 
+
 def ewmh_set_window_name(window, name):
     if type(name) is not unicode:
         name = unicode(name, 'utf8', 'replace')
     window.change_property('WM_NAME', 'STRING', 8, List.from_string(name.encode('latin-1', 'replace')))
     window.change_property('_NET_WM_NAME', 'UTF8_STRING', 8, List.from_string(name.encode('utf8', 'replace')))
+
 
 def mixin():
     """
