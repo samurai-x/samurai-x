@@ -159,7 +159,7 @@ class Window(EventDispatcher):
         self.parent.grab_input(control or self)
 
     def dirty(self, control=None):
-        if self.parent:
+        if self.parent is not None:
             self.parent.dirty(control or self)
 
 
@@ -372,6 +372,7 @@ class TopLevelContainer(Container):
     def on_window_expose(self, event):
         if event.count == 0:
             self.render()
+            self.window.conn.flush()
 
     def on_window_property_notify(self, event):
         pass

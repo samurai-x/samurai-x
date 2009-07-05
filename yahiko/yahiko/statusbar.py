@@ -10,6 +10,7 @@ import time
 import ooxcb
 from ooxcb.protocol import xproto
 from ooxcb.contrib import cairo
+from ooxcb.list import List
 
 from yahiko import ui
 
@@ -107,8 +108,9 @@ class StatusBar(object):
         self.screen = screen
 
         visualtype = screen.get_root_visual_type()
-        width = 300
-        height = 25
+        self.width = width = 300
+        self.height = height = 25
+        root_geom = screen.root.get_geometry().reply()
         self.win = xproto.Window.create_toplevel_on_screen(self.conn, screen,
                 width=width, height=height,
                 back_pixel=screen.white_pixel,
@@ -120,6 +122,26 @@ class StatusBar(object):
                     | xproto.EventMask.PropertyChange
                     | xproto.EventMask.StructureNotify
                 )
+        )
+
+        self.win.ewmh_set_window_name('yahiko-statusbar')
+        self.win.change_property('WM_CLASS', 'STRING', 8, List.from_string('yahiko-statusbar'))
+        self.win.change_property('_NET_WM_DESKTOP', 'CARDINAL', 32, [0xffffffffL])
+
+        self.win.change_property('_NET_WM_WINDOW_TYPE', 'ATOM', 32,
+                List.from_atoms([
+                    self.conn.atoms['_NET_WM_WINDOW_TYPE_DOCK'],
+                ]),
+        )
+        self.win.change_property('_NET_WM_STATE', 'ATOM', 32,
+                List.from_atoms([
+                    self.conn.atoms['_NET_WM_STATE_SKIP_PAGER'],
+                    self.conn.atoms['_NET_WM_STATE_SKIP_TASKBAR'],
+                    self.conn.atoms['_NET_WM_STATE_STICKY'],
+                ]),
+        )
+        self.win.change_property('_NET_WM_STRUT', 'CARDINAL', 32,
+                [0, 0, 0, height],
         )
         self.win.map()
 
@@ -176,6 +198,7 @@ class App(object):
         self.status_bar.add_slot(ActiveClientSlot(self.status_bar, 's4'))
         self.status_bar.add_slot(ClockSlot(self.status_bar, 's5'))
 
+
         #HOST=""
         #PORT=9000
         #self.server = SocketServer.TCPServer((HOST, PORT), StatusBarHandler)
@@ -215,6 +238,10 @@ class App(object):
             disconnect and stop.
         """
         self.running = True
+
+        self.status_bar.ui.recreate_surface()
+        self.status_bar.ui.layout()
+        self.status_bar.ui.dirty()
 
         # process any events that are waiting first
         while True:
@@ -262,7 +289,6 @@ class App(object):
                     self.timers[func] = (now+secs, secs)
 
         self.conn.disconnect()
-
 
     def do_xcb_events(self):
         # might as well process all events in the queue...

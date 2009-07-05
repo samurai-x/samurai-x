@@ -31,6 +31,8 @@
     .. _ewmh standard: http://standards.freedesktop.org/wm-spec/wm-spec-latest.html
 """
 
+from ooxcb.list import List
+
 def ewmh_get_client_list(screen):
     """
         return a list of :class:`ooxcb.protocol.xproto.Window` instances, or
@@ -120,6 +122,12 @@ def ewmh_get_window_name(window):
                 return ''
     return reply.value.to_string().decode(encoding)
 
+def ewmh_set_window_name(window, name):
+    if type(name) is not unicode:
+        name = unicode(name, 'utf8', 'replace')
+    window.change_property('WM_NAME', 'STRING', 8, List.from_string(name.encode('latin-1', 'replace')))
+    window.change_property('_NET_WM_NAME', 'UTF8_STRING', 8, List.from_string(name.encode('utf8', 'replace')))
+
 def mixin():
     """
         mix em all
@@ -136,4 +144,5 @@ def mixin():
     mixin_functions((
         ewmh_get_desktop,
         ewmh_get_window_name,
+        ewmh_set_window_name,
         ), Window)
