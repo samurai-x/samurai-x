@@ -28,7 +28,9 @@ import samuraix.main as sxmain
 import logging
 log = logging.getLogger(__name__)
 
+
 DEFAULT_LOGFILE = os.path.join(gettempdir(), 'yahiko-statusbar.lastrun.log')
+
 
 class SlotInterface(service.Object):
     def __init__(self, slot, path):
@@ -64,13 +66,17 @@ class LabelSlotInterface(SlotInterface):
 class LabelSlot(Slot):
     dbus_class = LabelSlotInterface
 
-    def __init__(self, status_bar, name, text="hello"):
+    def __init__(self, status_bar, name, **kwargs):
         Slot.__init__(self, status_bar, name)
         self.window = ui.Label(
-                text=text,
                 style={
                     'text.color': (1.0, 1.0, 1.0),
+                    'text.align': 'centre',
+                    #'border.style': 'fill',
+                    #'border.width': 1,
+                    #'border.color': (0.5, 0.5, 0.5),
                 },
+                **kwargs
         )
 
     def _get_text(self):
@@ -98,8 +104,8 @@ class ActiveClientSlot(LabelSlot):
 
 
 class ClockSlot(LabelSlot):
-    def __init__(self, status_bar, name):
-        LabelSlot.__init__(self, status_bar, name)
+    def __init__(self, status_bar, name, **kwargs):
+        LabelSlot.__init__(self, status_bar, name, **kwargs)
 
         self.status_bar.app.add_timer(1, self.update_label)
 
@@ -114,15 +120,29 @@ class StatusBar(object):
         'width': "90%",
         'height': 15,
         'slots': [
-            (ActiveClientSlot, 'active_client'),
-            (ClockSlot, 'clock'),
+            {
+                'class': ActiveClientSlot,
+                'name': 'active_client',
+                #'style': {
+                #    'width': 50, 
+                #},
+            },
+            {
+                'class': ClockSlot, 
+                'name': 'clock',
+                'kwargs': {'width': 50},
+                #'style': {
+                #    'width': 50, 
+                #},
+            },
         ],
         'style': {
             'background.style': 'fill',
             'background.color': (0.2, 0.2, 0.2),
-            'border.color': (255, 255, 255),
+            'border.style': 'fill',
+            'border.color': (0.5, 0.0, 0.0),
             'border.width': 1.0,
-            'layout.padding': 5,
+            'layout.padding': 1,
         }
     }
 
@@ -192,10 +212,15 @@ class StatusBar(object):
         self.slots = []
 
         for slot in self.config['slots']:
-            slot_cls = slot[0]
-            slot_name = slot[1]
-            slot_args = slot[2:]
-            self.add_slot(slot_cls(self, slot_name, *slot_args))
+            slot_cls = slot['class']
+            slot_name = slot['name']
+            slot_args = slot.get('args', ())
+            slot_kwargs = slot.get('kwargs', {})
+            style = slot.get('style')
+            s = slot_cls(self, slot_name, *slot_args, **slot_kwargs)
+            if style:
+                s.get_window().style.update(style)
+            self.add_slot(s)
 
     def massage_config(self):
         root_geom = self.screen.root.get_geometry().reply()
