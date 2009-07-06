@@ -241,31 +241,29 @@ class VerticalLayouter(Layouter):
 
 class HorizontalLayouter(Layouter):
     def layout(self):
-        layout_style = self.container.style.get('layout', {})
-        if layout_style:
-            padding = layout_style.get('padding', 0)
-        else:
-            padding = 0
-
+        padding = self.container.style.get('layout.padding', 0)
         h = self.container.rheight - (2 * padding)
         w = self.container.rwidth - (2 * padding)
 
         used_width = 0 
-        with_width = 0 
+        without_width = len(self.container.children)
 
         for child in self.container.children:
             if child.width:
                 used_width += child.width
-                with_width += 1
+                without_width -= 1
 
-        wplus = (w - used_width) / (len(self.container.children) - with_width)
+        if without_width:
+            wplus = (w - used_width) / without_width
+        else:
+            wplus = 0
+
         x = padding
         for child in self.container.children:
-            margin = 0
             if child.style:
-                child_layout_style = child.style.get('layout')
-                if child_layout_style:
-                    margin = child_layout_style.get('margin', 0)
+                margin = child.style.get('layout.margin', 0)
+            else:
+                margin = 0
 
             child.set_render_coords(
                     x + margin,
