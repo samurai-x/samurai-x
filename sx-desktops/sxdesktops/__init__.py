@@ -369,15 +369,16 @@ class ScreenData(EventDispatcher):
         """
         log.debug('... updating %s %s %s' % (previous_desktop,
             self.active_desktop, previous_desktop.clients))
-        for client in previous_desktop.clients:
-            # just iconify (see icccm 4.1.3.1), but don't set
-            # _NET_WM_STATE_HIDDEN, because it is invisible
-            # because it isn't on the current desktop, not
-            # because the user has banned it.
-            client.ban(False, False)
+        if previous_desktop != self.active_desktop:
+            for client in previous_desktop.clients:
+                # just iconify (see icccm 4.1.3.1), but don't set
+                # _NET_WM_STATE_HIDDEN, because it is invisible
+                # because it isn't on the current desktop, not
+                # because the user has banned it.
+                client.ban(False, False)
 
-        for client in self.active_desktop.clients:
-            client.unban()
+            for client in self.active_desktop.clients:
+                client.unban()
 
     def cycle_desktops(self, offset=+1):
         self.set_active_desktop_idx(cycle_indices(self.active_desktop_idx,

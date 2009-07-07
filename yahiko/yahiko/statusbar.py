@@ -88,19 +88,42 @@ class LabelSlot(Slot):
 
 
 class ActiveClientSlot(LabelSlot):
-    def __init__(self, status_bar, name):
+    def __init__(self, status_bar, name, **kwargs):
         LabelSlot.__init__(self, status_bar, name)
 
         self.status_bar.screen.root.change_attributes(
             event_mask=
                 xproto.EventMask.PropertyChange,
         )
-        self.status_bar.screen.root.push_handlers(on_property_notify=self.on_property_notify)
+        self.status_bar.screen.root.push_handlers(
+                on_property_notify=self.on_property_notify,
+        )
         
     def on_property_notify(self, event):
         if event.atom == self.status_bar.conn.atoms['_NET_ACTIVE_WINDOW']:
             win = self.status_bar.screen.root.get_property('_NET_ACTIVE_WINDOW', 'WINDOW').reply().value.to_windows()[0]
             self.text = win.ewmh_get_window_name()           
+
+
+class ActiveDesktopSlot(LabelSlot):
+    def __init__(self, status_bar, name, **kwargs):
+        LabelSlot.__init__(self, status_bar, name)
+
+        self.status_bar.screen.root.change_attributes(
+            event_mask=
+                xproto.EventMask.PropertyChange,
+        )
+
+        self.desktop_names = self.status_bar.screen.root.get_property('_NET_DESKTOP_NAMES', 'UTF8_STRING').reply().value.to_utf8().split('\0')
+
+        self.status_bar.screen.root.push_handlers(
+                on_property_notify=self.on_property_notify,
+        )
+        
+    def on_property_notify(self, event):
+        if event.atom == self.status_bar.conn.atoms['_NET_CURRENT_DESKTOP']:
+            desktop_idx = self.status_bar.screen.root.get_property('_NET_CURRENT_DESKTOP', 'CARDINAL').reply().value[0]
+            self.text = self.desktop_names[desktop_idx]
 
 
 class ClockSlot(LabelSlot):
@@ -123,17 +146,16 @@ class StatusBar(object):
             {
                 'class': ActiveClientSlot,
                 'name': 'active_client',
-                #'style': {
-                #    'width': 50, 
-                #},
+            },
+            {
+                'class': ActiveDesktopSlot, 
+                'name': 'active_desktop',
+                'kwargs': {'width': 50},
             },
             {
                 'class': ClockSlot, 
                 'name': 'clock',
                 'kwargs': {'width': 50},
-                #'style': {
-                #    'width': 50, 
-                #},
             },
         ],
         'style': {
