@@ -110,6 +110,74 @@ class FocusStack(list):
         the last item in the list is the focused item
     """
 
+    def __init__(self, conn, *args):
+        self.conn = conn 
+        list.__init__(self, *args)
+
+    def sort(self):
+        list.sort(self, cmp = self._sort)
+
+    def _sort(self, client_a, client_b):
+        # from: 
+        # http://standards.freedesktop.org/wm-spec/wm-spec-1.3.html#STACKINGORDER
+
+        # Stacking order
+
+        # To obtain good interoperability between different Desktop 
+        # Environments, the following layered stacking order is 
+        # recommended, from the bottom:
+        #
+        #    * windows of type _NET_WM_TYPE_DESKTOP
+        #    * windows having state _NET_WM_STATE_BELOW
+        #    * windows not belonging in any other layer
+        #    * windows of type _NET_WM_TYPE_DOCK 
+        #      (unless they have state _NET_WM_TYPE_BELOW) and windows 
+        #      having state _NET_WM_STATE_ABOVE
+        #    * focused windows having state _NET_WM_STATE_FULLSCREEN
+        #
+        # Windows that are transient for another window should be kept above this
+        # window.
+        #
+        # The window manager may choose to put some windows in different stacking
+        # positions, for example to allow the user to bring currently a active 
+        # window to the top and return it back when the window looses focus. 
+
+        if (    self.conn.atoms['_NET_WM_WINDOW_TYPE_DESKTOP'] in client_a.window_type
+            and self.conn.atoms['_NET_WM_WINDOW_TYPE_DESKTOP'] not in client_b.window_type):
+            return -1
+        elif (  self.conn.atoms['_NET_WM_WINDOW_TYPE_DESKTOP'] not in client_a.window_type
+            and self.conn.atoms['_NET_WM_WINDOW_TYPE_DESKTOP'] in client_b.window_type):
+            return 1
+        if (    self.conn.atoms['_NET_WM_STATE_BELOW'] in client_a.state 
+            and self.conn.atoms['_NET_WM_STATE_BELOW'] not in client_b.state):
+            return -1
+        elif (  self.conn.atoms['_NET_WM_STATE_BELOW'] not in client_a.state 
+            and self.conn.atoms['_NET_WM_STATE_BELOW'] in client_b.state):
+            return 1
+        if (    self.conn.atoms['_NET_WM_TYPE_DOCK'] in client_a.state
+            and self.conn.atoms['_NET_WM_TYPE_DOCK'] not in client_b.state):
+            return -1
+        elif (  self.conn.atoms['_NET_WM_TYPE_DOCK'] not in client_a.state
+            and self.conn.atoms['_NET_WM_TYPE_DOCK'] in client_b.state):
+            return 1
+        if (    self.conn.atoms['_NET_WM_STATE_FULLSCREEN'] in client_a.state
+            and self.conn.atoms['_NET_WM_STATE_FULLSCREEN'] not in client_b.state):
+            return -1
+        elif (  self.conn.atoms['_NET_WM_STATE_FULLSCREEN'] not in client_a.state
+            and self.conn.atoms['_NET_WM_STATE_FULLSCREEN'] in client_b.state):
+            return 1
+
+        # TODO should compare x stacking order here?
+
+        return 0
+
+    # define our own append so we can insert the client in the right place 
+    def append(self, client):
+        # TODO make this much more clever... we just need to loop to the 
+        # right point 
+        list.append(self, client)
+        #self.sort()
+        
     def move_to_top(self, client):
         if self.current() is client:
             return
@@ -153,7 +221,7 @@ class Desktop(SXObject):
         self.plugin = plugin
         self.screen = screen
         self.name = name
-        self.clients = FocusStack() # maybe weak references are a good idea.
+        self.clients = FocusStack(self.screen.conn) # maybe weak references are a good idea.
         self.idx = idx
         self.config = config
 
@@ -177,7 +245,8 @@ class Desktop(SXObject):
 
             .. todo:: should this behaviour be configurable?
         """
-        if not self.active:
+        if (not self.active 
+            and not client.conn.atoms['_NET_WM_STATE_STICKY'] in client.state):
             idx = client.window.ewmh_get_desktop()
             self.plugin.get_data(self.screen).set_active_desktop_idx(idx)
 
