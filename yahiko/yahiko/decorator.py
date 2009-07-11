@@ -99,7 +99,7 @@ class Decorator(object):
             (0.7, 0.7, 0.7, 0.75),
             (1.0, 0.4, 0.4, 0.4),
         ],
-        'border.color': (1, 1, 1),
+        'border.color': (1.0, 1.0, 1.0),
         'border.style': 'gradient',
         'border.fill-line': (0.0, 0.0, 0.0, 200.0),
         'border.fill-stops': [
@@ -112,10 +112,12 @@ class Decorator(object):
     }
 
     default_title_style={
-        'text.color': (9, 9, 9),
+        'text.color': (1.0, 1.0, 1.0),
+        #'border.style': 'fill',
         #'border.color': (1, 0, 0),
         #'border.width': 1.0,
         'layout.margin': 1,
+        'clip': True,
     }
 
     default_clientwindow_style={
@@ -365,6 +367,7 @@ class Decorator(object):
             )):
             title_text = self.client.get_window_title().encode('utf-8') # <- TODO: is that too expensive?
             if title_text != self.title.text:
+                self.title.text = title_text
                 self.title.dirty()
 
     def on_handle_net_wm_state(self, present, atom, source_indication):

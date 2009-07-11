@@ -45,6 +45,7 @@ setup(name='yahiko',
 
     [console_scripts]
     yahiko-statusbar = yahiko.statusbar:run
+    yahiko-statusbar = yahiko.term:run
     """,
 )
 

@@ -99,11 +99,16 @@ class ActiveClientSlot(LabelSlot):
         self.status_bar.screen.root.push_handlers(
                 on_property_notify=self.on_property_notify,
         )
+
+        self.update_active_window()
         
     def on_property_notify(self, event):
         if event.atom == self.status_bar.conn.atoms['_NET_ACTIVE_WINDOW']:
-            win = self.status_bar.screen.root.get_property('_NET_ACTIVE_WINDOW', 'WINDOW').reply().value.to_windows()[0]
-            self.text = win.ewmh_get_window_name()           
+            self.update_active_window()
+
+    def update_active_window(self):
+        win = self.status_bar.screen.root.get_property('_NET_ACTIVE_WINDOW', 'WINDOW').reply().value.to_windows()[0]
+        self.text = win.ewmh_get_window_name()           
 
 
 class ActiveDesktopSlot(LabelSlot):
@@ -120,21 +125,28 @@ class ActiveDesktopSlot(LabelSlot):
         self.status_bar.screen.root.push_handlers(
                 on_property_notify=self.on_property_notify,
         )
+
+        self.update_active_desktop()
         
     def on_property_notify(self, event):
         if event.atom == self.status_bar.conn.atoms['_NET_CURRENT_DESKTOP']:
-            desktop_idx = self.status_bar.screen.root.get_property('_NET_CURRENT_DESKTOP', 'CARDINAL').reply().value[0]
-            self.text = self.desktop_names[desktop_idx]
+            self.update_active_desktop()
+
+    def update_active_desktop(self):
+        desktop_idx = self.status_bar.screen.root.get_property('_NET_CURRENT_DESKTOP', 'CARDINAL').reply().value[0]
+        self.text = self.desktop_names[desktop_idx]
 
 
 class ClockSlot(LabelSlot):
     def __init__(self, status_bar, name, **kwargs):
         LabelSlot.__init__(self, status_bar, name, **kwargs)
 
-        self.status_bar.app.add_timer(1, self.update_label)
+        self.status_bar.app.add_timer(60, self.update_clock)
 
-    def update_label(self):
-        self.text = datetime.now().strftime('%H:%I:%S')
+        self.update_clock()
+
+    def update_clock(self):
+        self.text = datetime.now().strftime('%H:%M')
 
 
 class StatusBar(object):
@@ -195,7 +207,9 @@ class StatusBar(object):
         )
 
         self.win.ewmh_set_window_name('yahiko-statusbar')
-        self.win.change_property('WM_CLASS', 'STRING', 8, List.from_string('yahiko-statusbar'))
+        self.win.change_property('WM_CLASS', 'STRING', 8, 
+                List.from_string('yahiko-statusbar'))
+
         self.win.change_property('_NET_WM_DESKTOP', 'CARDINAL', 32, [0xffffffffL])
 
         self.win.change_property('_NET_WM_WINDOW_TYPE', 'ATOM', 32,
@@ -299,7 +313,6 @@ class App(BaseApp):
         self.bus.receive_one()
 
         BaseApp.run(self)
-
 
 
 def parse_options():
