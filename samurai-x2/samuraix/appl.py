@@ -23,9 +23,6 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import logging
-log = logging.getLogger(__name__)
-
 import sys
 import signal
 from select import select
@@ -35,10 +32,13 @@ import ooxcb.contrib.cursors
 
 from .screen import Screen
 from .pluginsys import PluginLoader
-from .base import SXObject
+from .baseapp import BaseApp
+
+import logging
+log = logging.getLogger(__name__)
 
 
-class App(SXObject):
+class App(BaseApp):
     """
         The samurai-x application object is the central point of the
         window manager. There is only one instance of `App` in one
@@ -48,50 +48,19 @@ class App(SXObject):
         Every builtin samurai-x object should have an `app` member you
         can access.
     """
-    def __init__(self):
+    def __init__(self, synchronous_check=False, replace_existing_wm=False):
         """
             __init__ just initializes the application with some placeholder
             members. The real initialization is done in `App.init`.
         """
-        SXObject.__init__(self)
+        BaseApp.__init__(self, synchronous_check=synchronous_check)
 
-        self.conn = None
-        self.synchronous_check = False
-
-        self.replace_existing_wm = False
-        self.running = False
-        self.cursors = None
+        self.replace_existing_wm = replace_existing_wm
         self.screens = []
         self.plugins = None
-        # filehandles used when select'ing 
-        self.fds = {'read': {}, 'write': {}, 'error': {}}
-        # timeout used when select'ing
-        self.select_timeout = 1.0
        
-        # a list of functions that should be called in the next
-        # iteration of the mainloop. That's not nice and should
-        # be removed. Currently, it's used to make the Python gc
-        # collect client objects.
-        self.functions_to_call = []
         # this is really set in self.init()
         self.supported_hints = None
-
-
-    def add_fd_handler(self, which_list, fd, callback):
-        """ 
-            add a callback to be called when the main loop detects a
-            read/write/error on the file descriptor fd
-        """
-        assert which_list in ('read', 'write', 'error')
-        self.fds[which_list][fd] = callback
-
-    def remove_fd_handler(self, which_list, fd):
-        """
-            remove a callback to be called when the main loop detects
-            a read/write/error on the file descriptor fd
-        """
-        assert which_list in ('read', 'write', 'error')
-        del self.fds[which_list][fd]
 
     def init(self):
         """
@@ -116,9 +85,7 @@ class App(SXObject):
                    DISPLAY environment variable?
 
         """
-        log.info('init')
-
-        self.conn = ooxcb.connect()
+        BaseApp.init(self)
 
         # set of hints we support - plugins can add to this set 
         # if they add support for other hints 
@@ -155,17 +122,8 @@ class App(SXObject):
             # TODO: ... do we need to set _NET_DESKTOP_LAYOUT? Are we a pager?
         ])
 
-        # add the xcb file handles to the list of handles we select 
-        fd = self.conn.get_file_descriptor()
-        self.add_fd_handler('read', fd, self.do_xcb_events) 
-
-        if self.synchronous_check:
-            self.conn.synchronous_check = True
-
-        self.cursors = ooxcb.contrib.cursors.Cursors(self.conn)
-
         self.conn.push_handlers(self)
-        self.running = False
+
         self.plugins = PluginLoader(self)
         self.plugins.setup()
         self.plugins.require_key('desktops') # we need a desktop manager plugin
@@ -182,10 +140,6 @@ class App(SXObject):
             self.screens.append(scr)
             self.dispatch_event('on_new_screen', scr)
 
-        signal.signal(signal.SIGINT, self.stop)
-        signal.signal(signal.SIGTERM, self.stop)
-        signal.signal(signal.SIGHUP, self.stop)
-
         self.dispatch_event('on_ready', self)
 
         # scan the screens after everything is done.
@@ -193,6 +147,19 @@ class App(SXObject):
         # I hope that has no side effects for existing plugins :)
         for screen in self.screens:
             screen.scan()
+
+    def stop(self, *args):
+        """
+            Stop samurai-x. Call `unmanage_all` on each screen and
+            set `self.running` to False.
+            This method takes no arguments. *\*args* is just here that
+            we can use `stop` directly as signal handler.
+        """
+        log.info('Unmanaging all remaining clients ...')
+        for screen in self.screens:
+            screen.unmanage_all()
+        self.conn.flush()
+        BaseApp.stop(self, *args)
 
     def reload_config(self):
         """
@@ -207,106 +174,6 @@ class App(SXObject):
         """
         from samuraix import config # TODO?
         self.dispatch_event('on_load_config', config)
-
-    def stop(self, *args):
-        """
-            Stop samurai-x. Call `unmanage_all` on each screen and
-            set `self.running` to False.
-            This method takes no arguments. *\*args* is just here that
-            we can use `stop` directly as signal handler.
-        """
-        log.info('Unmanaging all remaining clients ...')
-        for screen in self.screens:
-            screen.unmanage_all()
-        self.conn.flush()
-        log.info('stopping')
-        self.running = False
-
-    def run(self):
-        """
-            Start the mainloop. It uses `select` to poll the file descriptor
-            for events and dispatches them.
-            All exceptions are caught and logged, so samurai-x won't crash.
-            If `self.running` is False for some reason, samurai-x will
-            disconnect and stop.
-        """
-        self.running = True
-
-        # process any events that are waiting first
-        while True:
-            try:
-                ev = self.conn.poll_for_event()
-            except Exception, e:
-                log.exception(e)
-            else:
-                if ev is None:
-                    break
-                try:
-                    ev.dispatch()
-                except Exception, e:
-                    log.exception(e)
-
-        while self.running:
-            #log.debug('selecting...')
-            try:
-                rready, wready, xready = select(
-                        self.fds['read'].keys(),
-                        self.fds['write'].keys(),
-                        self.fds['error'].keys(),
-                        self.select_timeout
-                )
-            except Exception, e:
-                # error 4 is when a signal has been caught
-                if e.args[0] == 4:
-                    pass
-                else:
-                    log.exception(str((e, type(e), dir(e), e.args)))
-                    raise
-            else:
-                # should catch errors in these?
-                for fd in rready:
-                    self.fds['read'][fd]()
-                for fd in wready:
-                    self.fds['write'][fd]()
-                for fd in xready:
-                    self.fds['error'][fd]()
-
-        self.conn.disconnect()
-
-    def add_function_to_call(self, func):
-        """
-            add a function that should be called in the next
-            mainloop iteration.
-
-            .. note:: Don't use that if you can avoid it,
-                      it might be removed.
-
-        """
-        self.functions_to_call.append(func)
-
-    def do_xcb_events(self):
-        # process all "functions to call". That seems to be required
-        # to be done outside the loop, otherwise `gc.collect()` (see
-        # samuraix.screen.Screen.unmanage) won't work - no idea why.
-        if self.functions_to_call:
-            for func in self.functions_to_call:
-                func()
-            self.functions_to_call = []
-        # might as well process all events in the queue...
-        while True:
-            try:
-                ev = self.conn.poll_for_event()
-            except Exception, e:
-                log.exception(e)
-            else:
-                if ev is None:
-                    break
-                try:
-                    #log.debug('Dispatching %s to %s.' %
-                    #        (ev.event_name, ev.event_target))
-                    ev.dispatch()
-                except Exception, e:
-                    log.exception(e)
 
     def get_screen_by_root(self, root):
         """

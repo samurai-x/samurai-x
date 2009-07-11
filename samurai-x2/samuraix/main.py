@@ -114,6 +114,7 @@ def load_config(config=None):
         from samuraix.defaultconfig import config
     if callable(config):
         config = config()
+    import samuraix
     samuraix.config = config
 
 
@@ -141,29 +142,15 @@ def load_user_config(configpath):
     return getattr(mod, 'config')
 
 
-def parse_options():
+def create_default_option_parser(usage=None, config_path=None):
+    """ create a parser with standard options - usefull for other apps 
+    using samuraix.baseapp.BaseApp
     """
-        Parse the command line options and return them. The command-line
-        arguments are ignored, since we aren't accepting any.
-    """
-    parser = OptionParser(SXWM_USAGE)
-    parser.add_option('-c', '--config', dest='configpath',
-            help='use samurai-x2 configuration from PATH (default: %default)', metavar='FILE',
-            default='~/.samuraix/')
+    parser = OptionParser(usage)
 
     parser.add_option('-f', '--logfile', dest='logfile',
-            help='save the samurai-x2 log file to FILE', metavar='FILE',
+            help='save the log file to FILE', metavar='FILE',
             default=DEFAULT_LOGFILE)
-
-    parser.add_option('', '--default-config', dest='print_default_config',
-            help='print the default configuration to stdout',
-            action='store_true',
-            default=False)
-
-    parser.add_option('', '--replace', dest='replace_existing_wm',
-            help='replace an already running window manager',
-            action='store_true',
-            default=False)
 
     parser.add_option('-s', '--synchronous-check', dest='synchronous_check',
             help='turn on synchronous checks (useful for debugging)',
@@ -175,24 +162,64 @@ def parse_options():
             default='',
     )
 
+    if config_path:
+        parser.add_option('-c', '--config', dest='configpath',
+            help='use configuration from PATH (default: %default)', metavar='FILE',
+            default=config_path)
+
+    return parser
+
+
+def parse_options():
+    """
+        Parse the command line options and return them. The command-line
+        arguments are ignored, since we aren't accepting any.
+    """
+
+    parser = create_default_option_parser(
+            usage=SXWM_USAGE,
+            config_path='~/.samuraix/',
+    )
+
+    parser.add_option('', '--default-config', dest='print_default_config',
+            help='print the default configuration to stdout',
+            action='store_true',
+            default=False,
+    )
+
+    parser.add_option('', '--replace', dest='replace_existing_wm',
+            help='replace an already running window manager',
+            action='store_true',
+            default=False,
+    )
+
     options, args = parser.parse_args()
     return options
 
 
-def run(app_func=None):
+def restart_loop(app_func):
     """ 
         main entry point for sx-wm. Runs the application in a loop 
         to allow restarting 
     """
-    setup_ooxcb()
     while samuraix.restarting:
         log.info('restart loop')
         samuraix.restarting = False
-        run_app(app_func=app_func)
+        run_app(app_func)
         # make sure everything is really gone 
         samuraix.app = None
         samuraix.config = None
         gc.collect()
+
+
+def run_app(app_func):
+    app = app_func()
+    try:
+        app.init()
+        app.run()
+    except Exception:
+        import traceback
+        log.error(traceback.format_exc())
 
 
 def restart():
@@ -213,7 +240,7 @@ def setup_ooxcb():
     ooxcb.contrib.ewmh.mixin()
 
 
-def run_app(app_func=None):
+def run_samurai_x():
     """
         First, it parses the options. If the user specified `--default-config`,
         it will just print the defaultconfig.py file and quit.
@@ -236,21 +263,20 @@ def run_app(app_func=None):
 
     configure_logging(options)
 
+    setup_ooxcb()
+
+    from samuraix.appl import App
+
+    def app_func():
+        samuraix.app = app = App(
+            synchronous_check=options.synchronous_check,
+            replace_existing_wm=options.replace_existing_wm,
+        )
+        return app
+    
     cfg = load_user_config(options.configpath)
     load_config(cfg)
 
-    if app_func is None:
-        from samuraix.appl import App
-        app_func = App
+    restart_loop(app_func)
 
-    samuraix.app = app = app_func()
-    app.replace_existing_wm = options.replace_existing_wm
-    app.synchronous_check = options.synchronous_check
-
-    try:
-        app.init()
-        app.run()
-    except Exception:
-        import traceback
-        log.error(traceback.format_exc())
 

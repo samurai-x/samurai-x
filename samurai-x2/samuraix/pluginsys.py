@@ -34,7 +34,7 @@ import os.path
 
 import pkg_resources
 
-from samuraix import config
+import samuraix
 
 class PluginError(Exception):
     """
@@ -81,7 +81,7 @@ class PluginLoader(dict):
             and add all found distributions to the working set.
         """
         for path in map(os.path.expanduser,
-                config.get('core.plugin_paths', [])):
+                samuraix.config.get('core.plugin_paths', [])):
             map(pkg_resources.working_set.add,
                     pkg_resources.find_distributions(path, False))
 
@@ -99,7 +99,7 @@ class PluginLoader(dict):
             load all plugins, warn if a plugin couldn't be loaded.
         """
         # get the names of all required plugins
-        names = config.get('core.plugins', [])
+        names = samuraix.config.get('core.plugins', [])
         log.debug('loading %s', names)
         # get all available entrypoints and create a dictionary mapping
         # an entrypoint's name to an entrypoint.
