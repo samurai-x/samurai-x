@@ -4568,6 +4568,12 @@ class Window(Drawable):
     def create_toplevel_on_screen(cls, conn, screen, *args, **kwargs):
         return cls.create(conn, screen.root, screen.root_depth, screen.root_visual, *args, **kwargs)
 
+    def add_to_save_set(self):
+        self.change_save_set_checked(SetMode.Insert).check()
+
+    def remove_from_save_set(self):
+        self.change_save_set_checked(SetMode.Delete).check()
+
 class Timecoord(ooxcb.Struct):
     def __init__(self, conn):
         ooxcb.Struct.__init__(self, conn)

@@ -3064,6 +3064,12 @@ ooxcb.protocol.xproto
     .. classmethod:: create_toplevel_on_screen(cls, conn, screen, *args, **kwargs)
 
 
+    .. method:: add_to_save_set(self)
+
+
+    .. method:: remove_from_save_set(self)
+
+
 .. class:: CoordMode
 
     .. data:: Origin

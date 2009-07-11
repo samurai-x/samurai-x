@@ -187,6 +187,7 @@ class Decorator(object):
                     xproto.EventMask.ButtonPress,
                 )
 
+        client.window.add_to_save_set()
         client.window.reparent(client.actor)
         log.debug('created client actor client=%s actor=%s', client, client.actor)
 
@@ -395,6 +396,7 @@ class Decorator(object):
         """ the end. """
         log.debug('removing deco for %s' % self.client)
         if self.client.window.valid:
+            self.client.window.remove_from_save_set()
             self.client.window.reparent(self.client.screen.root,
                     self.client.geom.x,
                     self.client.geom.y)
