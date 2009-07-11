@@ -266,3 +266,32 @@ def keysym_to_str(keysym):
     """
     return keysymdef.names.get(keysym, '')
 
+class ConversionError(Exception):
+    pass
+
+def keysym_to_char(keysym):
+    """
+        try to convert *keysym* (an `int`) to a character and return it as
+        an unicode string.
+        If it couldn't be converted or *keysym* is NoSymbol / VoidSymbol,
+        a :class:`ConversionError` is raised.
+        The approach is described in `http://www.cl.cam.ac.uk/~mgk25/ucs/X11.keysyms.pdf`.
+        It is able to convert latin-1, unicode and legacy keysyms. Special,
+        function and vendor keysyms will raise a :class:`ConversionError`.
+    """
+    # special keysyms
+    if keysym in (0, 0x00ffffff):
+        raise ConversionError("%d is a special keysym" % keysym)
+    # latin-1 keysyms
+    elif (0x0020 <= keysym <= 0x007e or 0x00a0 <= keysym <= 0x00ff):
+        return unichr(keysym)
+    # unicode keysyms
+    elif (0x01000100 <= keysym <= 0x0110ffff):
+        return unichr(keysym - 0x01000000)
+    # legacy keysyms
+    elif keysym in keysymdef.legacy_keysyms:
+        return unichr(keysymdef.legacy_keysyms[keysym])
+    # dunno!
+    else:
+        raise ConversionError("Unsupported keysym category or legacy keysym: %d" % keysym)
+
