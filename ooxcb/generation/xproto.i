@@ -820,6 +820,17 @@ Classes:
             code:
                 - "return cls.create(conn, screen.root, screen.root_depth, screen.root_visual, *args, **kwargs)"
 
+        # Convenience methods for the save set
+        - method:
+            name: add_to_save_set
+            code:
+                - "self.change_save_set_checked(SetMode.Insert).check()"
+
+        - method:
+            name: remove_from_save_set
+            code:
+                - "self.change_save_set_checked(SetMode.Delete).check()"
+
     Pixmap:
         - order: 100
         - base: Drawable
