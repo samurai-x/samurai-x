@@ -364,6 +364,7 @@ class Decorator(object):
             )):
             title_text = self.client.get_window_title().encode('utf-8') # <- TODO: is that too expensive?
             if title_text != self.title.text:
+                self.title.text = title_text
                 self.title.dirty()
 
     def on_handle_net_wm_state(self, present, atom, source_indication):

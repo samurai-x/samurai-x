@@ -301,7 +301,6 @@ class App(BaseApp):
         BaseApp.run(self)
 
 
-
 def parse_options():
     """
         Parse the command line options and return them. The command-line
