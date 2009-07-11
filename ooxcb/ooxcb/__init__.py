@@ -25,6 +25,8 @@
 
 import ctypes
 import time
+import sys
+
 from . import (libxcb, exception)
 from .conn import Connection
 from ooxcb.constant import *
@@ -32,6 +34,7 @@ from ooxcb.constant import *
 SETUP = None
 
 CORE = None
+CORE_MODULE = None
 CORE_EVENTS = {}
 CORE_ERRORS = {}
 
@@ -115,10 +118,11 @@ def _add_core(value, setup, events, errors):
         called by the core protocol module. Do not call it yourself
         and do not use two core modules :)
     """
-    global CORE, CORE_EVENTS, CORE_ERRORS, SETUP # eeeeeevil
+    global CORE, CORE_MODULE, CORE_EVENTS, CORE_ERRORS, SETUP # eeeeeevil
     # TODO: I skipped the error checking blah blah
     if CORE is not None:
-        raise XcbException("There is already a core module loaded (%s)" % CORE)
+        raise XcbException("There is already a core module loaded (%s, module %r)" % (CORE, CORE_MODULE))
+    CORE_MODULE = sys.modules[value.__module__]
     CORE = value
     CORE_EVENTS = events
     CORE_ERRORS = errors
