@@ -468,6 +468,7 @@ class Label(Window):
                     self.rx+self.rwidth - extents.width,
                     self.ry+(self.rheight/2)+(extents.height/2)
             )
+
         cairo.cairo_show_text(cr, self.text)
 
 

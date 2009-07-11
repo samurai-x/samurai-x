@@ -112,7 +112,8 @@ class Decorator(object):
     }
 
     default_title_style={
-        'text.color': (9, 9, 9),
+        'text.color': (1.0, 1.0, 1.0),
+        #'border.style': 'fill',
         #'border.color': (1, 0, 0),
         #'border.width': 1.0,
         'layout.margin': 1,
