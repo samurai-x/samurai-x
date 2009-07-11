@@ -445,31 +445,65 @@ class Label(Window):
             or not 'color' in text
             and text['color']):
             return 
+    
+        family = text.get('family', 'sans-serif')
+        weight = getattr(
+                cairo, 
+                'CAIRO_FONT_WEIGHT_' + text.get('weight', 'normal').upper(), 
+                cairo.CAIRO_FONT_WEIGHT_NORMAL,
+        )
+        slant = getattr(
+                cairo,
+                'CAIRO_FONT_SLANT_' + text.get('slant', 'normal').upper(),
+                cairo.CAIRO_FONT_SLANT_NORMAL,
+        )
+        cairo.cairo_select_font_face(cr, family, weight, slant)
+
+        lines = self.text.split('\n')
+
+        valign = text.get('vertical-align', 'top')
+        assert valign in ('top', 'middle', 'bottom')
+
+        extents = cairo.cairo_font_extents_t()
+        cairo.cairo_font_extents(cr, byref(extents))
+        line_height = extents.height
+        total_height = len(lines) * line_height
+        y = self.ry
+
+        if valign == 'top':
+            y = self.ry + line_height
+        elif valign == 'middle':
+            y = self.ry + (self.rheight / 2) - (total_height / 2)
+        elif valign == 'bottom':
+            y = self.ry + self.rheight - total_height
 
         extents = cairo.cairo_text_extents_t()
-        cairo.cairo_text_extents(cr, self.text, byref(extents))
 
-        cairo.cairo_set_source_rgb(cr, *text['color'])
+        for line in lines:
+            cairo.cairo_text_extents(cr, line, byref(extents))
 
-        align = text.get('align', 'centre')
-        assert align in ('left', 'centre', 'right')
-        if align == 'centre':
-            cairo.cairo_move_to(cr, 
-                    self.rx+(self.rwidth/2)-(extents.width/2), 
-                    self.ry+(self.rheight/2)+(extents.height/2)
-            )
-        elif align == 'left':
-            cairo.cairo_move_to(cr,
-                    self.rx,
-                    self.ry+(self.rheight/2)+(extents.height/2)
-            )
-        elif align == 'right':
-            cairo.cairo_move_to(cr,
-                    self.rx+self.rwidth - extents.width,
-                    self.ry+(self.rheight/2)+(extents.height/2)
-            )
+            cairo.cairo_set_source_rgb(cr, *text['color'])
 
-        cairo.cairo_show_text(cr, self.text)
+            align = text.get('align', 'centre')
+            assert align in ('left', 'centre', 'right')
+            if align == 'centre':
+                cairo.cairo_move_to(cr, 
+                        self.rx+(self.rwidth/2)-(extents.width/2), 
+                        y
+                )
+            elif align == 'left':
+                cairo.cairo_move_to(cr,
+                        self.rx,
+                        y
+                )
+            elif align == 'right':
+                cairo.cairo_move_to(cr,
+                        self.rx+self.rwidth - extents.width,
+                        y
+                )
+
+            cairo.cairo_show_text(cr, line)
+            y += line_height
 
 
 class Input(Label):

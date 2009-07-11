@@ -99,7 +99,7 @@ class Decorator(object):
             (0.7, 0.7, 0.7, 0.75),
             (1.0, 0.4, 0.4, 0.4),
         ],
-        'border.color': (1, 1, 1),
+        'border.color': (1.0, 1.0, 1.0),
         'border.style': 'gradient',
         'border.fill-line': (0.0, 0.0, 0.0, 200.0),
         'border.fill-stops': [

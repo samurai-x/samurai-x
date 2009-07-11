@@ -207,7 +207,9 @@ class StatusBar(object):
         )
 
         self.win.ewmh_set_window_name('yahiko-statusbar')
-        self.win.change_property('WM_CLASS', 'STRING', 8, List.from_string('yahiko-statusbar'))
+        self.win.change_property('WM_CLASS', 'STRING', 8, 
+                List.from_string('yahiko-statusbar'))
+
         self.win.change_property('_NET_WM_DESKTOP', 'CARDINAL', 32, [0xffffffffL])
 
         self.win.change_property('_NET_WM_WINDOW_TYPE', 'ATOM', 32,
