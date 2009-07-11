@@ -18,6 +18,10 @@ to_install = [
 to_install.extend(p for p in iglob('sx-*')
         if os.path.exists(os.path.join(p, 'setup.py')) and not p.startswith('sx-allplugins'))
 
+for to_remove in ('sx-client', ):
+    if to_remove in to_install:
+        to_install.remove(to_remove)
+
 print "will install: ", ", ".join(to_install)
 
 extra_text = """
@@ -36,7 +40,7 @@ for module in to_install:
     dev_installs_text.append("    print home_dir")
     dev_installs_text.append("    os.chdir('%s')" % module)
     dev_installs_text.append("    print str(([os.path.normpath(join('..', home_dir, 'bin', 'python')), 'setup.py', 'develop']))")
-    dev_installs_text.append("    subprocess.call([os.path.normpath(join('..', home_dir, 'bin', 'python')), 'setup.py', 'develop'])")
+    dev_installs_text.append("    subprocess.call([os.path.normpath(join('..', home_dir, 'bin', 'python')), 'setup.py', 'develop', '--no-deps'])")
     dev_installs_text.append("    os.chdir('..')")
 
 open('bootstrap.py', 'w').write(virtualenv.create_bootstrap_script(extra_text + "\n".join(installs_text)))
