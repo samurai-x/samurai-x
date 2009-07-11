@@ -116,6 +116,7 @@ class Decorator(object):
         #'border.color': (1, 0, 0),
         #'border.width': 1.0,
         'layout.margin': 1,
+        'clip': True,
     }
 
     default_clientwindow_style={

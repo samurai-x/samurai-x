@@ -90,10 +90,6 @@ class Window(EventDispatcher):
         self.rwidth = width
         self.rheight = height 
 
-    def setup_clip(self, cr):
-        cairo.cairo_rectangle(cr, self.rx, self.ry, self.rwidth, self.rheight)
-        cairo.cairo_clip(cr)
-
     def render(self, cr):
         assert None not in (self.rx, self.ry, self.rwidth, self.rheight), self
 
@@ -102,6 +98,21 @@ class Window(EventDispatcher):
         if not style:
             return 
 
+        needs_restore = False
+
+        if 'clip' in style and style['clip']:
+            cairo.cairo_save(cr)
+            needs_restore = True
+            cairo.cairo_rectangle(cr, self.rx, self.ry, self.rwidth, self.rheight)
+            cairo.cairo_clip(cr)
+
+        self._render(cr)
+
+        if needs_restore:
+            cairo.cairo_restore(cr)
+
+    def _render(self, cr):
+        style = self.style
         if 'background.style' in style: 
             cairo.cairo_rectangle(cr, self.rx, self.ry, self.rwidth, self.rheight)
 
@@ -148,6 +159,7 @@ class Window(EventDispatcher):
             cairo.cairo_set_line_width(cr, style.get('width', 1.0))
             cairo.cairo_rectangle(cr, self.rx, self.ry, self.rwidth, self.rheight)
             cairo.cairo_stroke(cr)
+
 
     def hit(self, x, y):
         return (x > self.rx and 
@@ -423,8 +435,8 @@ class Label(Window):
         self.text = text
         Window.__init__(self, **kwargs)
 
-    def render(self, cr):
-        Window.render(self, cr)
+    def _render(self, cr):
+        Window._render(self, cr)
         
         text = DictProxy(self.style, 'text.')
         if (not self.style
