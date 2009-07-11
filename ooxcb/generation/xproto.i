@@ -60,6 +60,8 @@ Xizers:
         type: values
         enum_name: ConfigWindow
         values_dict_name: values
+        xize:
+            - sibling
 
     PointerMap:
         type: seq

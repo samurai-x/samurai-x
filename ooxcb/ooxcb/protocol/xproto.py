@@ -4107,7 +4107,7 @@ class Window(Drawable):
             value_list.append(values["border_width"])
         if "sibling" in values:
             value_mask |= 32
-            value_list.append(values["sibling"])
+            value_list.append(get_internal(values["sibling"]))
         if "stack_mode" in values:
             value_mask |= 64
             value_list.append(values["stack_mode"])
@@ -4144,7 +4144,7 @@ class Window(Drawable):
             value_list.append(values["border_width"])
         if "sibling" in values:
             value_mask |= 32
-            value_list.append(values["sibling"])
+            value_list.append(get_internal(values["sibling"]))
         if "stack_mode" in values:
             value_mask |= 64
             value_list.append(values["stack_mode"])
