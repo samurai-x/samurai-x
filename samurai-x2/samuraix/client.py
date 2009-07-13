@@ -443,9 +443,14 @@ class Client(SXObject):
             prints a debug message to the logs and calls
             :meth:`process_netwm_client_message`.
         """
-        log.debug('Got client message event: %s, data32: %s' %
-                (evt.type.get_name().reply().name, evt.data.data32))
-        self.process_netwm_client_message(evt)
+        # some like to send us client message events with type = None oO
+        if evt.type is not None:
+            log.debug('Got client message event: %s, data32: %s' %
+                    (evt.type.get_name().reply().name, evt.data.data32))
+            self.process_netwm_client_message(evt)
+        else:
+            log.debug('Got an unknown client message event; ignoring. data32: %s' %
+                    evt.data.data32)
 
     def actor_on_configure_notify(self, evt):
         """
@@ -559,7 +564,7 @@ class Client(SXObject):
         state = xproto.WMState.Withdrawn if withdrawn else xproto.WMState.Iconic
         self.window.change_property(
                 'WM_STATE',
-                'CARDINAL',
+                'WM_STATE',
                 32,
                 [state, 0]) # TODO: icon window?
         if hidden:
@@ -588,7 +593,7 @@ class Client(SXObject):
         self.actor.map()
         self.window.change_property(
                 'WM_STATE',
-                'CARDINAL',
+                'WM_STATE',
                 32,
                 [xproto.WMState.Normal, 0]) # TODO: icon window?
         self.remove_net_wm_state('_NET_WM_STATE_HIDDEN')

@@ -51,7 +51,7 @@ def icccm_get_wm_state(window):
         return a :class:`WMState` instance or None if
         there is no `WM_STATE` property.
     """
-    prop = window.get_property('WM_STATE', 'CARDINAL').reply()
+    prop = window.get_property('WM_STATE', 'WM_STATE').reply()
     if not prop.exists:
         return None
     else:

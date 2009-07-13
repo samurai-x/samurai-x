@@ -194,7 +194,7 @@ class App(BaseApp):
         log.info('Got a property notify event ... %s' % \
                 ev.atom.get_name().reply().name)
 
-    def on_screen_new(self, screen):
+    def on_new_screen(self, screen):
         # set the supported hints 
         screen.set_supported_hints(self.supported_hints)
 
