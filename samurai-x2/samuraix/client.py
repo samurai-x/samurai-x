@@ -289,7 +289,9 @@ class Client(SXObject):
         """
         if self.window.icccm_get_wm_state().state != xproto.WMState.Normal:
             self.user_unban()
-        self.screen.focus(self)
+            # `user_unban` will call `focus` already
+        else:
+            self.screen.focus(self)
 
     def msg_change_state(self, evt):
         """
