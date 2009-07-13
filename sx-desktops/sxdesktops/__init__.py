@@ -288,6 +288,7 @@ class Desktop(SXObject):
             is requesting to change the desktop of the client.
         """
         client = Client.get_by_window(evt.window)
+        desktops = self.plugin.get_data(self.screen).desktops
         if client: # but shouldnt ever be invalid.
             new_idx = evt.data.data32[0]
             if new_idx == self.idx: # doesn't change anything, so don't do anything.
