@@ -92,6 +92,7 @@ from samuraix import config
 from samuraix.client import Client
 from samuraix.plugin import Plugin
 from ooxcb.list import List
+from ooxcb.protocol import xproto
 from ooxcb.eventsys import EventDispatcher
 from samuraix.base import SXObject
 
@@ -114,8 +115,10 @@ class FocusStack(list):
         self.conn = conn 
         list.__init__(self, *args)
 
-    def sort(self):
-        list.sort(self, cmp = self._sort)
+    def x_sort(self):
+        print "x_sort", self
+        self.sort(cmp=self._sort)
+        print "after x_xort", self
 
     def _sort(self, client_a, client_b):
         # from: 
@@ -167,7 +170,7 @@ class FocusStack(list):
             and self.conn.atoms['_NET_WM_STATE_FULLSCREEN'] in client_b.state):
             return 1
 
-        # TODO should compare x stacking order here?
+        print id(self), "after sort", self
 
         return 0
 
@@ -176,7 +179,9 @@ class FocusStack(list):
         # TODO make this much more clever... we just need to loop to the 
         # right point 
         list.append(self, client)
-        #self.sort()
+        print id(self), "append", self
+        self.x_sort()
+        self.update_x_stack()
         
     def move_to_top(self, client):
         if self.current() is client:
@@ -186,6 +191,16 @@ class FocusStack(list):
             self.append(client)
         except IndexError:
             log.warn('cant move client %s to top! not in list!' % client)
+        self.x_sort()
+        self.update_x_stack()
+
+    def update_x_stack(self):
+        for idx, client in enumerate(self[:-1]):
+            client.actor.configure( 
+                    stack_mode=xproto.StackMode.Below, 
+                    sibling=self[idx + 1].actor,
+            )
+        self.conn.flush()
 
     def prev(self):
         c = self.pop(-1)

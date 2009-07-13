@@ -624,8 +624,8 @@ class Client(SXObject):
         # grab the input focus
         self.set_input_focus()
         # set it abvoe
-        if bring_forward:
-            self.actor.configure(stack_mode=xproto.StackMode.Above)
+        #if bring_forward:
+        #    self.actor.configure(stack_mode=xproto.StackMode.Above)
     
         self.conn.flush()
 
