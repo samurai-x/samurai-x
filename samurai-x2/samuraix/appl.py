@@ -47,6 +47,32 @@ class App(BaseApp):
 
         Every builtin samurai-x object should have an `app` member you
         can access.
+
+        Events:
+
+        .. function:: on_load_config(config)
+            :module:
+
+            Dispatched when the configuration is loaded. Theoretically, that
+            can happen multiple times in one run, and plugins should reload
+            their config when receiving it.
+
+        .. function:: on_new_screen(screen)
+            :module:
+
+            Dispatched when a screen was discovered. That only happens in the
+            initialization phase of samurai-x2, and most likely there will
+            only be one screen.
+
+        .. function:: on_ready(app)
+            :module:
+
+            Dispatched when all initialization is done (i.e. after having
+            dispatched :func:`on_new_screen`), but before any clients
+            are managed.
+
+        Members:
+
     """
     def __init__(self, synchronous_check=False, replace_existing_wm=False):
         """

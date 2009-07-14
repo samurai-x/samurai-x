@@ -45,9 +45,7 @@ NET_WM_STATE_TOGGLE = 2
 class Client(SXObject):
     """
         A client is managing an X top-level window. samurai-x2 has the concept
-        of windows and actors.
-
-        :todo: explain / link to explanation
+        of windows and actors (see :ref:`client-concept`)
 
         .. data:: all_clients
 
@@ -67,6 +65,45 @@ class Client(SXObject):
 
             The foreign top-level window, as explained in the
             :ref:`client-concept`.
+
+        Events:
+
+        .. function:: on_before_focus(client)
+            :module:
+
+            Dispatched in :meth:`focus` before anything is done.
+
+        .. function:: on_focus(client)
+            :module:
+
+            Dispatched in :meth:`focus` after the client was focused.
+
+        .. function:: on_blur(client)
+            :module:
+
+            Dispatched in :meth:`blur`. The client is not focused anymore.
+
+        .. function:: on_handle_net_wm_state(client, present, atom, source_indication)
+            :module:
+
+            Dispatched in :meth:`msg_wm_state` if a `_NET_WM_STATE` client
+            message was received. You can implement new handlers for such
+            client messages using this event.
+            *present* is a bool value - True if the atom is now included in the
+            window's state, False if it is not.
+
+        .. function:: on_removed(client)
+            :module:
+
+            Dispatched when the client's foreign window was destroyed.
+
+        .. function:: on_updated_geom(client)
+            :module:
+
+            Dispatched when the client's geometry (the :attr:`geom` attribute)
+            was updated.
+
+        Members:
 
     """
     all_clients = []
@@ -349,10 +386,10 @@ class Client(SXObject):
                     self.state.add(second)
         # TODO: a funny 'else' ...?
         self.update_net_wm_state()
-        self.dispatch_event('on_handle_net_wm_state',
+        self.dispatch_event('on_handle_net_wm_state', self,
                 first in self.state, first, source_indication)
         if second is not None:
-            self.dispatch_event('on_handle_net_wm_state',
+            self.dispatch_event('on_handle_net_wm_state', self,
                     second in self.state, second, source_indication)
 
     @property
@@ -383,7 +420,7 @@ class Client(SXObject):
         else:
             log.debug('map notify with unknown transition')
 
-    def on_handle_net_wm_state(self, present, atom, source_indication):
+    def on_handle_net_wm_state(self, client, present, atom, source_indication):
         """
             Default event handler: handles _NET_WM_STATE_HIDDEN!
         """
