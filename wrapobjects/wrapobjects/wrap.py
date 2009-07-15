@@ -71,7 +71,7 @@ class CtypesWrapper(CtypesParser, CtypesTypeVisitor):
             for pattern, repl in synonyms:
                 new_name, subs = re.subn(pattern, repl, name)
                 if subs:
-                    self.all_names.remove(name)
+                    #self.all_names.remove(name) # TODO: I don't think we should remove the original ones. Trouble with link_modules if we do.
                     self.all_names.append(new_name)
                     print >>self.file, "%s = %s" % (new_name, name)
                     break
@@ -134,9 +134,10 @@ class CtypesWrapper(CtypesParser, CtypesTypeVisitor):
         self.linked_symbols = {}
         for name in link_modules:
             module = __import__(name, globals(), locals(), ['foo'])
-            for symbol in dir(module):
+            for symbol in module.__all__:
                 if symbol not in self.linked_symbols:
                     self.linked_symbols[symbol] = '%s.%s' % (name, symbol)
+
         self.link_modules = link_modules
 
         self.print_preamble()
@@ -294,22 +295,25 @@ class CtypesWrapper(CtypesParser, CtypesTypeVisitor):
 
     def handle_ctypes_function(self, name, restype, argtypes, vararg, filename, lineno):
         if self.does_emit(name, filename):
-            # Also emit any types this func requires that haven't yet been
-            # written.
-            self.emit_type(restype)
-            for a in argtypes:
-                self.emit_type(a)
+            if name in self.linked_symbols:
+                print >> self.file, '%s = %s' % (name, self.linked_symbols[name])
+            else:
+                # Also emit any types this func requires that haven't yet been
+                # written.
+                self.emit_type(restype)
+                for a in argtypes:
+                    self.emit_type(a)
 
-            self.all_names.append(name)
-            print >> self.file, '# %s:%d' % (filename, lineno)
-            print >> self.file, '%s = _lib.%s' % (name, name)
-            print >> self.file, '%s.restype = %s' % (name, str(restype))
-            print >> self.file, '%s.argtypes = [%s]' % \
-                (name, ', '.join([str(a) for a in argtypes]))
-            print >> self.file
+                self.all_names.append(name)
+                print >> self.file, '# %s:%d' % (filename, lineno)
+                print >> self.file, '%s = _lib.%s' % (name, name)
+                print >> self.file, '%s.restype = %s' % (name, str(restype))
+                print >> self.file, '%s.argtypes = [%s]' % \
+                    (name, ', '.join([str(a) for a in argtypes]))
+                print >> self.file
 
-            # and now ... the object oriented wrapping stuff!
-            self.wrap_function(name, restype, argtypes, vararg)
+                # and now ... the object oriented wrapping stuff!
+                self.wrap_function(name, restype, argtypes, vararg)
 
     def handle_ctypes_variable(self, name, ctype, filename, lineno):
         # This doesn't work.

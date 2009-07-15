@@ -58,6 +58,13 @@ class CodegenBase(object):
         """
         raise NotImplementedError()
 
+class DummyCodegen(CodegenBase):
+    def generate_code(self):
+        return ''
+
+    def generate_docs(self):
+        return ''
+
 def transform(src):
     result = []
     queue = []
