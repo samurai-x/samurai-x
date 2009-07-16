@@ -17,13 +17,18 @@ with wrap(
             ('PangoContext', 'Context'),
             ('PangoLayout', 'Layout'),
             ('PangoFontDescription', 'FontDescription'),
+            ('PangoFontMap', 'FontMap'),
+            ('PangoCairoFontMap', 'CairoFontMap'),
             )
-    w.wrappers['POINTER(cairo_t)'] = DummyCodegen(name='cairo_t') # <- hacky, to get pango_cairo_* working
+    w.wrappers['POINTER(cairo_t)'] = DummyCodegen(name='cairo.Context') # <- hacky, to get pango_cairo_* working
+
+    w.get_pyclass('CairoFontMap').base = 'FontMap'
 
     w.add_init_redirects(
             ('Context', 'Context.new'),
             ('Layout', 'Layout.new'),
             ('FontDescription', 'FontDescription.new'),
+            ('CairoFontMap', 'CairoFontMap.new'),
             )
 
     w.add_rules(
@@ -37,6 +42,11 @@ with wrap(
 
             regex_method(r'pango_font_description_(.*)', 'FontDescription'),
             regex_classmethod(r'pango_font_description_(new|from_string)$', 'FontDescription'),
+
+            regex_method(r'pango_font_map_(.*)', 'FontMap'),
+
+            regex_method(r'pango_cairo_font_map_(.*)', 'CairoFontMap'),
+            regex_classmethod(r'pango_cairo_font_map_(new|new_for_font_type)$', 'CairoFontMap'),
             )
 
     w.add_wrappers_visitor(make_properties)

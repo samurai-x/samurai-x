@@ -2651,10 +2651,10 @@ class Context(_Wrapper):
         return Context._from_internal(pango_context_new())
 
     def set_font_map(self, arg1):
-        return pango_context_set_font_map(self._internal, arg1)
+        return pango_context_set_font_map(self._internal, arg1._internal)
 
     def get_font_map(self):
-        return pango_context_get_font_map(self._internal)
+        return FontMap._from_internal(pango_context_get_font_map(self._internal))
 
     def list_families(self, arg1, arg2):
         return pango_context_list_families(self._internal, arg1, arg2)
@@ -3004,6 +3004,52 @@ class FontDescription(_Wrapper):
     absolute_size = property(None, set_absolute_size)
     gravity = property(get_gravity, set_gravity)
     set_fields = property(get_set_fields)
+
+class FontMap(_Wrapper):
+    def create_context(self):
+        return Context._from_internal(pango_font_map_create_context(self._internal))
+
+    def load_font(self, arg1, arg2):
+        return pango_font_map_load_font(self._internal, arg1._internal, arg2._internal)
+
+    def load_fontset(self, arg1, arg2, arg3):
+        return pango_font_map_load_fontset(self._internal, arg1._internal, arg2._internal, arg3)
+
+    def list_families(self, arg1, arg2):
+        return pango_font_map_list_families(self._internal, arg1, arg2)
+
+class CairoFontMap(FontMap):
+    @classmethod
+    def new(self):
+        return CairoFontMap._from_internal(pango_cairo_font_map_new())
+
+    @classmethod
+    def new_for_font_type(self, arg0):
+        return CairoFontMap._from_internal(pango_cairo_font_map_new_for_font_type(arg0))
+
+    def get_default(self):
+        return FontMap._from_internal(pango_cairo_font_map_get_default())
+
+    def set_default(self):
+        return pango_cairo_font_map_set_default(self._internal)
+
+    def get_font_type(self):
+        return pango_cairo_font_map_get_font_type(self._internal)
+
+    def set_resolution(self, arg1):
+        return pango_cairo_font_map_set_resolution(self._internal, arg1)
+
+    def get_resolution(self):
+        return pango_cairo_font_map_get_resolution(self._internal)
+
+    def create_context(self):
+        return Context._from_internal(pango_cairo_font_map_create_context(self._internal))
+
+    def __init__(self, *args, **kwargs):
+        self._internal = CairoFontMap.new(*args, **kwargs)._internal
+
+    font_type = property(get_font_type)
+    resolution = property(get_resolution, set_resolution)
 
 
 COVERAGE_NONE = PANGO_COVERAGE_NONE
@@ -3835,4 +3881,5 @@ __all__ = ['PangoCoverage', 'PangoCoverageLevel', 'PANGO_COVERAGE_NONE',
 'cairo_update_layout', 'cairo_show_glyph_string', 'cairo_show_glyph_item',
 'cairo_show_layout_line', 'cairo_show_layout', 'cairo_show_error_underline',
 'cairo_glyph_string_path', 'cairo_layout_line_path', 'cairo_layout_path',
-'cairo_error_underline_path', 'Context', 'Layout', 'FontDescription']
+'cairo_error_underline_path', 'Context', 'Layout', 'FontDescription',
+'FontMap', 'CairoFontMap']
