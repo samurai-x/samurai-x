@@ -10,11 +10,22 @@ __docformat__ =  'restructuredtext'
 __version__ = '$Id: wrap.py 1694 2008-01-30 23:12:00Z Alex.Holkner $'
 
 import ctypes
+import ctypes.util
 from ctypes import *
 
-import pyglet.lib
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from StringIO import StringIO
 
-_lib = pyglet.lib.load_library('cairo')
+def load_lib(name):
+    libname = ctypes.util.find_library(name)
+    if not libname:
+        raise OSError("Could not find library '%s'" % name)
+    else:
+        return CDLL(libname)
+
+_lib = load_lib('cairo')
 
 _int_types = (c_int16, c_int32)
 if hasattr(ctypes, 'c_int64'):
@@ -1701,11 +1712,36 @@ struct_xcb_screen_t._fields_ = [
     ('allowed_depths_len', c_uint8),
 ]
 
+_cairo_xcb_surface_create = _lib.cairo_xcb_surface_create
+_cairo_xcb_surface_create.restype = POINTER(cairo_surface_t)
+_cairo_xcb_surface_create.argtypes = [POINTER(xcb_connection_t), xcb_drawable_t, c_void_p, c_int, c_int]
+
+def cairo_xcb_surface_create(conn, drawable, visualtype, width, height):
+    stream = StringIO()
+    visualtype.build(stream)
+    buffer = stream.getvalue()
+    visualtype_data = cast(create_string_buffer(buffer, len(buffer)), c_void_p)
+    return _cairo_xcb_surface_create(
+            conn.conn,
+            drawable.get_internal(),
+            visualtype_data,
+            width,
+            height)
+
+def cairo_xcb_surface_create_for_bitmap(conn, pixmap, screen, width, height):
+    stream = StringIO()
+    screen.build(stream)
+    buffer = stream.getvalue()
+    screen_data = cast(create_string_buffer(buffer, len(buffer)), c_void_p)
+    return _cairo_xcb_surface_create_for_bitmap(
+            conn.conn,
+            pixmap.get_internal(),
+            screen_data,
+            width,
+            height)
+
+
 xcb_screen_t = struct_xcb_screen_t 	# /usr/include/xcb/xproto.h:339
-# /usr/include/cairo/cairo-xcb.h:55
-cairo_xcb_surface_create_for_bitmap = _lib.cairo_xcb_surface_create_for_bitmap
-cairo_xcb_surface_create_for_bitmap.restype = POINTER(cairo_surface_t)
-cairo_xcb_surface_create_for_bitmap.argtypes = [POINTER(xcb_connection_t), xcb_pixmap_t, POINTER(xcb_screen_t), c_int, c_int]
 
 # /usr/include/cairo/cairo-xcb.h:63
 cairo_xcb_surface_set_size = _lib.cairo_xcb_surface_set_size
