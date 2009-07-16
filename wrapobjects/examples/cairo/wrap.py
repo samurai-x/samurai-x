@@ -8,6 +8,7 @@ from wrapobjects.properties import make_properties
 with wrap(
         ('/usr/include/cairo/cairo-xcb.h', '/usr/include/cairo/cairo.h'),
         output='cairo.py',
+        link_modules=['ooxcb.libxcb'],
         library='cairo'
         ) as w:
     w.add_pointer_class_wrappers(
