@@ -25,6 +25,46 @@ def fail(wrapper, name, restype, argtypes, varargs):
 def succeed(wrapper, name, restype, argtypes, varargs):
     return True
 
+def function(wrapper, name, restype, argtypes, varargs):
+    args_in = []
+    args_out = []
+    ret_wrapper = wrapper.get_wrapper(str(restype))
+
+    for idx, param in enumerate(argtypes):
+        argname = 'arg%d' % idx
+        if wrapper.get_wrapper(str(param)):
+            args_out.append('%s._internal' % argname)
+        else:
+            args_out.append(argname)
+        args_in.append(argname)
+
+    # if there are no arguments that need to be wrapped, skip it.
+    if args_in == args_out:
+        return False
+
+    print >> wrapper.file, '_%s = %s' % (name, name)
+
+    s = '%s = lambda ' % name
+    s += ', '.join(args_in)
+    if varargs:
+        s += ', *args'
+    s += ': '
+    if ret_wrapper:
+        s += '%s._from_internal(' % ret_wrapper.name
+    s += '_' + name
+    s += '('
+    s += ', '.join(args_out)
+    if varargs:
+        s += ', *args'
+    s += ')'
+    if ret_wrapper:
+        s += ')'
+
+    print >> wrapper.file, s
+    print >> wrapper.file
+
+    return True
+
 class method(object):
     def __init__(self, clsname, name_regex, self_arg=0):
         self.clsname = clsname

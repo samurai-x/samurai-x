@@ -2507,85 +2507,136 @@ pango_cairo_update_context = _lib.pango_cairo_update_context
 pango_cairo_update_context.restype = None
 pango_cairo_update_context.argtypes = [POINTER(cairo_t), POINTER(PangoContext)]
 
+_pango_cairo_update_context = pango_cairo_update_context
+pango_cairo_update_context = lambda arg0, arg1: _pango_cairo_update_context(arg0._internal, arg1._internal)
+
 # pango-new.h:2923
 pango_cairo_context_set_font_options = _lib.pango_cairo_context_set_font_options
 pango_cairo_context_set_font_options.restype = None
 pango_cairo_context_set_font_options.argtypes = [POINTER(PangoContext), POINTER(cairo_font_options_t)]
+
+_pango_cairo_context_set_font_options = pango_cairo_context_set_font_options
+pango_cairo_context_set_font_options = lambda arg0, arg1: _pango_cairo_context_set_font_options(arg0._internal, arg1)
 
 # pango-new.h:2925
 pango_cairo_context_get_font_options = _lib.pango_cairo_context_get_font_options
 pango_cairo_context_get_font_options.restype = POINTER(cairo_font_options_t)
 pango_cairo_context_get_font_options.argtypes = [POINTER(PangoContext)]
 
+_pango_cairo_context_get_font_options = pango_cairo_context_get_font_options
+pango_cairo_context_get_font_options = lambda arg0: _pango_cairo_context_get_font_options(arg0._internal)
+
 # pango-new.h:2927
 pango_cairo_context_set_resolution = _lib.pango_cairo_context_set_resolution
 pango_cairo_context_set_resolution.restype = None
 pango_cairo_context_set_resolution.argtypes = [POINTER(PangoContext), c_double]
+
+_pango_cairo_context_set_resolution = pango_cairo_context_set_resolution
+pango_cairo_context_set_resolution = lambda arg0, arg1: _pango_cairo_context_set_resolution(arg0._internal, arg1)
 
 # pango-new.h:2929
 pango_cairo_context_get_resolution = _lib.pango_cairo_context_get_resolution
 pango_cairo_context_get_resolution.restype = c_double
 pango_cairo_context_get_resolution.argtypes = [POINTER(PangoContext)]
 
+_pango_cairo_context_get_resolution = pango_cairo_context_get_resolution
+pango_cairo_context_get_resolution = lambda arg0: _pango_cairo_context_get_resolution(arg0._internal)
+
 # pango-new.h:2940
 pango_cairo_create_context = _lib.pango_cairo_create_context
 pango_cairo_create_context.restype = POINTER(PangoContext)
 pango_cairo_create_context.argtypes = [POINTER(cairo_t)]
+
+_pango_cairo_create_context = pango_cairo_create_context
+pango_cairo_create_context = lambda arg0: Context._from_internal(_pango_cairo_create_context(arg0._internal))
 
 # pango-new.h:2941
 pango_cairo_create_layout = _lib.pango_cairo_create_layout
 pango_cairo_create_layout.restype = POINTER(PangoLayout)
 pango_cairo_create_layout.argtypes = [POINTER(cairo_t)]
 
+_pango_cairo_create_layout = pango_cairo_create_layout
+pango_cairo_create_layout = lambda arg0: Layout._from_internal(_pango_cairo_create_layout(arg0._internal))
+
 # pango-new.h:2942
 pango_cairo_update_layout = _lib.pango_cairo_update_layout
 pango_cairo_update_layout.restype = None
 pango_cairo_update_layout.argtypes = [POINTER(cairo_t), POINTER(PangoLayout)]
+
+_pango_cairo_update_layout = pango_cairo_update_layout
+pango_cairo_update_layout = lambda arg0, arg1: _pango_cairo_update_layout(arg0._internal, arg1._internal)
 
 # pango-new.h:2948
 pango_cairo_show_glyph_string = _lib.pango_cairo_show_glyph_string
 pango_cairo_show_glyph_string.restype = None
 pango_cairo_show_glyph_string.argtypes = [POINTER(cairo_t), POINTER(PangoFont), POINTER(PangoGlyphString)]
 
+_pango_cairo_show_glyph_string = pango_cairo_show_glyph_string
+pango_cairo_show_glyph_string = lambda arg0, arg1, arg2: _pango_cairo_show_glyph_string(arg0._internal, arg1, arg2)
+
 # pango-new.h:2951
 pango_cairo_show_glyph_item = _lib.pango_cairo_show_glyph_item
 pango_cairo_show_glyph_item.restype = None
 pango_cairo_show_glyph_item.argtypes = [POINTER(cairo_t), c_char_p, POINTER(PangoGlyphItem)]
+
+_pango_cairo_show_glyph_item = pango_cairo_show_glyph_item
+pango_cairo_show_glyph_item = lambda arg0, arg1, arg2: _pango_cairo_show_glyph_item(arg0._internal, arg1, arg2)
 
 # pango-new.h:2954
 pango_cairo_show_layout_line = _lib.pango_cairo_show_layout_line
 pango_cairo_show_layout_line.restype = None
 pango_cairo_show_layout_line.argtypes = [POINTER(cairo_t), POINTER(PangoLayoutLine)]
 
+_pango_cairo_show_layout_line = pango_cairo_show_layout_line
+pango_cairo_show_layout_line = lambda arg0, arg1: _pango_cairo_show_layout_line(arg0._internal, arg1)
+
 # pango-new.h:2956
 pango_cairo_show_layout = _lib.pango_cairo_show_layout
 pango_cairo_show_layout.restype = None
 pango_cairo_show_layout.argtypes = [POINTER(cairo_t), POINTER(PangoLayout)]
+
+_pango_cairo_show_layout = pango_cairo_show_layout
+pango_cairo_show_layout = lambda arg0, arg1: _pango_cairo_show_layout(arg0._internal, arg1._internal)
 
 # pango-new.h:2959
 pango_cairo_show_error_underline = _lib.pango_cairo_show_error_underline
 pango_cairo_show_error_underline.restype = None
 pango_cairo_show_error_underline.argtypes = [POINTER(cairo_t), c_double, c_double, c_double, c_double]
 
+_pango_cairo_show_error_underline = pango_cairo_show_error_underline
+pango_cairo_show_error_underline = lambda arg0, arg1, arg2, arg3, arg4: _pango_cairo_show_error_underline(arg0._internal, arg1, arg2, arg3, arg4)
+
 # pango-new.h:2968
 pango_cairo_glyph_string_path = _lib.pango_cairo_glyph_string_path
 pango_cairo_glyph_string_path.restype = None
 pango_cairo_glyph_string_path.argtypes = [POINTER(cairo_t), POINTER(PangoFont), POINTER(PangoGlyphString)]
+
+_pango_cairo_glyph_string_path = pango_cairo_glyph_string_path
+pango_cairo_glyph_string_path = lambda arg0, arg1, arg2: _pango_cairo_glyph_string_path(arg0._internal, arg1, arg2)
 
 # pango-new.h:2971
 pango_cairo_layout_line_path = _lib.pango_cairo_layout_line_path
 pango_cairo_layout_line_path.restype = None
 pango_cairo_layout_line_path.argtypes = [POINTER(cairo_t), POINTER(PangoLayoutLine)]
 
+_pango_cairo_layout_line_path = pango_cairo_layout_line_path
+pango_cairo_layout_line_path = lambda arg0, arg1: _pango_cairo_layout_line_path(arg0._internal, arg1)
+
 # pango-new.h:2973
 pango_cairo_layout_path = _lib.pango_cairo_layout_path
 pango_cairo_layout_path.restype = None
 pango_cairo_layout_path.argtypes = [POINTER(cairo_t), POINTER(PangoLayout)]
 
+_pango_cairo_layout_path = pango_cairo_layout_path
+pango_cairo_layout_path = lambda arg0, arg1: _pango_cairo_layout_path(arg0._internal, arg1._internal)
+
 # pango-new.h:2976
 pango_cairo_error_underline_path = _lib.pango_cairo_error_underline_path
 pango_cairo_error_underline_path.restype = None
 pango_cairo_error_underline_path.argtypes = [POINTER(cairo_t), c_double, c_double, c_double, c_double]
+
+_pango_cairo_error_underline_path = pango_cairo_error_underline_path
+pango_cairo_error_underline_path = lambda arg0, arg1, arg2, arg3, arg4: _pango_cairo_error_underline_path(arg0._internal, arg1, arg2, arg3, arg4)
 
 class _Wrapper(object):
     @classmethod

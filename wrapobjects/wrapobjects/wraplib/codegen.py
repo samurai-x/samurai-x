@@ -59,6 +59,9 @@ class CodegenBase(object):
         raise NotImplementedError()
 
 class DummyCodegen(CodegenBase):
+    def __init__(self, **attrib):
+        self.__dict__.update(attrib)
+
     def generate_code(self):
         return ''
 

@@ -4,7 +4,7 @@ sys.path.insert(0, '../cairo')
 
 from wrapobjects.wrap import wrap
 from wrapobjects.wraplib.codegen import transform, DummyCodegen
-from wrapobjects.oo import regex_method, regex_classmethod, argument_tag, succeed, regex_match
+from wrapobjects.oo import regex_method, regex_classmethod, argument_tag, succeed, regex_match, function
 from wrapobjects.properties import make_properties
 
 with wrap(
@@ -18,6 +18,7 @@ with wrap(
             ('PangoLayout', 'Layout'),
             ('PangoFontDescription', 'FontDescription'),
             )
+    w.wrappers['POINTER(cairo_t)'] = DummyCodegen(name='cairo_t') # <- hacky, to get pango_cairo_* working
 
     w.add_init_redirects(
             ('Context', 'Context.new'),
@@ -26,6 +27,7 @@ with wrap(
             )
 
     w.add_rules(
+            regex_match(r'(pango_cairo_.*)', function),
             regex_method(r'pango_context_(.*)', 'Context'),
             regex_classmethod(r'pango_context_(new)', 'Context'),
 
