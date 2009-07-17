@@ -2,15 +2,17 @@ import string
 
 import ooxcb
 from ooxcb.eventsys import EventDispatcher
-from ooxcb.contrib import cairo
+#from ooxcb.contrib import cairo
 from ooxcb.protocol import xproto
 
-from ctypes import byref
+from ctypes import byref, POINTER
 
 from samuraix.rect import Rect
 from samuraix.util import DictProxy
 
 from yahiko import rsvg
+from yahiko import cairo
+from yahiko import pango
 
 import logging 
 log = logging.getLogger(__name__)
@@ -101,42 +103,42 @@ class Window(EventDispatcher):
         needs_restore = False
 
         if 'clip' in style and style['clip']:
-            cairo.cairo_save(cr)
+            cr.save()
             needs_restore = True
-            cairo.cairo_rectangle(cr, self.rx, self.ry, self.rwidth, self.rheight)
-            cairo.cairo_clip(cr)
+            cr.rectangle(self.rx, self.ry, self.rwidth, self.rheight)
+            cr.clip()
 
         self._render(cr)
 
         if needs_restore:
-            cairo.cairo_restore(cr)
+            cr.restore()
 
     def _render(self, cr):
         style = self.style
         if 'background.style' in style: 
-            cairo.cairo_rectangle(cr, self.rx, self.ry, self.rwidth, self.rheight)
+            cr.rectangle(self.rx, self.ry, self.rwidth, self.rheight)
 
             bstyle = style.get('background.style')
             assert bstyle in ('fill', 'gradient', 'image')
             if bstyle == 'fill' and 'background.color' in style:
-                cairo.cairo_set_source_rgb(cr, *style['background.color'])
-                cairo.cairo_fill(cr)
+                cr.set_source_rgb(*style['background.color'])
+                cr.fill()
             elif bstyle == 'gradient' and 'background.fill-line' in style and 'background.fill-stops' in style:
-                pat = cairo.cairo_pattern_create_linear(*style['background.fill-line'])
+                pat = cairo.Pattern.create_linear(*style['background.fill-line'])
                 for stop in style['background.fill-stops']:
-                    cairo.cairo_pattern_add_color_stop_rgb(pat, *stop)
-                cairo.cairo_set_source(cr, pat)
-                cairo.cairo_fill(cr)
+                    pat.add_color_stop_rgb(*stop)
+                cr.set_source(pat)
+                cr.fill()
             elif bstyle == 'image' and 'background.image' in style and style['background.image']:
                 fn = style.get('background.image')
                 ext = fn.rsplit('.', 1)[1]
                 if ext == 'png':
-                    image = cairo.cairo_image_surface_create_from_png(fn)
-                    w = float(cairo.cairo_image_surface_get_width(image))
-                    h = float(cairo.cairo_image_surface_get_height(image))
-                    cairo.cairo_scale(cr, self.rwidth/w, self.rheight/h)
-                    cairo.cairo_set_source_surface(cr, image, self.rx, self.ry)
-                    cairo.cairo_paint(cr)
+                    image = cairo.ImageSurface.create_from_png(fn)
+                    w = float(image.get_width())
+                    h = float(image.get_height())
+                    cr.scale(self.rwidth/w, self.rheight/h)
+                    cr.set_source_surface(image, self.rx, self.ry)
+                    cr.paint()
                 elif ext == 'svg':
                     handle = rsvg.rsvg_handle_new_from_file(fn, None)
                     dim = rsvg.RsvgDimensionData()
@@ -150,15 +152,15 @@ class Window(EventDispatcher):
             bstyle = style.get('style', 'fill')
             assert bstyle in ('fill', 'gradient')
             if bstyle == 'fill' and 'border.color' in style:
-                cairo.cairo_set_source_rgb(cr, *style['border.color'])
+                cr.set_source_rgb(*style['border.color'])
             elif bstyle == 'gradient' and 'border.fill-line' in style and 'border.fill-stops' in style:
-                pat = cairo.cairo_pattern_create_linear(*style['border.fill-line'])
+                pat = cairo.Pattern.create_linear(*style['border.fill-line'])
                 for stop in style['border.fill-stops']:
-                    cairo.cairo_pattern_add_color_stop_rgb(pat, *stop)
-                cairo.cairo_set_source(cr, pat)
-            cairo.cairo_set_line_width(cr, style.get('width', 1.0))
-            cairo.cairo_rectangle(cr, self.rx, self.ry, self.rwidth, self.rheight)
-            cairo.cairo_stroke(cr)
+                    pattern.add_color_stop_rgb(*stop)
+                cr.set_source(pat)
+            cr.set_line_width(style.get('width', 1.0))
+            cr.rectangle(self.rx, self.ry, self.rwidth, self.rheight)
+            cr.stroke()
 
 
     def hit(self, x, y):
@@ -309,7 +311,7 @@ class Container(Window):
         Window.render(self, cr)
 
         if self.children:
-            cairo.cairo_translate(cr, self.rx, self.ry)
+            cr.translate(self.rx, self.ry)
 
             for child in self.children:
                 #cairo.cairo_save(cr)
@@ -371,13 +373,13 @@ class TopLevelContainer(Container):
             self.window.configure(width=width, height=height)
 
     def recreate_surface(self):
-        self.surface = cairo.cairo_xcb_surface_create(
+        self.surface = cairo.XcbSurface.create(
                 self.window.conn, 
                 self.window,
                 self.visual_type,
                 self.width, self.height)
         
-        self.cr = cairo.cairo_create(self.surface)
+        self.cr = cairo.Context.create(self.surface)
 
     def on_window_expose(self, event):
         if event.count == 0:
@@ -410,13 +412,13 @@ class TopLevelContainer(Container):
     def render(self, control=None):
         if self.cr is None:
             return 
-        cairo.cairo_save(self.cr)
+        self.cr.save()
         if control is None:
             Container.render(self, self.cr)
         else:
             #control.setup_clip(self.cr)
             control.render(self.cr)
-        cairo.cairo_restore(self.cr)
+        self.cr.restore()
         self.window.conn.flush()
 
     def grab_input(self, control=None):
@@ -449,23 +451,23 @@ class Label(Window):
         family = text.get('family', 'sans-serif')
         weight = getattr(
                 cairo, 
-                'CAIRO_FONT_WEIGHT_' + text.get('weight', 'normal').upper(), 
-                cairo.CAIRO_FONT_WEIGHT_NORMAL,
+                'FONT_WEIGHT_' + text.get('weight', 'normal').upper(), 
+                cairo.FONT_WEIGHT_NORMAL,
         )
         slant = getattr(
                 cairo,
-                'CAIRO_FONT_SLANT_' + text.get('slant', 'normal').upper(),
-                cairo.CAIRO_FONT_SLANT_NORMAL,
+                'FONT_SLANT_' + text.get('slant', 'normal').upper(),
+                cairo.FONT_SLANT_NORMAL,
         )
-        cairo.cairo_select_font_face(cr, family, weight, slant)
+        cr.select_font_face(family, weight, slant)
 
         lines = self.text.split('\n')
 
         valign = text.get('vertical-align', 'top')
         assert valign in ('top', 'middle', 'bottom')
 
-        extents = cairo.cairo_font_extents_t()
-        cairo.cairo_font_extents(cr, byref(extents))
+        extents = cairo.font_extents_t()
+        cr.font_extents(byref(extents))
         line_height = extents.height
         total_height = len(lines) * line_height
         y = self.ry
@@ -477,33 +479,39 @@ class Label(Window):
         elif valign == 'bottom':
             y = self.ry + self.rheight - total_height
 
-        extents = cairo.cairo_text_extents_t()
+        extents = cairo.text_extents_t()
 
         for line in lines:
-            cairo.cairo_text_extents(cr, line, byref(extents))
+            cr.text_extents(line, byref(extents))
 
-            cairo.cairo_set_source_rgb(cr, *text['color'])
+            cr.set_source_rgb(*text['color'])
 
             align = text.get('align', 'centre')
             assert align in ('left', 'centre', 'right')
             if align == 'centre':
-                cairo.cairo_move_to(cr, 
-                        self.rx+(self.rwidth/2)-(extents.width/2), 
-                        y
-                )
+                cr.move_to(self.rx+(self.rwidth/2)-(extents.width/2), y)
             elif align == 'left':
-                cairo.cairo_move_to(cr,
-                        self.rx,
-                        y
-                )
+                cr.move_to(self.rx, y)
             elif align == 'right':
-                cairo.cairo_move_to(cr,
-                        self.rx+self.rwidth - extents.width,
-                        y
-                )
+                cr.move_to(self.rx+self.rwidth - extents.width, y)
 
-            cairo.cairo_show_text(cr, line)
+            cr.show_text(line)
             y += line_height
+
+
+class PangoLabel(Label):
+    def _render(self, cr):
+        if not self.text:
+            return 
+        layout = pango.cairo_create_layout(cr)
+        layout.set_markup(self.text, -1)
+        desc = pango.FontDescription.from_string('Bitstream Vera Sans Mono 8')
+        layout.font_description = desc
+        desc.free()
+        cr.move_to(self.rx, self.ry)
+        pango.cairo_update_layout(cr, layout)
+        pango.cairo_show_layout(cr, layout)
+
 
 
 class Input(Label):
