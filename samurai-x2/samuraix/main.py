@@ -39,8 +39,6 @@ from optparse import OptionParser
 from tempfile import gettempdir
 
 
-SXWM_USAGE = '''sx-wm [options] '''
-DEFAULT_LOGFILE = os.path.join(gettempdir(), 'sx.lastrun.log')
 
 
 class SamuraiLogger(logging.Logger):
@@ -142,15 +140,18 @@ def load_user_config(configpath):
     return getattr(mod, 'config')
 
 
-def create_default_option_parser(usage=None, config_path=None):
+def create_default_option_parser(usage=None, config_path=None, logfile=None):
     """ create a parser with standard options - usefull for other apps 
     using samuraix.baseapp.BaseApp
     """
     parser = OptionParser(usage)
 
+    if not logfile:
+        logfile = os.path.join(gettempdir(), os.path.split(sys.argv[0])[1] + '.lastrun.log')
+
     parser.add_option('-f', '--logfile', dest='logfile',
             help='save the log file to FILE', metavar='FILE',
-            default=DEFAULT_LOGFILE)
+            default=logfile)
 
     parser.add_option('-s', '--synchronous-check', dest='synchronous_check',
             help='turn on synchronous checks (useful for debugging)',
@@ -177,7 +178,7 @@ def parse_options():
     """
 
     parser = create_default_option_parser(
-            usage=SXWM_USAGE,
+            usage='sx-wm [options]', 
             config_path='~/.samuraix/',
     )
 
