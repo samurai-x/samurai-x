@@ -143,11 +143,7 @@ class Decorator(object):
         # Maybe that's not necessary, but it seems to be.
         self._window_configures = 0
 
-        conn = screen.conn
-
-
         self.create_actor_window()
-
 
     def create_actor_window(self):
         screen = self.screen

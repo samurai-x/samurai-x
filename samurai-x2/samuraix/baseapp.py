@@ -23,19 +23,37 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import time 
-
 import sys
 import signal
+from time import time 
 from select import select
 
 import ooxcb
 import ooxcb.contrib.cursors
 
-from .base import SXObject
+from samuraix.base import SXObject
 
 import logging
 log = logging.getLogger(__name__)
+
+
+class Timer(object):
+    """ 
+        timer object used internally - you shouldnt change attributes 
+        of this unless you know what your doing!
+    """
+
+    __slots__ = ['app', 'func', 'interval', 'call_time', 'repeat']
+
+    def __init__(self, app, func, interval, repeat=False):
+        self.app = app
+        self.func = func
+        self.interval = interval
+        self.call_time = time() + interval
+        self.repeat = repeat
+
+    def cancel(self):
+        self.app.remove_timer(self)
 
 
 class BaseApp(SXObject):
@@ -55,10 +73,10 @@ class BaseApp(SXObject):
         # filehandles used when select'ing 
         self.fds = {'read': {}, 'write': {}, 'error': {}}
         # timeout used when select'ing
-        self.select_timeout = 1.0
+        self.select_timeout = None
 
         # timer callbacks
-        self.timers = {}
+        self.timers = []
 
         # a list of functions that should be called in the next
         # iteration of the mainloop. That's not nice and should
@@ -82,9 +100,34 @@ class BaseApp(SXObject):
         assert which_list in ('read', 'write', 'error')
         del self.fds[which_list][fd]
 
-    def add_timer(self, seconds, func):
-        """ add a callback `func` to be called every `seconds` seconds """
-        self.timers[func] = (time.time() + seconds, seconds)   
+    def add_timer(self, func, interval, repeat=False):
+        """ 
+            add a callback `func` to be called every `seconds` seconds 
+            returns a Timer object
+        """
+        t = Timer(self, func, interval, repeat=repeat)
+        self.timers.append(t)
+        self.timers.sort(key=lambda t: t.call_time)
+        if self.select_timeout is None:
+            self.select_timeout = interval
+        else:
+            self.select_timeout = min(self.select_timeout, interval)
+        log.debug('select_timeout is now %s', self.select_timeout)
+        return t
+
+    def remove_timer(self, timer):
+        """ 
+            remove the timer `timer` from the list of timers. 
+            `timer` is the object returned by add_timer 
+        """
+        self.timers.remove(timer)
+        # TODO should this take into account the current time?
+        # there might be a timeout in less than this...
+        # it might just not matter at all 
+        if self.timers:
+            self.select_timeout = min(t.interval for t in self.timers)
+        else:
+            self.select_timeout = None
 
     def init(self):
         """
@@ -149,7 +192,7 @@ class BaseApp(SXObject):
                     log.exception(e)
 
         while self.running:
-            #log.debug('selecting...')
+            log.debug('selecting...')
             try:
                 rready, wready, xready = select(
                         self.fds['read'].keys(),
@@ -173,11 +216,33 @@ class BaseApp(SXObject):
                 for fd in xready:
                     self.fds['error'][fd]()
 
-            now = time.time()
-            for func, (timeout, secs) in self.timers.iteritems():
-                if timeout < now:
-                    func()
-                    self.timers[func] = (now+secs, secs)
+            # run any timers that need to be run 
+            if self.timers:
+                now = time()
+                to_remove = []
+                should_sort = False
+                for timer in self.timers:
+                    if timer.call_time < now:
+                        timer.func()
+                        if timer.repeat:
+                            timer.call_time = now + timer.interval
+                            should_sort = True
+                        else:
+                            to_remove.append(timer)
+                    # timers are sorted so we can quit early 
+                    else:
+                        break
+                if to_remove:
+                    for timer in to_remove:
+                        self.timers.remove(timer)
+                    # TODO see the note in remove_timer
+                    if self.timers:
+                        self.select_timeout = min(t.interval for t in self.timers)
+                    else:
+                        self.select_timeout = None
+                    log.debug('select_timeout is now %s', self.select_timeout)
+                if should_sort:
+                    self.timers.sort(key=lambda t: t.call_time)
 
         self.conn.disconnect()
 
