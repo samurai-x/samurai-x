@@ -141,7 +141,7 @@ class ClockSlot(LabelSlot):
     def __init__(self, status_bar, name, **kwargs):
         LabelSlot.__init__(self, status_bar, name, **kwargs)
 
-        self.status_bar.app.add_timer(60, self.update_clock)
+        self.status_bar.app.add_timer(self.update_clock, 60, repeat=True)
 
         self.update_clock()
 
