@@ -666,19 +666,9 @@ class YahikoTerm(object):
                 style={
                     'background.style': 'fill',
                     'background.color': (0.0, 0.0, 0.0),
-                    #'border.style': 'fill',
-                    #'border.color': (0.5, 0.0, 0.0),
-                    #'border.width': 1.0,
-                    #'layout.padding': 1,
                 },
                 layouter=ui.HorizontalLayouter,
         )
-
-        #self.term = TermEmulator.V102Terminal(40, 80)
-        #self.term.SetCallback(
-        #        self.term.CALLBACK_UPDATE_LINES,
-        #        self.term_on_update_lines,
-        #)
 
         self.term = Term()
         self.term.push_handlers(
@@ -708,24 +698,6 @@ class YahikoTerm(object):
         self.ui.dirty()
         
         log.info("Child process pid %s", self.process_pid)
-
-        #fcntl.ioctl(process_io, termios.TIOCSWINSZ,
-        #        struct.pack("hhhh", self.term.rows, self.term.cols, 0, 0))
-        
-        #tcattrib = termios.tcgetattr(process_io)
-        #tcattrib[3] = tcattrib[3] & ~termios.ICANON
-        #termios.tcsetattr(process_io, termios.TCSAFLUSH, tcattrib)
-        
-        # Sets raw mode
-        #tty.setraw(process_io)
-        
-        # Sets the terminal window size
-        #fcntl.ioctl(process_io, termios.TIOCSWINSZ,
-        #            struct.pack("hhhh", self.chars_height, self.chars_width, 0, 0))
-        
-        #tcattrib = termios.tcgetattr(process_io)
-        #tcattrib[3] = tcattrib[3] & ~termios.ICANON
-        #termios.tcsetattr(process_io, termios.TCSAFLUSH, tcattrib)
 
         self.app.add_fd_handler('read', self.process_io, self.process_io_read)
         self.app.add_fd_handler('error', self.process_io, self.process_io_error)
@@ -792,19 +764,6 @@ class YahikoTerm(object):
             if data_len < 512:
                 break
         self.term.write(output)
-
-    def term_on_update_lines(self):
-        screen = self.term.GetRawScreen()
-        #rows = self.term.GetRows()
-        #cols = self.term.GetCols()
-        #dirty_lines = self.term.GetDirtyLines()
-        #print "screen", screen
-        #print "rows", rows
-        #print "cols", cols
-        #print "dirty", dirty_lines
-        self.output.text = "\n".join(l.tostring() for l in screen)
-        self.output.text = self.output.text.replace('\t', '        ')
-        self.output.dirty()
 
 
 class App(BaseApp):
