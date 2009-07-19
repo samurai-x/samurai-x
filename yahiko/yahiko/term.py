@@ -282,10 +282,13 @@ class TermRow(list):
 DEFAULT_RENDITION = 0x0f000000
 
 class TermRow(object):
+    __slots__ = ['chars', 'rendition', 'dirty', 'layout']
+
     def __init__(self, cols):
         self.chars = array('c', ' '*cols)
         self.rendition = array('L', [0]*cols)
         self.dirty = False
+        self.layout = None
 
     #def pango_str(self):
     #    return "<span fgcolor='#fff'>"+self.chars.tostring()+"</span>"
@@ -410,8 +413,6 @@ class Term(EventDispatcher):
         self.screen.insert(self.scroll_bottom-1, TermRow(self.cols))
 
     def putch(self, ch):
-        row = self.screen[self.cursor_row]
-
         if self.cursor_col >= self.cols:
             self.cursor_col = 0
             self.cursor_row += 1
@@ -419,6 +420,7 @@ class Term(EventDispatcher):
                 self.scroll_up()
             self.cursor_row -= 1
 
+        row = self.screen[self.cursor_row]
         row.chars[self.cursor_col] = ch
         row.rendition[self.cursor_col] = self.rendition
         row.dirty = True
@@ -431,8 +433,6 @@ class Term(EventDispatcher):
         idx = self._saved_idx
         if self._saved_data:
             data = self._saved_data + data
-        lines = data.split('\n')
-        #print lines
         data_len = len(data)
         try:
             while idx < data_len:   
@@ -719,7 +719,7 @@ class Term(EventDispatcher):
                 #    self.rendition.background = 0
                 else:
                     log.warn('unknown m rendition %s', r)
-                print "r", "%08x" % r
+                #print "r", "%08x" % r
         else:
             print "mclear"
             self.rendition = DEFAULT_RENDITION
@@ -791,35 +791,39 @@ class TermWindow(ui.Window):
         desc = pango.FontDescription.from_string('Bitstream Vera Sans Mono 8')
         y = self.ry
         for row in self.term.screen:
-            layout = pango.cairo_create_layout(cr)
-            layout.font_description = desc
-            text = row.chars.tostring()
-            if text.strip():
-                print "text", text
-                attr_list = pango.attr_list_new()
-                color_attr = None
-                cfg = -1
-                for idx, r in enumerate(row.rendition):
-                    print "-%08x"  % r, r
-                    fg = r >> 24   
-                    print "+%08x" % fg, fg
-                    if fg != cfg:
-                        fgh = color_map2[fg]
-                        if color_attr:
-                            color_attr.end_index = idx
-                            pango.attr_list_insert(attr_list, color_attr)
-                        color_attr = pango.pango_attr_foreground_new(*fgh)
-                        color_attr.start_index = idx
-                        
-                color_attr.end_index = idx
-                pango.attr_list_insert(attr_list, color_attr)
-                
-                layout.set_text(text, -1)
-                layout.set_attributes(attr_list)
+            if row.dirty:
+                curr = row.rendition[0]
+                #print "curr %08x" % curr, curr >> 24, (curr & 0x00ff0000) >> 16
+                markup = ('<span foreground="%s" background="%s">' % (
+                        color_map[curr >> 24], 
+                        color_map[(curr & 0x00ff0000) >> 16],
+                        )) + row.chars[0]
+                for c in xrange(1, self.chars_width):
+                    ch = row.chars[c]
+                    r = row.rendition[c]
+                    if curr != r:
+                        curr = r
+                        markup += ('</span><span foreground="%s" background="%s">' % (
+                                color_map[curr >> 24], 
+                                color_map[(curr & 0x00ff0000) >> 16],
+                                ))
+                    if ch == '>':
+                        markup += '&gt;'
+                    elif ch == '<':
+                        markup += '&lt;'
+                    else:
+                        markup += ch
+                markup += '</span>'
+                row.layout = pango.cairo_create_layout(cr)
+                row.layout.font_description = desc
+                row.layout.set_markup(markup, -1)
+                row.dirty = False
+            if row.layout:
                 cr.move_to(self.rx, y)
-                pango.cairo_update_layout(cr, layout)
-                pango.cairo_show_layout(cr, layout)
-                y += self.char_height
+                pango.cairo_update_layout(cr, row.layout)
+                pango.cairo_show_layout(cr, row.layout)
+
+            y += self.char_height
         desc.free()
 
         #cr.rectangle(
@@ -901,6 +905,7 @@ class YahikoTerm(object):
 
         self.process_pid, self.process_io = pty.fork()
         if self.process_pid == 0:
+            #os.system('python test.py')
             os.system('bash')
 
         self.ui.recreate_surface()
@@ -1039,9 +1044,13 @@ def parse_options():
             default=False,
     )
 
+    parser.add_option('', '--prof', dest='profile',
+            action='store_true', 
+            default=False, 
+    )
+
     options, args = parser.parse_args()
     return options
-
 
 
 def run():
@@ -1059,14 +1068,13 @@ def run():
             #config_path=options.configpath,
         )
 
-
-    sxmain.run_app(create_app)
+    if options.profile:
+        import cProfile as profile
+        profile.runctx('sxmain.run_app(create_app)', globals(), locals())
+    else:
+        sxmain.run_app(create_app)
 
 
 if __name__ == '__main__':
-    if '--prof' in sys.argv:
-        import cProfile as profile
-        profile.run('run()')
-    else:
-        run()
+    run()
 
