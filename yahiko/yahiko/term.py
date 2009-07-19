@@ -40,6 +40,7 @@ sys.path.append('/usr/lib/python2.6/dist-packages')
 import psyco
 psyco.full()
 
+
 ASCII_NUL = 0     # Null
 ASCII_BK = 7     # Bell
 ASCII_BS = 8      # Backspace
@@ -54,50 +55,6 @@ ASCII_ESC = 27    # Escape
 ASCII_SPACE = 32  # Space
 ASCII_CSI = 153   # Control Sequence Introducer
 
-
-# n A: Moves the cursor up n(default 1) times.
-ESC_SEQ_A = 'A'  
-# n B: Moves the cursor down n(default 1) times.
-ESC_SEQ_B = 'B'  
-# n C: Moves the cursor forward n(default 1) times.
-ESC_SEQ_c = 'C'  
-# n D: Moves the cursor backward n(default 1) times.
-ESC_SEQ_D = 'D'  
-
-# n G: Cursor horizontal absolute position. 'n' denotes
-# the column no(1 based index). Should retain the line 
-# position.
-ESC_SEQ_G = 'G'  
-
-# n ; m H: Moves the cursor to row n, column m.
-# The values are 1-based, and default to 1 (top left
-# corner). 
-ESC_SEQ_H = 'H'  
-
-# n J: Clears part of the screen. If n is zero 
-# (or missing), clear from cursor to end of screen. 
-# If n is one, clear from cursor to beginning of the 
-# screen. If n is two, clear entire screen.
-ESC_SEQ_J = 'J'   
-
-# n K: Erases part of the line. If n is zero 
-# (or missing), clear from cursor to the end of the
-# line. If n is one, clear from cursor to beginning of 
-# the line. If n is two, clear entire line. Cursor 
-# position does not change.
-ESC_SEQ_K = 'K'   
-
-# n d: Cursor vertical absolute position. 'n' denotes
-# the line no(1 based index). Should retain the column 
-# position.
-ESC_SEQ_d = 'd'  
-
-# n [;k] m: Sets SGR (Select Graphic Rendition) 
-# parameters. After CSI can be zero or more parameters
-# separated with ;. With no parameters, CSI m is treated
-# as CSI 0 m (reset / normal), which is typical of most
-# of the ANSI codes.
-ESC_SEQ_SGR = 'm'  
 
 clamp = lambda x, xmin, xmax: min(xmax, max(xmin, x))
 
@@ -119,165 +76,7 @@ color_map = {
     14:  '#0FF',
     15:  '#FFF',
 }
-color_map2 = {
-    0:  (0, 0, 0), #'#000',
-    1:  (127, 0, 0), #'#700',
-    2:  (0, 127, 0), #'#070',
-    3:  (127, 127, 0), #'#770',
-    4:  (0, 0, 127), #'#007',
-    5:  (127, 0, 127), #'#707',
-    6:  (0, 127, 127), #'#077',
-    7:  (127, 127, 127), #'#777',
-    8:  (0, 0, 0), #'#000',
-    9:  (65535, 0, 0), #'#700',
-   10:  (0, 65535, 0), #'#070',
-   11:  (65535, 65535, 0), #'#770',
-   12:  (0, 0, 65535), #'#007',
-   13:  (65535, 0, 65535), #'#707',
-   14:  (0, 65535, 65535), #'#077',
-   15:  (65535, 65535, 65535), #'#777',
-}
 
-
-"""
-class TermRendition(object):
-    #__slots__ = ['style', 'background', 'foreground']
-
-    bright      = 0x00000001
-    dim         = 0x00000010
-    underline   = 0x00000100
-    blink       = 0x00001000
-    reverse     = 0x00010000
-    hidden      = 0x00100000
-
-    def __init__(self):
-        self.reset()
-
-    def reset(self):
-        self.style = 0
-        self.foreground = 7
-        self.background = 0
-
-    def copy_to(self, other):
-        other.style = self.style
-        other.foreground = self.foreground
-        other.background = self.background
-    
-
-class TermChar(TermRendition):
-    #__slots__ = ['ch']
-    def __init__(self):
-        TermRendition.__init__(self)
-        self.ch = ' '
-
-    def __str__(self):
-        return self.ch
-
-
-
-
-from mako.filters import html_escape
-
-class TermRow(list):
-    #__slots__ = ['dirty', '_cached_pango']
-    def __init__(self, cols):
-        self.dirty = False
-        self._cached_pango = None
-        for c in xrange(cols):
-            self.append(TermChar())
-
-    def __str__(self):
-        return "".join(c.ch for c in self)
-
-    def pango_str(self):
-        if not self.dirty and self._cached_pango:
-            return self._cached_pango
-
-        cstyle = 0 
-        cfg = 0
-        cbg = 0
-        set_one = False
-        ret = ''
-        for c in self:
-            if c.style != cstyle or cfg != c.foreground or cbg != c.background:
-                if set_one:
-                    ret += ('</span>')
-                try:
-                    hfg = color_map[c.foreground]
-                except KeyError:
-                    log.warn('color %s nt found', c.foreground)
-                    hfg = '#f00'
-                try:
-                    hbg = color_map[c.background]
-                except KeyError:
-                    log.warn('color %s not found', c.background)
-                    hbg = '#700'
-
-                extra = ''
-                if c.style & TermRendition.underline:
-                    extra += ('underline="single"')
-                if c.style & TermRendition.bright:
-                    extra += ('font-weight="bold"')
-                if c.style & TermRendition.reverse:
-                    hfg, hbg = hbg, hfg
-                ret += ('<span foreground="%s" background="%s" %s>' % (hfg, hbg, extra))
-                set_one = True
-                cstyle = c.style
-                cfg = c.foreground
-                cbg = c.background
-            if c.ch == '<': ret += '&lt;'
-            elif c.ch == '>': ret += '&gt;'
-            else: ret += c.ch
-        if set_one:
-            ret += ('</span>')
-        self._cached_pango = ret
-        self.dirty = False
-        return self._cached_pango
-
-    def pango_str(self):
-        if not self.dirty and self._cached_pango:
-            return self._cached_pango
-
-        cstyle = 0 
-        cfg = 0
-        cbg = 0
-        set_one = False
-        ret = []
-        for c in self:
-            if c.style != cstyle or cfg != c.foreground or cbg != c.background:
-                if set_one:
-                    ret.append('</span>')
-                try:
-                    hfg = color_map[c.foreground]
-                except KeyError:
-                    log.warn('color %s nt found', c.foreground)
-                    hfg = '#f00'
-                try:
-                    hbg = color_map[c.background]
-                except KeyError:
-                    log.warn('color %s not found', c.background)
-                    hbg = '#700'
-
-                extra = []
-                if c.style & TermRendition.underline:
-                    extra.append('underline="single"')
-                if c.style & TermRendition.bright:
-                    extra.append('font-weight="bold"')
-                if c.style & TermRendition.reverse:
-                    hfg, hbg = hbg, hfg
-                ret.append('<span foreground="%s" background="%s" %s>' % (hfg, hbg, " ".join(extra)))
-                set_one = True
-                cstyle = c.style
-                cfg = c.foreground
-                cbg = c.background
-            ret.append(html_escape(c.ch))
-        if set_one:
-            ret.append('</span>')
-        self._cached_pango = "".join(ret)
-        self.dirty = False
-        return self._cached_pango
-
-"""
 
 DEFAULT_RENDITION = 0x0f000000
 
@@ -289,9 +88,6 @@ class TermRow(object):
         self.rendition = array('L', [0]*cols)
         self.dirty = False
         self.layout = None
-
-    #def pango_str(self):
-    #    return "<span fgcolor='#fff'>"+self.chars.tostring()+"</span>"
 
 
 class ReadMore(Exception):
@@ -395,7 +191,6 @@ class Term(EventDispatcher):
             self.screen.append(TermRow(cols))
 
     def clear(self, top, left, bottom, right):
-        print "clear!"
         top = clamp(top, 0, self.rows-1)
         left = clamp(left, 0, self.cols-1)
         bottom = clamp(bottom, 0, self.rows-1)
