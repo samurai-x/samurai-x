@@ -1,9 +1,12 @@
 import os
 import sys
 import pty
+import time
 import threading
 import select
 import copy
+
+from array import array
 
 import fcntl
 import termios
@@ -98,8 +101,48 @@ ESC_SEQ_SGR = 'm'
 
 clamp = lambda x, xmin, xmax: min(xmax, max(xmin, x))
 
+color_map = {
+    0:  '#000',
+    1:  '#700',
+    2:  '#070',
+    3:  '#770',
+    4:  '#007',
+    5:  '#707',
+    6:  '#077',
+    7:  '#777',
+    8:  '#000',
+    9:  '#F00',
+    10:  '#0F0',
+    11:  '#FF0',
+    12:  '#00F',
+    13:  '#F0F',
+    14:  '#0FF',
+    15:  '#FFF',
+}
+color_map2 = {
+    0:  (0, 0, 0), #'#000',
+    1:  (127, 0, 0), #'#700',
+    2:  (0, 127, 0), #'#070',
+    3:  (127, 127, 0), #'#770',
+    4:  (0, 0, 127), #'#007',
+    5:  (127, 0, 127), #'#707',
+    6:  (0, 127, 127), #'#077',
+    7:  (127, 127, 127), #'#777',
+    8:  (0, 0, 0), #'#000',
+    9:  (65535, 0, 0), #'#700',
+   10:  (0, 65535, 0), #'#070',
+   11:  (65535, 65535, 0), #'#770',
+   12:  (0, 0, 65535), #'#007',
+   13:  (65535, 0, 65535), #'#707',
+   14:  (0, 65535, 65535), #'#077',
+   15:  (65535, 65535, 65535), #'#777',
+}
 
+
+"""
 class TermRendition(object):
+    #__slots__ = ['style', 'background', 'foreground']
+
     bright      = 0x00000001
     dim         = 0x00000010
     underline   = 0x00000100
@@ -122,7 +165,7 @@ class TermRendition(object):
     
 
 class TermChar(TermRendition):
-    #__slots__ = ['ch', 'attribs']
+    #__slots__ = ['ch']
     def __init__(self):
         TermRendition.__init__(self)
         self.ch = ' '
@@ -131,30 +174,12 @@ class TermChar(TermRendition):
         return self.ch
 
 
-color_map = {
-    0:  '#000',
-    1:  '#700',
-    2:  '#070',
-    3:  '#770',
-    4:  '#007',
-    5:  '#707',
-    6:  '#077',
-    7:  '#777',
-    8:  '#000',
-    9:  '#F00',
-    10:  '#0F0',
-    11:  '#FF0',
-    12:  '#00F',
-    13:  '#F0F',
-    14:  '#0FF',
-    15:  '#FFF',
-}
 
 
 from mako.filters import html_escape
 
 class TermRow(list):
-    #__slots__ = ['dirty']
+    #__slots__ = ['dirty', '_cached_pango']
     def __init__(self, cols):
         self.dirty = False
         self._cached_pango = None
@@ -252,6 +277,19 @@ class TermRow(list):
         self.dirty = False
         return self._cached_pango
 
+"""
+
+DEFAULT_RENDITION = 0x0f000000
+
+class TermRow(object):
+    def __init__(self, cols):
+        self.chars = array('c', ' '*cols)
+        self.rendition = array('L', [0]*cols)
+        self.dirty = False
+
+    #def pango_str(self):
+    #    return "<span fgcolor='#fff'>"+self.chars.tostring()+"</span>"
+
 
 class ReadMore(Exception):
     pass
@@ -335,7 +373,7 @@ class Term(EventDispatcher):
         self.rows = 0
         self.scroll_top = 0
         self.scroll_bottom = 0
-        self.rendition = TermRendition()
+        self.rendition = DEFAULT_RENDITION
 
         self._saved_idx = 0
         self._saved_data = None
@@ -364,15 +402,14 @@ class Term(EventDispatcher):
             row = self.screen[crow]
             row.dirty = True
             for ccol in xrange(left, right+1):
-                row[ccol].ch = ' '
-                row[ccol].reset()
+                row.chars[ccol] = ' '
+                row.rendition[ccol] = DEFAULT_RENDITION
 
     def scroll_up(self):
         self.screen.pop(self.scroll_top)
         self.screen.insert(self.scroll_bottom-1, TermRow(self.cols))
 
     def putch(self, ch):
-        assert(type(ch) is str)
         row = self.screen[self.cursor_row]
 
         if self.cursor_col >= self.cols:
@@ -382,8 +419,8 @@ class Term(EventDispatcher):
                 self.scroll_up()
             self.cursor_row -= 1
 
-        row[self.cursor_col].ch = ch
-        self.rendition.copy_to(row[self.cursor_col])
+        row.chars[self.cursor_col] = ch
+        row.rendition[self.cursor_col] = self.rendition
         row.dirty = True
         self.cursor_col += 1
 
@@ -655,37 +692,37 @@ class Term(EventDispatcher):
             for r in renditions:
                 r = int(r)
                 if r == 0:
-                    print "mclear2"
-                    self.rendition.reset()
+                    self.rendition = DEFAULT_RENDITION
                 elif r == 1:
-                    self.rendition.style &= TermRendition.bright 
+                    self.rendition |= 1 << 0
                 elif r == 2:
-                    self.rendition.style &= TermRendition.dim
+                    self.rendition |= 1 << 1
                 elif r == 4:
-                    self.rendition.style &= TermRendition.underline
+                    self.rendition |= 1 << 2
                 elif r == 5:
-                    self.rendition.style &= TermRendition.blink
+                    self.rendition |= 1 << 3
                 elif r == 7:
-                    self.rendition.style &= TermRendition.reverse
+                    self.rendition |= 1 << 4
                 elif r == 8:
-                    self.rendition.style &= TermRendition.hidden
+                    self.rendition |= 1 << 5
                 elif r >= 30 and r < 38:
-                    self.rendition.foreground = r - 30
+                    self.rendition |= (r - 30) << 24
                 elif r >= 90 and r < 98:
-                    self.rendition.foreground = r - 82
+                    self.rendition |= (r - 82) << 24
                 elif r >= 40 and r < 48:
-                    self.rendition.background = r - 40
+                    self.rendition |= (r - 40) << 16
                 elif r >= 100 and r < 108:
-                    self.rendition.background = r - 92
-                elif r == 39:
-                    self.rendition.foreground = 7
-                elif r == 49:
-                    self.rendition.background = 0
+                    self.rendition |= (r - 92) << 16
+                #elif r == 39:
+                #    self.rendition.foreground = 7
+                #elif r == 49:
+                #    self.rendition.background = 0
                 else:
                     log.warn('unknown m rendition %s', r)
+                print "r", "%08x" % r
         else:
             print "mclear"
-            self.rendition.reset()
+            self.rendition = DEFAULT_RENDITION
 
     def on_esq_seq_hl_q47(self, set):
         if set:
@@ -701,15 +738,16 @@ Term.register_event_type("on_flush")
 Term.register_event_type("on_title_change")
                 
 
-class TermWindow(ui.PangoLabel):
+class TermWindow(ui.Window):
     def __init__(self, app, **kwargs):
         self.app = app
+        self.term = app.term
         self.cursor_col = 0 
         self.cursor_row = 0 
-        ui.Label.__init__(self, **kwargs)
+        ui.Window.__init__(self, **kwargs)
 
     def set_render_coords(self, x, y, width, height):
-        ui.Label.set_render_coords(self, x, y, width, height)
+        ui.Window.set_render_coords(self, x, y, width, height)
 
         #text = DictProxy(self.style, 'text.')
         #family = text.get('family', 'sans-serif')
@@ -729,7 +767,6 @@ class TermWindow(ui.PangoLabel):
         #cr.font_extents(byref(extents))
         #self.char_height = extents.height
         #self.char_width = extents.max_x_advance
-
 
         cr = self.app.ui.cr
         context = pango.cairo_create_context(cr)
@@ -751,14 +788,47 @@ class TermWindow(ui.PangoLabel):
                 struct.pack("hhhh", self.chars_height, self.chars_width, 0, 0))
 
     def _render(self, cr):
-        ui.PangoLabel._render(self, cr)
-        cr.rectangle(
-            self.rx+(self.cursor_col*self.char_width),
-            2+self.ry+(self.cursor_row*self.char_height),
-            self.char_width,
-            self.char_height)
-        cr.set_source_rgba(1.0, 1.0, 1.0, 0.5)
-        cr.fill()
+        desc = pango.FontDescription.from_string('Bitstream Vera Sans Mono 8')
+        y = self.ry
+        for row in self.term.screen:
+            layout = pango.cairo_create_layout(cr)
+            layout.font_description = desc
+            text = row.chars.tostring()
+            if text.strip():
+                print "text", text
+                attr_list = pango.attr_list_new()
+                color_attr = None
+                cfg = -1
+                for idx, r in enumerate(row.rendition):
+                    print "-%08x"  % r, r
+                    fg = r >> 24   
+                    print "+%08x" % fg, fg
+                    if fg != cfg:
+                        fgh = color_map2[fg]
+                        if color_attr:
+                            color_attr.end_index = idx
+                            pango.attr_list_insert(attr_list, color_attr)
+                        color_attr = pango.pango_attr_foreground_new(*fgh)
+                        color_attr.start_index = idx
+                        
+                color_attr.end_index = idx
+                pango.attr_list_insert(attr_list, color_attr)
+                
+                layout.set_text(text, -1)
+                layout.set_attributes(attr_list)
+                cr.move_to(self.rx, y)
+                pango.cairo_update_layout(cr, layout)
+                pango.cairo_show_layout(cr, layout)
+                y += self.char_height
+        desc.free()
+
+        #cr.rectangle(
+        ##    self.rx+(self.cursor_col*self.char_width),
+        #    2+self.ry+(self.cursor_row*self.char_height),
+        #    self.char_width,
+        #    self.char_height)
+        #cr.set_source_rgba(1.0, 1.0, 1.0, 0.5)
+        #cr.fill()
 
 
 class YahikoTerm(object):
@@ -837,7 +907,6 @@ class YahikoTerm(object):
         self.ui.layout()
         self.ui.dirty()
         
-        
         log.info("Child process pid %s", self.process_pid)
 
         #fcntl.ioctl(process_io, termios.TIOCSWINSZ,
@@ -865,7 +934,10 @@ class YahikoTerm(object):
         self.win.ewmh_set_window_name(title)
 
     def term_on_flush(self):
-        self.output.text = "\n".join(r.pango_str() for r in self.term.screen)
+        text = ''
+        for line in self.term.screen:
+            text += line.chars.tostring() + "\n"
+        self.output.text = text
         self.output.cursor_row = self.term.cursor_row
         self.output.cursor_col = self.term.cursor_col
         self.output.dirty()
@@ -902,6 +974,7 @@ class YahikoTerm(object):
             os.write(self.process_io, chr(k))
         
     def process_io_error(self):
+        print "process error"
         self.app.stop()
 
     def process_io_read(self):
@@ -910,6 +983,7 @@ class YahikoTerm(object):
             try:
                 data = os.read(self.process_io, 512)
             except OSError:
+                print "OSError"
                 self.app.stop()
                 return 
             data_len = len(data)
@@ -939,6 +1013,15 @@ class App(BaseApp):
 
         screen = self.conn.setup.roots[self.conn.pref_screen]
         self.term = YahikoTerm(self, screen)
+
+    def run(self):
+        self.start_time = time.time()
+        BaseApp.run(self)
+
+    def stop(self):
+        self.stop_time = time.time()
+        print "exec time", self.stop_time - self.start_time
+        BaseApp.stop(self)
     
 
 def parse_options():
@@ -958,6 +1041,7 @@ def parse_options():
 
     options, args = parser.parse_args()
     return options
+
 
 
 def run():

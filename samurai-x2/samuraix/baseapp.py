@@ -192,7 +192,7 @@ class BaseApp(SXObject):
                     log.exception(e)
 
         while self.running:
-            log.debug('selecting...')
+            #log.debug('selecting...')
             try:
                 rready, wready, xready = select(
                         self.fds['read'].keys(),

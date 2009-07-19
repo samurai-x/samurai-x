@@ -268,7 +268,7 @@ class Client(SXObject):
                     self.conn.atoms['WM_TAKE_FOCUS'].get_internal(),
                     timestamp()
                 ]
-                )
+        )
         self.window.send_event(0, msg)
 
     def set_input_focus(self):

@@ -699,12 +699,8 @@ gboolean pango_attribute_equal (const PangoAttribute *attr1,
 
 PangoAttribute *pango_attr_language_new (PangoLanguage *language);
 PangoAttribute *pango_attr_family_new (const char *family);
-PangoAttribute *pango_attr_foreground_new (guint16 red,
-           guint16 green,
-           guint16 blue);
-PangoAttribute *pango_attr_background_new (guint16 red,
-           guint16 green,
-           guint16 blue);
+PangoAttribute *pango_attr_foreground_new (guint16 red, guint16 green, guint16 blue);
+PangoAttribute *pango_attr_background_new (guint16 red, guint16 green, guint16 blue);
 PangoAttribute *pango_attr_size_new (int size);
 PangoAttribute *pango_attr_size_new_absolute (int size);
 PangoAttribute *pango_attr_style_new (PangoStyle style);

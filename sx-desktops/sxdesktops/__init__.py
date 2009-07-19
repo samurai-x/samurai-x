@@ -117,7 +117,7 @@ class FocusStack(list):
 
     def x_sort(self):
         print "x_sort", self
-        self.sort(cmp=self._sort)
+        self.sort(cmp=self._sort, reverse=True)
         print "after x_xort", self
 
     def _sort(self, client_a, client_b):

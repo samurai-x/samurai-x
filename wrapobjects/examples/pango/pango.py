@@ -1134,142 +1134,142 @@ pango_attr_foreground_new = _lib.pango_attr_foreground_new
 pango_attr_foreground_new.restype = POINTER(PangoAttribute)
 pango_attr_foreground_new.argtypes = [guint16, guint16, guint16]
 
-# pango-new.h:705
+# pango-new.h:703
 pango_attr_background_new = _lib.pango_attr_background_new
 pango_attr_background_new.restype = POINTER(PangoAttribute)
 pango_attr_background_new.argtypes = [guint16, guint16, guint16]
 
-# pango-new.h:708
+# pango-new.h:704
 pango_attr_size_new = _lib.pango_attr_size_new
 pango_attr_size_new.restype = POINTER(PangoAttribute)
 pango_attr_size_new.argtypes = [c_int]
 
-# pango-new.h:709
+# pango-new.h:705
 pango_attr_size_new_absolute = _lib.pango_attr_size_new_absolute
 pango_attr_size_new_absolute.restype = POINTER(PangoAttribute)
 pango_attr_size_new_absolute.argtypes = [c_int]
 
-# pango-new.h:710
+# pango-new.h:706
 pango_attr_style_new = _lib.pango_attr_style_new
 pango_attr_style_new.restype = POINTER(PangoAttribute)
 pango_attr_style_new.argtypes = [PangoStyle]
 
-# pango-new.h:711
+# pango-new.h:707
 pango_attr_weight_new = _lib.pango_attr_weight_new
 pango_attr_weight_new.restype = POINTER(PangoAttribute)
 pango_attr_weight_new.argtypes = [PangoWeight]
 
-# pango-new.h:712
+# pango-new.h:708
 pango_attr_variant_new = _lib.pango_attr_variant_new
 pango_attr_variant_new.restype = POINTER(PangoAttribute)
 pango_attr_variant_new.argtypes = [PangoVariant]
 
-# pango-new.h:713
+# pango-new.h:709
 pango_attr_stretch_new = _lib.pango_attr_stretch_new
 pango_attr_stretch_new.restype = POINTER(PangoAttribute)
 pango_attr_stretch_new.argtypes = [PangoStretch]
 
-# pango-new.h:714
+# pango-new.h:710
 pango_attr_font_desc_new = _lib.pango_attr_font_desc_new
 pango_attr_font_desc_new.restype = POINTER(PangoAttribute)
 pango_attr_font_desc_new.argtypes = [POINTER(PangoFontDescription)]
 
-# pango-new.h:716
+# pango-new.h:712
 pango_attr_underline_new = _lib.pango_attr_underline_new
 pango_attr_underline_new.restype = POINTER(PangoAttribute)
 pango_attr_underline_new.argtypes = [PangoUnderline]
 
-# pango-new.h:717
+# pango-new.h:713
 pango_attr_underline_color_new = _lib.pango_attr_underline_color_new
 pango_attr_underline_color_new.restype = POINTER(PangoAttribute)
 pango_attr_underline_color_new.argtypes = [guint16, guint16, guint16]
 
-# pango-new.h:721
+# pango-new.h:717
 pango_attr_strikethrough_color_new = _lib.pango_attr_strikethrough_color_new
 pango_attr_strikethrough_color_new.restype = POINTER(PangoAttribute)
 pango_attr_strikethrough_color_new.argtypes = [guint16, guint16, guint16]
 
-# pango-new.h:725
+# pango-new.h:721
 pango_attr_rise_new = _lib.pango_attr_rise_new
 pango_attr_rise_new.restype = POINTER(PangoAttribute)
 pango_attr_rise_new.argtypes = [c_int]
 
-# pango-new.h:726
+# pango-new.h:722
 pango_attr_scale_new = _lib.pango_attr_scale_new
 pango_attr_scale_new.restype = POINTER(PangoAttribute)
 pango_attr_scale_new.argtypes = [c_double]
 
-# pango-new.h:728
+# pango-new.h:724
 pango_attr_letter_spacing_new = _lib.pango_attr_letter_spacing_new
 pango_attr_letter_spacing_new.restype = POINTER(PangoAttribute)
 pango_attr_letter_spacing_new.argtypes = [c_int]
 
-# pango-new.h:730
+# pango-new.h:726
 pango_attr_shape_new = _lib.pango_attr_shape_new
 pango_attr_shape_new.restype = POINTER(PangoAttribute)
 pango_attr_shape_new.argtypes = [POINTER(PangoRectangle), POINTER(PangoRectangle)]
 
-# pango-new.h:738
+# pango-new.h:734
 pango_attr_gravity_new = _lib.pango_attr_gravity_new
 pango_attr_gravity_new.restype = POINTER(PangoAttribute)
 pango_attr_gravity_new.argtypes = [PangoGravity]
 
-# pango-new.h:739
+# pango-new.h:735
 pango_attr_gravity_hint_new = _lib.pango_attr_gravity_hint_new
 pango_attr_gravity_hint_new.restype = POINTER(PangoAttribute)
 pango_attr_gravity_hint_new.argtypes = [PangoGravityHint]
 
-# pango-new.h:742
+# pango-new.h:738
 pango_attr_list_new = _lib.pango_attr_list_new
 pango_attr_list_new.restype = POINTER(PangoAttrList)
 pango_attr_list_new.argtypes = []
 
-# pango-new.h:743
+# pango-new.h:739
 pango_attr_list_ref = _lib.pango_attr_list_ref
 pango_attr_list_ref.restype = POINTER(PangoAttrList)
 pango_attr_list_ref.argtypes = [POINTER(PangoAttrList)]
 
-# pango-new.h:744
+# pango-new.h:740
 pango_attr_list_unref = _lib.pango_attr_list_unref
 pango_attr_list_unref.restype = None
 pango_attr_list_unref.argtypes = [POINTER(PangoAttrList)]
 
-# pango-new.h:745
+# pango-new.h:741
 pango_attr_list_copy = _lib.pango_attr_list_copy
 pango_attr_list_copy.restype = POINTER(PangoAttrList)
 pango_attr_list_copy.argtypes = [POINTER(PangoAttrList)]
 
-# pango-new.h:746
+# pango-new.h:742
 pango_attr_list_insert = _lib.pango_attr_list_insert
 pango_attr_list_insert.restype = None
 pango_attr_list_insert.argtypes = [POINTER(PangoAttrList), POINTER(PangoAttribute)]
 
-# pango-new.h:748
+# pango-new.h:744
 pango_attr_list_insert_before = _lib.pango_attr_list_insert_before
 pango_attr_list_insert_before.restype = None
 pango_attr_list_insert_before.argtypes = [POINTER(PangoAttrList), POINTER(PangoAttribute)]
 
-# pango-new.h:750
+# pango-new.h:746
 pango_attr_list_change = _lib.pango_attr_list_change
 pango_attr_list_change.restype = None
 pango_attr_list_change.argtypes = [POINTER(PangoAttrList), POINTER(PangoAttribute)]
 
-# pango-new.h:761
+# pango-new.h:757
 pango_attr_list_get_iterator = _lib.pango_attr_list_get_iterator
 pango_attr_list_get_iterator.restype = POINTER(PangoAttrIterator)
 pango_attr_list_get_iterator.argtypes = [POINTER(PangoAttrList)]
 
-# pango-new.h:767
+# pango-new.h:763
 pango_attr_iterator_copy = _lib.pango_attr_iterator_copy
 pango_attr_iterator_copy.restype = POINTER(PangoAttrIterator)
 pango_attr_iterator_copy.argtypes = [POINTER(PangoAttrIterator)]
 
-# pango-new.h:768
+# pango-new.h:764
 pango_attr_iterator_destroy = _lib.pango_attr_iterator_destroy
 pango_attr_iterator_destroy.restype = None
 pango_attr_iterator_destroy.argtypes = [POINTER(PangoAttrIterator)]
 
-# pango-new.h:769
+# pango-new.h:765
 pango_attr_iterator_get = _lib.pango_attr_iterator_get
 pango_attr_iterator_get.restype = POINTER(PangoAttribute)
 pango_attr_iterator_get.argtypes = [POINTER(PangoAttrIterator), PangoAttrType]
@@ -1288,7 +1288,7 @@ struct__PangoAnalysis._fields_ = [
     ('_opaque_struct', c_int)
 ]
 
-PangoAnalysis = struct__PangoAnalysis 	# pango-new.h:792
+PangoAnalysis = struct__PangoAnalysis 	# pango-new.h:788
 class struct__PangoItem(Structure):
     __slots__ = [
     ]
@@ -1303,28 +1303,28 @@ struct__PangoItem._fields_ = [
     ('_opaque_struct', c_int)
 ]
 
-PangoItem = struct__PangoItem 	# pango-new.h:793
-# pango-new.h:826
+PangoItem = struct__PangoItem 	# pango-new.h:789
+# pango-new.h:822
 pango_item_new = _lib.pango_item_new
 pango_item_new.restype = POINTER(PangoItem)
 pango_item_new.argtypes = []
 
-# pango-new.h:827
+# pango-new.h:823
 pango_item_copy = _lib.pango_item_copy
 pango_item_copy.restype = POINTER(PangoItem)
 pango_item_copy.argtypes = [POINTER(PangoItem)]
 
-# pango-new.h:828
+# pango-new.h:824
 pango_item_free = _lib.pango_item_free
 pango_item_free.restype = None
 pango_item_free.argtypes = [POINTER(PangoItem)]
 
-# pango-new.h:829
+# pango-new.h:825
 pango_item_split = _lib.pango_item_split
 pango_item_split.restype = POINTER(PangoItem)
 pango_item_split.argtypes = [POINTER(PangoItem), c_int, c_int]
 
-# pango-new.h:891
+# pango-new.h:887
 pango_get_log_attrs = _lib.pango_get_log_attrs
 pango_get_log_attrs.restype = None
 pango_get_log_attrs.argtypes = [c_char_p, c_int, c_int, POINTER(PangoLanguage), POINTER(PangoLogAttr), c_int]
@@ -1343,8 +1343,8 @@ struct__PangoFontset._fields_ = [
     ('_opaque_struct', c_int)
 ]
 
-PangoFontset = struct__PangoFontset 	# pango-new.h:901
-# pango-new.h:908
+PangoFontset = struct__PangoFontset 	# pango-new.h:897
+# pango-new.h:904
 pango_fontset_get_metrics = _lib.pango_fontset_get_metrics
 pango_fontset_get_metrics.restype = POINTER(PangoFontMetrics)
 pango_fontset_get_metrics.argtypes = [POINTER(PangoFontset)]
@@ -1363,23 +1363,23 @@ struct__PangoContext._fields_ = [
     ('_opaque_struct', c_int)
 ]
 
-PangoContext = struct__PangoContext 	# pango-new.h:920
-# pango-new.h:923
+PangoContext = struct__PangoContext 	# pango-new.h:916
+# pango-new.h:919
 pango_font_map_create_context = _lib.pango_font_map_create_context
 pango_font_map_create_context.restype = POINTER(PangoContext)
 pango_font_map_create_context.argtypes = [POINTER(PangoFontMap)]
 
-# pango-new.h:924
+# pango-new.h:920
 pango_font_map_load_font = _lib.pango_font_map_load_font
 pango_font_map_load_font.restype = POINTER(PangoFont)
 pango_font_map_load_font.argtypes = [POINTER(PangoFontMap), POINTER(PangoContext), POINTER(PangoFontDescription)]
 
-# pango-new.h:927
+# pango-new.h:923
 pango_font_map_load_fontset = _lib.pango_font_map_load_fontset
 pango_font_map_load_fontset.restype = POINTER(PangoFontset)
 pango_font_map_load_fontset.argtypes = [POINTER(PangoFontMap), POINTER(PangoContext), POINTER(PangoFontDescription), POINTER(PangoLanguage)]
 
-# pango-new.h:931
+# pango-new.h:927
 pango_font_map_list_families = _lib.pango_font_map_list_families
 pango_font_map_list_families.restype = None
 pango_font_map_list_families.argtypes = [POINTER(PangoFontMap), POINTER(POINTER(POINTER(PangoFontFamily))), POINTER(c_int)]
@@ -1398,103 +1398,103 @@ struct__PangoContextClass._fields_ = [
     ('_opaque_struct', c_int)
 ]
 
-PangoContextClass = struct__PangoContextClass 	# pango-new.h:944
-# pango-new.h:947
+PangoContextClass = struct__PangoContextClass 	# pango-new.h:940
+# pango-new.h:943
 pango_context_new = _lib.pango_context_new
 pango_context_new.restype = POINTER(PangoContext)
 pango_context_new.argtypes = []
 
-# pango-new.h:948
+# pango-new.h:944
 pango_context_set_font_map = _lib.pango_context_set_font_map
 pango_context_set_font_map.restype = None
 pango_context_set_font_map.argtypes = [POINTER(PangoContext), POINTER(PangoFontMap)]
 
-# pango-new.h:950
+# pango-new.h:946
 pango_context_get_font_map = _lib.pango_context_get_font_map
 pango_context_get_font_map.restype = POINTER(PangoFontMap)
 pango_context_get_font_map.argtypes = [POINTER(PangoContext)]
 
-# pango-new.h:952
+# pango-new.h:948
 pango_context_list_families = _lib.pango_context_list_families
 pango_context_list_families.restype = None
 pango_context_list_families.argtypes = [POINTER(PangoContext), POINTER(POINTER(POINTER(PangoFontFamily))), POINTER(c_int)]
 
-# pango-new.h:955
+# pango-new.h:951
 pango_context_load_font = _lib.pango_context_load_font
 pango_context_load_font.restype = POINTER(PangoFont)
 pango_context_load_font.argtypes = [POINTER(PangoContext), POINTER(PangoFontDescription)]
 
-# pango-new.h:957
+# pango-new.h:953
 pango_context_load_fontset = _lib.pango_context_load_fontset
 pango_context_load_fontset.restype = POINTER(PangoFontset)
 pango_context_load_fontset.argtypes = [POINTER(PangoContext), POINTER(PangoFontDescription), POINTER(PangoLanguage)]
 
-# pango-new.h:961
+# pango-new.h:957
 pango_context_get_metrics = _lib.pango_context_get_metrics
 pango_context_get_metrics.restype = POINTER(PangoFontMetrics)
 pango_context_get_metrics.argtypes = [POINTER(PangoContext), POINTER(PangoFontDescription), POINTER(PangoLanguage)]
 
-# pango-new.h:965
+# pango-new.h:961
 pango_context_set_font_description = _lib.pango_context_set_font_description
 pango_context_set_font_description.restype = None
 pango_context_set_font_description.argtypes = [POINTER(PangoContext), POINTER(PangoFontDescription)]
 
-# pango-new.h:967
+# pango-new.h:963
 pango_context_get_font_description = _lib.pango_context_get_font_description
 pango_context_get_font_description.restype = POINTER(PangoFontDescription)
 pango_context_get_font_description.argtypes = [POINTER(PangoContext)]
 
-# pango-new.h:968
+# pango-new.h:964
 pango_context_get_language = _lib.pango_context_get_language
 pango_context_get_language.restype = POINTER(PangoLanguage)
 pango_context_get_language.argtypes = [POINTER(PangoContext)]
 
-# pango-new.h:969
+# pango-new.h:965
 pango_context_set_language = _lib.pango_context_set_language
 pango_context_set_language.restype = None
 pango_context_set_language.argtypes = [POINTER(PangoContext), POINTER(PangoLanguage)]
 
-# pango-new.h:971
+# pango-new.h:967
 pango_context_set_base_dir = _lib.pango_context_set_base_dir
 pango_context_set_base_dir.restype = None
 pango_context_set_base_dir.argtypes = [POINTER(PangoContext), PangoDirection]
 
-# pango-new.h:973
+# pango-new.h:969
 pango_context_get_base_dir = _lib.pango_context_get_base_dir
 pango_context_get_base_dir.restype = PangoDirection
 pango_context_get_base_dir.argtypes = [POINTER(PangoContext)]
 
-# pango-new.h:974
+# pango-new.h:970
 pango_context_set_base_gravity = _lib.pango_context_set_base_gravity
 pango_context_set_base_gravity.restype = None
 pango_context_set_base_gravity.argtypes = [POINTER(PangoContext), PangoGravity]
 
-# pango-new.h:976
+# pango-new.h:972
 pango_context_get_base_gravity = _lib.pango_context_get_base_gravity
 pango_context_get_base_gravity.restype = PangoGravity
 pango_context_get_base_gravity.argtypes = [POINTER(PangoContext)]
 
-# pango-new.h:977
+# pango-new.h:973
 pango_context_get_gravity = _lib.pango_context_get_gravity
 pango_context_get_gravity.restype = PangoGravity
 pango_context_get_gravity.argtypes = [POINTER(PangoContext)]
 
-# pango-new.h:978
+# pango-new.h:974
 pango_context_set_gravity_hint = _lib.pango_context_set_gravity_hint
 pango_context_set_gravity_hint.restype = None
 pango_context_set_gravity_hint.argtypes = [POINTER(PangoContext), PangoGravityHint]
 
-# pango-new.h:980
+# pango-new.h:976
 pango_context_get_gravity_hint = _lib.pango_context_get_gravity_hint
 pango_context_get_gravity_hint.restype = PangoGravityHint
 pango_context_get_gravity_hint.argtypes = [POINTER(PangoContext)]
 
-# pango-new.h:982
+# pango-new.h:978
 pango_context_set_matrix = _lib.pango_context_set_matrix
 pango_context_set_matrix.restype = None
 pango_context_set_matrix.argtypes = [POINTER(PangoContext), POINTER(PangoMatrix)]
 
-# pango-new.h:984
+# pango-new.h:980
 pango_context_get_matrix = _lib.pango_context_get_matrix
 pango_context_get_matrix.restype = POINTER(PangoMatrix)
 pango_context_get_matrix.argtypes = [POINTER(PangoContext)]
@@ -1513,7 +1513,7 @@ struct__PangoGlyphGeometry._fields_ = [
     ('_opaque_struct', c_int)
 ]
 
-PangoGlyphGeometry = struct__PangoGlyphGeometry 	# pango-new.h:1008
+PangoGlyphGeometry = struct__PangoGlyphGeometry 	# pango-new.h:1004
 class struct__PangoGlyphVisAttr(Structure):
     __slots__ = [
     ]
@@ -1528,7 +1528,7 @@ struct__PangoGlyphVisAttr._fields_ = [
     ('_opaque_struct', c_int)
 ]
 
-PangoGlyphVisAttr = struct__PangoGlyphVisAttr 	# pango-new.h:1009
+PangoGlyphVisAttr = struct__PangoGlyphVisAttr 	# pango-new.h:1005
 class struct__PangoGlyphInfo(Structure):
     __slots__ = [
     ]
@@ -1543,7 +1543,7 @@ struct__PangoGlyphInfo._fields_ = [
     ('_opaque_struct', c_int)
 ]
 
-PangoGlyphInfo = struct__PangoGlyphInfo 	# pango-new.h:1010
+PangoGlyphInfo = struct__PangoGlyphInfo 	# pango-new.h:1006
 class struct__PangoGlyphString(Structure):
     __slots__ = [
     ]
@@ -1558,44 +1558,44 @@ struct__PangoGlyphString._fields_ = [
     ('_opaque_struct', c_int)
 ]
 
-PangoGlyphString = struct__PangoGlyphString 	# pango-new.h:1011
-PangoGlyphUnit = gint32 	# pango-new.h:1014
-# pango-new.h:1062
+PangoGlyphString = struct__PangoGlyphString 	# pango-new.h:1007
+PangoGlyphUnit = gint32 	# pango-new.h:1010
+# pango-new.h:1058
 pango_glyph_string_new = _lib.pango_glyph_string_new
 pango_glyph_string_new.restype = POINTER(PangoGlyphString)
 pango_glyph_string_new.argtypes = []
 
-# pango-new.h:1066
+# pango-new.h:1062
 pango_glyph_string_copy = _lib.pango_glyph_string_copy
 pango_glyph_string_copy.restype = POINTER(PangoGlyphString)
 pango_glyph_string_copy.argtypes = [POINTER(PangoGlyphString)]
 
-# pango-new.h:1067
+# pango-new.h:1063
 pango_glyph_string_free = _lib.pango_glyph_string_free
 pango_glyph_string_free.restype = None
 pango_glyph_string_free.argtypes = [POINTER(PangoGlyphString)]
 
-# pango-new.h:1068
+# pango-new.h:1064
 pango_glyph_string_extents = _lib.pango_glyph_string_extents
 pango_glyph_string_extents.restype = None
 pango_glyph_string_extents.argtypes = [POINTER(PangoGlyphString), POINTER(PangoFont), POINTER(PangoRectangle), POINTER(PangoRectangle)]
 
-# pango-new.h:1072
+# pango-new.h:1068
 pango_glyph_string_get_width = _lib.pango_glyph_string_get_width
 pango_glyph_string_get_width.restype = c_int
 pango_glyph_string_get_width.argtypes = [POINTER(PangoGlyphString)]
 
-# pango-new.h:1074
+# pango-new.h:1070
 pango_glyph_string_extents_range = _lib.pango_glyph_string_extents_range
 pango_glyph_string_extents_range.restype = None
 pango_glyph_string_extents_range.argtypes = [POINTER(PangoGlyphString), c_int, c_int, POINTER(PangoFont), POINTER(PangoRectangle), POINTER(PangoRectangle)]
 
-# pango-new.h:1081
+# pango-new.h:1077
 pango_glyph_string_get_logical_widths = _lib.pango_glyph_string_get_logical_widths
 pango_glyph_string_get_logical_widths.restype = None
 pango_glyph_string_get_logical_widths.argtypes = [POINTER(PangoGlyphString), c_char_p, c_int, c_int, POINTER(c_int)]
 
-# pango-new.h:1094
+# pango-new.h:1090
 pango_glyph_string_x_to_index = _lib.pango_glyph_string_x_to_index
 pango_glyph_string_x_to_index.restype = None
 pango_glyph_string_x_to_index.argtypes = [POINTER(PangoGlyphString), c_char_p, c_int, POINTER(PangoAnalysis), c_int, POINTER(c_int), POINTER(c_int)]
@@ -1614,23 +1614,23 @@ struct__PangoGlyphItem._fields_ = [
     ('_opaque_struct', c_int)
 ]
 
-PangoGlyphItem = struct__PangoGlyphItem 	# pango-new.h:1169
-# pango-new.h:1181
+PangoGlyphItem = struct__PangoGlyphItem 	# pango-new.h:1165
+# pango-new.h:1177
 pango_glyph_item_split = _lib.pango_glyph_item_split
 pango_glyph_item_split.restype = POINTER(PangoGlyphItem)
 pango_glyph_item_split.argtypes = [POINTER(PangoGlyphItem), c_char_p, c_int]
 
-# pango-new.h:1184
+# pango-new.h:1180
 pango_glyph_item_copy = _lib.pango_glyph_item_copy
 pango_glyph_item_copy.restype = POINTER(PangoGlyphItem)
 pango_glyph_item_copy.argtypes = [POINTER(PangoGlyphItem)]
 
-# pango-new.h:1185
+# pango-new.h:1181
 pango_glyph_item_free = _lib.pango_glyph_item_free
 pango_glyph_item_free.restype = None
 pango_glyph_item_free.argtypes = [POINTER(PangoGlyphItem)]
 
-# pango-new.h:1189
+# pango-new.h:1185
 pango_glyph_item_letter_space = _lib.pango_glyph_item_letter_space
 pango_glyph_item_letter_space.restype = None
 pango_glyph_item_letter_space.argtypes = [POINTER(PangoGlyphItem), c_char_p, POINTER(PangoLogAttr), c_int]
@@ -1649,13 +1649,13 @@ struct__PangoGlyphItemIter._fields_ = [
     ('_opaque_struct', c_int)
 ]
 
-PangoGlyphItemIter = struct__PangoGlyphItemIter 	# pango-new.h:1195
-# pango-new.h:1214
+PangoGlyphItemIter = struct__PangoGlyphItemIter 	# pango-new.h:1191
+# pango-new.h:1210
 pango_glyph_item_iter_copy = _lib.pango_glyph_item_iter_copy
 pango_glyph_item_iter_copy.restype = POINTER(PangoGlyphItemIter)
 pango_glyph_item_iter_copy.argtypes = [POINTER(PangoGlyphItemIter)]
 
-# pango-new.h:1215
+# pango-new.h:1211
 pango_glyph_item_iter_free = _lib.pango_glyph_item_iter_free
 pango_glyph_item_iter_free.restype = None
 pango_glyph_item_iter_free.argtypes = [POINTER(PangoGlyphItemIter)]
@@ -1674,16 +1674,16 @@ struct__PangoTabArray._fields_ = [
     ('_opaque_struct', c_int)
 ]
 
-PangoTabArray = struct__PangoTabArray 	# pango-new.h:1231
+PangoTabArray = struct__PangoTabArray 	# pango-new.h:1227
 enum_anon_15 = c_int
 PANGO_TAB_LEFT = 0
-PangoTabAlign = enum_anon_15 	# pango-new.h:1236
-# pango-new.h:1248
+PangoTabAlign = enum_anon_15 	# pango-new.h:1232
+# pango-new.h:1244
 pango_tab_array_copy = _lib.pango_tab_array_copy
 pango_tab_array_copy.restype = POINTER(PangoTabArray)
 pango_tab_array_copy.argtypes = [POINTER(PangoTabArray)]
 
-# pango-new.h:1249
+# pango-new.h:1245
 pango_tab_array_free = _lib.pango_tab_array_free
 pango_tab_array_free.restype = None
 pango_tab_array_free.argtypes = [POINTER(PangoTabArray)]
@@ -1702,7 +1702,7 @@ struct__PangoLayout._fields_ = [
     ('_opaque_struct', c_int)
 ]
 
-PangoLayout = struct__PangoLayout 	# pango-new.h:1272
+PangoLayout = struct__PangoLayout 	# pango-new.h:1268
 class struct__PangoLayoutClass(Structure):
     __slots__ = [
     ]
@@ -1717,7 +1717,7 @@ struct__PangoLayoutClass._fields_ = [
     ('_opaque_struct', c_int)
 ]
 
-PangoLayoutClass = struct__PangoLayoutClass 	# pango-new.h:1273
+PangoLayoutClass = struct__PangoLayoutClass 	# pango-new.h:1269
 class struct__PangoLayoutLine(Structure):
     __slots__ = [
     ]
@@ -1732,235 +1732,235 @@ struct__PangoLayoutLine._fields_ = [
     ('_opaque_struct', c_int)
 ]
 
-PangoLayoutLine = struct__PangoLayoutLine 	# pango-new.h:1274
-PangoLayoutRun = PangoGlyphItem 	# pango-new.h:1276
+PangoLayoutLine = struct__PangoLayoutLine 	# pango-new.h:1270
+PangoLayoutRun = PangoGlyphItem 	# pango-new.h:1272
 enum_anon_16 = c_int
 PANGO_ALIGN_LEFT = 0
 PANGO_ALIGN_CENTER = 1
 PANGO_ALIGN_RIGHT = 2
-PangoAlignment = enum_anon_16 	# pango-new.h:1282
+PangoAlignment = enum_anon_16 	# pango-new.h:1278
 enum_anon_17 = c_int
 PANGO_WRAP_WORD = 0
 PANGO_WRAP_CHAR = 1
 PANGO_WRAP_WORD_CHAR = 2
-PangoWrapMode = enum_anon_17 	# pango-new.h:1288
+PangoWrapMode = enum_anon_17 	# pango-new.h:1284
 enum_anon_18 = c_int
 PANGO_ELLIPSIZE_NONE = 0
 PANGO_ELLIPSIZE_START = 1
 PANGO_ELLIPSIZE_MIDDLE = 2
 PANGO_ELLIPSIZE_END = 3
-PangoEllipsizeMode = enum_anon_18 	# pango-new.h:1294
-# pango-new.h:1306
+PangoEllipsizeMode = enum_anon_18 	# pango-new.h:1290
+# pango-new.h:1302
 pango_layout_new = _lib.pango_layout_new
 pango_layout_new.restype = POINTER(PangoLayout)
 pango_layout_new.argtypes = [POINTER(PangoContext)]
 
-# pango-new.h:1307
+# pango-new.h:1303
 pango_layout_copy = _lib.pango_layout_copy
 pango_layout_copy.restype = POINTER(PangoLayout)
 pango_layout_copy.argtypes = [POINTER(PangoLayout)]
 
-# pango-new.h:1309
+# pango-new.h:1305
 pango_layout_get_context = _lib.pango_layout_get_context
 pango_layout_get_context.restype = POINTER(PangoContext)
 pango_layout_get_context.argtypes = [POINTER(PangoLayout)]
 
-# pango-new.h:1311
+# pango-new.h:1307
 pango_layout_set_attributes = _lib.pango_layout_set_attributes
 pango_layout_set_attributes.restype = None
 pango_layout_set_attributes.argtypes = [POINTER(PangoLayout), POINTER(PangoAttrList)]
 
-# pango-new.h:1313
+# pango-new.h:1309
 pango_layout_get_attributes = _lib.pango_layout_get_attributes
 pango_layout_get_attributes.restype = POINTER(PangoAttrList)
 pango_layout_get_attributes.argtypes = [POINTER(PangoLayout)]
 
-# pango-new.h:1315
+# pango-new.h:1311
 pango_layout_set_text = _lib.pango_layout_set_text
 pango_layout_set_text.restype = None
 pango_layout_set_text.argtypes = [POINTER(PangoLayout), c_char_p, c_int]
 
-# pango-new.h:1318
+# pango-new.h:1314
 pango_layout_get_text = _lib.pango_layout_get_text
 pango_layout_get_text.restype = c_char_p
 pango_layout_get_text.argtypes = [POINTER(PangoLayout)]
 
-# pango-new.h:1320
+# pango-new.h:1316
 pango_layout_set_markup = _lib.pango_layout_set_markup
 pango_layout_set_markup.restype = None
 pango_layout_set_markup.argtypes = [POINTER(PangoLayout), c_char_p, c_int]
 
-# pango-new.h:1330
+# pango-new.h:1326
 pango_layout_set_font_description = _lib.pango_layout_set_font_description
 pango_layout_set_font_description.restype = None
 pango_layout_set_font_description.argtypes = [POINTER(PangoLayout), POINTER(PangoFontDescription)]
 
-# pango-new.h:1333
+# pango-new.h:1329
 pango_layout_get_font_description = _lib.pango_layout_get_font_description
 pango_layout_get_font_description.restype = POINTER(PangoFontDescription)
 pango_layout_get_font_description.argtypes = [POINTER(PangoLayout)]
 
-# pango-new.h:1335
+# pango-new.h:1331
 pango_layout_set_width = _lib.pango_layout_set_width
 pango_layout_set_width.restype = None
 pango_layout_set_width.argtypes = [POINTER(PangoLayout), c_int]
 
-# pango-new.h:1337
+# pango-new.h:1333
 pango_layout_get_width = _lib.pango_layout_get_width
 pango_layout_get_width.restype = c_int
 pango_layout_get_width.argtypes = [POINTER(PangoLayout)]
 
-# pango-new.h:1338
+# pango-new.h:1334
 pango_layout_set_height = _lib.pango_layout_set_height
 pango_layout_set_height.restype = None
 pango_layout_set_height.argtypes = [POINTER(PangoLayout), c_int]
 
-# pango-new.h:1340
+# pango-new.h:1336
 pango_layout_get_height = _lib.pango_layout_get_height
 pango_layout_get_height.restype = c_int
 pango_layout_get_height.argtypes = [POINTER(PangoLayout)]
 
-# pango-new.h:1341
+# pango-new.h:1337
 pango_layout_set_wrap = _lib.pango_layout_set_wrap
 pango_layout_set_wrap.restype = None
 pango_layout_set_wrap.argtypes = [POINTER(PangoLayout), PangoWrapMode]
 
-# pango-new.h:1343
+# pango-new.h:1339
 pango_layout_get_wrap = _lib.pango_layout_get_wrap
 pango_layout_get_wrap.restype = PangoWrapMode
 pango_layout_get_wrap.argtypes = [POINTER(PangoLayout)]
 
-# pango-new.h:1345
+# pango-new.h:1341
 pango_layout_set_indent = _lib.pango_layout_set_indent
 pango_layout_set_indent.restype = None
 pango_layout_set_indent.argtypes = [POINTER(PangoLayout), c_int]
 
-# pango-new.h:1347
+# pango-new.h:1343
 pango_layout_get_indent = _lib.pango_layout_get_indent
 pango_layout_get_indent.restype = c_int
 pango_layout_get_indent.argtypes = [POINTER(PangoLayout)]
 
-# pango-new.h:1348
+# pango-new.h:1344
 pango_layout_set_spacing = _lib.pango_layout_set_spacing
 pango_layout_set_spacing.restype = None
 pango_layout_set_spacing.argtypes = [POINTER(PangoLayout), c_int]
 
-# pango-new.h:1350
+# pango-new.h:1346
 pango_layout_get_spacing = _lib.pango_layout_get_spacing
 pango_layout_get_spacing.restype = c_int
 pango_layout_get_spacing.argtypes = [POINTER(PangoLayout)]
 
-# pango-new.h:1357
+# pango-new.h:1353
 pango_layout_set_alignment = _lib.pango_layout_set_alignment
 pango_layout_set_alignment.restype = None
 pango_layout_set_alignment.argtypes = [POINTER(PangoLayout), PangoAlignment]
 
-# pango-new.h:1359
+# pango-new.h:1355
 pango_layout_get_alignment = _lib.pango_layout_get_alignment
 pango_layout_get_alignment.restype = PangoAlignment
 pango_layout_get_alignment.argtypes = [POINTER(PangoLayout)]
 
-# pango-new.h:1361
+# pango-new.h:1357
 pango_layout_set_tabs = _lib.pango_layout_set_tabs
 pango_layout_set_tabs.restype = None
 pango_layout_set_tabs.argtypes = [POINTER(PangoLayout), POINTER(PangoTabArray)]
 
-# pango-new.h:1364
+# pango-new.h:1360
 pango_layout_get_tabs = _lib.pango_layout_get_tabs
 pango_layout_get_tabs.restype = POINTER(PangoTabArray)
 pango_layout_get_tabs.argtypes = [POINTER(PangoLayout)]
 
-# pango-new.h:1370
+# pango-new.h:1366
 pango_layout_set_ellipsize = _lib.pango_layout_set_ellipsize
 pango_layout_set_ellipsize.restype = None
 pango_layout_set_ellipsize.argtypes = [POINTER(PangoLayout), PangoEllipsizeMode]
 
-# pango-new.h:1372
+# pango-new.h:1368
 pango_layout_get_ellipsize = _lib.pango_layout_get_ellipsize
 pango_layout_get_ellipsize.restype = PangoEllipsizeMode
 pango_layout_get_ellipsize.argtypes = [POINTER(PangoLayout)]
 
-# pango-new.h:1375
+# pango-new.h:1371
 pango_layout_get_unknown_glyphs_count = _lib.pango_layout_get_unknown_glyphs_count
 pango_layout_get_unknown_glyphs_count.restype = c_int
 pango_layout_get_unknown_glyphs_count.argtypes = [POINTER(PangoLayout)]
 
-# pango-new.h:1377
+# pango-new.h:1373
 pango_layout_context_changed = _lib.pango_layout_context_changed
 pango_layout_context_changed.restype = None
 pango_layout_context_changed.argtypes = [POINTER(PangoLayout)]
 
-# pango-new.h:1383
+# pango-new.h:1379
 pango_layout_index_to_pos = _lib.pango_layout_index_to_pos
 pango_layout_index_to_pos.restype = None
 pango_layout_index_to_pos.argtypes = [POINTER(PangoLayout), c_int, POINTER(PangoRectangle)]
 
-# pango-new.h:1391
+# pango-new.h:1387
 pango_layout_get_cursor_pos = _lib.pango_layout_get_cursor_pos
 pango_layout_get_cursor_pos.restype = None
 pango_layout_get_cursor_pos.argtypes = [POINTER(PangoLayout), c_int, POINTER(PangoRectangle), POINTER(PangoRectangle)]
 
-# pango-new.h:1407
+# pango-new.h:1403
 pango_layout_get_extents = _lib.pango_layout_get_extents
 pango_layout_get_extents.restype = None
 pango_layout_get_extents.argtypes = [POINTER(PangoLayout), POINTER(PangoRectangle), POINTER(PangoRectangle)]
 
-# pango-new.h:1410
+# pango-new.h:1406
 pango_layout_get_pixel_extents = _lib.pango_layout_get_pixel_extents
 pango_layout_get_pixel_extents.restype = None
 pango_layout_get_pixel_extents.argtypes = [POINTER(PangoLayout), POINTER(PangoRectangle), POINTER(PangoRectangle)]
 
-# pango-new.h:1413
+# pango-new.h:1409
 pango_layout_get_size = _lib.pango_layout_get_size
 pango_layout_get_size.restype = None
 pango_layout_get_size.argtypes = [POINTER(PangoLayout), POINTER(c_int), POINTER(c_int)]
 
-# pango-new.h:1416
+# pango-new.h:1412
 pango_layout_get_pixel_size = _lib.pango_layout_get_pixel_size
 pango_layout_get_pixel_size.restype = None
 pango_layout_get_pixel_size.argtypes = [POINTER(PangoLayout), POINTER(c_int), POINTER(c_int)]
 
-# pango-new.h:1419
+# pango-new.h:1415
 pango_layout_get_baseline = _lib.pango_layout_get_baseline
 pango_layout_get_baseline.restype = c_int
 pango_layout_get_baseline.argtypes = [POINTER(PangoLayout)]
 
-# pango-new.h:1421
+# pango-new.h:1417
 pango_layout_get_line_count = _lib.pango_layout_get_line_count
 pango_layout_get_line_count.restype = c_int
 pango_layout_get_line_count.argtypes = [POINTER(PangoLayout)]
 
-# pango-new.h:1422
+# pango-new.h:1418
 pango_layout_get_line = _lib.pango_layout_get_line
 pango_layout_get_line.restype = POINTER(PangoLayoutLine)
 pango_layout_get_line.argtypes = [POINTER(PangoLayout), c_int]
 
-# pango-new.h:1424
+# pango-new.h:1420
 pango_layout_get_line_readonly = _lib.pango_layout_get_line_readonly
 pango_layout_get_line_readonly.restype = POINTER(PangoLayoutLine)
 pango_layout_get_line_readonly.argtypes = [POINTER(PangoLayout), c_int]
 
-# pango-new.h:1434
+# pango-new.h:1430
 pango_layout_line_ref = _lib.pango_layout_line_ref
 pango_layout_line_ref.restype = POINTER(PangoLayoutLine)
 pango_layout_line_ref.argtypes = [POINTER(PangoLayoutLine)]
 
-# pango-new.h:1435
+# pango-new.h:1431
 pango_layout_line_unref = _lib.pango_layout_line_unref
 pango_layout_line_unref.restype = None
 pango_layout_line_unref.argtypes = [POINTER(PangoLayoutLine)]
 
-# pango-new.h:1445
+# pango-new.h:1441
 pango_layout_line_get_x_ranges = _lib.pango_layout_line_get_x_ranges
 pango_layout_line_get_x_ranges.restype = None
 pango_layout_line_get_x_ranges.argtypes = [POINTER(PangoLayoutLine), c_int, c_int, POINTER(POINTER(c_int)), POINTER(c_int)]
 
-# pango-new.h:1450
+# pango-new.h:1446
 pango_layout_line_get_extents = _lib.pango_layout_line_get_extents
 pango_layout_line_get_extents.restype = None
 pango_layout_line_get_extents.argtypes = [POINTER(PangoLayoutLine), POINTER(PangoRectangle), POINTER(PangoRectangle)]
 
-# pango-new.h:1453
+# pango-new.h:1449
 pango_layout_line_get_pixel_extents = _lib.pango_layout_line_get_pixel_extents
 pango_layout_line_get_pixel_extents.restype = None
 pango_layout_line_get_pixel_extents.argtypes = [POINTER(PangoLayoutLine), POINTER(PangoRectangle), POINTER(PangoRectangle)]
@@ -1979,83 +1979,83 @@ struct__PangoLayoutIter._fields_ = [
     ('_opaque_struct', c_int)
 ]
 
-PangoLayoutIter = struct__PangoLayoutIter 	# pango-new.h:1457
-# pango-new.h:1463
+PangoLayoutIter = struct__PangoLayoutIter 	# pango-new.h:1453
+# pango-new.h:1459
 pango_layout_get_iter = _lib.pango_layout_get_iter
 pango_layout_get_iter.restype = POINTER(PangoLayoutIter)
 pango_layout_get_iter.argtypes = [POINTER(PangoLayout)]
 
-# pango-new.h:1464
+# pango-new.h:1460
 pango_layout_iter_copy = _lib.pango_layout_iter_copy
 pango_layout_iter_copy.restype = POINTER(PangoLayoutIter)
 pango_layout_iter_copy.argtypes = [POINTER(PangoLayoutIter)]
 
-# pango-new.h:1465
+# pango-new.h:1461
 pango_layout_iter_free = _lib.pango_layout_iter_free
 pango_layout_iter_free.restype = None
 pango_layout_iter_free.argtypes = [POINTER(PangoLayoutIter)]
 
-# pango-new.h:1467
+# pango-new.h:1463
 pango_layout_iter_get_index = _lib.pango_layout_iter_get_index
 pango_layout_iter_get_index.restype = c_int
 pango_layout_iter_get_index.argtypes = [POINTER(PangoLayoutIter)]
 
-# pango-new.h:1468
+# pango-new.h:1464
 pango_layout_iter_get_run = _lib.pango_layout_iter_get_run
 pango_layout_iter_get_run.restype = POINTER(PangoLayoutRun)
 pango_layout_iter_get_run.argtypes = [POINTER(PangoLayoutIter)]
 
-# pango-new.h:1469
+# pango-new.h:1465
 pango_layout_iter_get_run_readonly = _lib.pango_layout_iter_get_run_readonly
 pango_layout_iter_get_run_readonly.restype = POINTER(PangoLayoutRun)
 pango_layout_iter_get_run_readonly.argtypes = [POINTER(PangoLayoutIter)]
 
-# pango-new.h:1470
+# pango-new.h:1466
 pango_layout_iter_get_line = _lib.pango_layout_iter_get_line
 pango_layout_iter_get_line.restype = POINTER(PangoLayoutLine)
 pango_layout_iter_get_line.argtypes = [POINTER(PangoLayoutIter)]
 
-# pango-new.h:1471
+# pango-new.h:1467
 pango_layout_iter_get_line_readonly = _lib.pango_layout_iter_get_line_readonly
 pango_layout_iter_get_line_readonly.restype = POINTER(PangoLayoutLine)
 pango_layout_iter_get_line_readonly.argtypes = [POINTER(PangoLayoutIter)]
 
-# pango-new.h:1473
+# pango-new.h:1469
 pango_layout_iter_get_layout = _lib.pango_layout_iter_get_layout
 pango_layout_iter_get_layout.restype = POINTER(PangoLayout)
 pango_layout_iter_get_layout.argtypes = [POINTER(PangoLayoutIter)]
 
-# pango-new.h:1480
+# pango-new.h:1476
 pango_layout_iter_get_char_extents = _lib.pango_layout_iter_get_char_extents
 pango_layout_iter_get_char_extents.restype = None
 pango_layout_iter_get_char_extents.argtypes = [POINTER(PangoLayoutIter), POINTER(PangoRectangle)]
 
-# pango-new.h:1482
+# pango-new.h:1478
 pango_layout_iter_get_cluster_extents = _lib.pango_layout_iter_get_cluster_extents
 pango_layout_iter_get_cluster_extents.restype = None
 pango_layout_iter_get_cluster_extents.argtypes = [POINTER(PangoLayoutIter), POINTER(PangoRectangle), POINTER(PangoRectangle)]
 
-# pango-new.h:1485
+# pango-new.h:1481
 pango_layout_iter_get_run_extents = _lib.pango_layout_iter_get_run_extents
 pango_layout_iter_get_run_extents.restype = None
 pango_layout_iter_get_run_extents.argtypes = [POINTER(PangoLayoutIter), POINTER(PangoRectangle), POINTER(PangoRectangle)]
 
-# pango-new.h:1488
+# pango-new.h:1484
 pango_layout_iter_get_line_extents = _lib.pango_layout_iter_get_line_extents
 pango_layout_iter_get_line_extents.restype = None
 pango_layout_iter_get_line_extents.argtypes = [POINTER(PangoLayoutIter), POINTER(PangoRectangle), POINTER(PangoRectangle)]
 
-# pango-new.h:1494
+# pango-new.h:1490
 pango_layout_iter_get_line_yrange = _lib.pango_layout_iter_get_line_yrange
 pango_layout_iter_get_line_yrange.restype = None
 pango_layout_iter_get_line_yrange.argtypes = [POINTER(PangoLayoutIter), POINTER(c_int), POINTER(c_int)]
 
-# pango-new.h:1497
+# pango-new.h:1493
 pango_layout_iter_get_layout_extents = _lib.pango_layout_iter_get_layout_extents
 pango_layout_iter_get_layout_extents.restype = None
 pango_layout_iter_get_layout_extents.argtypes = [POINTER(PangoLayoutIter), POINTER(PangoRectangle), POINTER(PangoRectangle)]
 
-# pango-new.h:1500
+# pango-new.h:1496
 pango_layout_iter_get_baseline = _lib.pango_layout_iter_get_baseline
 pango_layout_iter_get_baseline.restype = c_int
 pango_layout_iter_get_baseline.argtypes = [POINTER(PangoLayoutIter)]
@@ -2074,7 +2074,7 @@ struct__PangoRenderer._fields_ = [
     ('_opaque_struct', c_int)
 ]
 
-PangoRenderer = struct__PangoRenderer 	# pango-new.h:1505
+PangoRenderer = struct__PangoRenderer 	# pango-new.h:1501
 class struct__PangoRendererClass(Structure):
     __slots__ = [
     ]
@@ -2089,7 +2089,7 @@ struct__PangoRendererClass._fields_ = [
     ('_opaque_struct', c_int)
 ]
 
-PangoRendererClass = struct__PangoRendererClass 	# pango-new.h:1506
+PangoRendererClass = struct__PangoRendererClass 	# pango-new.h:1502
 class struct__PangoRendererPrivate(Structure):
     __slots__ = [
     ]
@@ -2104,124 +2104,124 @@ struct__PangoRendererPrivate._fields_ = [
     ('_opaque_struct', c_int)
 ]
 
-PangoRendererPrivate = struct__PangoRendererPrivate 	# pango-new.h:1507
+PangoRendererPrivate = struct__PangoRendererPrivate 	# pango-new.h:1503
 enum_anon_19 = c_int
 PANGO_RENDER_PART_FOREGROUND = 0
 PANGO_RENDER_PART_BACKGROUND = 1
 PANGO_RENDER_PART_UNDERLINE = 2
 PANGO_RENDER_PART_STRIKETHROUGH = 3
-PangoRenderPart = enum_anon_19 	# pango-new.h:1514
-# pango-new.h:1615
+PangoRenderPart = enum_anon_19 	# pango-new.h:1510
+# pango-new.h:1611
 pango_renderer_draw_layout = _lib.pango_renderer_draw_layout
 pango_renderer_draw_layout.restype = None
 pango_renderer_draw_layout.argtypes = [POINTER(PangoRenderer), POINTER(PangoLayout), c_int, c_int]
 
-# pango-new.h:1619
+# pango-new.h:1615
 pango_renderer_draw_layout_line = _lib.pango_renderer_draw_layout_line
 pango_renderer_draw_layout_line.restype = None
 pango_renderer_draw_layout_line.argtypes = [POINTER(PangoRenderer), POINTER(PangoLayoutLine), c_int, c_int]
 
-# pango-new.h:1623
+# pango-new.h:1619
 pango_renderer_draw_glyphs = _lib.pango_renderer_draw_glyphs
 pango_renderer_draw_glyphs.restype = None
 pango_renderer_draw_glyphs.argtypes = [POINTER(PangoRenderer), POINTER(PangoFont), POINTER(PangoGlyphString), c_int, c_int]
 
-# pango-new.h:1628
+# pango-new.h:1624
 pango_renderer_draw_glyph_item = _lib.pango_renderer_draw_glyph_item
 pango_renderer_draw_glyph_item.restype = None
 pango_renderer_draw_glyph_item.argtypes = [POINTER(PangoRenderer), c_char_p, POINTER(PangoGlyphItem), c_int, c_int]
 
-# pango-new.h:1633
+# pango-new.h:1629
 pango_renderer_draw_rectangle = _lib.pango_renderer_draw_rectangle
 pango_renderer_draw_rectangle.restype = None
 pango_renderer_draw_rectangle.argtypes = [POINTER(PangoRenderer), PangoRenderPart, c_int, c_int, c_int, c_int]
 
-# pango-new.h:1639
+# pango-new.h:1635
 pango_renderer_draw_error_underline = _lib.pango_renderer_draw_error_underline
 pango_renderer_draw_error_underline.restype = None
 pango_renderer_draw_error_underline.argtypes = [POINTER(PangoRenderer), c_int, c_int, c_int, c_int]
 
-# pango-new.h:1644
+# pango-new.h:1640
 pango_renderer_draw_trapezoid = _lib.pango_renderer_draw_trapezoid
 pango_renderer_draw_trapezoid.restype = None
 pango_renderer_draw_trapezoid.argtypes = [POINTER(PangoRenderer), PangoRenderPart, c_double, c_double, c_double, c_double, c_double, c_double]
 
-# pango-new.h:1652
+# pango-new.h:1648
 pango_renderer_draw_glyph = _lib.pango_renderer_draw_glyph
 pango_renderer_draw_glyph.restype = None
 pango_renderer_draw_glyph.argtypes = [POINTER(PangoRenderer), POINTER(PangoFont), PangoGlyph, c_double, c_double]
 
-# pango-new.h:1658
+# pango-new.h:1654
 pango_renderer_activate = _lib.pango_renderer_activate
 pango_renderer_activate.restype = None
 pango_renderer_activate.argtypes = [POINTER(PangoRenderer)]
 
-# pango-new.h:1659
+# pango-new.h:1655
 pango_renderer_deactivate = _lib.pango_renderer_deactivate
 pango_renderer_deactivate.restype = None
 pango_renderer_deactivate.argtypes = [POINTER(PangoRenderer)]
 
-# pango-new.h:1661
+# pango-new.h:1657
 pango_renderer_part_changed = _lib.pango_renderer_part_changed
 pango_renderer_part_changed.restype = None
 pango_renderer_part_changed.argtypes = [POINTER(PangoRenderer), PangoRenderPart]
 
-# pango-new.h:1664
+# pango-new.h:1660
 pango_renderer_set_color = _lib.pango_renderer_set_color
 pango_renderer_set_color.restype = None
 pango_renderer_set_color.argtypes = [POINTER(PangoRenderer), PangoRenderPart, POINTER(PangoColor)]
 
-# pango-new.h:1667
+# pango-new.h:1663
 pango_renderer_get_color = _lib.pango_renderer_get_color
 pango_renderer_get_color.restype = POINTER(PangoColor)
 pango_renderer_get_color.argtypes = [POINTER(PangoRenderer), PangoRenderPart]
 
-# pango-new.h:1670
+# pango-new.h:1666
 pango_renderer_set_matrix = _lib.pango_renderer_set_matrix
 pango_renderer_set_matrix.restype = None
 pango_renderer_set_matrix.argtypes = [POINTER(PangoRenderer), POINTER(PangoMatrix)]
 
-# pango-new.h:1672
+# pango-new.h:1668
 pango_renderer_get_matrix = _lib.pango_renderer_get_matrix
 pango_renderer_get_matrix.restype = POINTER(PangoMatrix)
 pango_renderer_get_matrix.argtypes = [POINTER(PangoRenderer)]
 
-# pango-new.h:1674
+# pango-new.h:1670
 pango_renderer_get_layout = _lib.pango_renderer_get_layout
 pango_renderer_get_layout.restype = POINTER(PangoLayout)
 pango_renderer_get_layout.argtypes = [POINTER(PangoRenderer)]
 
-# pango-new.h:1675
+# pango-new.h:1671
 pango_renderer_get_layout_line = _lib.pango_renderer_get_layout_line
 pango_renderer_get_layout_line.restype = POINTER(PangoLayoutLine)
 pango_renderer_get_layout_line.argtypes = [POINTER(PangoRenderer)]
 
-# pango-new.h:1686
+# pango-new.h:1682
 pango_split_file_list = _lib.pango_split_file_list
 pango_split_file_list.restype = POINTER(c_char_p)
 pango_split_file_list.argtypes = [c_char_p]
 
-# pango-new.h:1688
+# pango-new.h:1684
 pango_trim_string = _lib.pango_trim_string
 pango_trim_string.restype = c_char_p
 pango_trim_string.argtypes = [c_char_p]
 
-# pango-new.h:1715
+# pango-new.h:1711
 pango_quantize_line_geometry = _lib.pango_quantize_line_geometry
 pango_quantize_line_geometry.restype = None
 pango_quantize_line_geometry.argtypes = [POINTER(c_int), POINTER(c_int)]
 
-# pango-new.h:1728
+# pango-new.h:1724
 pango_version = _lib.pango_version
 pango_version.restype = c_int
 pango_version.argtypes = []
 
-# pango-new.h:1731
+# pango-new.h:1727
 pango_version_string = _lib.pango_version_string
 pango_version_string.restype = c_char_p
 pango_version_string.argtypes = []
 
-# pango-new.h:1734
+# pango-new.h:1730
 pango_version_check = _lib.pango_version_check
 pango_version_check.restype = c_char_p
 pango_version_check.argtypes = [c_int, c_int, c_int]
@@ -2522,7 +2522,7 @@ struct__PangoCairoFont._fields_ = [
     ('_opaque_struct', c_int)
 ]
 
-PangoCairoFont = struct__PangoCairoFont 	# pango-new.h:2927
+PangoCairoFont = struct__PangoCairoFont 	# pango-new.h:2923
 class struct__PangoCairoFontMap(Structure):
     __slots__ = [
     ]
@@ -2537,53 +2537,53 @@ struct__PangoCairoFontMap._fields_ = [
     ('_opaque_struct', c_int)
 ]
 
-PangoCairoFontMap = struct__PangoCairoFontMap 	# pango-new.h:2928
-# pango-new.h:2943
+PangoCairoFontMap = struct__PangoCairoFontMap 	# pango-new.h:2924
+# pango-new.h:2939
 pango_cairo_font_map_new = _lib.pango_cairo_font_map_new
 pango_cairo_font_map_new.restype = POINTER(PangoFontMap)
 pango_cairo_font_map_new.argtypes = []
 
-# pango-new.h:2944
+# pango-new.h:2940
 pango_cairo_font_map_new_for_font_type = _lib.pango_cairo_font_map_new_for_font_type
 pango_cairo_font_map_new_for_font_type.restype = POINTER(PangoFontMap)
 pango_cairo_font_map_new_for_font_type.argtypes = [cairo_font_type_t]
 
-# pango-new.h:2945
+# pango-new.h:2941
 pango_cairo_font_map_get_default = _lib.pango_cairo_font_map_get_default
 pango_cairo_font_map_get_default.restype = POINTER(PangoFontMap)
 pango_cairo_font_map_get_default.argtypes = []
 
-# pango-new.h:2946
+# pango-new.h:2942
 pango_cairo_font_map_set_default = _lib.pango_cairo_font_map_set_default
 pango_cairo_font_map_set_default.restype = None
 pango_cairo_font_map_set_default.argtypes = [POINTER(PangoCairoFontMap)]
 
-# pango-new.h:2947
+# pango-new.h:2943
 pango_cairo_font_map_get_font_type = _lib.pango_cairo_font_map_get_font_type
 pango_cairo_font_map_get_font_type.restype = cairo_font_type_t
 pango_cairo_font_map_get_font_type.argtypes = [POINTER(PangoCairoFontMap)]
 
-# pango-new.h:2949
+# pango-new.h:2945
 pango_cairo_font_map_set_resolution = _lib.pango_cairo_font_map_set_resolution
 pango_cairo_font_map_set_resolution.restype = None
 pango_cairo_font_map_set_resolution.argtypes = [POINTER(PangoCairoFontMap), c_double]
 
-# pango-new.h:2951
+# pango-new.h:2947
 pango_cairo_font_map_get_resolution = _lib.pango_cairo_font_map_get_resolution
 pango_cairo_font_map_get_resolution.restype = c_double
 pango_cairo_font_map_get_resolution.argtypes = [POINTER(PangoCairoFontMap)]
 
-# pango-new.h:2953
+# pango-new.h:2949
 pango_cairo_font_map_create_context = _lib.pango_cairo_font_map_create_context
 pango_cairo_font_map_create_context.restype = POINTER(PangoContext)
 pango_cairo_font_map_create_context.argtypes = [POINTER(PangoCairoFontMap)]
 
-# pango-new.h:2961
+# pango-new.h:2957
 pango_cairo_font_get_scaled_font = _lib.pango_cairo_font_get_scaled_font
 pango_cairo_font_get_scaled_font.restype = POINTER(cairo_scaled_font_t)
 pango_cairo_font_get_scaled_font.argtypes = [POINTER(PangoCairoFont)]
 
-# pango-new.h:2965
+# pango-new.h:2961
 pango_cairo_update_context = _lib.pango_cairo_update_context
 pango_cairo_update_context.restype = None
 pango_cairo_update_context.argtypes = [POINTER(cairo_t), POINTER(PangoContext)]
@@ -2591,7 +2591,7 @@ pango_cairo_update_context.argtypes = [POINTER(cairo_t), POINTER(PangoContext)]
 _pango_cairo_update_context = pango_cairo_update_context
 pango_cairo_update_context = lambda arg0, arg1: _pango_cairo_update_context(arg0._internal, arg1._internal)
 
-# pango-new.h:2968
+# pango-new.h:2964
 pango_cairo_context_set_font_options = _lib.pango_cairo_context_set_font_options
 pango_cairo_context_set_font_options.restype = None
 pango_cairo_context_set_font_options.argtypes = [POINTER(PangoContext), POINTER(cairo_font_options_t)]
@@ -2599,7 +2599,7 @@ pango_cairo_context_set_font_options.argtypes = [POINTER(PangoContext), POINTER(
 _pango_cairo_context_set_font_options = pango_cairo_context_set_font_options
 pango_cairo_context_set_font_options = lambda arg0, arg1: _pango_cairo_context_set_font_options(arg0._internal, arg1)
 
-# pango-new.h:2970
+# pango-new.h:2966
 pango_cairo_context_get_font_options = _lib.pango_cairo_context_get_font_options
 pango_cairo_context_get_font_options.restype = POINTER(cairo_font_options_t)
 pango_cairo_context_get_font_options.argtypes = [POINTER(PangoContext)]
@@ -2607,7 +2607,7 @@ pango_cairo_context_get_font_options.argtypes = [POINTER(PangoContext)]
 _pango_cairo_context_get_font_options = pango_cairo_context_get_font_options
 pango_cairo_context_get_font_options = lambda arg0: _pango_cairo_context_get_font_options(arg0._internal)
 
-# pango-new.h:2972
+# pango-new.h:2968
 pango_cairo_context_set_resolution = _lib.pango_cairo_context_set_resolution
 pango_cairo_context_set_resolution.restype = None
 pango_cairo_context_set_resolution.argtypes = [POINTER(PangoContext), c_double]
@@ -2615,7 +2615,7 @@ pango_cairo_context_set_resolution.argtypes = [POINTER(PangoContext), c_double]
 _pango_cairo_context_set_resolution = pango_cairo_context_set_resolution
 pango_cairo_context_set_resolution = lambda arg0, arg1: _pango_cairo_context_set_resolution(arg0._internal, arg1)
 
-# pango-new.h:2974
+# pango-new.h:2970
 pango_cairo_context_get_resolution = _lib.pango_cairo_context_get_resolution
 pango_cairo_context_get_resolution.restype = c_double
 pango_cairo_context_get_resolution.argtypes = [POINTER(PangoContext)]
@@ -2623,7 +2623,7 @@ pango_cairo_context_get_resolution.argtypes = [POINTER(PangoContext)]
 _pango_cairo_context_get_resolution = pango_cairo_context_get_resolution
 pango_cairo_context_get_resolution = lambda arg0: _pango_cairo_context_get_resolution(arg0._internal)
 
-# pango-new.h:2985
+# pango-new.h:2981
 pango_cairo_create_context = _lib.pango_cairo_create_context
 pango_cairo_create_context.restype = POINTER(PangoContext)
 pango_cairo_create_context.argtypes = [POINTER(cairo_t)]
@@ -2631,7 +2631,7 @@ pango_cairo_create_context.argtypes = [POINTER(cairo_t)]
 _pango_cairo_create_context = pango_cairo_create_context
 pango_cairo_create_context = lambda arg0: Context._from_internal(_pango_cairo_create_context(arg0._internal))
 
-# pango-new.h:2986
+# pango-new.h:2982
 pango_cairo_create_layout = _lib.pango_cairo_create_layout
 pango_cairo_create_layout.restype = POINTER(PangoLayout)
 pango_cairo_create_layout.argtypes = [POINTER(cairo_t)]
@@ -2639,7 +2639,7 @@ pango_cairo_create_layout.argtypes = [POINTER(cairo_t)]
 _pango_cairo_create_layout = pango_cairo_create_layout
 pango_cairo_create_layout = lambda arg0: Layout._from_internal(_pango_cairo_create_layout(arg0._internal))
 
-# pango-new.h:2987
+# pango-new.h:2983
 pango_cairo_update_layout = _lib.pango_cairo_update_layout
 pango_cairo_update_layout.restype = None
 pango_cairo_update_layout.argtypes = [POINTER(cairo_t), POINTER(PangoLayout)]
@@ -2647,7 +2647,7 @@ pango_cairo_update_layout.argtypes = [POINTER(cairo_t), POINTER(PangoLayout)]
 _pango_cairo_update_layout = pango_cairo_update_layout
 pango_cairo_update_layout = lambda arg0, arg1: _pango_cairo_update_layout(arg0._internal, arg1._internal)
 
-# pango-new.h:2993
+# pango-new.h:2989
 pango_cairo_show_glyph_string = _lib.pango_cairo_show_glyph_string
 pango_cairo_show_glyph_string.restype = None
 pango_cairo_show_glyph_string.argtypes = [POINTER(cairo_t), POINTER(PangoFont), POINTER(PangoGlyphString)]
@@ -2655,7 +2655,7 @@ pango_cairo_show_glyph_string.argtypes = [POINTER(cairo_t), POINTER(PangoFont), 
 _pango_cairo_show_glyph_string = pango_cairo_show_glyph_string
 pango_cairo_show_glyph_string = lambda arg0, arg1, arg2: _pango_cairo_show_glyph_string(arg0._internal, arg1, arg2)
 
-# pango-new.h:2996
+# pango-new.h:2992
 pango_cairo_show_glyph_item = _lib.pango_cairo_show_glyph_item
 pango_cairo_show_glyph_item.restype = None
 pango_cairo_show_glyph_item.argtypes = [POINTER(cairo_t), c_char_p, POINTER(PangoGlyphItem)]
@@ -2663,7 +2663,7 @@ pango_cairo_show_glyph_item.argtypes = [POINTER(cairo_t), c_char_p, POINTER(Pang
 _pango_cairo_show_glyph_item = pango_cairo_show_glyph_item
 pango_cairo_show_glyph_item = lambda arg0, arg1, arg2: _pango_cairo_show_glyph_item(arg0._internal, arg1, arg2)
 
-# pango-new.h:2999
+# pango-new.h:2995
 pango_cairo_show_layout_line = _lib.pango_cairo_show_layout_line
 pango_cairo_show_layout_line.restype = None
 pango_cairo_show_layout_line.argtypes = [POINTER(cairo_t), POINTER(PangoLayoutLine)]
@@ -2671,7 +2671,7 @@ pango_cairo_show_layout_line.argtypes = [POINTER(cairo_t), POINTER(PangoLayoutLi
 _pango_cairo_show_layout_line = pango_cairo_show_layout_line
 pango_cairo_show_layout_line = lambda arg0, arg1: _pango_cairo_show_layout_line(arg0._internal, arg1)
 
-# pango-new.h:3001
+# pango-new.h:2997
 pango_cairo_show_layout = _lib.pango_cairo_show_layout
 pango_cairo_show_layout.restype = None
 pango_cairo_show_layout.argtypes = [POINTER(cairo_t), POINTER(PangoLayout)]
@@ -2679,7 +2679,7 @@ pango_cairo_show_layout.argtypes = [POINTER(cairo_t), POINTER(PangoLayout)]
 _pango_cairo_show_layout = pango_cairo_show_layout
 pango_cairo_show_layout = lambda arg0, arg1: _pango_cairo_show_layout(arg0._internal, arg1._internal)
 
-# pango-new.h:3004
+# pango-new.h:3000
 pango_cairo_show_error_underline = _lib.pango_cairo_show_error_underline
 pango_cairo_show_error_underline.restype = None
 pango_cairo_show_error_underline.argtypes = [POINTER(cairo_t), c_double, c_double, c_double, c_double]
@@ -2687,7 +2687,7 @@ pango_cairo_show_error_underline.argtypes = [POINTER(cairo_t), c_double, c_doubl
 _pango_cairo_show_error_underline = pango_cairo_show_error_underline
 pango_cairo_show_error_underline = lambda arg0, arg1, arg2, arg3, arg4: _pango_cairo_show_error_underline(arg0._internal, arg1, arg2, arg3, arg4)
 
-# pango-new.h:3013
+# pango-new.h:3009
 pango_cairo_glyph_string_path = _lib.pango_cairo_glyph_string_path
 pango_cairo_glyph_string_path.restype = None
 pango_cairo_glyph_string_path.argtypes = [POINTER(cairo_t), POINTER(PangoFont), POINTER(PangoGlyphString)]
@@ -2695,7 +2695,7 @@ pango_cairo_glyph_string_path.argtypes = [POINTER(cairo_t), POINTER(PangoFont), 
 _pango_cairo_glyph_string_path = pango_cairo_glyph_string_path
 pango_cairo_glyph_string_path = lambda arg0, arg1, arg2: _pango_cairo_glyph_string_path(arg0._internal, arg1, arg2)
 
-# pango-new.h:3016
+# pango-new.h:3012
 pango_cairo_layout_line_path = _lib.pango_cairo_layout_line_path
 pango_cairo_layout_line_path.restype = None
 pango_cairo_layout_line_path.argtypes = [POINTER(cairo_t), POINTER(PangoLayoutLine)]
@@ -2703,7 +2703,7 @@ pango_cairo_layout_line_path.argtypes = [POINTER(cairo_t), POINTER(PangoLayoutLi
 _pango_cairo_layout_line_path = pango_cairo_layout_line_path
 pango_cairo_layout_line_path = lambda arg0, arg1: _pango_cairo_layout_line_path(arg0._internal, arg1)
 
-# pango-new.h:3018
+# pango-new.h:3014
 pango_cairo_layout_path = _lib.pango_cairo_layout_path
 pango_cairo_layout_path.restype = None
 pango_cairo_layout_path.argtypes = [POINTER(cairo_t), POINTER(PangoLayout)]
@@ -2711,7 +2711,7 @@ pango_cairo_layout_path.argtypes = [POINTER(cairo_t), POINTER(PangoLayout)]
 _pango_cairo_layout_path = pango_cairo_layout_path
 pango_cairo_layout_path = lambda arg0, arg1: _pango_cairo_layout_path(arg0._internal, arg1._internal)
 
-# pango-new.h:3021
+# pango-new.h:3017
 pango_cairo_error_underline_path = _lib.pango_cairo_error_underline_path
 pango_cairo_error_underline_path.restype = None
 pango_cairo_error_underline_path.argtypes = [POINTER(cairo_t), c_double, c_double, c_double, c_double]
