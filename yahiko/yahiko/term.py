@@ -501,28 +501,35 @@ class Term(EventDispatcher):
                 elif r == 8:
                     self.rendition |= 1 << 5
                 elif r >= 30 and r < 38:
-                    self.rendition |= (r - 30) << 24
+                    self.rendition = (self.rendition & 0x00ffffff) | ((r - 30) << 24)
                 elif r >= 90 and r < 98:
-                    self.rendition |= (r - 82) << 24
+                    self.rendition = (self.rendition & 0x00ffffff) | ((r - 82) << 24)
                 elif r >= 40 and r < 48:
-                    self.rendition |= (r - 40) << 16
+                    self.rendition = (self.rendition & 0xff00ffff) | ((r - 40) << 16)
                 elif r >= 100 and r < 108:
-                    self.rendition |= (r - 92) << 16
+                    self.rendition = (self.rendition & 0xff00ffff) | ((r - 92) << 16)
                 #elif r == 39:
                 #    self.rendition.foreground = 7
                 #elif r == 49:
                 #    self.rendition.background = 0
                 else:
                     log.warn('unknown m rendition %s', r)
-                #print "r", "%08x" % r
+                print "r", "%08x" % self.rendition
         else:
-            print "mclear"
             self.rendition = DEFAULT_RENDITION
+
+    def copy_screen(self):
+        ret = []
+        for row in self.screen:
+            nrow = TermRow(self.cols)
+            nrow.chars = row.chars[:]
+            nrow.rendition = row.rendition[:]
+        return ret
 
     def on_esq_seq_hl_q47(self, set):
         if set:
             log.debug('saving screen')
-            self.saved_screens.append((copy.deepcopy(self.screen), self.cursor_row, self.cursor_col))
+            self.saved_screens.append((self.copy_screen(), self.cursor_row, self.cursor_col))
         else:
             log.debug('restoring screen')
             self.screen, self.cursor_row, self.cursor_col = self.saved_screens.pop()
@@ -543,25 +550,6 @@ class TermWindow(ui.Window):
 
     def set_render_coords(self, x, y, width, height):
         ui.Window.set_render_coords(self, x, y, width, height)
-
-        #text = DictProxy(self.style, 'text.')
-        #family = text.get('family', 'sans-serif')
-        #weight = getattr(
-        #        cairo, 
-        #        'CAIRO_FONT_WEIGHT_' + text.get('weight', 'normal').upper(), 
-        #        cairo.CAIRO_FONT_WEIGHT_NORMAL,
-        #)
-        #slant = getattr(
-        #        cairo,
-        #        'CAIRO_FONT_SLANT_' + text.get('slant', 'normal').upper(),
-        #        cairo.CAIRO_FONT_SLANT_NORMAL,
-        #)
-        #cr = self.app.ui.cr
-        #cr.select_font_face(family, weight, slant)
-        #extents = cairo.font_extents_t()
-        #cr.font_extents(byref(extents))
-        #self.char_height = extents.height
-        #self.char_width = extents.max_x_advance
 
         cr = self.app.ui.cr
         context = pango.cairo_create_context(cr)
