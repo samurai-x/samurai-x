@@ -215,7 +215,12 @@ class Term(EventDispatcher):
                 self.scroll_up()
             self.cursor_row -= 1
 
-        row = self.screen[self.cursor_row]
+        try:
+            row = self.screen[self.cursor_row]
+        except:
+            print self.cursor_row, self.rows, len(self.screen)
+            raise
+
         row.chars[self.cursor_col] = ch
         row.rendition[self.cursor_col] = self.rendition
         row.dirty = True
@@ -508,13 +513,13 @@ class Term(EventDispatcher):
                     self.rendition = (self.rendition & 0xff00ffff) | ((r - 40) << 16)
                 elif r >= 100 and r < 108:
                     self.rendition = (self.rendition & 0xff00ffff) | ((r - 92) << 16)
-                #elif r == 39:
-                #    self.rendition.foreground = 7
-                #elif r == 49:
-                #    self.rendition.background = 0
+                elif r == 39:
+                    self.rendition = (self.rendition & 0x00ffffff) | DEFAULT_RENDITION
+                elif r == 49:
+                    self.rendition = (self.rendition & 0xff00ffff) | DEFAULT_RENDITION
                 else:
                     log.warn('unknown m rendition %s', r)
-                print "r", "%08x" % self.rendition
+                #print "r", "%08x" % self.rendition
         else:
             self.rendition = DEFAULT_RENDITION
 
@@ -524,6 +529,7 @@ class Term(EventDispatcher):
             nrow = TermRow(self.cols)
             nrow.chars = row.chars[:]
             nrow.rendition = row.rendition[:]
+            ret.append(nrow)
         return ret
 
     def on_esq_seq_hl_q47(self, set):
@@ -572,7 +578,7 @@ class TermWindow(ui.Window):
 
     def _render(self, cr):
         desc = pango.FontDescription.from_string('Bitstream Vera Sans Mono 8')
-        y = self.ry
+        y = self.ry + self.char_height
         for row in self.term.screen:
             if row.dirty:
                 curr = row.rendition[0]
@@ -602,20 +608,20 @@ class TermWindow(ui.Window):
                 row.layout.set_markup(markup, -1)
                 row.dirty = False
             if row.layout:
-                cr.move_to(self.rx, y)
+                cr.move_to(self.rx, y-pango.pango_units_to_double(row.layout.get_baseline()))
                 pango.cairo_update_layout(cr, row.layout)
                 pango.cairo_show_layout(cr, row.layout)
 
             y += self.char_height
         desc.free()
 
-        #cr.rectangle(
-        ##    self.rx+(self.cursor_col*self.char_width),
-        #    2+self.ry+(self.cursor_row*self.char_height),
-        #    self.char_width,
-        #    self.char_height)
-        #cr.set_source_rgba(1.0, 1.0, 1.0, 0.5)
-        #cr.fill()
+        cr.rectangle(
+            self.rx+(self.cursor_col*self.char_width),
+            2+self.ry+(self.cursor_row*self.char_height),
+            self.char_width,
+            self.char_height)
+        cr.set_source_rgba(1.0, 1.0, 1.0, 0.5)
+        cr.fill()
 
 
 class YahikoTerm(object):
