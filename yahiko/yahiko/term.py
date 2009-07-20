@@ -91,8 +91,9 @@ class TermRow(object):
 
 
 class TermScreen(list):
-    def __init__(self):
+    def __init__(self, term):
         list.__init__(self)
+        self.term = term
         self.cursor_row = 0 
         self.cursor_col = 0
         self.cursor_stack = []
@@ -101,6 +102,7 @@ class TermScreen(list):
         self.rows = 0 
         self.scroll_top = 0
         self.scroll_bottom = 0
+        self.visible_start = 0 
         self.rendition = DEFAULT_RENDITION
 
     def save_cursor(self):
@@ -126,17 +128,23 @@ class TermScreen(list):
         right = clamp(right, 0, self.cols-1)
         
         for crow in xrange(top, bottom+1):
-            row = self[crow]
+            row = self[crow+self.visible_start]
             row.dirty = True
             for ccol in xrange(left, right+1):
                 row.chars[ccol] = ' '
                 row.rendition[ccol] = DEFAULT_RENDITION
 
     def scroll_up(self):
-        self.pop(self.scroll_top)
-        self.insert(self.scroll_bottom-1, TermRow(self.cols))
+        #self.pop(self.scroll_top)
+        self.visible_start += 1
+        self.insert(self.visible_start+self.scroll_bottom-1, TermRow(self.cols))
+
+    def move_visible_start(self, amt):
+        self.visible_start = clamp(self.visible_start + amt, 0, len(self) - self.rows)
+        self.term.flush()
 
     def putch(self, ch):
+        self.visible_start = len(self) - self.rows
         if self.cursor_col >= self.cols:
             self.cursor_col = 0
             self.cursor_row += 1
@@ -145,7 +153,7 @@ class TermScreen(list):
             self.cursor_row -= 1
 
         try:
-            row = self[self.cursor_row]
+            row = self[self.cursor_row+self.visible_start]
         except:
             print self.cursor_row, self.rows, len(self)
             raise
@@ -156,7 +164,7 @@ class TermScreen(list):
         self.cursor_col += 1
 
     def copy(self):
-        ret = TermScreen()
+        ret = TermScreen(self.term)
         ret.cols = self.cols
         ret.rows = self.rows
         ret.rendition = self.rendition
@@ -255,8 +263,7 @@ class Term(EventDispatcher):
         self._saved_data = None
 
         self.saved_screens = []
-        self.screen = TermScreen()
-
+        self.screen = TermScreen(self)
 
     def flush(self):
         self.dispatch_event('on_flush')
@@ -608,8 +615,6 @@ class TermWindow(ui.Window):
     def __init__(self, app, **kwargs):
         self.app = app
         self.term = app.term
-        self.cursor_col = 0 
-        self.cursor_row = 0 
         ui.Window.__init__(self, **kwargs)
 
     def set_render_coords(self, x, y, width, height):
@@ -637,7 +642,7 @@ class TermWindow(ui.Window):
     def _render(self, cr):
         desc = pango.FontDescription.from_string('Bitstream Vera Sans Mono 8')
         y = self.ry + self.char_height
-        for row in self.term.screen:
+        for row in self.term.screen[self.term.screen.visible_start:self.term.screen.visible_start+self.term.screen.rows]:
             if row.dirty:
                 curr = row.rendition[0]
                 #print "curr %08x" % curr, curr >> 24, (curr & 0x00ff0000) >> 16
@@ -674,8 +679,8 @@ class TermWindow(ui.Window):
         desc.free()
 
         cr.rectangle(
-            self.rx+(self.cursor_col*self.char_width),
-            2+self.ry+(self.cursor_row*self.char_height),
+            self.rx+(self.term.screen.cursor_col*self.char_width),
+            2+self.ry+(self.term.screen.cursor_row*self.char_height),
             self.char_width,
             self.char_height)
         cr.set_source_rgba(1.0, 1.0, 1.0, 0.5)
@@ -769,9 +774,8 @@ class YahikoTerm(object):
     def win_on_key_press(self, event):
         if event.detail == 0:
             return 
-
         # up
-        if event.detail == 111:
+        elif event.detail == 111:
             os.write(self.process_io, 'OA')
         # down
         elif event.detail == 116:
@@ -782,8 +786,15 @@ class YahikoTerm(object):
         # left
         elif event.detail == 113:
             os.write(self.process_io, 'OD')
+        # shift + pageup
+        elif event.detail == 112 and event.state & xproto.ModMask.Shift:
+            self.term.screen.move_visible_start(-1)
+        # shift + pagedown
+        elif event.detail == 117 and event.state & xproto.ModMask.Shift:
+            self.term.screen.move_visible_start(1)
         else:
-            shift = int((event.state & xproto.ModMask.Shift) or (event.state & xproto.ModMask.Lock))
+            shift = int((event.state & xproto.ModMask.Shift) 
+                     or (event.state & xproto.ModMask.Lock))
             control = int(event.state & xproto.ModMask.Control)
             k = (event.conn.keysyms.get_keysym(event.detail, shift)) & 255
 
