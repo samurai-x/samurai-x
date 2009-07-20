@@ -135,9 +135,11 @@ class TermScreen(list):
                 row.rendition[ccol] = DEFAULT_RENDITION
 
     def scroll_up(self):
-        #self.pop(self.scroll_top)
         self.visible_start += 1
         self.insert(self.visible_start+self.scroll_bottom-1, TermRow(self.cols))
+        if len(self) > self.term.buffer_size:
+            self[:] = self[-self.term.buffer_size:]
+            self.visible_start = len(self) - self.rows
 
     def move_visible_start(self, amt):
         self.visible_start = clamp(self.visible_start + amt, 0, len(self) - self.rows)
@@ -259,10 +261,16 @@ class Term(EventDispatcher):
             '?47': self.on_esq_seq_hl_q47,
         }
 
-        self._saved_idx = 0
+        # used to save partial data in .write()
         self._saved_data = None
 
+        # size of the scrollback buffer
+        self.buffer_size = 1000
+
+        # stack of saved screens
         self.saved_screens = []
+        
+        # the screen object 
         self.screen = TermScreen(self)
 
     def flush(self):
@@ -298,7 +306,6 @@ class Term(EventDispatcher):
                     print >>crashlog, '**', 
                 print >>crashlog, '%s:"%s"' % (ord(c), c),
             raise
-        self._saved_idx = 0
         self._saved_data = None
 
     def on_char_ignore(self, ch, data, idx):    
