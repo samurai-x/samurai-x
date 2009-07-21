@@ -1,5 +1,130 @@
+Concepts
+========
+
+Checked and unchecked requests
+------------------------------
+
+You'll notice that all requests are wrapped in two methods. Let's take the
+ordinary :class:`Window <ooxcb.protocol.xproto.Window>` class for an example:
+There are :meth:`change_attributes <ooxcb.protocol.xproto.Window.change_attributes>`
+and :meth:`change_attributes_checked <ooxcb.protocol.xproto.Window.change_attributes_checked>`.
+And, another example, there are :meth:`get_attributes <ooxcb.protocol.xproto.Window.get_attributes>`
+and :meth:`get_attributes_unchecked <ooxcb.protocol.xproto.Window.get_attributes_unchecked>`.
+
+Interestingly, the `change_attributes` has an additional method with the `_checked`
+suffix, and `change_attributes` has one with the `_unchecked` suffix.
+
+Why?
+
+ooxcb uses the concept of the xcb library for error handling, the so-called
+"error handling `plan 7`_". But there's one major difference: If a request fails
+somehow in ooxcb, you'll *always* get an exception. Whether you call normal
+or `_checked`, normal or `_unchecked` methods just changes the detailedness
+of the exception.
+
+In the X world, some requests have replies, and some have none. Both types of requests
+can fail, e.g. if you passed an invalid value. Requests with replies are checked
+normally, and requests without replies are not. If you want to do *unchecked* requests with
+replies, or *checked* requests without replies, you have to say that explicitly, and
+that's the reason for existence of the `_checked` and `_unchecked` methods.
+"Checking" means something like "seeing if the request was successful" here.
+
+Methods that trigger requests *without* replies have an additional `_checked` variant,
+methods that trigger requests *with* replies have an additional `_unchecked` variant.
+
+.. note::
+
+    It seems like `_unchecked` methods aren't as useful in Python as they are
+    in the C. You'll most likely never get in a situation where you want
+    to use it. If you can think of one, contact us.
+
+So, let's say you do a `change_attributes` call (that's a request without reply)::
+
+    my_window.change_attributes(...)
+
+and it fails somehow. You won't notice that immediately, you'll notice after
+having flushed (in fact, that's when the request is sent) and received events.
+Silly Example::
+
+    conn.flush()
+    conn.wait_for_event()
+
+And ooxcb won't be able to tell you what request has caused this error, a typical
+traceback will look like this::
+
+    Traceback (most recent call last):
+      File "my_script.py", line 13, in <module>
+        conn.wait_for_event()
+      File ".../ooxcb/conn.py", line 236, in wait_for_event
+        ctypes.POINTER(libxcb.xcb_generic_error_t)))
+      File ".../ooxcb/protobj.py", line 154, in set
+        raise exception(conn, inst)
+    ooxcb.protocol.xproto.BadWindow: (<ooxcb.conn.Connection object at 0x906386c>, <ooxcb.protocol.xproto.WindowError object at 0x907ac0c>)
+
+Well, that's not really helpful. We know that an error has occured, we know
+the kind of error that occured ("BadWindow"), but we don't know
+which request caused it. To get a more helpful traceback, use `_checked` in combination
+with the :meth:`check <ooxcb.cookie.Cookie>` method::
+
+    my_window.change_attributes_checked().check()
+
+No need to flush, `check` will send this request if it was not already sent. You
+get a nicer traceback then::
+
+    Traceback (most recent call last):
+      File "my_script.py", line 11, in <module>
+        my_window.change_attributes_checked().check()
+      File ".../ooxcb/cookie.py", line 69, in check
+        Error.set(self.conn, error)
+      File ".../ooxcb/protobj.py", line 154, in set
+        raise exception(conn, inst)
+    ooxcb.protocol.xproto.BadWindow: (<ooxcb.conn.Connection object at 0x9b6886c>, <ooxcb.protocol.xproto.WindowError object at 0x9b7fc0c>)
+
+Yay, that's all we need!
+Also, if you do a request with the `_checked` method, it *won't be sent* until
+you invoke the `check` method.
+
+Now imagine we send a request *with* reply that fails somehow, for example
+the :meth:`get_attributes <ooxcb.protocol.xproto.Window.get_attributes>` request::
+
+    attributes = my_window.get_attributes().reply()
+
+We already get a nice traceback, because requests with replies default to
+be checked::
+
+    Traceback (most recent call last):
+      File "my_script.py", line 11, in <module>
+        attributes = my_window.get_attributes().reply()
+      File ".../ooxcb/cookie.py", line 84, in reply
+        Error.set(self.conn, error)
+      File ".../ooxcb/protobj.py", line 154, in set
+        raise exception(conn, inst)
+    ooxcb.protocol.xproto.BadWindow: (<ooxcb.conn.Connection object at 0x98ed86c>, <ooxcb.protocol.xproto.WindowError object at 0x9904c0c>)
+
+Keep in mind that the request is not sent here either until you call `reply`.
+
+Now, imagine the very unlikely, but possible case that you don't want to
+check the reply::
+
+    attributes = my_window.get_attributes_unchecked()
+
+With this variant, the request is sent *when you flush the next time* (or
+you call `reply`), and if it fails, you'll just
+get an exception once you have received events.
+
+If you try to get a reply from a failed request, you get a very sparse error message::
+
+    Traceback (most recent call last):
+      File "my_script.py", line 11, in <module>
+        my_window.get_attributes_unchecked().reply()
+      File ".../ooxcb/ooxcb/cookie.py", line 86, in reply
+        raise IOError("I/O error on X server connection.")
+    IOError: I/O error on X server connection.
+
+Getting a reply from a successful request works as expected.
+
 The 'oo' of 'ooxcb'
-===================
+-------------------
 
 ... stands for *object oriented*. Yes, ooxcb tries to be as object oriented as possible,
 like Python.
@@ -175,3 +300,4 @@ But you can also use the methods the mixin class defines this way::
 
 .. _xpyb: http://cgit.freedesktop.org/xcb/xpyb
 .. _weak value dictionary: http://docs.python.org/library/weakref.html#weakref.WeakValueDictionary
+.. _plan 7: http://lists.freedesktop.org/archives/xorg-announce/2006-September/000134.html
