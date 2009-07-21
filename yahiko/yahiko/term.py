@@ -1,9 +1,12 @@
 import os
 import sys
 import pty
+import time
 import threading
 import select
 import copy
+
+from array import array
 
 import fcntl
 import termios
@@ -35,7 +38,8 @@ log = logging.getLogger(__name__)
 
 sys.path.append('/usr/lib/python2.6/dist-packages')
 import psyco
-psyco.full()
+psyco.full(1)
+
 
 ASCII_NUL = 0     # Null
 ASCII_BK = 7     # Bell
@@ -52,84 +56,7 @@ ASCII_SPACE = 32  # Space
 ASCII_CSI = 153   # Control Sequence Introducer
 
 
-# n A: Moves the cursor up n(default 1) times.
-ESC_SEQ_A = 'A'  
-# n B: Moves the cursor down n(default 1) times.
-ESC_SEQ_B = 'B'  
-# n C: Moves the cursor forward n(default 1) times.
-ESC_SEQ_c = 'C'  
-# n D: Moves the cursor backward n(default 1) times.
-ESC_SEQ_D = 'D'  
-
-# n G: Cursor horizontal absolute position. 'n' denotes
-# the column no(1 based index). Should retain the line 
-# position.
-ESC_SEQ_G = 'G'  
-
-# n ; m H: Moves the cursor to row n, column m.
-# The values are 1-based, and default to 1 (top left
-# corner). 
-ESC_SEQ_H = 'H'  
-
-# n J: Clears part of the screen. If n is zero 
-# (or missing), clear from cursor to end of screen. 
-# If n is one, clear from cursor to beginning of the 
-# screen. If n is two, clear entire screen.
-ESC_SEQ_J = 'J'   
-
-# n K: Erases part of the line. If n is zero 
-# (or missing), clear from cursor to the end of the
-# line. If n is one, clear from cursor to beginning of 
-# the line. If n is two, clear entire line. Cursor 
-# position does not change.
-ESC_SEQ_K = 'K'   
-
-# n d: Cursor vertical absolute position. 'n' denotes
-# the line no(1 based index). Should retain the column 
-# position.
-ESC_SEQ_d = 'd'  
-
-# n [;k] m: Sets SGR (Select Graphic Rendition) 
-# parameters. After CSI can be zero or more parameters
-# separated with ;. With no parameters, CSI m is treated
-# as CSI 0 m (reset / normal), which is typical of most
-# of the ANSI codes.
-ESC_SEQ_SGR = 'm'  
-
 clamp = lambda x, xmin, xmax: min(xmax, max(xmin, x))
-
-
-class TermRendition(object):
-    bright      = 0x00000001
-    dim         = 0x00000010
-    underline   = 0x00000100
-    blink       = 0x00001000
-    reverse     = 0x00010000
-    hidden      = 0x00100000
-
-    def __init__(self):
-        self.reset()
-
-    def reset(self):
-        self.style = 0
-        self.foreground = 7
-        self.background = 0
-
-    def copy_to(self, other):
-        other.style = self.style
-        other.foreground = self.foreground
-        other.background = self.background
-    
-
-class TermChar(TermRendition):
-    #__slots__ = ['ch', 'attribs']
-    def __init__(self):
-        TermRendition.__init__(self)
-        self.ch = ' '
-
-    def __str__(self):
-        return self.ch
-
 
 color_map = {
     0:  '#000',
@@ -151,106 +78,111 @@ color_map = {
 }
 
 
-from mako.filters import html_escape
+DEFAULT_RENDITION = 0x0f000000
 
-class TermRow(list):
-    #__slots__ = ['dirty']
+class TermRow(object):
+    __slots__ = ['chars', 'rendition', 'dirty', 'layout']
+
     def __init__(self, cols):
+        self.chars = array('c', ' '*cols)
+        self.rendition = array('L', [0]*cols)
         self.dirty = False
-        self._cached_pango = None
-        for c in xrange(cols):
-            self.append(TermChar())
+        self.layout = None
 
-    def __str__(self):
-        return "".join(c.ch for c in self)
 
-    def pango_str(self):
-        if not self.dirty and self._cached_pango:
-            return self._cached_pango
+class TermScreen(list):
+    def __init__(self, term):
+        list.__init__(self)
+        self.term = term
+        self.cursor_row = 0 
+        self.cursor_col = 0
+        self.cursor_stack = []
+        self.cursor_visible = True
+        self.cols = 0
+        self.rows = 0 
+        self.scroll_top = 0
+        self.scroll_bottom = 0
+        self.visible_start = 0 
+        self.rendition = DEFAULT_RENDITION
 
-        cstyle = 0 
-        cfg = 0
-        cbg = 0
-        set_one = False
-        ret = ''
-        for c in self:
-            if c.style != cstyle or cfg != c.foreground or cbg != c.background:
-                if set_one:
-                    ret += ('</span>')
-                try:
-                    hfg = color_map[c.foreground]
-                except KeyError:
-                    log.warn('color %s nt found', c.foreground)
-                    hfg = '#f00'
-                try:
-                    hbg = color_map[c.background]
-                except KeyError:
-                    log.warn('color %s not found', c.background)
-                    hbg = '#700'
+    def save_cursor(self):
+        self.cursor_stack.append((self.cursor_row, self.cursor_col))
 
-                extra = ''
-                if c.style & TermRendition.underline:
-                    extra += ('underline="single"')
-                if c.style & TermRendition.bright:
-                    extra += ('font-weight="bold"')
-                if c.style & TermRendition.reverse:
-                    hfg, hbg = hbg, hfg
-                ret += ('<span foreground="%s" background="%s" %s>' % (hfg, hbg, extra))
-                set_one = True
-                cstyle = c.style
-                cfg = c.foreground
-                cbg = c.background
-            if c.ch == '<': ret += '&lt;'
-            elif c.ch == '>': ret += '&gt;'
-            else: ret += c.ch
-        if set_one:
-            ret += ('</span>')
-        self._cached_pango = ret
-        self.dirty = False
-        return self._cached_pango
+    def restore_cursor(self):
+        self.cursor_row, self.cursor_col = self.cursor_stack.pop()
 
-    def pango_str(self):
-        if not self.dirty and self._cached_pango:
-            return self._cached_pango
+    def resize(self, rows, cols):
+        log.info("resize rows %s cols %s", rows, cols)
+        self.rows = rows
+        self.cols = cols 
+        self.scroll_top = 0
+        self.scroll_bottom = rows
+        del self[:]
+        for row in xrange(self.rows):
+            self.append(TermRow(cols))
 
-        cstyle = 0 
-        cfg = 0
-        cbg = 0
-        set_one = False
-        ret = []
-        for c in self:
-            if c.style != cstyle or cfg != c.foreground or cbg != c.background:
-                if set_one:
-                    ret.append('</span>')
-                try:
-                    hfg = color_map[c.foreground]
-                except KeyError:
-                    log.warn('color %s nt found', c.foreground)
-                    hfg = '#f00'
-                try:
-                    hbg = color_map[c.background]
-                except KeyError:
-                    log.warn('color %s not found', c.background)
-                    hbg = '#700'
+    def clear(self, top, left, bottom, right):
+        top = clamp(top, 0, self.rows-1)
+        left = clamp(left, 0, self.cols-1)
+        bottom = clamp(bottom, 0, self.rows-1)
+        right = clamp(right, 0, self.cols-1)
+        
+        for crow in xrange(top, bottom+1):
+            row = self[crow+self.visible_start]
+            row.dirty = True
+            for ccol in xrange(left, right+1):
+                row.chars[ccol] = ' '
+                row.rendition[ccol] = DEFAULT_RENDITION
 
-                extra = []
-                if c.style & TermRendition.underline:
-                    extra.append('underline="single"')
-                if c.style & TermRendition.bright:
-                    extra.append('font-weight="bold"')
-                if c.style & TermRendition.reverse:
-                    hfg, hbg = hbg, hfg
-                ret.append('<span foreground="%s" background="%s" %s>' % (hfg, hbg, " ".join(extra)))
-                set_one = True
-                cstyle = c.style
-                cfg = c.foreground
-                cbg = c.background
-            ret.append(html_escape(c.ch))
-        if set_one:
-            ret.append('</span>')
-        self._cached_pango = "".join(ret)
-        self.dirty = False
-        return self._cached_pango
+    def scroll_up(self):
+        self.visible_start += 1
+        self.insert(self.visible_start+self.scroll_bottom-1, TermRow(self.cols))
+        if len(self) > self.term.buffer_size:
+            self[:] = self[-self.term.buffer_size:]
+            self.visible_start = len(self) - self.rows
+
+    def move_visible_start(self, amt):
+        self.visible_start = clamp(self.visible_start + amt, 0, len(self) - self.rows)
+        self.term.flush()
+
+    def putch(self, ch):
+        self.visible_start = len(self) - self.rows
+        if self.cursor_col >= self.cols:
+            self.cursor_col = 0
+            self.cursor_row += 1
+            if self.cursor_row >= self.rows:
+                self.scroll_up()
+            self.cursor_row -= 1
+
+        try:
+            row = self[self.cursor_row+self.visible_start]
+        except:
+            print self.cursor_row, self.rows, len(self)
+            raise
+
+        row.chars[self.cursor_col] = ch
+        row.rendition[self.cursor_col] = self.rendition
+        row.dirty = True
+        self.cursor_col += 1
+
+    def copy(self):
+        ret = TermScreen(self.term)
+        ret.cols = self.cols
+        ret.rows = self.rows
+        ret.rendition = self.rendition
+        ret.scroll_top = self.scroll_top
+        ret.scroll_bottom = self.scroll_bottom
+        ret.cursor_row = self.cursor_row
+        ret.cursor_col = self.cursor_col
+        ret.cursor_stack = self.cursor_stack[:]
+        ret.cursor_visible = self.cursor_visible
+        for row in self:
+            nrow = TermRow(self.cols)
+            nrow.chars = row.chars[:]
+            nrow.rendition = row.rendition[:]
+            ret.dirty = True
+            ret.append(nrow)
+        return ret
 
 
 class ReadMore(Exception):
@@ -324,78 +256,30 @@ class Term(EventDispatcher):
             # Print screen prints full screen (set); PS prints scroll region (reset)
             #'?19': self.on_esc_seq_hl_q19, 
             # Cursor on (set); Cursor off (reset) 
-            #'?25': self.on_esc_seq_hl_q25, 
+            '?25': self.on_esc_seq_hl_q25, 
             # ?47 save/restore screen
             '?47': self.on_esq_seq_hl_q47,
         }
 
-        self.cursor_row = 0
-        self.cursor_col = 0 
-        self.cols = 0
-        self.rows = 0
-        self.scroll_top = 0
-        self.scroll_bottom = 0
-        self.rendition = TermRendition()
-
-        self._saved_idx = 0
+        # used to save partial data in .write()
         self._saved_data = None
 
+        # size of the scrollback buffer
+        self.buffer_size = 1000
+
+        # stack of saved screens
         self.saved_screens = []
-        self.screen = None
-
-    def resize(self, rows, cols):
-        log.info("resize rows %s cols %s", rows, cols)
-        self.rows = rows
-        self.cols = cols 
-        self.scroll_top = 0
-        self.scroll_bottom = rows
-        self.screen = []
-        for row in xrange(self.rows):
-            self.screen.append(TermRow(cols))
-
-    def clear(self, top, left, bottom, right):
-        print "clear!"
-        top = clamp(top, 0, self.rows-1)
-        left = clamp(left, 0, self.cols-1)
-        bottom = clamp(bottom, 0, self.rows-1)
-        right = clamp(right, 0, self.cols-1)
         
-        for crow in xrange(top, bottom+1):
-            row = self.screen[crow]
-            row.dirty = True
-            for ccol in xrange(left, right+1):
-                row[ccol].ch = ' '
-                row[ccol].reset()
-
-    def scroll_up(self):
-        self.screen.pop(self.scroll_top)
-        self.screen.insert(self.scroll_bottom-1, TermRow(self.cols))
-
-    def putch(self, ch):
-        assert(type(ch) is str)
-        row = self.screen[self.cursor_row]
-
-        if self.cursor_col >= self.cols:
-            self.cursor_col = 0
-            self.cursor_row += 1
-            if self.cursor_row >= self.rows:
-                self.scroll_up()
-            self.cursor_row -= 1
-
-        row[self.cursor_col].ch = ch
-        self.rendition.copy_to(row[self.cursor_col])
-        row.dirty = True
-        self.cursor_col += 1
+        # the screen object 
+        self.screen = TermScreen(self)
 
     def flush(self):
         self.dispatch_event('on_flush')
         
     def write(self, data):
-        idx = self._saved_idx
+        idx = 0
         if self._saved_data:
             data = self._saved_data + data
-        lines = data.split('\n')
-        #print lines
         data_len = len(data)
         try:
             while idx < data_len:   
@@ -405,14 +289,13 @@ class Term(EventDispatcher):
                     f = self.char_handlers[och]
                 except KeyError:
                     if och >= 32 and och <= 126:
-                        self.putch(ch)
+                        self.screen.putch(ch)
                     idx += 1
                 else:
                     try:
                         idx = f(ch, data, idx)
                     except ReadMore:
-                        self._saved_idx = idx
-                        self._saved_data = data
+                        self._saved_data = data[idx:]
                         break
             self.flush()
 
@@ -423,32 +306,31 @@ class Term(EventDispatcher):
                     print >>crashlog, '**', 
                 print >>crashlog, '%s:"%s"' % (ord(c), c),
             raise
-        self._saved_idx = 0
         self._saved_data = None
 
     def on_char_ignore(self, ch, data, idx):    
         return idx + 1
 
     def on_char_BS(self, ch, data, idx):
-        self.cursor_col -= 1
-        if self.cursor_col <= 0:
-            self.cursor_col = 0
+        self.screen.cursor_col -= 1
+        if self.screen.cursor_col <= 0:
+            self.screen.cursor_col = 0
         return idx + 1
 
     def on_char_HT(self, ch, data, idx):
-        self.cursor_col += self.cursor_col % 8
+        self.screen.cursor_col += self.screen.cursor_col % 8
         return idx + 1
 
     def on_char_LF(self, ch, data, idx):
-        self.cursor_row += 1
-        if self.cursor_row >= self.rows:
-            self.scroll_up()
-            self.cursor_row -= 1
-        self.cursor_col = 0 
+        self.screen.cursor_row += 1
+        if self.screen.cursor_row >= self.screen.rows:
+            self.screen.scroll_up()
+            self.screen.cursor_row -= 1
+        self.screen.cursor_col = 0 
         return idx + 1
 
     def on_char_CR(self, ch, data, idx):
-        self.cursor_col = 0 
+        self.screen.cursor_col = 0 
         return idx + 1
 
     def _parse_escape_seq(self, data, idx):
@@ -496,6 +378,14 @@ class Term(EventDispatcher):
                 title += ch
             idx += 1
             self.dispatch_event('on_title_change', title)
+        elif ch == '7':
+            self.screen.save_cursor()
+            idx += 1
+        elif ch == '8':
+            idx += 1
+            self.screen.restore_cursor()
+        else:
+            log.warn('unkown escape %s, "%s"', ch, map(ord, data[idx: idx+5]))
         return idx 
 
     def on_esc_seq_ignore(self, data):
@@ -504,60 +394,60 @@ class Term(EventDispatcher):
     def on_esc_seq_A(self, data):
         # n A: Moves the cursor up n(default 1) times.
         if data:
-            self.cursor_row -= int(data)
+            self.screen.cursor_row -= int(data)
         else:
-            self.cursor_row -= 1
-        if self.cursor_row < 0:
-            self.cursor_row = 0
+            self.screen.cursor_row -= 1
+        if self.screen.cursor_row < 0:
+            self.screen.cursor_row = 0
 
     def on_esc_seq_B(self, data):
         # n B: Moves the cursor down n(default 1) times.
         if data:
-            self.cursor_row += int(data)
+            self.screen.cursor_row += int(data)
         else:
-            self.cursor_row += 1
-        if self.cursor_row >= self.rows:
-            self.cursor_row = self.rows - 1
+            self.screen.cursor_row += 1
+        if self.screen.cursor_row >= self.screen.rows:
+            self.screen.cursor_row = self.screen.rows - 1
 
     def on_esc_seq_C(self, data):
         # n C: Moves the cursor forward n(default 1) times.
         if data:
-            self.cursor_col += int(data)
+            self.screen.cursor_col += int(data)
         else:
-            self.cursor_col += 1
-        if self.cursor_col >= self.cols:
-            self.cursor_col = self.cols - 1
+            self.screen.cursor_col += 1
+        if self.screen.cursor_col >= self.screen.cols:
+            self.screen.cursor_col = self.screen.cols - 1
 
     def on_esc_seq_D(self, data):
         # n D: Moves the cursor backward n(default 1) times.
         if data:
-            self.cursor_col -= int(data)
+            self.screen.cursor_col -= int(data)
         else:
-            self.cursor_col -= 1
-        if self.cursor_col < 0:
-            self.cursor_col = 0
+            self.screen.cursor_col -= 1
+        if self.screen.cursor_col < 0:
+            self.screen.cursor_col = 0
 
     def on_esc_seq_G(self, data):
         # n G: Cursor horizontal absolute position. 'n' denotes
         # the column no(1 based index). Should retain the line 
         # position.
-        self.cursor_col = int(data)
-        if self.cursor_col < 0:
-            self.cursor_col = 0 
-        elif self.cursor_col >= self.cols:
-            self.cursor_col = self.cols - 1
+        self.screen.cursor_col = int(data)
+        if self.screen.cursor_col < 0:
+            self.screen.cursor_col = 0 
+        elif self.screen.cursor_col >= self.screen.cols:
+            self.screen.cursor_col = self.screen.cols - 1
 
     def on_esc_seq_H(self, data):
         # n ; m H: Moves the cursor to row n, column m.
         # The values are 1-based, and default to 1 (top left
         # corner). 
         if data == '' or data == ';':
-            self.cursor_row = 0
-            self.cursor_col = 0
+            self.screen.cursor_row = 0
+            self.screen.cursor_col = 0
         else:
             row, col = data.split(';')
-            self.cursor_row = clamp(int(row)-1, 0, self.rows-1)
-            self.cursor_col = clamp(int(col)-1, 0, self.cols-1)
+            self.screen.cursor_row = clamp(int(row)-1, 0, self.screen.rows-1)
+            self.screen.cursor_col = clamp(int(col)-1, 0, self.screen.cols-1)
 
     def on_esc_seq_J(self, data):
         # n J: Clears part of the screen. If n is zero 
@@ -569,11 +459,11 @@ class Term(EventDispatcher):
         else:
             n = 0
         if n == 0:
-            self.clear(self.cursor_row, self.cursor_col, self.rows-1, self.cols-1)
+            self.screen.clear(self.screen.cursor_row, self.screen.cursor_col, self.screen.rows-1, self.screen.cols-1)
         elif n == 1:
-            self.clear(0, 0, self.cursor_row, self.cursor_col)
+            self.screen.clear(0, 0, self.screen.cursor_row, self.screen.cursor_col)
         elif n == 2:
-            self.clear(0, 0, self.rows-1, self.cols-1)
+            self.screen.clear(0, 0, self.screen.rows-1, self.screen.cols-1)
         else:
             raise "oops"
 
@@ -588,11 +478,11 @@ class Term(EventDispatcher):
         else:
             n = 0
         if n == 0:
-            self.clear(self.cursor_row, self.cursor_col, self.cursor_row, self.cols-1)
+            self.screen.clear(self.screen.cursor_row, self.screen.cursor_col, self.screen.cursor_row, self.screen.cols-1)
         elif n == 1:
-            self.clear(self.cursor_row, 0, self.cursor_row, self.cursor_col)
+            self.screen.clear(self.screen.cursor_row, 0, self.screen.cursor_row, self.screen.cursor_col)
         elif n == 2:
-            self.clear(self.cursor_row, 0, self.cursor_row, self.cols-1)
+            self.screen.clear(self.screen.cursor_row, 0, self.screen.cursor_row, self.screen.cols-1)
         else:
             raise "oops K"
 
@@ -600,12 +490,12 @@ class Term(EventDispatcher):
         # n d: Cursor vertical absolute position. 'n' denotes
         # the line no(1 based index). Should retain the column 
         # position.
-        self.cursor_row = int(data) - 1
+        self.screen.cursor_row = int(data) - 1
 
-        if self.cursor_row < 0:
-            self.cursor_row = 0 
-        elif self.cursor_row >= self.rows:
-            self.cursor_row = self.rows - 1
+        if self.screen.cursor_row < 0:
+            self.screen.cursor_row = 0 
+        elif self.screen.cursor_row >= self.screen.rows:
+            self.screen.cursor_row = self.screen.rows - 1
 
     def on_esc_seq_h(self, data):
         # sets some option
@@ -632,11 +522,11 @@ class Term(EventDispatcher):
         # absolute move of cursor 
         if data:
             row, col = data.split(';')
-            self.cursor_row = clamp(self.scrolling_top + int(row)-1, 0, self.rows-1)
-            self.cursor_col = clamp(int(col)-1, 0, self.cols-1)
+            self.screen.cursor_row = clamp(self.scrolling_top + int(row)-1, 0, self.screen.rows-1)
+            self.screen.cursor_col = clamp(int(col)-1, 0, self.screen.cols-1)
         else:
-            self.cursor_col = self.scrolling_top
-            self.cursor_row = 0 
+            self.screen.cursor_col = self.scrolling_top
+            self.screen.cursor_row = 0 
 
     def on_esc_seq_r(self, data):
         if data:
@@ -647,7 +537,7 @@ class Term(EventDispatcher):
         else:
             log.info('resetting scrolling')
             self.scroll_top = 0
-            self.scroll_bottom = self.rows 
+            self.scroll_bottom = self.screen.rows 
 
     def on_esc_seq_m(self, data):
         if data:
@@ -655,45 +545,72 @@ class Term(EventDispatcher):
             for r in renditions:
                 r = int(r)
                 if r == 0:
-                    print "mclear2"
-                    self.rendition.reset()
+                    self.screen.rendition = DEFAULT_RENDITION
                 elif r == 1:
-                    self.rendition.style &= TermRendition.bright 
+                    # alt intensity on
+                    self.screen.rendition |= 1 << 0
                 elif r == 2:
-                    self.rendition.style &= TermRendition.dim
+                    # 
+                    self.screen.rendition |= 1 << 1
                 elif r == 4:
-                    self.rendition.style &= TermRendition.underline
+                    # underline on
+                    self.screen.rendition |= 1 << 2
                 elif r == 5:
-                    self.rendition.style &= TermRendition.blink
+                    # blink on 
+                    self.screen.rendition |= 1 << 3
                 elif r == 7:
-                    self.rendition.style &= TermRendition.reverse
+                    # inverse on 
+                    self.screen.rendition |= 1 << 4
                 elif r == 8:
-                    self.rendition.style &= TermRendition.hidden
+                    # 
+                    self.screen.rendition |= 1 << 5
+                elif r == 24:
+                    # underline off 
+                    self.screen.rendition &= ~ (1 << 2)
+                elif r == 25:
+                    # blink off
+                    self.screen.rendition &= ~ (1 << 3)
+                elif r == 27:
+                    # inverse off 
+                    self.screen.rendition &= ~ (1 << 4)
                 elif r >= 30 and r < 38:
-                    self.rendition.foreground = r - 30
+                    # foreground 1-7
+                    self.screen.rendition = (self.screen.rendition & 0x00ffffff) | ((r - 30) << 24)
                 elif r >= 90 and r < 98:
-                    self.rendition.foreground = r - 82
+                    # foreground 8-15
+                    self.screen.rendition = (self.screen.rendition & 0x00ffffff) | ((r - 82) << 24)
                 elif r >= 40 and r < 48:
-                    self.rendition.background = r - 40
+                    # background 1-7
+                    self.screen.rendition = (self.screen.rendition & 0xff00ffff) | ((r - 40) << 16)
                 elif r >= 100 and r < 108:
-                    self.rendition.background = r - 92
+                    # background 8-15
+                    self.screen.rendition = (self.screen.rendition & 0xff00ffff) | ((r - 92) << 16)
                 elif r == 39:
-                    self.rendition.foreground = 7
+                    # reset foreground
+                    self.screen.rendition = (self.screen.rendition & 0x00ffffff) | DEFAULT_RENDITION
                 elif r == 49:
-                    self.rendition.background = 0
+                    # reset background
+                    self.screen.rendition = (self.screen.rendition & 0xff00ffff) | DEFAULT_RENDITION
+                
                 else:
                     log.warn('unknown m rendition %s', r)
+                #print "r", "%08x" % self.screen.rendition
         else:
-            print "mclear"
-            self.rendition.reset()
+            self.screen.rendition = DEFAULT_RENDITION
+
+    def on_esc_seq_hl_q25(self, set):
+        if set:
+            self.screen.cursor_visible = True
+        else:
+            self.screen.cursor_visible = False
 
     def on_esq_seq_hl_q47(self, set):
         if set:
             log.debug('saving screen')
-            self.saved_screens.append((copy.deepcopy(self.screen), self.cursor_row, self.cursor_col))
+            self.saved_screens.append(self.screen.copy())
         else:
             log.debug('restoring screen')
-            self.screen, self.cursor_row, self.cursor_col = self.saved_screens.pop()
+            self.screen = self.saved_screens.pop()
             self.on_esc_seq_r(None)
             self.flush()
 
@@ -701,35 +618,14 @@ Term.register_event_type("on_flush")
 Term.register_event_type("on_title_change")
                 
 
-class TermWindow(ui.PangoLabel):
+class TermWindow(ui.Window):
     def __init__(self, app, **kwargs):
         self.app = app
-        self.cursor_col = 0 
-        self.cursor_row = 0 
-        ui.Label.__init__(self, **kwargs)
+        self.term = app.term
+        ui.Window.__init__(self, **kwargs)
 
     def set_render_coords(self, x, y, width, height):
-        ui.Label.set_render_coords(self, x, y, width, height)
-
-        #text = DictProxy(self.style, 'text.')
-        #family = text.get('family', 'sans-serif')
-        #weight = getattr(
-        #        cairo, 
-        #        'CAIRO_FONT_WEIGHT_' + text.get('weight', 'normal').upper(), 
-        #        cairo.CAIRO_FONT_WEIGHT_NORMAL,
-        #)
-        #slant = getattr(
-        #        cairo,
-        #        'CAIRO_FONT_SLANT_' + text.get('slant', 'normal').upper(),
-        #        cairo.CAIRO_FONT_SLANT_NORMAL,
-        #)
-        #cr = self.app.ui.cr
-        #cr.select_font_face(family, weight, slant)
-        #extents = cairo.font_extents_t()
-        #cr.font_extents(byref(extents))
-        #self.char_height = extents.height
-        #self.char_width = extents.max_x_advance
-
+        ui.Window.set_render_coords(self, x, y, width, height)
 
         cr = self.app.ui.cr
         context = pango.cairo_create_context(cr)
@@ -746,15 +642,52 @@ class TermWindow(ui.PangoLabel):
         self.chars_width = int(self.rwidth / self.char_width)
         self.chars_height = int(self.rheight / self.char_height)
 
-        self.app.term.resize(self.chars_height, self.chars_width)
+        self.app.term.screen.resize(self.chars_height, self.chars_width)
         fcntl.ioctl(self.app.process_io, termios.TIOCSWINSZ,
                 struct.pack("hhhh", self.chars_height, self.chars_width, 0, 0))
 
     def _render(self, cr):
-        ui.PangoLabel._render(self, cr)
+        desc = pango.FontDescription.from_string('Bitstream Vera Sans Mono 8')
+        y = self.ry + self.char_height
+        for row in self.term.screen[self.term.screen.visible_start:self.term.screen.visible_start+self.term.screen.rows]:
+            if row.dirty:
+                curr = row.rendition[0]
+                #print "curr %08x" % curr, curr >> 24, (curr & 0x00ff0000) >> 16
+                markup = ('<span foreground="%s" background="%s">' % (
+                        color_map[curr >> 24], 
+                        color_map[(curr & 0x00ff0000) >> 16],
+                        )) + row.chars[0]
+                for c in xrange(1, self.chars_width):
+                    ch = row.chars[c]
+                    r = row.rendition[c]
+                    if curr != r:
+                        curr = r
+                        markup += ('</span><span foreground="%s" background="%s">' % (
+                                color_map[curr >> 24], 
+                                color_map[(curr & 0x00ff0000) >> 16],
+                                ))
+                    if ch == '>':
+                        markup += '&gt;'
+                    elif ch == '<':
+                        markup += '&lt;'
+                    else:
+                        markup += ch
+                markup += '</span>'
+                row.layout = pango.cairo_create_layout(cr)
+                row.layout.font_description = desc
+                row.layout.set_markup(markup, -1)
+                row.dirty = False
+            if row.layout:
+                cr.move_to(self.rx, y-pango.pango_units_to_double(row.layout.get_baseline()))
+                pango.cairo_update_layout(cr, row.layout)
+                pango.cairo_show_layout(cr, row.layout)
+
+            y += self.char_height
+        desc.free()
+
         cr.rectangle(
-            self.rx+(self.cursor_col*self.char_width),
-            2+self.ry+(self.cursor_row*self.char_height),
+            self.rx+(self.term.screen.cursor_col*self.char_width),
+            2+self.ry+(self.term.screen.cursor_row*self.char_height),
             self.char_width,
             self.char_height)
         cr.set_source_rgba(1.0, 1.0, 1.0, 0.5)
@@ -797,19 +730,9 @@ class YahikoTerm(object):
                 style={
                     'background.style': 'fill',
                     'background.color': (0.0, 0.0, 0.0),
-                    #'border.style': 'fill',
-                    #'border.color': (0.5, 0.0, 0.0),
-                    #'border.width': 1.0,
-                    #'layout.padding': 1,
                 },
                 layouter=ui.HorizontalLayouter,
         )
-
-        #self.term = TermEmulator.V102Terminal(40, 80)
-        #self.term.SetCallback(
-        #        self.term.CALLBACK_UPDATE_LINES,
-        #        self.term_on_update_lines,
-        #)
 
         self.term = Term()
         self.term.push_handlers(
@@ -831,32 +754,14 @@ class YahikoTerm(object):
 
         self.process_pid, self.process_io = pty.fork()
         if self.process_pid == 0:
+            #os.system('python test.py')
             os.system('bash')
 
         self.ui.recreate_surface()
         self.ui.layout()
         self.ui.dirty()
         
-        
         log.info("Child process pid %s", self.process_pid)
-
-        #fcntl.ioctl(process_io, termios.TIOCSWINSZ,
-        #        struct.pack("hhhh", self.term.rows, self.term.cols, 0, 0))
-        
-        #tcattrib = termios.tcgetattr(process_io)
-        #tcattrib[3] = tcattrib[3] & ~termios.ICANON
-        #termios.tcsetattr(process_io, termios.TCSAFLUSH, tcattrib)
-        
-        # Sets raw mode
-        #tty.setraw(process_io)
-        
-        # Sets the terminal window size
-        #fcntl.ioctl(process_io, termios.TIOCSWINSZ,
-        #            struct.pack("hhhh", self.chars_height, self.chars_width, 0, 0))
-        
-        #tcattrib = termios.tcgetattr(process_io)
-        #tcattrib[3] = tcattrib[3] & ~termios.ICANON
-        #termios.tcsetattr(process_io, termios.TCSAFLUSH, tcattrib)
 
         self.app.add_fd_handler('read', self.process_io, self.process_io_read)
         self.app.add_fd_handler('error', self.process_io, self.process_io_error)
@@ -865,17 +770,19 @@ class YahikoTerm(object):
         self.win.ewmh_set_window_name(title)
 
     def term_on_flush(self):
-        self.output.text = "\n".join(r.pango_str() for r in self.term.screen)
-        self.output.cursor_row = self.term.cursor_row
-        self.output.cursor_col = self.term.cursor_col
+        text = ''
+        for line in self.term.screen:
+            text += line.chars.tostring() + "\n"
+        self.output.text = text
+        self.output.cursor_row = self.term.screen.cursor_row
+        self.output.cursor_col = self.term.screen.cursor_col
         self.output.dirty()
 
     def win_on_key_press(self, event):
         if event.detail == 0:
             return 
-
         # up
-        if event.detail == 111:
+        elif event.detail == 111:
             os.write(self.process_io, 'OA')
         # down
         elif event.detail == 116:
@@ -886,8 +793,15 @@ class YahikoTerm(object):
         # left
         elif event.detail == 113:
             os.write(self.process_io, 'OD')
+        # shift + pageup
+        elif event.detail == 112 and event.state & xproto.ModMask.Shift:
+            self.term.screen.move_visible_start(-1)
+        # shift + pagedown
+        elif event.detail == 117 and event.state & xproto.ModMask.Shift:
+            self.term.screen.move_visible_start(1)
         else:
-            shift = int((event.state & xproto.ModMask.Shift) or (event.state & xproto.ModMask.Lock))
+            shift = int((event.state & xproto.ModMask.Shift) 
+                     or (event.state & xproto.ModMask.Lock))
             control = int(event.state & xproto.ModMask.Control)
             k = (event.conn.keysyms.get_keysym(event.detail, shift)) & 255
 
@@ -902,6 +816,7 @@ class YahikoTerm(object):
             os.write(self.process_io, chr(k))
         
     def process_io_error(self):
+        print "process error"
         self.app.stop()
 
     def process_io_read(self):
@@ -910,6 +825,7 @@ class YahikoTerm(object):
             try:
                 data = os.read(self.process_io, 512)
             except OSError:
+                print "OSError"
                 self.app.stop()
                 return 
             data_len = len(data)
@@ -919,19 +835,6 @@ class YahikoTerm(object):
                 break
         self.term.write(output)
 
-    def term_on_update_lines(self):
-        screen = self.term.GetRawScreen()
-        #rows = self.term.GetRows()
-        #cols = self.term.GetCols()
-        #dirty_lines = self.term.GetDirtyLines()
-        #print "screen", screen
-        #print "rows", rows
-        #print "cols", cols
-        #print "dirty", dirty_lines
-        self.output.text = "\n".join(l.tostring() for l in screen)
-        self.output.text = self.output.text.replace('\t', '        ')
-        self.output.dirty()
-
 
 class App(BaseApp):
     def init(self):
@@ -939,6 +842,15 @@ class App(BaseApp):
 
         screen = self.conn.setup.roots[self.conn.pref_screen]
         self.term = YahikoTerm(self, screen)
+
+    def run(self):
+        self.start_time = time.time()
+        BaseApp.run(self)
+
+    def stop(self, **args):
+        self.stop_time = time.time()
+        print "exec time", self.stop_time - self.start_time
+        BaseApp.stop(self)
     
 
 def parse_options():
@@ -954,6 +866,11 @@ def parse_options():
             help='print the default configuration to stdout',
             action='store_true',
             default=False,
+    )
+
+    parser.add_option('', '--prof', dest='profile',
+            action='store_true', 
+            default=False, 
     )
 
     options, args = parser.parse_args()
@@ -975,14 +892,13 @@ def run():
             #config_path=options.configpath,
         )
 
-
-    sxmain.run_app(create_app)
+    if options.profile:
+        import cProfile as profile
+        profile.runctx('sxmain.run_app(create_app)', globals(), locals())
+    else:
+        sxmain.run_app(create_app)
 
 
 if __name__ == '__main__':
-    if '--prof' in sys.argv:
-        import cProfile as profile
-        profile.run('run()')
-    else:
-        run()
+    run()
 
