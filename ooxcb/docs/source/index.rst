@@ -12,7 +12,7 @@ Contents:
 
     introduction.rst
     getting-started.rst
-    oo.rst
+    concepts.rst
     howto.rst
     api/index.rst
 
