@@ -68,7 +68,7 @@ with the :meth:`check <ooxcb.cookie.Cookie>` method::
 
     my_window.change_attributes_checked().check()
 
-No need to flush, `check` will send this request if it was not already sent. You
+No need to flush, `check` will send this request. You
 get a nicer traceback then::
 
     Traceback (most recent call last):
@@ -301,3 +301,4 @@ But you can also use the methods the mixin class defines this way::
 .. _xpyb: http://cgit.freedesktop.org/xcb/xpyb
 .. _weak value dictionary: http://docs.python.org/library/weakref.html#weakref.WeakValueDictionary
 .. _plan 7: http://lists.freedesktop.org/archives/xorg-announce/2006-September/000134.html
+
