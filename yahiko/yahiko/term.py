@@ -113,14 +113,15 @@ class TermScreen(list):
         self.cursor_row, self.cursor_col = self.cursor_stack.pop()
 
     def resize(self, rows, cols):
-        log.info("resize rows %s cols %s", rows, cols)
-        self.rows = rows
-        self.cols = cols 
-        self.scroll_top = 0
-        self.scroll_bottom = rows
-        del self[:]
-        for row in xrange(self.rows):
-            self.append(TermRow(cols))
+        if rows != self.rows or cols != self.cols:
+            log.info("resize rows %s cols %s", rows, cols)
+            self.rows = rows
+            self.cols = cols 
+            self.scroll_top = 0
+            self.scroll_bottom = rows
+            del self[:]
+            for row in xrange(self.rows):
+                self.append(TermRow(cols))
 
     def clear(self, top, left, bottom, right):
         top = clamp(top, 0, self.rows-1)
