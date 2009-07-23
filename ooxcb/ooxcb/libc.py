@@ -24,8 +24,9 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 from ctypes import *
+from ctypes.util import find_library
 
-_lib = CDLL('')
+_lib = CDLL(find_library('c'))
 
 free = _lib.free
 free.restype = None
