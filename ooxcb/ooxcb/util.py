@@ -47,6 +47,21 @@ class cached_property(object):
         setattr(obj, self.name, result)
         return result
 
+class cached_classproperty(object):
+    """
+        a modified version of :class:`cached_property` that allows to define
+        cached properties on classes.
+    """
+    def __init__(self, func):
+        self.func = func
+        self.name = func.__name__
+
+    def __get__(self, obj, type):
+        # equal if we call it bound to an instance or not.
+        result = self.func(type)
+        setattr(type, self.name, result)
+        return result
+
 def mixin_functions(functions, into):
     """
         Add all functions in *functions* to the class *into*.
