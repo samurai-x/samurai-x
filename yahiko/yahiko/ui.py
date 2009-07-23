@@ -526,7 +526,6 @@ class TopLevelContainer(Container):
             self.style['height'] = rect.height 
             self.recreate_surface()
             self.layout()
-            self.render()
 
     def layout(self):
         self.rx = 0
