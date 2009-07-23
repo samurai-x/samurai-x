@@ -40,7 +40,6 @@ class TilingDesktop(object):
         self.screen.root.push_handlers(
                 on_configure_request=self.on_configure_request
                 )
-        self.desktop = desktop
         self.desktop.push_handlers(
                 on_rearrange=self.on_rearrange,
                 on_new_client=self.on_new_client
