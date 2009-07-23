@@ -126,8 +126,8 @@ config = {
     # Here we create a "Close" button on the left side of the titlebar.
     'decorator.buttons.leftside': [
         {
-            'width': 20,
             'style': {
+                'width': 20,
                 'text.color': (1.0, 1.0, 1.0),
                 'background.style': 'image',
                 # This will give us the filename of the graphic file.

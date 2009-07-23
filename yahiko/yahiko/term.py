@@ -34,7 +34,7 @@ ooxcb.contrib.ewmh.mixin()
 import logging
 log = logging.getLogger(__name__)
 
-sys.path.append('/usr/lib/python2.6/dist-packages')
+#sys.path.append('/usr/lib/python2.6/dist-packages')
 
 try:
     import psyco
@@ -113,14 +113,15 @@ class TermScreen(list):
         self.cursor_row, self.cursor_col = self.cursor_stack.pop()
 
     def resize(self, rows, cols):
-        log.info("resize rows %s cols %s", rows, cols)
-        self.rows = rows
-        self.cols = cols 
-        self.scroll_top = 0
-        self.scroll_bottom = rows
-        del self[:]
-        for row in xrange(self.rows):
-            self.append(TermRow(cols))
+        if rows != self.rows or cols != self.cols:
+            log.info("resize rows %s cols %s", rows, cols)
+            self.rows = rows
+            self.cols = cols 
+            self.scroll_top = 0
+            self.scroll_bottom = rows
+            del self[:]
+            for row in xrange(self.rows):
+                self.append(TermRow(cols))
 
     def clear(self, top, left, bottom, right):
         top = clamp(top, 0, self.rows-1)
@@ -696,7 +697,7 @@ class TermWindow(ui.Window):
 
 
 class YahikoTerm(object):
-    def __init__(self, app, screen):
+    def __init__(self, app, screen, double_buf=False):
         self.app = app
         self.screen = screen
         self.conn = app.conn
@@ -725,7 +726,14 @@ class YahikoTerm(object):
                 on_key_press=self.win_on_key_press,
         )
         
-        self.ui = ui.TopLevelContainer(
+        if not double_buf:
+            log.info('not using double buffering')
+            top_lev_class = ui.TopLevelContainer
+        else:
+            log.info('using double buffering')
+            top_lev_class = ui.DoubleBufTopLevelContainer
+
+        self.ui = top_lev_class(
                 self.win,
                 visualtype,
                 style={
@@ -838,11 +846,15 @@ class YahikoTerm(object):
 
 
 class App(BaseApp):
+    def __init__(self, double_buf=False, **kwargs):
+        BaseApp.__init__(self, **kwargs)
+        self.double_buf = double_buf
+
     def init(self):
         BaseApp.init(self)
 
         screen = self.conn.setup.roots[self.conn.pref_screen]
-        self.term = YahikoTerm(self, screen)
+        self.term = YahikoTerm(self, screen, double_buf=self.double_buf)
 
     def run(self):
         self.start_time = time.time()
@@ -872,6 +884,13 @@ def parse_options():
     parser.add_option('', '--prof', dest='profile',
             action='store_true', 
             default=False, 
+            help='profile the application',
+    )
+
+    parser.add_option('-b', '--double-buf', dest='double_buf',
+            default=False,
+            action='store_true',
+            help='use double buffering',
     )
 
     options, args = parser.parse_args()
@@ -890,6 +909,7 @@ def run():
     def create_app():
         return App( 
             synchronous_check=options.synchronous_check,
+            double_buf=options.double_buf,
             #config_path=options.configpath,
         )
 

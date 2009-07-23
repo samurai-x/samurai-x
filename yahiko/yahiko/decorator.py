@@ -83,7 +83,7 @@ class ClientWindow(ui.Window):
         ui.Window.__init__(self, **kwargs)
 
     def set_render_coords(self, x, y, width, height):
-        if x != self.rx or y != self.ry or width != self.width or height != self.height:
+        if x != self.rx or y != self.ry or width != self.style['width'] or height != self.style['height']:
             ui.Window.set_render_coords(self, x, y, width, height)
             self.window.configure(x=x, y=y, width=width, height=height)
 
@@ -107,12 +107,14 @@ class Decorator(object):
             (0.7, 0.7, 0.7, 0.75),
             (0.0, 0.4, 0.4, 0.4),
         ],
-        'border.width': 4.0,
-        'layout.padding': 6,
+        'border.width': 2.0,
+        'layout.padding': 2,
     }
 
     default_title_style={
         'text.color': (1.0, 1.0, 1.0),
+        'text.font-description': 'sans-serif 8',
+        'text.vertical-align': 'middle',
         #'border.style': 'fill',
         #'border.color': (1, 0, 0),
         #'border.width': 1.0,
@@ -208,7 +210,7 @@ class Decorator(object):
         window_title = self.client.get_window_title().encode('utf-8')
 
         title_sizer = ui.Container(
-            height=title_height,
+            style={'height': title_height},
             layouter=ui.HorizontalLayouter,
         )
         self.ui.add_child(title_sizer)
@@ -234,15 +236,14 @@ class Decorator(object):
             return r
 
         for button in config.get('decorator.buttons.leftside', []):
-            but = ui.Label(
+            but = ui.PangoLabel(
                 text=button.get('text'),
-                width=button.get('width'),
                 style=button.get('style'),
                 on_button_press=make_func(button.get('bindings')),
             )
             title_sizer.add_child(but)
 
-        self.title = ui.Label(
+        self.title = ui.PangoLabel(
             text=window_title,
             style=config.get('decorator.title.style', self.default_title_style),
             on_button_press=make_func(config.get('decorator.title.bindings')),
@@ -252,17 +253,18 @@ class Decorator(object):
         for button in config.get('decorator.buttons.rightside', []):
             but = ui.Label(
                 text=button.get('text'),
-                width=button.get('width'),
                 style=button.get('style'),
                 on_button_press=make_func(button.get('bindings')),
             )
             title_sizer.add_child(but)
 
+        style = config.get('decorator.clientwindow.style', self.default_clientwindow_style).copy()
+        style['width'] = geom.width
+        style['height'] = geom.height
+
         self.clientwin = ClientWindow(
             client.window,
-            style=config.get('decorator.clientwindow.style', self.default_clientwindow_style),
-            width=geom.width,
-            height=geom.height,
+            style=style,
         )
         self.ui.add_child(self.clientwin)
         #self.ui.layout()
@@ -292,8 +294,8 @@ class Decorator(object):
         )
 
         self.ui.fit()
-        self.clientwin.width = None
-        self.clientwin.height = None
+        self.clientwin.style['width'] = None
+        self.clientwin.style['height'] = None
 
     def actor_on_configure_request(self, event):
         if event.window == self.client.window:
@@ -321,14 +323,14 @@ class Decorator(object):
         else:
             self._window_configures += 1
             geom = Rect.from_object(event)
-            if geom.width != self.clientwin.width or geom.height != self.clientwin.height:
-                self.clientwin.width = geom.width
-                self.clientwin.height = geom.height 
+            if geom.width != self.clientwin.style['width'] or geom.height != self.clientwin.style['height']:
+                self.clientwin.style['width'] = geom.width
+                self.clientwin.style['height'] = geom.height 
                 self.ui.fit()
                 # put the width and height back because we want these to be
                 # automatic 
-                self.clientwin.width = None
-                self.clientwin.height = None
+                self.clientwin.style['width'] = None
+                self.clientwin.style['height'] = None
             
             #actor.configure(
             #        # dont forget the borders of client.border in this calculation

@@ -66,25 +66,20 @@ class Window(EventDispatcher):
                             offset is between 0 and 1.0.
                                         
     """
-    def __init__(self, width=None, height=None, style=None, **kwargs):
-
+    def __init__(self, style=None, **kwargs):
         self.rx = None
         self.ry = None
         self.rwidth = None
         self.rheight = None
         
-        self.width = width
-        self.height = height 
-
         self.style = style or {}
-
         self.parent = None
 
         self.push_handlers(**kwargs)
 
     def set_size(self, width, height):
-        self.width = width
-        self.height = height 
+        self.style['width'] = width
+        self.style['height'] = height 
 
     def set_render_coords(self, x, y, width, height):
         self.rx = x
@@ -149,16 +144,16 @@ class Window(EventDispatcher):
                     rsvg.rsvg_handle_render_cairo(handle, cr)
 
         if 'border.style' in style:
-            bstyle = style.get('style', 'fill')
+            bstyle = style.get('border.style', 'fill')
             assert bstyle in ('fill', 'gradient')
             if bstyle == 'fill' and 'border.color' in style:
                 cr.set_source_rgb(*style['border.color'])
             elif bstyle == 'gradient' and 'border.fill-line' in style and 'border.fill-stops' in style:
                 pat = cairo.Pattern.create_linear(*style['border.fill-line'])
                 for stop in style['border.fill-stops']:
-                    pattern.add_color_stop_rgb(*stop)
+                    pat.add_color_stop_rgb(*stop)
                 cr.set_source(pat)
-            cr.set_line_width(style.get('width', 1.0))
+            cr.set_line_width(style.get('border.width', 1.0))
             cr.rectangle(self.rx, self.ry, self.rwidth, self.rheight)
             cr.stroke()
 
@@ -202,8 +197,8 @@ class VerticalLayouter(Layouter):
         without_height = len(self.container.children)
 
         for child in self.container.children:
-            if child.height:
-                used_height += child.height
+            if 'height' in child.style and child.style['height']:
+                used_height += child.style['height']
                 without_height -= 1
 
         if without_height:
@@ -222,9 +217,9 @@ class VerticalLayouter(Layouter):
                     padding + margin,
                     y + margin,
                     w - (2 * margin),
-                    (child.height or hplus) - (2 * margin),
+                    (child.style.get('height') or hplus) - (2 * margin),
             )
-            y += (child.height or hplus)
+            y += (child.style.get('height') or hplus)
 
             if hasattr(child, 'layout'):
                 child.layout()
@@ -236,11 +231,11 @@ class VerticalLayouter(Layouter):
         for child in self.container.children:
             child_layout_style = DictProxy(child.style, 'layout.')
             margin = child_layout_style.get('margin', 0)
-            if child.width:
-                width = max(width, child.width + (2 * margin))
+            if 'width' in child.style and child.style['width']:
+                width = max(width, child.style['width'] + (2 * margin))
 
-            if child.height:
-                height += child.height + (2 * margin)
+            if 'height' in child.style and child.style['height']:
+                height += child.style['height'] + (2 * margin)
 
         layout_style = DictProxy(self.container.style, 'layout.')
         padding = layout_style.get('padding', 0)
@@ -263,8 +258,8 @@ class HorizontalLayouter(Layouter):
         without_width = len(self.container.children)
 
         for child in self.container.children:
-            if child.width:
-                used_width += child.width
+            if 'width' in child.style and child.style['width']:
+                used_width += child.style['width']
                 without_width -= 1
 
         if without_width:
@@ -282,10 +277,10 @@ class HorizontalLayouter(Layouter):
             child.set_render_coords(
                     x + margin,
                     padding + margin,
-                    (child.width or wplus) - (2 * margin),
+                    (child.style.get('width') or wplus) - (2 * margin),
                     h - (2 * margin),
             )
-            x += (child.width or wplus)
+            x += (child.style.get('width') or wplus)
 
             if hasattr(child, 'layout'):
                 child.layout()
@@ -334,102 +329,6 @@ class Container(Window):
             if child.hit(local_x, local_y):
                 return child.dispatch_event('on_button_press', event)
 
-
-class TopLevelContainer(Container):
-    def __init__(self, window, visual_type, **kwargs):
-        Container.__init__(self, **kwargs)
-        self.window = window
-        self.visual_type = visual_type
-
-        geom = window.get_geometry().reply()
-        self.width = geom.width
-        self.height = geom.height
-
-        self.focused_control = None
-
-        self.surface = None
-        self.cr = None
-
-        window.push_handlers(
-                on_property_notify=self.on_window_property_notify,
-                on_configure_notify=self.on_window_configure_notify,
-                on_button_press=self.on_button_press,
-                on_key_press=self.on_window_key_press,
-                on_expose=self.on_window_expose,
-        )
-
-        #self.recreate_surface()
-    def remove_handlers(self):
-            self.window.remove_handlers(
-                on_property_notify=self.on_window_property_notify,
-                on_configure_notify=self.on_window_configure_notify,
-                on_button_press=self.on_button_press,
-                on_key_press=self.on_window_key_press,
-                on_expose=self.on_window_expose,
-            )
-
-    def set_size(self, width, height):
-        if self.width != width or self.height != height:
-            self.window.configure(width=width, height=height)
-
-    def recreate_surface(self):
-        self.surface = cairo.XcbSurface.create(
-                self.window.conn, 
-                self.window,
-                self.visual_type,
-                self.width, self.height)
-        
-        self.cr = cairo.Context.create(self.surface)
-
-    def on_window_expose(self, event):
-        if event.count == 0:
-            self.render()
-            self.window.conn.flush()
-
-    def on_window_property_notify(self, event):
-        pass
-
-    def on_window_key_press(self, event):
-        if self.focused_control is not None:
-            self.focused_control.dispatch_event('on_key_press', event)
-
-    def on_window_configure_notify(self, event):
-        rect = Rect.from_object(event)
-        if rect.width != self.width or rect.height != self.height:
-            self.width = rect.width
-            self.height = rect.height 
-            self.recreate_surface()
-            self.layout()
-            self.render()
-
-    def layout(self):
-        self.rx = 0
-        self.ry = 0
-        self.rwidth = self.width
-        self.rheight = self.height
-        Container.layout(self)
-
-    def render(self, control=None):
-        if self.cr is None:
-            return 
-        self.cr.save()
-        if control is None:
-            Container.render(self, self.cr)
-        else:
-            #control.setup_clip(self.cr)
-            control.render(self.cr)
-        self.cr.restore()
-        self.window.conn.flush()
-
-    def grab_input(self, control=None):
-        if control is None:
-            control = self
-        self.focused_control = control
-
-    def dirty(self, control=None):
-        # FIXME somehow we need to render a control that fills the 
-        # background
-        self.render() #control)
 
 
 class Label(Window):
@@ -481,10 +380,10 @@ class Label(Window):
 
         extents = cairo.text_extents_t()
 
+        cr.set_source_rgb(*text['color'])
+
         for line in lines:
             cr.text_extents(line, byref(extents))
-
-            cr.set_source_rgb(*text['color'])
 
             align = text.get('align', 'centre')
             assert align in ('left', 'centre', 'right')
@@ -500,15 +399,42 @@ class Label(Window):
 
 
 class PangoLabel(Label):
+    pango_alignments = {
+        'left': pango.ALIGN_LEFT,
+        'centre': pango.ALIGN_CENTER,
+        'right': pango.ALIGN_RIGHT,
+    }
+
     def _render(self, cr):
+        Window._render(self, cr)
         if not self.text:
             return 
+        style = self.style
         layout = pango.cairo_create_layout(cr)
         layout.set_markup(self.text, -1)
-        desc = pango.FontDescription.from_string('Bitstream Vera Sans Mono 8')
+        layout.set_width(pango.units_from_double(self.rwidth))
+        layout.set_height(pango.units_from_double(self.rheight))
+        layout.set_alignment(self.pango_alignments[style.get('text.align', 'centre')])
+        font_desc = style.get('text.font-description', 'Bitstream Vera Sans Mono 8')
+        desc = pango.FontDescription.from_string(font_desc)
         layout.font_description = desc
         desc.free()
-        cr.move_to(self.rx, self.ry)
+
+        valign = style.get('text.vertical-align', 'top')
+        assert valign in ('top', 'middle', 'bottom')
+        if valign == 'top':
+            y = self.ry
+        else:
+            extents = pango.PangoRectangle()
+            layout.get_extents(None, byref(extents))
+            eheight = pango.units_to_double(extents.height)
+            if valign == 'middle':
+                y = self.ry + (self.rheight / 2) - (eheight / 2)
+            elif valign == 'bottom':
+                y = self.ry + self.rheight - eheight
+
+        cr.set_source_rgb(*style['text.color'])
+        cr.move_to(self.rx, y)
         pango.cairo_update_layout(cr, layout)
         pango.cairo_show_layout(cr, layout)
 
@@ -531,3 +457,141 @@ class Input(Label):
         self.grab_input()
         
 Input.register_event_type('on_return')
+
+
+class TopLevelContainer(Container):
+    def __init__(self, window, visual_type, **kwargs):
+        Container.__init__(self, **kwargs)
+        self.window = window
+        self.visual_type = visual_type
+
+        geom = window.get_geometry().reply()
+        self.style['width'] = geom.width
+        self.style['height'] = geom.height
+
+        self.focused_control = None
+
+        self.surface = None
+        self.cr = None
+
+        window.push_handlers(
+                on_property_notify=self.on_window_property_notify,
+                on_configure_notify=self.on_window_configure_notify,
+                on_button_press=self.on_button_press,
+                on_key_press=self.on_window_key_press,
+                on_expose=self.on_window_expose,
+        )
+
+        #self.recreate_surface()
+    def remove_handlers(self):
+            self.window.remove_handlers(
+                on_property_notify=self.on_window_property_notify,
+                on_configure_notify=self.on_window_configure_notify,
+                on_button_press=self.on_button_press,
+                on_key_press=self.on_window_key_press,
+                on_expose=self.on_window_expose,
+            )
+
+    def set_size(self, width, height):
+        if self.style['width'] != width or self.style['height'] != height:
+            self.window.configure(width=width, height=height)
+
+    def recreate_surface(self):
+        if self.surface is None:
+            self.surface = cairo.XcbSurface.create(
+                    self.window.conn, 
+                    self.window,
+                    self.visual_type,
+                    self.style['width'], self.style['height'])
+            self.cr = cairo.Context.create(self.surface)
+        else:
+            self.surface.set_size(self.style['width'], self.style['height'])
+
+    def on_window_expose(self, event):
+        if event.count == 0:
+            self.render()
+            self.window.conn.flush()
+
+    def on_window_property_notify(self, event):
+        pass
+
+    def on_window_key_press(self, event):
+        if self.focused_control is not None:
+            self.focused_control.dispatch_event('on_key_press', event)
+
+    def on_window_configure_notify(self, event):
+        rect = Rect.from_object(event)
+        if rect.width != self.style['width'] or rect.height != self.style['height']:
+            self.style['width'] = rect.width
+            self.style['height'] = rect.height 
+            self.recreate_surface()
+            self.layout()
+
+    def layout(self):
+        self.rx = 0
+        self.ry = 0
+        self.rwidth = self.style['width']
+        self.rheight = self.style['height']
+        Container.layout(self)
+
+    def render(self, control=None):
+        if self.cr is None:
+            log.warn('cr is None!')
+            return 
+        self.cr.save()
+        if control is None:
+            Container.render(self, self.cr)
+        else:
+            #control.setup_clip(self.cr)
+            control.render(self.cr)
+        self.cr.restore()
+        self.window.conn.flush()
+
+    def grab_input(self, control=None):
+        if control is None:
+            control = self
+        self.focused_control = control
+
+    def dirty(self, control=None):
+        # FIXME somehow we need to render a control that fills the 
+        # background
+        self.render() #control)
+
+
+class DoubleBufTopLevelContainer(TopLevelContainer):
+    def __init__(self, *args, **kwargs):
+        self.buf_surface = None
+        self.buf_cr = None
+        TopLevelContainer.__init__(self, *args, **kwargs)
+
+    def recreate_surface(self):
+        if self.buf_surface is None:
+            self.buf_surface = cairo.XcbSurface.create(
+                    self.window.conn, 
+                    self.window,
+                    self.visual_type,
+                    self.style['width'], self.style['height'])
+            self.buf_cr = cairo.Context.create(self.buf_surface)
+        else:
+            self.buf_surface.set_size(self.style['width'], self.style['height'])
+
+        self.surface = cairo.ImageSurface.create(
+                cairo.FORMAT_RGB24,
+                self.style['width'], self.style['height'])
+        self.cr = cairo.Context.create(self.surface)
+
+    def on_window_expose(self, event):
+        if event is None or event.count == 0:
+            try:
+                self.buf_cr.set_source_surface(self.surface, 0, 0)
+                self.buf_cr.paint()
+                self.window.conn.flush()
+            except Exception, e:
+                print e
+            
+    def dirty(self, control=None):
+        self.render()
+        #self.window.clear_area(0, 0, self.style['width'], self.style['height'])
+        self.on_window_expose(None)
+
+
