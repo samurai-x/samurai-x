@@ -173,20 +173,15 @@ struct__PangoFontMap._fields_ = [
 
 PangoFontMap = struct__PangoFontMap 	# pango-new.h:41
 class struct__PangoRectangle(Structure):
-    __slots__ = [
+    _fields_ = [
+        ('x', c_int),
+        ('y', c_int),
+        ('width', c_int),
+        ('height', c_int),
     ]
-struct__PangoRectangle._fields_ = [
-    ('_opaque_struct', c_int)
-]
-
-class struct__PangoRectangle(Structure):
-    __slots__ = [
-    ]
-struct__PangoRectangle._fields_ = [
-    ('_opaque_struct', c_int)
-]
 
 PangoRectangle = struct__PangoRectangle 	# pango-new.h:43
+
 # pango-new.h:49
 pango_units_from_double = _lib.pango_units_from_double
 pango_units_from_double.restype = c_int
