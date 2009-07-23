@@ -330,103 +330,6 @@ class Container(Window):
                 return child.dispatch_event('on_button_press', event)
 
 
-class TopLevelContainer(Container):
-    def __init__(self, window, visual_type, **kwargs):
-        Container.__init__(self, **kwargs)
-        self.window = window
-        self.visual_type = visual_type
-
-        geom = window.get_geometry().reply()
-        self.style['width'] = geom.width
-        self.style['height'] = geom.height
-
-        self.focused_control = None
-
-        self.surface = None
-        self.cr = None
-
-        window.push_handlers(
-                on_property_notify=self.on_window_property_notify,
-                on_configure_notify=self.on_window_configure_notify,
-                on_button_press=self.on_button_press,
-                on_key_press=self.on_window_key_press,
-                on_expose=self.on_window_expose,
-        )
-
-        #self.recreate_surface()
-    def remove_handlers(self):
-            self.window.remove_handlers(
-                on_property_notify=self.on_window_property_notify,
-                on_configure_notify=self.on_window_configure_notify,
-                on_button_press=self.on_button_press,
-                on_key_press=self.on_window_key_press,
-                on_expose=self.on_window_expose,
-            )
-
-    def set_size(self, width, height):
-        if self.style['width'] != width or self.style['height'] != height:
-            self.window.configure(width=width, height=height)
-
-    def recreate_surface(self):
-        self.surface = cairo.XcbSurface.create(
-                self.window.conn, 
-                self.window,
-                self.visual_type,
-                self.style['width'], self.style['height'])
-        
-        self.cr = cairo.Context.create(self.surface)
-
-    def on_window_expose(self, event):
-        if event.count == 0:
-            self.render()
-            self.window.conn.flush()
-
-    def on_window_property_notify(self, event):
-        pass
-
-    def on_window_key_press(self, event):
-        if self.focused_control is not None:
-            self.focused_control.dispatch_event('on_key_press', event)
-
-    def on_window_configure_notify(self, event):
-        rect = Rect.from_object(event)
-        if rect.width != self.style['width'] or rect.height != self.style['height']:
-            self.style['width'] = rect.width
-            self.style['height'] = rect.height 
-            self.recreate_surface()
-            self.layout()
-            self.render()
-
-    def layout(self):
-        self.rx = 0
-        self.ry = 0
-        self.rwidth = self.style['width']
-        self.rheight = self.style['height']
-        Container.layout(self)
-
-    def render(self, control=None):
-        if self.cr is None:
-            log.warn('cr is None!')
-            return 
-        self.cr.save()
-        if control is None:
-            Container.render(self, self.cr)
-        else:
-            #control.setup_clip(self.cr)
-            control.render(self.cr)
-        self.cr.restore()
-        self.window.conn.flush()
-
-    def grab_input(self, control=None):
-        if control is None:
-            control = self
-        self.focused_control = control
-
-    def dirty(self, control=None):
-        # FIXME somehow we need to render a control that fills the 
-        # background
-        self.render() #control)
-
 
 class Label(Window):
     def __init__(self, text=None, **kwargs):
@@ -554,3 +457,135 @@ class Input(Label):
         self.grab_input()
         
 Input.register_event_type('on_return')
+
+
+class TopLevelContainer(Container):
+    def __init__(self, window, visual_type, **kwargs):
+        Container.__init__(self, **kwargs)
+        self.window = window
+        self.visual_type = visual_type
+
+        geom = window.get_geometry().reply()
+        self.style['width'] = geom.width
+        self.style['height'] = geom.height
+
+        self.focused_control = None
+
+        self.surface = None
+        self.cr = None
+
+        window.push_handlers(
+                on_property_notify=self.on_window_property_notify,
+                on_configure_notify=self.on_window_configure_notify,
+                on_button_press=self.on_button_press,
+                on_key_press=self.on_window_key_press,
+                on_expose=self.on_window_expose,
+        )
+
+        #self.recreate_surface()
+    def remove_handlers(self):
+            self.window.remove_handlers(
+                on_property_notify=self.on_window_property_notify,
+                on_configure_notify=self.on_window_configure_notify,
+                on_button_press=self.on_button_press,
+                on_key_press=self.on_window_key_press,
+                on_expose=self.on_window_expose,
+            )
+
+    def set_size(self, width, height):
+        if self.style['width'] != width or self.style['height'] != height:
+            self.window.configure(width=width, height=height)
+
+    def recreate_surface(self):
+        self.surface = cairo.XcbSurface.create(
+                self.window.conn, 
+                self.window,
+                self.visual_type,
+                self.style['width'], self.style['height'])
+        
+        self.cr = cairo.Context.create(self.surface)
+
+    def on_window_expose(self, event):
+        if event.count == 0:
+            self.render()
+            self.window.conn.flush()
+
+    def on_window_property_notify(self, event):
+        pass
+
+    def on_window_key_press(self, event):
+        if self.focused_control is not None:
+            self.focused_control.dispatch_event('on_key_press', event)
+
+    def on_window_configure_notify(self, event):
+        rect = Rect.from_object(event)
+        if rect.width != self.style['width'] or rect.height != self.style['height']:
+            self.style['width'] = rect.width
+            self.style['height'] = rect.height 
+            self.recreate_surface()
+            self.layout()
+            self.render()
+
+    def layout(self):
+        self.rx = 0
+        self.ry = 0
+        self.rwidth = self.style['width']
+        self.rheight = self.style['height']
+        Container.layout(self)
+
+    def render(self, control=None):
+        if self.cr is None:
+            log.warn('cr is None!')
+            return 
+        self.cr.save()
+        if control is None:
+            Container.render(self, self.cr)
+        else:
+            #control.setup_clip(self.cr)
+            control.render(self.cr)
+        self.cr.restore()
+        self.window.conn.flush()
+
+    def grab_input(self, control=None):
+        if control is None:
+            control = self
+        self.focused_control = control
+
+    def dirty(self, control=None):
+        # FIXME somehow we need to render a control that fills the 
+        # background
+        self.render() #control)
+
+
+class DoubleBufTopLevelContainer(TopLevelContainer):
+    def recreate_surface(self):
+        try:
+            self.buf_surface = cairo.XcbSurface.create(
+                    self.window.conn, 
+                    self.window,
+                    self.visual_type,
+                    self.style['width'], self.style['height'])
+            
+            self.cr_buf = cairo.Context.create(self.buf_surface)
+            self.surface = cairo.ImageSurface.create(
+                    cairo.FORMAT_RGB24,
+                    self.style['width'], self.style['height'])
+            self.cr = cairo.Context.create(self.surface)
+        except Exception, e:
+            print e
+
+    def on_window_expose(self, event):
+        if event is None or event.count == 0:
+            try:
+                self.cr_buf.set_source_surface(self.surface, 0, 0)
+                self.cr_buf.paint()
+                self.window.conn.flush()
+            except Exception, e:
+                print e
+            
+    def dirty(self, control=None):
+        self.render()
+        #self.window.clear_area(0, 0, self.style['width'], self.style['height'])
+        self.on_window_expose(None)
+
+
