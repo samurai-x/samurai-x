@@ -25,8 +25,6 @@ from yahiko import ui
 from yahiko import cairo
 from yahiko import pango
 
-import TermEmulator
-
 from ooxcb.protocol import xproto
 from ooxcb.eventsys import EventDispatcher
 
@@ -37,9 +35,12 @@ import logging
 log = logging.getLogger(__name__)
 
 sys.path.append('/usr/lib/python2.6/dist-packages')
-import psyco
-psyco.full(1)
 
+try:
+    import psyco
+    psyco.full(1)
+except ImportError:
+    pass
 
 ASCII_NUL = 0     # Null
 ASCII_BK = 7     # Bell
