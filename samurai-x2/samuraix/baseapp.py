@@ -205,7 +205,7 @@ class BaseApp(SXObject):
                 if e.args[0] == 4:
                     pass
                 else:
-                    log.exception(str((e, type(e), dir(e), e.args)))
+                    log.exception("err %s", str((e, type(e), dir(e), e.args)))
                     raise
             else:
                 # should catch errors in these?
@@ -271,7 +271,7 @@ class BaseApp(SXObject):
             try:
                 ev = self.conn.poll_for_event()
             except Exception, e:
-                log.exception(e)
+                log.exception("xcb err %s", e)
             else:
                 if ev is None:
                     break
@@ -279,8 +279,12 @@ class BaseApp(SXObject):
                     #log.debug('Dispatching %s to %s.' %
                     #        (ev.event_name, ev.event_target))
                     ev.dispatch()
+                except AssertionError:
+                    # FIXME FREEEEEED
+                    # on_no_expose is breaking stuff atm...
+                    pass
                 except Exception, e:
-                    log.exception(e)
+                    log.exception("xcb err2: %s", e)
 
 
 
