@@ -497,13 +497,15 @@ class TopLevelContainer(Container):
             self.window.configure(width=width, height=height)
 
     def recreate_surface(self):
-        self.surface = cairo.XcbSurface.create(
-                self.window.conn, 
-                self.window,
-                self.visual_type,
-                self.style['width'], self.style['height'])
-        
-        self.cr = cairo.Context.create(self.surface)
+        if self.surface is None:
+            self.surface = cairo.XcbSurface.create(
+                    self.window.conn, 
+                    self.window,
+                    self.visual_type,
+                    self.style['width'], self.style['height'])
+            self.cr = cairo.Context.create(self.surface)
+        else:
+            self.surface.set_size(self.style['width'], self.style['height'])
 
     def on_window_expose(self, event):
         if event.count == 0:
@@ -558,27 +560,32 @@ class TopLevelContainer(Container):
 
 
 class DoubleBufTopLevelContainer(TopLevelContainer):
+    def __init__(self, *args, **kwargs):
+        self.buf_surface = None
+        self.buf_cr = None
+        TopLevelContainer.__init__(self, *args, **kwargs)
+
     def recreate_surface(self):
-        try:
+        if self.buf_surface is None:
             self.buf_surface = cairo.XcbSurface.create(
                     self.window.conn, 
                     self.window,
                     self.visual_type,
                     self.style['width'], self.style['height'])
-            
-            self.cr_buf = cairo.Context.create(self.buf_surface)
-            self.surface = cairo.ImageSurface.create(
-                    cairo.FORMAT_RGB24,
-                    self.style['width'], self.style['height'])
-            self.cr = cairo.Context.create(self.surface)
-        except Exception, e:
-            print e
+            self.buf_cr = cairo.Context.create(self.buf_surface)
+        else:
+            self.buf_surface.set_size(self.style['width'], self.style['height'])
+
+        self.surface = cairo.ImageSurface.create(
+                cairo.FORMAT_RGB24,
+                self.style['width'], self.style['height'])
+        self.cr = cairo.Context.create(self.surface)
 
     def on_window_expose(self, event):
         if event is None or event.count == 0:
             try:
-                self.cr_buf.set_source_surface(self.surface, 0, 0)
-                self.cr_buf.paint()
+                self.buf_cr.set_source_surface(self.surface, 0, 0)
+                self.buf_cr.paint()
                 self.window.conn.flush()
             except Exception, e:
                 print e
