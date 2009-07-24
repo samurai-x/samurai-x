@@ -1716,6 +1716,12 @@ _cairo_xcb_surface_create = _lib.cairo_xcb_surface_create
 _cairo_xcb_surface_create.restype = POINTER(cairo_surface_t)
 _cairo_xcb_surface_create.argtypes = [POINTER(xcb_connection_t), xcb_drawable_t, c_void_p, c_int, c_int]
 
+xcb_screen_t = struct_xcb_screen_t 	# /usr/include/xcb/xproto.h:339
+
+_cairo_xcb_surface_create_for_bitmap = _lib.cairo_xcb_surface_create_for_bitmap
+_cairo_xcb_surface_create_for_bitmap.restype = POINTER(cairo_surface_t)
+_cairo_xcb_surface_create_for_bitmap.argtypes = [POINTER(xcb_connection_t), c_long, c_void_p, c_int, c_int]
+
 def cairo_xcb_surface_create(conn, drawable, visualtype, width, height):
     stream = StringIO()
     visualtype.build(stream)
@@ -1741,7 +1747,6 @@ def cairo_xcb_surface_create_for_bitmap(conn, pixmap, screen, width, height):
             height)
 
 
-xcb_screen_t = struct_xcb_screen_t 	# /usr/include/xcb/xproto.h:339
 
 # /usr/include/cairo/cairo-xcb.h:63
 cairo_xcb_surface_set_size = _lib.cairo_xcb_surface_set_size

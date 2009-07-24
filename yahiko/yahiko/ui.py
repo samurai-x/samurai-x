@@ -4,6 +4,8 @@ import ooxcb
 from ooxcb.eventsys import EventDispatcher
 #from ooxcb.contrib import cairo
 from ooxcb.protocol import xproto
+from ooxcb.protocol import xproto, shape
+shape.mixin()
 
 from ctypes import byref, POINTER
 
@@ -13,6 +15,9 @@ from samuraix.util import DictProxy
 from yahiko import rsvg
 from yahiko import cairo
 from yahiko import pango
+
+import yahiko.cairo_extras
+yahiko.cairo_extras.mixin()
 
 import logging 
 log = logging.getLogger(__name__)
@@ -111,7 +116,11 @@ class Window(EventDispatcher):
     def _render(self, cr):
         style = self.style
         if 'background.style' in style: 
-            cr.rectangle(self.rx, self.ry, self.rwidth, self.rheight)
+            bradius = style.get('border.radius')
+            if bradius:
+                cr.rounded_rectangle(self.rx, self.ry, self.rwidth, self.rheight, bradius)
+            else:
+                cr.rectangle(self.rx, self.ry, self.rwidth, self.rheight)
 
             bstyle = style.get('background.style')
             assert bstyle in ('fill', 'gradient', 'image')
@@ -154,9 +163,11 @@ class Window(EventDispatcher):
                     pat.add_color_stop_rgb(*stop)
                 cr.set_source(pat)
             cr.set_line_width(style.get('border.width', 1.0))
-            cr.rectangle(self.rx, self.ry, self.rwidth, self.rheight)
+            if bradius:
+                cr.rounded_rectangle(self.rx, self.ry, self.rwidth, self.rheight, bradius)
+            else:
+                cr.rectangle(self.rx, self.ry, self.rwidth, self.rheight)
             cr.stroke()
-
 
     def hit(self, x, y):
         return (x > self.rx and 
@@ -465,6 +476,12 @@ class TopLevelContainer(Container):
         self.window = window
         self.visual_type = visual_type
 
+        ext = self.window.conn.load_ext(shape.key)
+        if ext.present:
+            self.window.conn.setup_helper(ext, ooxcb.EXT_EVENTS[shape.key], ooxcb.EXT_EVENTS[shape.key])
+        else:
+            log.warn('no shape extension!')
+
         geom = window.get_geometry().reply()
         self.style['width'] = geom.width
         self.style['height'] = geom.height
@@ -474,6 +491,8 @@ class TopLevelContainer(Container):
         self.surface = None
         self.cr = None
 
+        self.mask = None
+
         window.push_handlers(
                 on_property_notify=self.on_window_property_notify,
                 on_configure_notify=self.on_window_configure_notify,
@@ -482,7 +501,37 @@ class TopLevelContainer(Container):
                 on_expose=self.on_window_expose,
         )
 
-        #self.recreate_surface()
+    def render_mask(self):
+        if 'border.radius' in self.style and self.style['border.radius']:
+            if self.mask is None:
+                self.mask = xproto.Pixmap.create(
+                    self.window.conn,
+                    self.window,
+                    self.style['width'], self.style['height'],
+                    1
+                )
+                self.mask_surface = cairo.XcbSurface.create_for_bitmap(
+                        self.window.conn,
+                        self.mask,
+                        self.window.conn.setup.roots[self.window.conn.pref_screen],
+                        self.style['width'], self.style['height'],
+                )
+                self.mask_cr = cairo.Context.create(self.mask_surface)
+            cr = self.mask_cr
+            bradius = self.style['border.radius']
+            cr.set_source_rgb(0.0, 0.0, 0.0)
+            cr.paint()
+            cr.set_source_rgb(1.0, 1.0, 1.0)
+            cr.rounded_rectangle(20, 20, 20, 20, bradius) #self.style['width'], self.style['height'], bradius)
+            cr.fill()   
+            cr.stroke()
+            self.window.shape_mask(
+                    shape.SO.Set,
+                    shape.SK.Bounding,
+                    0, 0, 
+                    self.mask
+            )
+
     def remove_handlers(self):
             self.window.remove_handlers(
                 on_property_notify=self.on_window_property_notify,
@@ -497,6 +546,7 @@ class TopLevelContainer(Container):
             self.window.configure(width=width, height=height)
 
     def recreate_surface(self):
+        assert self.style['width'] and self.style['height']
         if self.surface is None:
             self.surface = cairo.XcbSurface.create(
                     self.window.conn, 
@@ -506,6 +556,8 @@ class TopLevelContainer(Container):
             self.cr = cairo.Context.create(self.surface)
         else:
             self.surface.set_size(self.style['width'], self.style['height'])
+
+        self.render_mask()
 
     def on_window_expose(self, event):
         if event.count == 0:

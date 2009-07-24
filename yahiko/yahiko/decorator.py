@@ -101,6 +101,7 @@ class Decorator(object):
         ],
         'border.color': (1.0, 1.0, 1.0),
         'border.style': 'gradient',
+        'border.radius': 20.0,
         'border.fill-line': (0.0, 0.0, 0.0, 200.0),
         'border.fill-stops': [
             (1.0, 0.2, 0.2, 0.2),
