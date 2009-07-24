@@ -2107,7 +2107,7 @@ class Pattern(_Wrapper):
         return Pattern._from_internal(cairo_pattern_create_rgb(arg0, arg1, arg2))
 
     @classmethod
-    def create_rgb(self, arg0, arg1, arg2, arg3):
+    def create_rgba(self, arg0, arg1, arg2, arg3):
         return Pattern._from_internal(cairo_pattern_create_rgba(arg0, arg1, arg2, arg3))
 
     @classmethod

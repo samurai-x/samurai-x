@@ -492,6 +492,7 @@ class TopLevelContainer(Container):
         self.cr = None
 
         self.mask = None
+        self.mask_needs_redraw = False
 
         window.push_handlers(
                 on_property_notify=self.on_window_property_notify,
@@ -508,7 +509,7 @@ class TopLevelContainer(Container):
                     self.window.conn,
                     self.window,
                     self.style['width'], self.style['height'],
-                    1
+                    1,
                 )
                 self.mask_surface = cairo.XcbSurface.create_for_bitmap(
                         self.window.conn,
@@ -517,20 +518,29 @@ class TopLevelContainer(Container):
                         self.style['width'], self.style['height'],
                 )
                 self.mask_cr = cairo.Context.create(self.mask_surface)
-            cr = self.mask_cr
-            bradius = self.style['border.radius']
-            cr.set_source_rgb(0.0, 0.0, 0.0)
-            cr.paint()
-            cr.set_source_rgb(1.0, 1.0, 1.0)
-            cr.rounded_rectangle(20, 20, 20, 20, bradius) #self.style['width'], self.style['height'], bradius)
-            cr.fill()   
-            cr.stroke()
-            self.window.shape_mask(
-                    shape.SO.Set,
-                    shape.SK.Bounding,
-                    0, 0, 
-                    self.mask
-            )
+                self.mask_needs_redraw = True
+            #cr = self.mask_cr
+            #bradius = self.style['border.radius']
+            #cr.set_source_rgba(1.0, 0.0, 0.0, 1.0)
+            #cr.paint_with_alpha(1.0)
+            #pat = cairo.Pattern.create_rgba(0.0, 1.0, 0.0, 0.0)
+            #cr.set_source(pat)
+            #cr.rectangle(40, 20, 30, 30) #self.style['width'], self.style['height'], bradius)
+            #cr.fill()
+            #pat = cairo.Pattern.create_rgba(0.0, 0.0, 1.0, 1.0)
+            #cr.set_source(pat)
+            #cr.rectangle(80, 20, 30, 30) #self.style['width'], self.style['height'], bradius)
+            #cr.fill()
+            #cr.set_source_rgba(1.0, 1.0, 1.0, 1.0)
+            #cr.rectangle(20, 20, 30, 30) #self.style['width'], self.style['height'], bradius)
+            #cr.fill()   
+            #self.mask_surface.write_to_png("lalala.png")
+            #self.window.shape_mask(
+            #        shape.SO.Set,
+            #        shape.SK.Bounding,
+            #        0, 0, 
+            #        self.mask
+            #)
 
     def remove_handlers(self):
             self.window.remove_handlers(
@@ -598,6 +608,26 @@ class TopLevelContainer(Container):
             control.render(self.cr)
         self.cr.restore()
         self.window.conn.flush()
+
+        if self.mask_needs_redraw:
+            self.mask_needs_redraw = False
+            imgsurf = cairo.ImageSurface.create(cairo.FORMAT_ARGB32, self.style['width'], self.style['height'])
+            imgsurfcr = cairo.Context.create(imgsurf)
+            Container.render(self, imgsurfcr)
+
+            self.mask_cr.save()
+            self.mask_cr.set_operator(cairo.OPERATOR_CLEAR)
+            self.mask_cr.paint()
+            self.mask_cr.set_operator(cairo.OPERATOR_OVER)
+            self.mask_cr.mask_surface(imgsurf, 0, 0)
+            self.mask_surface.write_to_png("lalala.png")
+
+            self.window.shape_mask(
+                    shape.SO.Set,
+                    shape.SK.Bounding,
+                    0, 0, 
+                    self.mask
+            )
 
     def grab_input(self, control=None):
         if control is None:
