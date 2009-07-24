@@ -504,21 +504,20 @@ class TopLevelContainer(Container):
 
     def render_mask(self):
         if 'border.radius' in self.style and self.style['border.radius']:
-            if self.mask is None:
-                self.mask = xproto.Pixmap.create(
+            self.mask = xproto.Pixmap.create(
+                self.window.conn,
+                self.window,
+                self.style['width'], self.style['height'],
+                1,
+            )
+            self.mask_surface = cairo.XcbSurface.create_for_bitmap(
                     self.window.conn,
-                    self.window,
+                    self.mask,
+                    self.window.conn.setup.roots[self.window.conn.pref_screen],
                     self.style['width'], self.style['height'],
-                    1,
-                )
-                self.mask_surface = cairo.XcbSurface.create_for_bitmap(
-                        self.window.conn,
-                        self.mask,
-                        self.window.conn.setup.roots[self.window.conn.pref_screen],
-                        self.style['width'], self.style['height'],
-                )
-                self.mask_cr = cairo.Context.create(self.mask_surface)
-                self.mask_needs_redraw = True
+            )
+            self.mask_cr = cairo.Context.create(self.mask_surface)
+            self.mask_needs_redraw = True
             #cr = self.mask_cr
             #bradius = self.style['border.radius']
             #cr.set_source_rgba(1.0, 0.0, 0.0, 1.0)
@@ -600,14 +599,6 @@ class TopLevelContainer(Container):
         if self.cr is None:
             log.warn('cr is None!')
             return 
-        self.cr.save()
-        if control is None:
-            Container.render(self, self.cr)
-        else:
-            #control.setup_clip(self.cr)
-            control.render(self.cr)
-        self.cr.restore()
-        self.window.conn.flush()
 
         if self.mask_needs_redraw:
             self.mask_needs_redraw = False
@@ -628,6 +619,15 @@ class TopLevelContainer(Container):
                     0, 0, 
                     self.mask
             )
+
+        self.window.conn.flush()
+        self.cr.save()
+        if control is None:
+            Container.render(self, self.cr)
+        else:
+            #control.setup_clip(self.cr)
+            control.render(self.cr)
+        self.cr.restore()
 
     def grab_input(self, control=None):
         if control is None:
