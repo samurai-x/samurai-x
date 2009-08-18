@@ -197,7 +197,7 @@ class FocusStack(list):
     def update_x_stack(self):
         for idx, client in enumerate(self[:-1]):
             client.actor.configure( 
-                    stack_mode=xproto.StackMode.Below, 
+                    stack_mode=xproto.StackMode.Above,
                     sibling=self[idx + 1].actor,
             )
         self.conn.flush()
