@@ -97,7 +97,7 @@ class DamageNotifyEvent(ooxcb.Event):
         _unpacked = unpack_from_stream("=BBxxIII", stream)
         self.response_type = _unpacked[0]
         self.level = _unpacked[1]
-        self.drawable = DrawableMixin(conn, _unpacked[2])
+        self.drawable = Drawable(self.conn, _unpacked[2])
         self.damage = self.conn.get_from_cache_fallback(_unpacked[3], Damage)
         self.timestamp = _unpacked[4]
         self.area = RECTANGLE.create_from_stream(self.conn, stream)

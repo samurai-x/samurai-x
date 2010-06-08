@@ -99,7 +99,10 @@ def get_modifier(field):
     elif field.py_type in MODIFIERS:
         return MODIFIERS.get(field.py_type, None)
     elif field.py_type in WRAPPERS:
-        return '%s(conn, %%s)' % WRAPPERS[field.py_type].name
+        if getattr(WRAPPERS[field.py_type], 'is_mixin', False):
+            return '%s(self.conn, %%s)' % INTERFACE['Mixins'][field.py_type]
+        else:
+            return '%s(self.conn, %%s)' % WRAPPERS[field.py_type].name
     else:
         return '%s'
 
@@ -1050,6 +1053,7 @@ def make_mixins():
         WRAPPERS[name] = ALL[clsname] = cls = PyClass(clsname)
         cls.new_attribute('target_class', into)
         cls.base = 'Mixin'
+        cls.is_mixin = True
         m.code.append('%s.mixin()' % clsname)
     TAIL.append(m.generate_code())
 

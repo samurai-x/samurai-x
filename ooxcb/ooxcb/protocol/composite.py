@@ -34,7 +34,7 @@ class GetOverlayWindowReply(ooxcb.Reply):
     def read(self, stream):
         self._address = stream.address
         _unpacked = unpack_from_stream("=xxxxxxxxIxxxxxxxxxxxxxxxxxxxx", stream)
-        self.overlay_win = WindowMixin(conn, _unpacked[0])
+        self.overlay_win = Window(self.conn, _unpacked[0])
 
     def build(self, stream):
         count = 0

@@ -217,7 +217,7 @@ class NotifyEvent(ooxcb.Event):
         _unpacked = unpack_from_stream("=BBxxIhhHHIBxxxxxxxxxxx", stream)
         self.response_type = _unpacked[0]
         self.shape_kind = _unpacked[1]
-        self.affected_window = WindowMixin(conn, _unpacked[2])
+        self.affected_window = Window(self.conn, _unpacked[2])
         self.extents_x = _unpacked[3]
         self.extents_y = _unpacked[4]
         self.extents_width = _unpacked[5]

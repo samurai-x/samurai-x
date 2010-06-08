@@ -1,4 +1,4 @@
-all: xproto xtest render composite shape xfixes damage bigreq record
+all: xproto xtest render composite shape xfixes damage screensaver
 
 xproto: ../ooxcb/protocol/xproto.py ../docs/source/api/protocol/xproto.rst
 
@@ -70,28 +70,18 @@ damage.rst: ../ooxcb/protocol/damage.py
 ../ooxcb/protocol/damage.py: damage.xml damage.i
 	python ooxcb_client.py damage > ../ooxcb/protocol/damage.py
 
-bigreq: ../ooxcb/protocol/bigreq.py ../docs/source/api/protocol/bigreq.rst
+screensaver: ../ooxcb/protocol/screensaver.py ../docs/source/api/protocol/screensaver.rst
 
-../docs/source/api/protocol/bigreq.rst: bigreq.rst
-	cp bigreq.rst ../docs/source/api/protocol/bigreq.rst
+../docs/source/api/protocol/screensaver.rst: screensaver.rst
+	cp screensaver.rst ../docs/source/api/protocol/screensaver.rst
 
-bigreq.rst: ../ooxcb/protocol/bigreq.py
+screensaver.rst: ../ooxcb/protocol/screensaver.py
 
-../ooxcb/protocol/bigreq.py: bigreq.xml bigreq.i
-	python ooxcb_client.py bigreq > ../ooxcb/protocol/bigreq.py
-
-record: ../ooxcb/protocol/record.py ../docs/source/api/protocol/record.rst
-
-../docs/source/api/protocol/record.rst: record.rst
-	cp record.rst ../docs/source/api/protocol/record.rst
-
-record.rst: ../ooxcb/protocol/record.py
-
-../ooxcb/protocol/record.py: record.xml record.i
-	python ooxcb_client.py record > ../ooxcb/protocol/record.py
+../ooxcb/protocol/screensaver.py: screensaver.xml screensaver.i
+	python ooxcb_client.py screensaver > ../ooxcb/protocol/screensaver.py
 
 clean:
-	rm -f ../docs/source/api/protocol/{xproto,xtest,render,composite,shape,xfixes,damage,bigreq,record}.rst ../ooxcb/protocol/{xproto,xtest,render,composite,shape,xfixes,damage,bigreq,record}.py {xproto,xtest,render,composite,shape,xfixes,damage,bigreq,record}.rst
+	rm -f ../docs/source/api/protocol/{xproto,xtest,render,composite,shape,xfixes,damage,screensaver}.rst ../ooxcb/protocol/{xproto,xtest,render,composite,shape,xfixes,damage,screensaver}.py {xproto,xtest,render,composite,shape,xfixes,damage,screensaver}.rst
 
-.phony: xproto xtest render composite shape xfixes damage bigreq record
+.phony: xproto xtest render composite shape xfixes damage screensaver
 
