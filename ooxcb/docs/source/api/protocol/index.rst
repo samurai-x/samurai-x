@@ -10,6 +10,7 @@ ooxcb.protocol
     composite.rst
     damage.rst
     render.rst
+    screensaver.rst
     shape.rst
     xfixes.rst
     xproto.rst
