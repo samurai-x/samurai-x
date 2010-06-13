@@ -4983,9 +4983,24 @@ class Atom(ooxcb.Resource):
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 24, True, False), \
             ooxcb.VoidCookie())
 
+    def __repr__(self):
+        if self.has_cached_name:
+            return '<Atom ID=%d (0x%x) name=%s>' % (self.xid, id(self), self.name)
+        else:
+            return '<Atom ID=%d (0x%x)>' % (self.xid, id(self))
+
     @property
     def name(self):
-        return self.get_name().reply().name
+        if not self.has_cached_name:
+            self._cache_name(self.get_name().reply().name)
+        return self._cached_name
+
+    def _cache_name(self, name):
+        self._cached_name = name
+
+    @property
+    def has_cached_name(self):
+        return hasattr(self, '_cached_name')
 
 class SetPointerMappingReply(ooxcb.Reply):
     def __init__(self, conn):

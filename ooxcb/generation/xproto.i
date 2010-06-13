@@ -801,11 +801,35 @@ Classes:
 
     Atom:
         - method:
+            name: "__repr__"
+            code:
+                - "if self.has_cached_name:"
+                - !indent
+                - "return '<Atom ID=%d (0x%x) name=%s>' % (self.xid, id(self), self.name)"
+                - !dedent
+                - "else:"
+                - !indent
+                - "return '<Atom ID=%d (0x%x)>' % (self.xid, id(self))"
+                - !dedent
+        - method:
             name: "name"
             decorators: ["property"]
             code:
-                - "return self.get_name().reply().name"
-
+                - "if not self.has_cached_name:"
+                - !indent
+                - "self._cache_name(self.get_name().reply().name)"
+                - !dedent
+                - "return self._cached_name"
+        - method:
+            name: "_cache_name"
+            arguments: ["name"]
+            code:
+                - "self._cached_name = name"
+        - method:
+            name: "has_cached_name"
+            decorators: ["property"]
+            code:
+                - "return hasattr(self, '_cached_name')"
     Window:
         - base: Drawable
         - order: 100

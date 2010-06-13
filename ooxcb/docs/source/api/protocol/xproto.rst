@@ -3434,7 +3434,16 @@ ooxcb.protocol.xproto
     .. method:: convert_selection(self, requestor, target, property=None, time=0)
 
 
+    .. method:: __repr__(self)
+
+
     .. method:: name(self)
+
+
+    .. method:: _cache_name(self, name)
+
+
+    .. method:: has_cached_name(self)
 
 
 .. class:: ScreenSaver
