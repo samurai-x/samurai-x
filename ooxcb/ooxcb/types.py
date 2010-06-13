@@ -43,6 +43,8 @@ def make_array(data, typecode):
                 suitable for the given typecode.
                 If it's a str or unicode instance, each char
                 is converted to its ordinal value and then packed.
+                Any element's `get_internal` method will be called
+                if present.
             `typecode`: str
                 one of:
                  * 'b', 8 bit signed
@@ -57,6 +59,10 @@ def make_array(data, typecode):
     """
     if isinstance(data, basestring):
         data = map(ord, data)
+    for idx, item in enumerate(data):
+        if hasattr(item, 'get_internal'):
+            # Hell Yeah, so evil.
+            data[idx] = item.get_internal()
     fmt = '=' + (typecode * len(data))
     return struct.pack(fmt, *data)
 

@@ -10,6 +10,7 @@ If you have written an useful module, too, let us know ;)
     cursors.rst
     ewmh.rst
     icccm.rst
+    gdk.rst
     pil.rst
     sizehints.rst
 

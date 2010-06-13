@@ -57,6 +57,9 @@ class Resource(EventDispatcher):
         """
         return self.xid
 
+    # No __hash__ / __cmp__ should be needed here. Resources are cached,
+    # identity comparison should be sufficient. However, TODO?
+
 class _XNone(object):
     """
         A class for *XNone*. That's something with 0 as an internal
