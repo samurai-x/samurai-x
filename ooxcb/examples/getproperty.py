@@ -6,7 +6,7 @@ from ooxcb.protocol import xproto
 
 conn = ooxcb.connect()
 
-screen = conn.setup.roots[conn.pref_screen]
+screen = conn.pref_screen_object
 active = screen.get_active_window()
 reply = active.get_property('_NET_WM_NAME', 'UTF8_STRING').reply()
 if reply.exists:

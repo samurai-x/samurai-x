@@ -74,6 +74,14 @@ class Connection(EventDispatcher):
         # add XNone to the cache ...
         self.add_to_cache(0, XNone)
 
+    @property
+    def pref_screen_object(self):
+        """
+            Return the preferred :class:`protocol.xproto.Screen` instance.
+            Shortcut for ``conn.setup.roots[conn.pref_screen]``
+        """
+        return self.setup.roots[self.pref_screen]
+
     @contextmanager
     def bunch(self):
         """
