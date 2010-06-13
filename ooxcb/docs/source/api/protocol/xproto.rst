@@ -1758,6 +1758,9 @@ ooxcb.protocol.xproto
     .. method:: exists(self)
 
 
+    .. method:: typed_value(self)
+
+
     .. attribute:: bytes_after
 
     .. attribute:: value_len
@@ -3429,6 +3432,9 @@ ooxcb.protocol.xproto
 
 
     .. method:: convert_selection(self, requestor, target, property=None, time=0)
+
+
+    .. method:: name(self)
 
 
 .. class:: ScreenSaver

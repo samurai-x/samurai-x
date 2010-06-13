@@ -13,5 +13,8 @@ if reply.exists:
     print 'The property exists.'
 else:
     print 'The property does not exist.'
-print 'Value: %s' % repr(reply.value.to_utf8())
+print 'Value: %s' % repr(reply.typed_value)
 
+for atom in screen.root.list_properties().reply().atoms:
+    prop = screen.root.get_property(atom, xproto.GetPropertyType.Any).reply()
+    print '%s(%s) = %r' % (atom.name, prop.type.name, prop.typed_value)

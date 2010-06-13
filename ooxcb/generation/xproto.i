@@ -799,6 +799,13 @@ Classes:
     Drawable:
         - order: 99 # just before `Window` and `Pixmap`
 
+    Atom:
+        - method:
+            name: "name"
+            decorators: ["property"]
+            code:
+                - "return self.get_name().reply().name"
+
     Window:
         - base: Drawable
         - order: 100
@@ -895,6 +902,13 @@ Classes:
             name: exists
             decorators: ["property"]
             code: ["''' is True if the queried property exists. (If a property does not exist, self.format is 0.) '''", "return self.format != 0"]
+        - method:
+            name: typed_value
+            decorators: ["property"]
+            code: 
+                - "''' returns a Python object wrapping the value. See :mod:`autotypes`. '''"
+                - "from ooxcb.autotypes import autoconvert_value"
+                - "return autoconvert_value(self.conn, self.type, self.value)"
 
     Arc:
         - classmethod:

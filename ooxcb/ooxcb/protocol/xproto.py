@@ -2323,6 +2323,12 @@ class GetPropertyReply(ooxcb.Reply):
         ''' is True if the queried property exists. (If a property does not exist, self.format is 0.) '''
         return self.format != 0
 
+    @property
+    def typed_value(self):
+        ''' returns a Python object wrapping the value. See :mod:`autotypes`. '''
+        from ooxcb.autotypes import autoconvert_value
+        return autoconvert_value(self.conn, self.type, self.value)
+
 class LookupColorReply(ooxcb.Reply):
     def __init__(self, conn):
         ooxcb.Reply.__init__(self, conn)
@@ -4976,6 +4982,10 @@ class Atom(ooxcb.Resource):
         buf.write(pack("=xxxxIIIII", requestor, selection, target, property, time))
         return self.conn.xproto.send_request(ooxcb.Request(self.conn, buf.getvalue(), 24, True, False), \
             ooxcb.VoidCookie())
+
+    @property
+    def name(self):
+        return self.get_name().reply().name
 
 class SetPointerMappingReply(ooxcb.Reply):
     def __init__(self, conn):

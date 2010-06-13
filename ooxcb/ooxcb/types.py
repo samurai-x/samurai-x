@@ -90,3 +90,4 @@ def build_list(conn, stream, list_, type):
             item.build(stream)
         else:
             stream.write(struct.pack(type, item))
+
