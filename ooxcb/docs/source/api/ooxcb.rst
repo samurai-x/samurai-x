@@ -1,6 +1,0 @@
-ooxcb
-=====
-
-.. automodule:: ooxcb
-    :members:
-
